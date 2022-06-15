@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "publishConfig": {
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
