@@ -1,7 +1,10 @@
 {
-  "name": "my-webpack-project",
+  "name": "@adobe/uix-sdk",
   "version": "1.0.0",
-  "description": "My webpack project",
+  "description": "",
+  "publishConfig": {
+    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
+  },
   "type": "module",
   "main": "index.js",
   "scripts": {
