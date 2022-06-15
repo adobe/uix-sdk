@@ -1,15 +1,26 @@
-# 🚀 Welcome to your new awesome project!
+# uix-sdk
 
-This project has been created using **webpack-cli**, you can now run
-
-```
-npm run build
+```sh
+npm install penpal @adobe/uix-sdk
 ```
 
-or
+```tsx
+import { Extensible, useDataSources } from '@adobe/uix-sdk/dist/react'
+
+function ExtensibleApp() {
+  return (
+    <Extensible><App/></Extensible>
+  )
+}
+
+function App() {
+  const results = useDataSources<Query,Result>({ blockId: 'my-app-editor', query: 'searchString' });
+  return (
+    <ul>
+        {results.map(result, i) => (
+          <li key={i}>{`${result.source}: ${result.data}`</li>
+        )}
+    </ul>
+}
 
 ```
-yarn build
-```
-
-to bundle your application
