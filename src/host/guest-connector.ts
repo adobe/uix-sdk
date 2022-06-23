@@ -24,7 +24,9 @@ export class GuestConnector {
     this.connection = connectToChild({
       iframe: this.frame,
       methods: {
-        register() {},
+        invokeHostCallback(...args: any[]) {
+          console.log("invokeHostCallback", ...args);
+        },
         tag(tagStr: string) {
           self.tags.add(tagStr);
         },
