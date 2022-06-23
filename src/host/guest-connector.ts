@@ -20,6 +20,7 @@ export class GuestConnector {
     this.url = url;
     this.frame = runtimeContainer.ownerDocument.createElement("iframe");
     this.frame.setAttribute("src", url.href);
+    this.frame.setAttribute("data-uix-guest", "true");
     runtimeContainer.appendChild(this.frame);
     this.connection = connectToChild({
       iframe: this.frame,
@@ -33,7 +34,7 @@ export class GuestConnector {
       },
     });
   }
-  #assertLoaded() {
+  private assertLoaded() {
     if (!this.interfaces) {
       throw new Error("Not loaded interfaces yet.");
     }
@@ -41,7 +42,7 @@ export class GuestConnector {
   provides<Apis extends NamespacedApis>(
     requiredMethods: RequiredMethodsByName<Apis>
   ) {
-    this.#assertLoaded();
+    this.assertLoaded();
     return Object.keys(requiredMethods).every((key) => {
       if (!this.interfaces.hasOwnProperty(key)) {
         return false;
@@ -56,7 +57,7 @@ export class GuestConnector {
     });
   }
   hasTag(tag: string) {
-    this.#assertLoaded();
+    this.assertLoaded();
     return this.tags.size === 0 || this.tags.has(tag);
   }
   async load() {

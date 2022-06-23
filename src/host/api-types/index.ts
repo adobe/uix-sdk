@@ -1,4 +1,4 @@
-export { DataSource } from "./data-source";
+export type { DataSource } from "./data-source";
 
 export enum ApiType {
   DataSource = "data-source",

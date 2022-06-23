@@ -40,7 +40,7 @@ const containerStyle = {
 function createRuntimeContainer(rootName: string) {
   const { document } = window;
   const container = document.createElement("div");
-  container.setAttribute("data-is-uix-guest-container", rootName);
+  container.setAttribute("data-uix-guest-container", rootName);
   Object.assign(container.style, containerStyle);
   document.body.appendChild(container);
   return container;
@@ -49,22 +49,22 @@ function createRuntimeContainer(rootName: string) {
 export class Host {
   cacheKey: number;
   rootName: string;
-  #runtimeContainer: HTMLElement;
+  private runtimeContainer: HTMLElement;
   guests: Record<string, GuestConnector>;
   constructor(config: HostConfig) {
     this.rootName = config.rootName;
-    this.#runtimeContainer =
+    this.runtimeContainer =
       config.runtimeContainer || createRuntimeContainer(config.rootName);
     this.cacheKey = new Date().getTime();
     this.guests = {};
   }
-  async #loadOne<T>(id: string, urlString: string): Promise<void> {
+  private async loadOne<T>(id: string, urlString: string): Promise<void> {
     const url = new URL(urlString);
     const guest = new GuestConnector(
       this.rootName,
       id,
       url,
-      this.#runtimeContainer
+      this.runtimeContainer
     );
     this.guests[id] = guest;
     await guest.load();
@@ -72,7 +72,7 @@ export class Host {
   }
   async load(extensions: InstalledExtensions): Promise<void> {
     await Promise.all(
-      Object.entries(extensions).map(([id, url]) => this.#loadOne(id, url))
+      Object.entries(extensions).map(([id, url]) => this.loadOne(id, url))
     );
   }
   getDataSources<Request, ResultItem>({

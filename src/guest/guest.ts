@@ -13,15 +13,15 @@ interface Host extends Methods {
 
 class GuestInFrame {
   methods: ApisByArea;
-  #host!: Host;
+  private host!: Host;
   register(apis: ApisByArea) {
     this.methods = apis;
-    this.#connect();
+    this.connect();
   }
   invokeHostCallback<T>(callbackName: string, args: unknown[]): T {
-    return this.#host.invokeCallback<T>(callbackName, args);
+    return this.host.invokeCallback<T>(callbackName, args);
   }
-  async #connect() {
+  private async connect() {
     try {
       const connection = await connectToParent<Host>({
         methods: this.methods,
@@ -29,7 +29,7 @@ class GuestInFrame {
       console.debug("connection began", connection);
       const host = await connection.promise;
       console.debug("connection established", host);
-      this.#host = host as unknown as Host;
+      this.host = host as unknown as Host;
     } catch (e) {
       console.error("connection failed", e);
     }
