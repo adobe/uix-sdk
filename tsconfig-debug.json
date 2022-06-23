@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "diagnostics": true,
+    "explainFiles": true,
+    "noErrorTruncation": true
+  }
+}

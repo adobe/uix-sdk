@@ -1,18 +1,33 @@
 {
   "name": "@adobe/uix-sdk",
   "version": "0.0.2",
-  "description": "",
+  "description": "Tools for embedding UI Extensions into Adobe apps",
   "publishConfig": {
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
   },
   "type": "module",
-  "main": "index.js",
+  "browser": "dist/index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*/index.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "tsconfig.json"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode=production --node-env=production",
-    "build:dev": "webpack --mode=development",
-    "build:prod": "webpack --mode=production --node-env=production",
-    "watch": "webpack --watch"
+    "build": "npm-run-all --parallel clean format --parallel compile:prod",
+    "clean": "rm -rf build",
+    "dev": "tsc --watch",
+    "compile": "tsc --build",
+    "compile:debug": "tsc --project tsconfig-debug.json",
+    "compile:prod": "tsc --project tsconfig-prod.json",
+    "format": "prettier --write src",
+    "lint": "prettier --check src",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserslist": [
     "> 0.2%, last 2 versions, not dead"
@@ -25,13 +40,12 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/react": "^17.0.16",
+    "npm-run-all": "^4.1.5",
     "penpal": "^6.2.2",
     "prettier": "^2.6.2",
     "react": "^17.0.2",
     "ts-loader": "^9.3.0",
-    "typescript": "^4.7.2",
-    "webpack": "^5.73.0",
-    "webpack-cli": "^4.10.0"
+    "typescript": "^4.7.2"
   },
   "peerDependencies": {
     "penpal": "^6.2.2",
