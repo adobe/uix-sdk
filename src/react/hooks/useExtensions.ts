@@ -1,49 +1,46 @@
-import { Extension, Host } from "../../host";
+import type { NamespacedApis, RequiredMethodsByName } from "../../common/types";
 import { ExtensionContext } from "../extension-context";
-import { useEffect, useContext, useState } from "react";
+import { useContext } from "react";
 
-interface ResultItemContainer<Result> {
-  source: string;
-  data: Result;
+export interface UseExtensionsParams<T extends NamespacedApis> {
+  providing: RequiredMethodsByName<T>;
+  /**
+   * Optional string to send to extension, to help identify which page, section
+   * or functionality type the host is calling the extension for.
+   *
+   * Use this instead of adding multiple namespaces with the same API but
+   * different names, such as expecting both "autocompleteContacts" and
+   * "autocompleteSegments" APIs.
+   */
+  tag?: string;
 }
 
-interface DataSourceHookProps<Request> {
-  blockId: string;
-  request: Request;
+export interface UseExtensionsResult<T> {
+  extensions: Record<string, T>;
 }
 
-export function useDataSources<Request, ResultItem>({
-  blockId,
-  request,
-}: DataSourceHookProps<Request>): ResultItemContainer<ResultItem>[] {
-  const host = useContext(ExtensionContext) as Host;
-  const [results, setResults] = useState<ResultItemContainer<ResultItem>[]>([]);
-  useEffect(() => {
-    const sourceList = host.getDataSources<Request, ResultItem>({
-      blockId,
-    });
-    for (const source of sourceList) {
-      source
-        .request(request)
-        .then((result) =>
-          setResults((currentResult) =>
-            currentResult.concat(
-              result.map((resultItem) => ({
-                source: source.id,
-                data: resultItem,
-              }))
-            )
-          )
-        )
-        .catch((e) =>
-          console.error(
-            "Error in %s merging data source %s",
-            blockId,
-            source.id,
-            e
-          )
-        );
+export function useExtensions<T extends NamespacedApis = NamespacedApis>({
+  providing,
+  tag,
+}: UseExtensionsParams<T>): UseExtensionsResult<T> {
+  const host = useContext(ExtensionContext);
+  const extensions: Record<string, T> = {};
+
+  for (const [id, extension] of Object.entries(host.guests)) {
+    const hasRequestedTags = tag ? extension.hasTag(tag) : true;
+    if (extension.provides(providing) && hasRequestedTags) {
+      extensions[id] = extension.interfaces as T;
     }
-  }, [host.cacheKey]);
-  return results;
+  }
+
+  return { extensions };
 }
+const { extensions } = useExtensions<{
+  autocomplete: { onTextToken: (text: string) => Promise<string[]> };
+}>({
+  providing: {
+    autocomplete: ["onTextToken"],
+  },
+});
+
+extensions.extensionId.autocomplete.onTextToken("askldj");

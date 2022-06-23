@@ -3,20 +3,6 @@ import { connectToParent, Methods } from "penpal";
 type AreaId = string;
 type ApisByType = Record<string, Methods>;
 
-/**
- * Structure of the 'apis' map which will be sent as methods
- *
- * Where "wysiwyg-editor" is a string tag representing a code site where
- * extensions are used, and "data-source" and "action-buttons" are known API
- * contracts that the host can request and the guest can provide
- *
- * {
- *   "wysiwyg-editor" {
- *     "data-source": { request },
- *     "action-buttons": { buttons, callbacks }
- *   }
- * }
- */
 interface ApisByArea extends Methods {
   [k: AreaId]: ApisByType;
 }
