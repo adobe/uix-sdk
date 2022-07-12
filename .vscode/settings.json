@@ -1,0 +1,6 @@
+{
+	"search.exclude": {
+		"**/.yalc": true,
+		"**/dist": true
+	}
+}

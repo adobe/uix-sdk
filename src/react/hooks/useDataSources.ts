@@ -18,28 +18,33 @@ export function useDataSources<Request, ResultItem>({
 }: DataSourceHookProps<Request>): ResultItemContainer<ResultItem>[] {
   const { extensions } = useExtensions<{
     dataSource: DataSource<Request, ResultItem>;
-  }>({
-    providing: {
+  }>(() => ({
+    requires: {
       dataSource: ["request"],
     },
-  });
+  }));
   const [results, setResults] = useState<ResultItemContainer<ResultItem>[]>([]);
   useEffect(() => {
-    for (const [id, source] of Object.entries(extensions)) {
-      source.dataSource
+    for (const extension of extensions) {
+      extension.apis.dataSource
         .request(request)
         .then((result) =>
           setResults((currentResult) =>
             currentResult.concat(
               result.map((resultItem) => ({
-                source: id,
+                source: extension.id,
                 data: resultItem,
               }))
             )
           )
         )
         .catch((e) =>
-          console.error("Error in %s merging data source %s", blockId, id, e)
+          console.error(
+            "Error in %s merging data source %s",
+            blockId,
+            extension.id,
+            e
+          )
         );
     }
   }, [request, extensions]);

@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "@adobe/uix-sdk": {
+      "signature": "b2b5c8516d3d7af2046d5f6ce5299a0f",
+      "file": true,
+      "replaced": "*"
+    }
+  }
+}

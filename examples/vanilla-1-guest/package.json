@@ -1,0 +1,21 @@
+{
+  "name": "vanilla-1-guest",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Primes Guy",
+  "keywords": [
+    "number",
+    "green"
+  ],
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^2.9.9"
+  },
+  "dependencies": {
+    "@adobe/uix-sdk": "file:.yalc/@adobe/uix-sdk"
+  }
+}

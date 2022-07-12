@@ -8,7 +8,7 @@
   "type": "module",
   "browser": "dist/index.js",
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./*": "./dist/*/index.js"
@@ -19,11 +19,13 @@
     "tsconfig.json"
   ],
   "scripts": {
-    "build": "npm-run-all --parallel clean format --parallel compile:prod",
-    "clean": "rm -rf build",
-    "dev": "tsc --watch",
+    "build": "concurrently 'npm:clean' 'npm:format' && npm run -s compile:prod",
+    "clean": "rm -rf dist && rm -rf examples/*/dist && rm -rf *.tsbuildinfo",
+    "dev": "npm run -s compile && npm run -s dev:link && node scripts/dev-server.js",
+    "dev:link": "yalc publish --quiet --push --update",
     "compile": "tsc --build",
-    "compile:debug": "tsc --project tsconfig-debug.json",
+    "compile:debug": "tsc --build tsconfig-debug.json --verbose",
+    "compile:watch": "tsc-watch --noClear --onSuccess 'npm run -s dev:link'",
     "compile:prod": "tsc --project tsconfig-prod.json",
     "format": "prettier --write src",
     "lint": "prettier --check src",
@@ -40,15 +42,21 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/react": "^17.0.16",
-    "npm-run-all": "^4.1.5",
+    "@types/use-sync-external-store": "^0.0.3",
+    "concurrently": "^7.2.2",
     "penpal": "^6.2.2",
     "prettier": "^2.6.2",
     "react": "^17.0.2",
     "ts-loader": "^9.3.0",
-    "typescript": "^4.7.2"
+    "tsc-watch": "^5.0.3",
+    "typescript": "^4.7.2",
+    "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
     "penpal": "^6.2.2",
     "react": "^17.0.2"
+  },
+  "dependencies": {
+    "use-sync-external-store": "^1.2.0"
   }
 }
