@@ -1,46 +1,56 @@
+import { useCallback, useContext, useMemo } from "react";
+import { useSyncExternalStore } from "use-sync-external-store/shim";
 import type { NamespacedApis, RequiredMethodsByName } from "../../common/types";
+import { GuestConnector } from "../../host";
 import { ExtensionContext } from "../extension-context";
-import { useContext } from "react";
 
-export interface UseExtensionsParams<T extends NamespacedApis> {
-  providing: RequiredMethodsByName<T>;
-  /**
-   * Optional string to send to extension, to help identify which page, section
-   * or functionality type the host is calling the extension for.
-   *
-   * Use this instead of adding multiple namespaces with the same API but
-   * different names, such as expecting both "autocompleteContacts" and
-   * "autocompleteSegments" APIs.
-   */
-  tag?: string;
+export interface TypedGuestConnection<T extends NamespacedApis> {
+  id: GuestConnector["id"];
+  apis: T;
 }
 
-export interface UseExtensionsResult<T> {
-  extensions: Record<string, T>;
+export interface UseExtensionsConfig<
+  Incoming extends NamespacedApis,
+  Outgoing extends NamespacedApis
+> {
+  requires?: RequiredMethodsByName<Incoming>;
+  provides?: Outgoing;
 }
 
-export function useExtensions<T extends NamespacedApis = NamespacedApis>({
-  providing,
-  tag,
-}: UseExtensionsParams<T>): UseExtensionsResult<T> {
+export interface UseExtensionsResult<T extends NamespacedApis> {
+  extensions: TypedGuestConnection<T>[];
+}
+
+export function useExtensions<
+  Incoming extends NamespacedApis,
+  Outgoing extends NamespacedApis = NamespacedApis
+>(
+  configFactory: () => UseExtensionsConfig<Incoming, Outgoing>,
+  deps: any[] = []
+): UseExtensionsResult<Incoming> {
   const host = useContext(ExtensionContext);
-  const extensions: Record<string, T> = {};
-
-  for (const [id, extension] of Object.entries(host.guests)) {
-    const hasRequestedTags = tag ? extension.hasTag(tag) : true;
-    if (extension.provides(providing) && hasRequestedTags) {
-      extensions[id] = extension.interfaces as T;
+  const { requires, provides } = useMemo(configFactory, [host, ...deps]);
+  const guests = useSyncExternalStore(
+    host.onLoadGuest,
+    useCallback(() => host.getLoadedGuests(requires), [host])
+  );
+  return useMemo(() => {
+    const extensions = [];
+    for (const guest of guests) {
+      if (provides) {
+        guest.provide(provides);
+      }
+      extensions.push(guest as unknown as TypedGuestConnection<Incoming>);
     }
-  }
-
-  return { extensions };
+    return { extensions };
+  }, [guests]);
 }
-const { extensions } = useExtensions<{
-  autocomplete: { onTextToken: (text: string) => Promise<string[]> };
-}>({
-  providing: {
-    autocomplete: ["onTextToken"],
-  },
-});
+// const { extensions } = useExtensions<{
+//   autocomplete: { onTextToken: (text: string) => Promise<string[]> };
+// }>({
+//   withCapabilities: {
+//     autocomplete: ["onTextToken"],
+//   },
+// });
 
-extensions.extensionId.autocomplete.onTextToken("askldj");
+// extensions.extensionId.autocomplete.onTextToken("askldj");
