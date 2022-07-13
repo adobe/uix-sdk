@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tools for embedding UI Extensions into Adobe apps",
   "publishConfig": {
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
