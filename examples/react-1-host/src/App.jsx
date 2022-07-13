@@ -47,35 +47,29 @@ function App() {
   }));
 
   useEffect(() => {
-    async function getComments() {
-      if (state.isSubmitting) {
-        try {
-          const comments = await Promise.all(
-            extensions.map(async ({ id, apis }) => {
-              let yourComments;
-              try {
-                yourComments = await apis.interestingNumbers.commentOn(
-                  state.theNumber
-                );
-              } catch (e) {
-                throw new Error(`Error in extension "${id}": ${e.stack}`);
-              }
-              return yourComments.map((message) => ({
-                sender: id,
-                message,
-              }));
-            })
-          );
-          dispatchA("end", {
-            comments: comments.flat(),
-          });
-        } catch (e) {
-          console.error(e);
-          dispatchA("error", e);
-        }
-      }
+    if (!state.isSubmitting) {
+      return;
     }
-    getComments();
+    Promise.all(
+      extensions.map(({ id, apis }) =>
+        apis.interestingNumbers
+          .commentOn(state.theNumber)
+          .then((comments) =>
+            comments.map((message) => ({
+              sender: id,
+              message,
+            }))
+          )
+          .catch((e) => {
+            throw new Error(`Error in extension "${id}": ${e.stack}`);
+          })
+      )
+    )
+      .then((comments) => dispatchA("end", { comments: comments.flat() }))
+      .catch((e) => {
+        console.error(e);
+        dispatchA("error", e);
+      });
   }, [extensions, state.isSubmitting, state.theNumber]);
 
   return (

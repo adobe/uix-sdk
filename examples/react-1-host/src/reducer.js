@@ -54,11 +54,20 @@ export const appReducer = (state, { type, payload }) => {
         comments: new Map(),
       };
     }
-    case "comment":
-    case "end": {
+    case "comment": {
       return {
         ...state,
         comments: includeComments(state.suggestion, state.comments, [payload]),
+      };
+    }
+    case "end": {
+      return {
+        ...state,
+        comments: includeComments(
+          state.suggestion,
+          state.comments,
+          payload.comments
+        ),
         isSubmitting: type !== "end" && state.isSubmitting,
       };
     }

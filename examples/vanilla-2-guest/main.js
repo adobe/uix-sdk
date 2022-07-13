@@ -1,22 +1,29 @@
 import guest from "@adobe/uix-sdk/guest";
 
-guest.register({
-  interestingNumbers: {
-    commentOn(n) {
-      const comments = getComments(n);
-      record(n, comments);
-      return comments;
+setTimeout(() => {
+  guest.register({
+    interestingNumbers: {
+      commentOn(n) {
+        const comments = getComments(n);
+        record(n, comments);
+        return comments;
+      },
     },
-  },
-});
+  });
+}, 3000);
 
 function getComments(n) {
-  const comments = [`NVMERVS ILLE ERIT ${convertToRoman(n)}`];
+  const comments = [];
   if (n > 9000) {
-    comments.push("EST SVPRA (IX)");
-  }
-  if (n > 1000000) {
-    comments.push("(sorry, we never dealt with numbers that long in 355 AD)");
+    const roman = convertToRoman(Math.floor(n / 1000));
+    comments.push(
+      roman.length > 20
+        ? "NON SCRIBO QVOD VITA BREVIS"
+        : `NVMERVS ILLE ERIT PROPE (${roman})`,
+      "ECCE NIMIUM MAGNVS EST"
+    );
+  } else {
+    comments.push([`NVMERVS ILLE ERIT ${convertToRoman(n)}`]);
   }
   return comments;
 }

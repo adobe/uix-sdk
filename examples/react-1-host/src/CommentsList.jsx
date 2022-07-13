@@ -11,14 +11,23 @@ const randomColor = () => {
   return colorsLeft.splice(Math.floor(Math.random() * colorsLeft.length), 1);
 };
 
-const senderColors = new Map();
-function colorFor(sender) {
-  let color = senderColors.get(sender);
-  if (!color) {
-    color = randomColor();
-    senderColors.set(sender, color);
+let lastRight = true;
+const nextAlignment = () => {
+  lastRight = !lastRight;
+  return lastRight ? "start" : "end";
+};
+
+const senderFormats = new Map();
+function formatFor(sender) {
+  let format = senderFormats.get(sender);
+  if (!format) {
+    format = {
+      color: randomColor(),
+      alignment: nextAlignment(),
+    };
+    senderFormats.set(sender, format);
   }
-  return color;
+  return format;
 }
 
 export default function CommentsList({ comments }) {
@@ -26,7 +35,7 @@ export default function CommentsList({ comments }) {
     <Well>
       <Flex direction="column">
         {comments.map(({ sender, message }, i) => {
-          const alignment = i % 2 ? "end" : "start";
+          const { alignment, color } = formatFor(sender);
           return (
             <Flex
               key={i}
@@ -35,7 +44,7 @@ export default function CommentsList({ comments }) {
               alignSelf={alignment}
             >
               <View>
-                <strong style={{ color: colorFor(sender) }}>{sender}</strong>
+                <strong style={{ color }}>{sender}</strong>
               </View>
               <View>
                 <Text>{message}</Text>

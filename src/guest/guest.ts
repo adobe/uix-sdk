@@ -11,12 +11,12 @@ interface ApisByArea extends Methods {
 class GuestInFrame {
   publicMethods: ApisByArea;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
-  host: NamespacedApis = this.makeNamespaceProxy();
+  host: NamespacedApis = this.makeNamespaceProxy([]);
   async register(apis: ApisByArea) {
     this.publicMethods = apis;
     await this.connect();
   }
-  private makeNamespaceProxy(path: string[] = []) {
+  private makeNamespaceProxy(path: string[]) {
     const self = this;
     const handler: ProxyHandler<Record<string, any>> = {
       get(target, prop) {
@@ -49,28 +49,6 @@ class GuestInFrame {
     try {
       const connection = await connectToParent<HostConnection>({
         methods: this.publicMethods,
-        // methods: {
-        //   ...this.publicMethods,
-        //   __uix_internal__: {
-        //     updateHostMethods<T extends NamespacedApis>(
-        //       namespaces: RequiredMethodsByName<T>
-        //     ) {
-        //       for (const [namespace, methodNames] of Object.entries(
-        //         namespaces
-        //       )) {
-        //         host[namespace] = host[namespace] || {};
-        //         for (const methodName of methodNames) {
-        //           host[namespace][methodName] = (...args) =>
-        //             self.hostConnection.invokeHostMethod({
-        //               namespace,
-        //               methodName,
-        //               args,
-        //             });
-        //         }
-        //       }
-        //     },
-        //   },
-        // },
       });
       console.debug("connection began", connection);
       this.hostConnection = await connection.promise;

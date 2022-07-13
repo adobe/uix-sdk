@@ -1,11 +1,16 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { PropsWithChildren } from "react";
-import type { InstalledExtensions, HostConfig } from "../../host";
+import type {
+  InstalledExtensions,
+  HostConfig,
+  GuestConnectorOptions,
+} from "../../host";
 import { Host } from "../../host";
 import { ExtensionContext } from "../extension-context";
 
 interface ExtensionProviderProps extends HostConfig {
   extensions: InstalledExtensions;
+  guestOptions?: GuestConnectorOptions;
 }
 
 function areExtensionsDifferent(
@@ -20,10 +25,11 @@ function areExtensionsDifferent(
 }
 
 export function Extensible({
+  children,
+  extensions,
+  guestOptions,
   rootName,
   runtimeContainer,
-  extensions,
-  children,
 }: PropsWithChildren<ExtensionProviderProps>) {
   const installedRef = useRef<InstalledExtensions>();
   if (
@@ -43,7 +49,7 @@ export function Extensible({
   );
 
   useEffect(() => {
-    host.loadAll(installedRef.current!);
+    host.loadAllGuests(installedRef.current!, guestOptions);
   }, [host, installedRef.current]);
 
   return (
