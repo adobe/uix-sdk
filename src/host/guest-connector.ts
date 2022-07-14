@@ -114,15 +114,14 @@ export class GuestConnector {
   ) {
     this.assertLoaded();
     return Object.keys(requiredMethods).every((key: string) => {
-      if (!this.apis.hasOwnProperty(key)) {
+      if (!Reflect.has(this.apis, key)) {
         return false;
       }
       const api = this.apis[key];
       const methodList = requiredMethods[key];
       return methodList.every(
         (methodName: string) =>
-          api.hasOwnProperty(methodName) &&
-          typeof api[methodName] === "function"
+          Reflect.has(api, methodName) && typeof api[methodName] === "function"
       );
     });
   }

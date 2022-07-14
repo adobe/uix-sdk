@@ -16,10 +16,12 @@ export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 
 type GuestMap = Map<string, GuestConnector>;
 
-type BaseEvt<Type, Detail = {}> = CustomEvent<{ host: Host } & Detail> & {
+type BaseEvt<Type, Detail = Record<string, unknown>> = CustomEvent<
+  { host: Host } & Detail
+> & {
   readonly type: Type;
 };
-type GuestEvt<Type extends string, Detail = {}> = BaseEvt<
+type GuestEvt<Type extends string, Detail = Record<string, unknown>> = BaseEvt<
   `guest${Type}`,
   {
     guest: GuestConnector;
@@ -68,7 +70,7 @@ export interface HostConfig {
 
 type GuestFilter = (item: GuestConnector) => boolean;
 
-const passAllGuests = (_: GuestConnector) => true;
+const passAllGuests = () => true;
 
 export class Host extends EventTarget {
   static containerStyle = {
@@ -81,7 +83,7 @@ export class Host extends EventTarget {
     left: "-1px",
   };
   rootName: string;
-  isLoading: boolean = false;
+  isLoading = false;
   private cachedCapabilityLists: WeakMap<object, GuestConnector[]> =
     new WeakMap();
   private runtimeContainer: HTMLElement;
@@ -125,7 +127,7 @@ export class Host extends EventTarget {
   }
   addEventListener<E extends keyof HostEventMap>(
     type: E,
-    listener: (ev: HostEventMap[E]) => any
+    listener: (ev: HostEventMap[E]) => unknown
   ): Unsubscriber {
     super.addEventListener(type, listener);
     return () => super.removeEventListener(type, listener);

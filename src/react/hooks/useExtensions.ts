@@ -29,7 +29,7 @@ export function useExtensions<
   Outgoing extends NamespacedApis = NamespacedApis
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
-  deps: any[] = []
+  deps: unknown[] = []
 ): UseExtensionsResult<Incoming> {
   const host = useContext(ExtensionContext);
   const baseDeps = [host, ...deps];

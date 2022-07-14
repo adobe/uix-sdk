@@ -1,4 +1,4 @@
-export type ApiMethod = (...args: any[]) => Promise<any>;
+export type ApiMethod<T = unknown> = (...args: unknown[]) => Promise<T>;
 
 export type GuestApi = {
   [methodName: string]: ApiMethod;
@@ -23,6 +23,8 @@ export interface HostMethodAddress {
   args: unknown[];
 }
 
-export interface HostConnection {
-  invokeHostMethod<T>(address: HostMethodAddress): T;
+export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
+
+export interface HostConnection<T = unknown> {
+  invokeHostMethod: RemoteMethodInvoker<T>;
 }

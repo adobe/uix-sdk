@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 import { AsyncMethodReturns, connectToParent } from "penpal";
 import { HostConnection, NamespacedApis } from "../common/types";
 
@@ -10,11 +11,10 @@ class GuestInFrame {
     await this.connect();
   }
   private makeNamespaceProxy(path: string[]) {
-    const self = this;
     const handler: ProxyHandler<Record<string, any>> = {
-      get(target, prop) {
+      get: (target, prop) => {
         if (typeof prop === "string" && !Reflect.has(target, prop)) {
-          const next = self.makeNamespaceProxy(path.concat(prop));
+          const next = this.makeNamespaceProxy(path.concat(prop));
           Reflect.set(target, prop, next);
         }
         return Reflect.get(target, prop);

@@ -36,7 +36,7 @@ export function customConsole(
     console,
     overrideMethods.reduce((out, level) => {
       out[level] = {
-        value(firstArg: string | any, ...args: any[]) {
+        value(firstArg: string | unknown, ...args: unknown[]) {
           const message =
             typeof firstArg === "string" ? `${prefix} ${firstArg}` : prefix;
           super[level](message, ...prefixStyles, ...args);

@@ -19,16 +19,20 @@
     "tsconfig.json"
   ],
   "scripts": {
-    "build": "concurrently 'npm:clean' 'npm:format' && npm run -s compile:prod",
-    "clean": "rm -rf dist && rm -rf examples/*/dist && rm -rf *.tsbuildinfo",
+    "build": "concurrently 'npm:clean:dist' 'npm:format' && npm run -s compile:prod",
+    "clean": "concurrently 'npm:clean:*'",
+    "clean:dist": "rm -rf dist *.tsbuildinfo node_modules",
+    "clean:examples": "rm -rf examples/*/{dist,node_modules}",
     "dev": "npm run -s compile && npm run -s dev:link && node scripts/dev-server.js",
+    "dev:install-examples": "node scripts/install-examples.js",
     "dev:link": "yalc publish --quiet --push --update",
     "compile": "tsc --build",
     "compile:debug": "tsc --build tsconfig-debug.json --verbose",
     "compile:watch": "tsc-watch --noClear --onSuccess 'npm run -s dev:link'",
     "compile:prod": "tsc --project tsconfig-prod.json",
-    "format": "prettier --write src",
-    "lint": "prettier --check src",
+    "format": "prettier --write src && eslint --ignore-path .gitignore --fix .",
+    "lint": "prettier --check src && eslint --ignore-path .gitignore .",
+    "prepare": "npm run -s dev:install-examples",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserslist": [
@@ -43,7 +47,10 @@
   "devDependencies": {
     "@types/react": "^17.0.16",
     "@types/use-sync-external-store": "^0.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
     "concurrently": "^7.2.2",
+    "eslint": "^8.19.0",
     "penpal": "^6.2.2",
     "prettier": "^2.6.2",
     "react": "^17.0.2",

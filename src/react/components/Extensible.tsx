@@ -49,7 +49,7 @@ export function Extensible({
   );
 
   useEffect(() => {
-    host.load(installedRef.current!, guestOptions);
+    host.load(installedRef.current, guestOptions);
   }, [host, installedRef.current]);
 
   return (
