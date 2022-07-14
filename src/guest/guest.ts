@@ -1,18 +1,11 @@
-import { AsyncMethodReturns, connectToParent, Methods } from "penpal";
+import { AsyncMethodReturns, connectToParent } from "penpal";
 import { HostConnection, NamespacedApis } from "../common/types";
 
-type AreaId = string;
-type ApisByType = Record<string, Methods>;
-
-interface ApisByArea extends Methods {
-  [k: AreaId]: ApisByType;
-}
-
 class GuestInFrame {
-  publicMethods: ApisByArea;
+  publicMethods: NamespacedApis;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
   host: NamespacedApis = this.makeNamespaceProxy([]);
-  async register(apis: ApisByArea) {
+  async register(apis: NamespacedApis) {
     this.publicMethods = apis;
     await this.connect();
   }

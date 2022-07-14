@@ -23,6 +23,7 @@ export class GuestConnector {
   frame: HTMLIFrameElement;
   connection: Connection<NamespacedApis>;
   apis: NamespacedApis;
+  error?: Error;
   private hostApis: NamespacedApis = {};
   debugLogger?: Console;
   constructor(config: {
@@ -57,8 +58,8 @@ export class GuestConnector {
       },
     });
   }
-  isLoaded() {
-    return !!this.apis;
+  isLoading() {
+    return !(this.error || this.apis);
   }
   private invokeHostMethod({ name, path, args = [] }: HostMethodAddress) {
     this.assert(name && typeof name === "string", () => "Method name required");
@@ -106,7 +107,7 @@ export class GuestConnector {
     }
   }
   private assertLoaded() {
-    this.assert(this.isLoaded(), () => "Attempted to interact before loaded");
+    this.assert(!this.isLoading(), () => "Attempted to interact before loaded");
   }
   hasCapabilities<Apis extends NamespacedApis>(
     requiredMethods: RequiredMethodsByName<Apis>
@@ -140,14 +141,12 @@ export class GuestConnector {
       if (!this.apis) {
         await this.connect();
       }
+      return this.apis;
     } catch (e) {
       this.apis = null;
-      (this.debugLogger || console).error(
-        `Guest ${this.id} could not load:`,
-        e
-      );
+      this.error = e;
+      throw e;
     }
-    return this.apis;
   }
   provide(apis: NamespacedApis) {
     Object.assign(this.hostApis, apis);
