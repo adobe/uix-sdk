@@ -3,7 +3,7 @@
   "version": "0.0.5-rc2",
   "description": "Tools for embedding UI Extensions into Adobe apps",
   "publishConfig": {
-    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
+    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
   },
   "type": "module",
   "browser": "dist/index.js",
