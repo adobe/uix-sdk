@@ -74,14 +74,14 @@ async function serveExamples() {
       VITE_PORT: port,
       REGISTRY_URL: registryUrl,
     },
-    command: "npm:start",
+    command: "npm start -s",
   }));
 
   const { result, commands } = concurrently(
     [
       {
-        name: "@adobe/uix-sdk",
-        command: "npm:compile:watch",
+        name: "SDK",
+        command: "npm run -s compile:watch",
       },
       ...runSpecs,
     ],
@@ -119,11 +119,6 @@ async function serveExamples() {
     console.log("registry closed");
     process.exit(0);
   });
-
-  setTimeout(() => {
-    console.log(`Dev server running.`);
-    console.log(report);
-  }, 3000);
 
   return result;
 }

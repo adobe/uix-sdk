@@ -1,4 +1,4 @@
-import { readdir, readFile } from "fs/promises";
+import { readdir } from "fs/promises";
 import { resolve } from "path";
 import concurrently from "concurrently";
 
@@ -12,11 +12,11 @@ async function installExamples() {
     exampleDirs.map((dir) => ({
       name: `examples/${dir}/$ npm install`,
       cwd: exampleDir(dir),
-      command: "npm install",
+      command: "npm install -s",
     })),
     {
-      prefix: "name",
       killOthers: ["failure"],
+      hide: true,
       prefixLength: exampleDirs.reduce((longest, name) =>
         name.length > longest.length ? name : longest
       ).length,
