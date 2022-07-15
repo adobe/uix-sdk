@@ -24,7 +24,7 @@ function getComments(n) {
       const factorList =
         factors.length === 2
           ? `${factors[0]} and ${factors[1]}`
-          : `${factors.slice(0, factors.length - 2).join(", ")}, and ${
+          : `${factors.slice(0, factors.length - 1).join(", ")}, and ${
               factors[factors.length - 1]
             }`;
       setTimeout(

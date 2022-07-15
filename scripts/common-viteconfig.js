@@ -1,3 +1,4 @@
+import { registryUrl } from "./examples-utils.js";
 export default function commonExampleConfig() {
   return {
     logLevel: "warn",
@@ -10,8 +11,12 @@ export default function commonExampleConfig() {
       strictPort: true,
       port: process.env.VITE_PORT,
     },
+    preview: {
+      port: process.env.VITE_PORT,
+      strictPort: true,
+    },
     define: {
-      REGISTRY_URL: JSON.stringify(process.env.REGISTRY_URL),
+      REGISTRY_URL: JSON.stringify(registryUrl),
     },
   };
 }

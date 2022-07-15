@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "start": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build --mode production",
+    "preview": "vite preview --mode production"
   },
   "devDependencies": {
     "vite": "^2.9.9"
