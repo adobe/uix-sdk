@@ -1,11 +1,21 @@
-# uix-sdk
+# @adobe/uix-sdk
+
+## UI Extensibility toolkit for Experience Cloud Apps
+
+With these libraries you can:
+
+- Make any app into a UI Extensibility **Host**
+- Connect any app to a Host as a UI Extension, or **Guest**
+
+
+### Installation
 
 ```sh
 npm install penpal @adobe/uix-sdk
 ```
 
 ```tsx
-import { Extensible, useDataSources } from '@adobe/uix-sdk/dist/react'
+import { Extensible, useExtensions } from '@adobe/uix-sdk/react'
 
 function ExtensibleApp() {
   return (

@@ -49,7 +49,15 @@ export function Extensible({
   );
 
   useEffect(() => {
-    host.load(installedRef.current, guestOptions);
+    host.load(installedRef.current, guestOptions).catch((e) => {
+      const error = e instanceof Error ? e : new Error(String(e));
+      console.error(
+        "Load of extensions failed!",
+        error,
+        installedRef.current,
+        guestOptions
+      );
+    });
   }, [host, installedRef.current]);
 
   return (

@@ -213,7 +213,8 @@ export class Host extends EventTarget {
     this.emit("guestbeforeload", { guest, host: this });
     try {
       await guest.load();
-    } catch (error) {
+    } catch (e: unknown) {
+      const error = e instanceof Error ? e : new Error(String(e));
       this.emit("guesterror", { host: this, guest, error });
     }
     // this new guest might have new capabilities, so the identities of the

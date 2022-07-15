@@ -17,7 +17,7 @@ const styles = {
   padSide: "7px",
 };
 
-const overrideMethods = ["log", "error", "warn", "info", "debug"];
+const overrideMethods = ["log", "error", "warn", "info", "debug"] as const;
 
 export function customConsole(
   colorName: keyof typeof Colors,
@@ -39,7 +39,7 @@ export function customConsole(
         value(firstArg: string | unknown, ...args: unknown[]) {
           const message =
             typeof firstArg === "string" ? `${prefix} ${firstArg}` : prefix;
-          super[level](message, ...prefixStyles, ...args);
+          console[level](message, ...prefixStyles, ...args);
         },
       };
       return out;

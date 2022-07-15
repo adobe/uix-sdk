@@ -2,5 +2,6 @@
 	"search.exclude": {
 		"**/.yalc": true,
 		"**/dist": true
-	}
+	},
+	"git.mergeEditor": true
 }

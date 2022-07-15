@@ -10,9 +10,11 @@ export async function getExamples() {
   return Promise.all(
     exampleNames.map(async (name) => {
       const pkg = JSON.parse(await readFile(exampleDir(name, "package.json")));
+      const id = pkg.description || name;
       return {
         cwd: exampleDir(name),
-        name: pkg.description || name,
+        name: id,
+        id,
         type: name.endsWith("-guest") ? "guest" : "host",
         tags: pkg.keywords || [],
       };
@@ -20,7 +22,7 @@ export async function getExamples() {
   );
 }
 
-export async function getRunnerOptions() {
+export function getRunnerOptions() {
   return {
     prefix: "name",
     killOthers: ["failure"],

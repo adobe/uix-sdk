@@ -13,11 +13,19 @@ class GuestInFrame {
   private makeNamespaceProxy(path: string[]) {
     const handler: ProxyHandler<Record<string, any>> = {
       get: (target, prop) => {
-        if (typeof prop === "string" && !Reflect.has(target, prop)) {
-          const next = this.makeNamespaceProxy(path.concat(prop));
-          Reflect.set(target, prop, next);
+        if (typeof prop === "string") {
+          if (!Reflect.has(target, prop)) {
+            const next = this.makeNamespaceProxy(path.concat(prop));
+            Reflect.set(target, prop, next);
+          }
+          return Reflect.get(target, prop) as unknown;
+        } else {
+          throw new Error(
+            `Cannot look up a symbol ${String(
+              prop
+            )} on a host connection proxy.`
+          );
         }
-        return Reflect.get(target, prop);
       },
     };
     // Only trap the apply if there's at least two levels of namespace.
@@ -33,14 +41,14 @@ class GuestInFrame {
       });
     return new Proxy<typeof invoker>(invoker, {
       ...handler,
-      apply(target, _, args) {
+      apply(target, _, args: unknown[]) {
         return target(...args);
       },
     });
   }
   private async connect() {
     try {
-      const connection = await connectToParent<HostConnection>({
+      const connection = connectToParent<HostConnection>({
         methods: this.publicMethods,
       });
       console.debug("connection began", connection);

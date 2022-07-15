@@ -1,21 +1,21 @@
 import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
-import { hamburger, pointer, triangleLeft } from "figures";
-import { getExamples, getRunnerOptions } from "./examples-utils";
+import figures from "figures";
+import { getExamples, getRunnerOptions } from "./examples-utils.js";
 
 async function serveExamples() {
   const ports = {
     registry: process.env.PORT_REGISTRY || 3000,
-    guest: process.env.PORT_HOSTS || 4001,
-    host: process.env.PORT_GUESTS || 5001,
+    host: process.env.PORT_HOSTS || 4001,
+    guest: process.env.PORT_GUESTS || 5001,
   };
 
   const host = "localhost";
 
   const registryUrl = `http://${host}:${ports.registry}/`;
 
-  const examples = (await getExamples()).map(async (example) => {
+  const examples = (await getExamples()).map((example) => {
     const port = ports[example.type]++;
     return {
       ...example,
@@ -24,16 +24,14 @@ async function serveExamples() {
     };
   });
 
-  const [guests, hosts] = examples.reduce(([guests, hosts], example) => {
-    return example.type === 'guest' ? [
-      [...guests, example],
-      hosts
-    ] : [
-      guests,
-      [...hosts, example]
-    ]
-  }, [[],[]]);
-  // const guests = examples.filter(({ type }) => type === "guest");
+  const [guests, hosts] = examples.reduce(
+    ([guests, hosts], example) => {
+      return example.type === "guest"
+        ? [[...guests, example], hosts]
+        : [guests, [...hosts, example]];
+    },
+    [[], []]
+  );
 
   const registry = createServer((req, res) => {
     const url = new URL(req.url, registryUrl);
@@ -64,7 +62,7 @@ async function serveExamples() {
   });
   console.log("launched registry at %s", registryUrl);
 
-  const runSpecs = allExamples.map(({ cwd, name, port }) => ({
+  const runSpecs = examples.map(({ cwd, name, port }) => ({
     name,
     cwd,
     env: {
@@ -85,23 +83,28 @@ async function serveExamples() {
     getRunnerOptions()
   );
 
-  const listExamples = examples.map(({ url, name }) => `
-    ${pointer} ${url} ${triangleLeft} ${name}`);
+  const { hamburger, pointer } = figures;
+
+  const listExamples = (list) =>
+    list
+      .map(
+        ({ url, name }) => `
+    ${pointer} ${url}  ${name}`
+      )
+      .join("");
 
   const report = `
     ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
 
-  ${chalk.bold.yellowBright.underline('Hosts:')}${guests.map(({ url, name }) => `i}
-  `;
+  ${chalk.bold.yellowBright.underline("Hosts:")}${chalk.yellow(
+    listExamples(hosts)
+  )}
 
-  const report = [{ name: "mock registry", url: registryUrl }, ...allExamples]
-    .map(
-      (example) => `
-  ${example.url} - ${example.name}`
-    )
-    .join("");
+  ${chalk.bold.greenBright.underline("Guests:")}${chalk.green(
+    listExamples(guests)
+  )}`;
 
-  console.log("About to launch:", report);
+  console.log(report);
 
   process.on("SIGINT", () => {
     console.log("closing dev servers...");

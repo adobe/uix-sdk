@@ -61,7 +61,11 @@ export class GuestConnector {
   isLoading() {
     return !(this.error || this.apis);
   }
-  private invokeHostMethod({ name, path, args = [] }: HostMethodAddress) {
+  private invokeHostMethod<T = unknown>({
+    name,
+    path,
+    args = [],
+  }: HostMethodAddress): T {
     this.assert(name && typeof name === "string", () => "Method name required");
     this.assert(
       path.length > 0,
@@ -94,7 +98,7 @@ export class GuestConnector {
     return method.apply(methodCallee, [
       { id: this.id, url: this.url },
       ...args,
-    ]);
+    ]) as T;
   }
   private assert(
     condition: boolean,
@@ -143,7 +147,7 @@ export class GuestConnector {
       return this.apis;
     } catch (e) {
       this.apis = null;
-      this.error = e;
+      this.error = e instanceof Error ? e : new Error(String(e));
       throw e;
     }
   }

@@ -1,5 +1,5 @@
 import concurrently from "concurrently";
-import { getExamples, getRunnerOptions } from "./examples-utils";
+import { getExamples, getRunnerOptions } from "./examples-utils.js";
 
 function exampleDir(...args) {
   return resolve(process.cwd(), "examples", ...args);
@@ -8,11 +8,13 @@ function exampleDir(...args) {
 async function installExamples() {
   const exampleDirs = await getExamples();
   const jobs = concurrently(
-    exampleDirs.map((dir) => ({
-      name: `examples/${dir}/$ npm install`,
-      cwd: exampleDir(dir),
-      command: "npm install -s",
-    }))
+    exampleDirs.map(
+      (example) => ({
+        ...example,
+        command: "npm install -s",
+      }),
+      getRunnerOptions()
+    )
   );
   await jobs.result;
 }
