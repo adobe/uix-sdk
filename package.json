@@ -1,9 +1,9 @@
 {
-  "name": "@dx-devex/uix-sdk",
+  "name": "@adobe/uix-sdk",
   "version": "0.0.5-rc3",
   "description": "Tools for embedding UI Extensions into Adobe apps",
   "publishConfig": {
-    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/"
+    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
   },
   "type": "module",
   "browser": "dist/index.js",
