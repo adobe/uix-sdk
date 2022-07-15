@@ -1,42 +1,39 @@
-import { readdir, readFile } from "fs/promises";
 import { createServer } from "http";
-import { resolve } from "path";
 import concurrently from "concurrently";
-
-function exampleDir(...args) {
-  return resolve(process.cwd(), "examples", ...args);
-}
+import chalk from "chalk";
+import { hamburger, pointer, triangleLeft } from "figures";
+import { getExamples, getRunnerOptions } from "./examples-utils";
 
 async function serveExamples() {
   const ports = {
     registry: process.env.PORT_REGISTRY || 3000,
-    hostRange: process.env.PORT_HOSTS || 4001,
-    guestRange: process.env.PORT_GUESTS || 5001,
+    guest: process.env.PORT_HOSTS || 4001,
+    host: process.env.PORT_GUESTS || 5001,
   };
 
   const host = "localhost";
 
   const registryUrl = `http://${host}:${ports.registry}/`;
 
-  let guests = [];
-  const exampleNames = await readdir(exampleDir());
-  const allExamples = await Promise.all(
-    exampleNames.map(async (name, i) => {
-      const pkg = JSON.parse(await readFile(exampleDir(name, "package.json")));
-      const spec = {
-        dir: name,
-        id: pkg.description || name,
-        port: ports.hostRange + i,
-      };
-      if (name.endsWith("-guest")) {
-        spec.port = ports.guestRange + i;
-        spec.tags = pkg.keywords || [];
-        guests.push(spec);
-      }
-      spec.url = `http://${host}:${spec.port}/`;
-      return spec;
-    })
-  );
+  const examples = (await getExamples()).map(async (example) => {
+    const port = ports[example.type]++;
+    return {
+      ...example,
+      port,
+      url: `http://${host}:${port}/`,
+    };
+  });
+
+  const [guests, hosts] = examples.reduce(([guests, hosts], example) => {
+    return example.type === 'guest' ? [
+      [...guests, example],
+      hosts
+    ] : [
+      guests,
+      [...hosts, example]
+    ]
+  }, [[],[]]);
+  // const guests = examples.filter(({ type }) => type === "guest");
 
   const registry = createServer((req, res) => {
     const url = new URL(req.url, registryUrl);
@@ -67,9 +64,9 @@ async function serveExamples() {
   });
   console.log("launched registry at %s", registryUrl);
 
-  const runSpecs = allExamples.map(({ id, dir, port }) => ({
-    name: `examples/${dir}`,
-    cwd: exampleDir(dir),
+  const runSpecs = allExamples.map(({ cwd, name, port }) => ({
+    name,
+    cwd,
     env: {
       VITE_PORT: port,
       REGISTRY_URL: registryUrl,
@@ -85,27 +82,22 @@ async function serveExamples() {
       },
       ...runSpecs,
     ],
-    {
-      prefix: "name",
-      killOthers: ["failure"],
-      prefixLength: exampleNames.reduce((longest, name) =>
-        name.length > longest.length ? name : longest
-      ).length,
-      prefixColors: [
-        "red",
-        "green",
-        "yellow",
-        "blue",
-        "magenta",
-        "cyan",
-        "white",
-      ],
-    }
+    getRunnerOptions()
   );
-  const report = [{ id: "mock registry", url: registryUrl }, ...allExamples]
+
+  const listExamples = examples.map(({ url, name }) => `
+    ${pointer} ${url} ${triangleLeft} ${name}`);
+
+  const report = `
+    ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
+
+  ${chalk.bold.yellowBright.underline('Hosts:')}${guests.map(({ url, name }) => `i}
+  `;
+
+  const report = [{ name: "mock registry", url: registryUrl }, ...allExamples]
     .map(
       (example) => `
-  ${example.url} - ${example.id}`
+  ${example.url} - ${example.name}`
     )
     .join("");
 
