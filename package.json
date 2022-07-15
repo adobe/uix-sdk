@@ -19,20 +19,20 @@
     "tsconfig.json"
   ],
   "scripts": {
-    "build": "concurrently 'npm:clean:dist' 'npm:format' && npm run -s compile:prod",
+    "build": "concurrently 'npm:clean:dist' 'npm:format' && npm run compile:prod",
     "clean": "concurrently 'npm:clean:*'",
-    "clean:dist": "rm -rf dist *.tsbuildinfo node_modules",
+    "clean:dist": "rm -rf dist *.tsbuildinfo",
     "clean:examples": "rm -rf examples/*/{dist,node_modules}",
     "compile": "tsc --build",
     "compile:debug": "tsc --build tsconfig-debug.json --verbose",
-    "compile:watch": "tsc-watch --noClear --onSuccess 'npm run -s dev:link'",
+    "compile:watch": "tsc-watch --noClear --onSuccess 'npm run dev:link'",
     "compile:prod": "tsc --project tsconfig-prod.json",
-    "dev": "npm run -s install-examples && npm run -s compile && npm run -s dev:link && node scripts/dev-server.js",
+    "dev": "npm run examples:install && npm run compile && npm run dev:link && node scripts/dev-server.js",
     "dev:link": "yalc publish --quiet --push --update",
     "examples:install": "node scripts/install-examples.js",
     "examples:serve": "node scripts/serve-examples.js",
-    "format": "prettier --write src && eslint --ignore-path .gitignore --fix .",
-    "lint": "prettier --check src && eslint --ignore-path .gitignore .",
+    "format": "prettier --write --loglevel warn src && eslint --fix .",
+    "lint": "prettier --check --loglevel warn src && eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserslist": [
