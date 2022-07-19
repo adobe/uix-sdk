@@ -1,47 +1,16 @@
-declare global {
-  interface Window {
-    __UIX_HOST?: Host;
-  }
-}
-
 import {
   Extension,
+  HostEvents,
   NamespacedApis,
   RequiredMethodsByName,
+  UIXHost,
+  UIXGuestConnector,
+  GuestConnectorMap,
 } from "../common/types";
-import { customConsole } from "../common/debuglog";
+import { Emitter } from "../common/emitter";
 import { GuestConnector, GuestConnectorOptions } from "./guest-connector";
 
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
-
-type GuestMap = Map<string, GuestConnector>;
-
-type BaseEvt<Type, Detail = Record<string, unknown>> = CustomEvent<
-  { host: Host } & Detail
-> & {
-  readonly type: Type;
-};
-type GuestEvt<Type extends string, Detail = Record<string, unknown>> = BaseEvt<
-  `guest${Type}`,
-  {
-    guest: GuestConnector;
-  } & Detail
->;
-
-type GuestBeforeLoadEvt = GuestEvt<"beforeload">;
-type GuestLoadEvt = GuestEvt<"load">;
-type LoadAllGuestsEvent = BaseEvt<"loadallguests">;
-type GuestErrorEvent = GuestEvt<"error", { error: Error }>;
-
-interface HostEventMap {
-  guestbeforeload: GuestBeforeLoadEvt;
-  guesterror: GuestErrorEvent;
-  guestload: GuestLoadEvt;
-  loadallguests: LoadAllGuestsEvent;
-}
-
-type Unsubscriber = () => void;
-
 export interface HostConfig {
   /**
    * Human-readable "slug" name of the extensible area--often an entire app.
@@ -68,11 +37,11 @@ export interface HostConfig {
   guestOptions?: GuestConnectorOptions;
 }
 
-type GuestFilter = (item: GuestConnector) => boolean;
+type GuestFilter = (item: UIXGuestConnector) => boolean;
 
 const passAllGuests = () => true;
 
-export class Host extends EventTarget {
+export class Host extends Emitter<HostEvents> implements UIXHost {
   static containerStyle = {
     position: "fixed",
     width: "1px",
@@ -83,11 +52,11 @@ export class Host extends EventTarget {
     left: "-1px",
   };
   rootName: string;
-  isLoading = false;
-  private cachedCapabilityLists: WeakMap<object, GuestConnector[]> =
+  loading = false;
+  guests: GuestConnectorMap = new Map();
+  private cachedCapabilityLists: WeakMap<object, UIXGuestConnector[]> =
     new WeakMap();
   private runtimeContainer: HTMLElement;
-  private guests: GuestMap = new Map();
   private guestOptions: GuestConnectorOptions;
   private debugLogger: Console;
   constructor(config: HostConfig) {
@@ -101,54 +70,37 @@ export class Host extends EventTarget {
     this.runtimeContainer =
       config.runtimeContainer || this.createRuntimeContainer(window);
 
-    if (config.debug) {
-      window.__UIX_HOST = this;
-      this.debugLogger = customConsole("yellow", "Host", this.rootName);
-      this.addEventListener("guestbeforeload", (e: GuestBeforeLoadEvt) => {
-        this.debugLogger.info('Loading guest "%s"', e.detail.guest);
-      });
-      this.addEventListener("guestload", (e: GuestLoadEvt) => {
-        this.debugLogger.info('Guest "%s" loaded', e.detail.guest);
-      });
-      this.addEventListener("guesterror", (e: GuestErrorEvent) => {
-        this.debugLogger.error(
-          `Guest "%s" failed to load: ${e.detail.error.message}`,
-          e
-        );
-      });
-      this.addEventListener("loadallguests", (e: LoadAllGuestsEvent) => {
-        this.debugLogger.info(
-          "All %d guests loaded",
-          this.guests.size,
-          e.detail.host
-        );
-      });
-    }
-  }
-  addEventListener<E extends keyof HostEventMap>(
-    type: E,
-    listener: (ev: HostEventMap[E]) => unknown
-  ): Unsubscriber {
-    super.addEventListener(type, listener);
-    return () => super.removeEventListener(type, listener);
+    // if (config.debug) {
+    //   import("./debug-host")
+    //     .then((debugHost) => {
+    //       debugHost(this.rootName, this);
+    //     })
+    //     .catch((e) => {
+    //       console.error(
+    //         "Failed to attach debugger to UIX host %s",
+    //         this.rootName,
+    //         e
+    //       );
+    //     });
+    // }
   }
   /**
    * Return all loaded guests.
    */
-  getLoadedGuests(): GuestConnector[];
+  getLoadedGuests(): UIXGuestConnector[];
   /**
    * Return loaded guests which satisfy the passed test function.
    */
-  getLoadedGuests(filter: GuestFilter): GuestConnector[];
+  getLoadedGuests(filter: GuestFilter): UIXGuestConnector[];
   /**
    * Return loaded guests which expose the provided capability spec object.
    */
   getLoadedGuests<Apis extends NamespacedApis>(
     capabilities: RequiredMethodsByName<Apis>
-  ): GuestConnector[];
+  ): UIXGuestConnector[];
   getLoadedGuests<Apis extends NamespacedApis = never>(
     filterOrCapabilities?: RequiredMethodsByName<Apis> | GuestFilter
-  ): GuestConnector[] {
+  ): UIXGuestConnector[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
@@ -165,21 +117,14 @@ export class Host extends EventTarget {
     extensions: InstalledExtensions,
     options?: GuestConnectorOptions
   ): Promise<void> {
-    this.isLoading = true;
+    this.loading = true;
     await Promise.all(
       Object.entries(extensions).map(([id, url]) =>
         this.loadOneGuest(id, url, options)
       )
     );
-    this.isLoading = false;
+    this.loading = false;
     this.emit("loadallguests", { host: this });
-  }
-  private emit<E extends keyof HostEventMap>(
-    type: keyof HostEventMap,
-    detail: HostEventMap[E]["detail"]
-  ) {
-    const event = new CustomEvent<typeof detail>(type, { detail });
-    this.dispatchEvent(event);
   }
   private createRuntimeContainer(window: Window) {
     const { document } = window;
@@ -193,7 +138,7 @@ export class Host extends EventTarget {
     id: string,
     urlString: string,
     options: GuestConnectorOptions = {}
-  ): Promise<GuestConnector> {
+  ): Promise<UIXGuestConnector> {
     let guest = this.guests.get(id);
     if (!guest) {
       const url = new URL(urlString);
@@ -215,7 +160,7 @@ export class Host extends EventTarget {
       await guest.load();
     } catch (e: unknown) {
       const error = e instanceof Error ? e : new Error(String(e));
-      this.emit("guesterror", { host: this, guest, error });
+      this.emit("error", { host: this, guest, error });
     }
     // this new guest might have new capabilities, so the identities of the
     // cached capability sets will need to change, to alert subscribers

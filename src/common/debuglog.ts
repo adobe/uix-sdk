@@ -22,7 +22,8 @@ const overrideMethods = ["log", "error", "warn", "info", "debug"] as const;
 export function customConsole(
   colorName: keyof typeof Colors,
   type: "Host" | "Guest",
-  name: string
+  name: string,
+  base: Console = console
 ) {
   const { bg, hilight, shadow } = Colors[colorName];
   const prefix = `%cUIX ${type}%c ${name}%c`;
@@ -33,13 +34,13 @@ export function customConsole(
     "",
   ];
   const customConsole = Object.create(
-    console,
+    base,
     overrideMethods.reduce((out, level) => {
       out[level] = {
         value(firstArg: string | unknown, ...args: unknown[]) {
           const message =
             typeof firstArg === "string" ? `${prefix} ${firstArg}` : prefix;
-          console[level](message, ...prefixStyles, ...args);
+          base[level](message, ...prefixStyles, ...args);
         },
       };
       return out;

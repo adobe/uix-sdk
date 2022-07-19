@@ -3,8 +3,11 @@ import {
   NamespacedApis,
   HostMethodAddress,
   ApiMethod,
+  GuestConnectorEvents,
+  UIXGuestConnector,
 } from "../common/types";
 import { Connection, connectToChild } from "penpal";
+import { Emitter } from "../common/emitter";
 
 export type GuestConnectorOptions = {
   timeout?: number;
@@ -16,7 +19,10 @@ const defaultOptions = {
   debug: false,
 };
 
-export class GuestConnector {
+export class GuestConnector
+  extends Emitter<GuestConnectorEvents>
+  implements UIXGuestConnector
+{
   owner: string;
   id: string;
   url: URL;
@@ -34,6 +40,7 @@ export class GuestConnector {
     options: GuestConnectorOptions;
     debugLogger?: Console;
   }) {
+    super();
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
     this.id = config.id;
     this.owner = config.owner;
@@ -58,7 +65,7 @@ export class GuestConnector {
       },
     });
   }
-  isLoading() {
+  isLoading(): boolean {
     return !(this.error || this.apis);
   }
   private invokeHostMethod<T = unknown>({
@@ -95,6 +102,7 @@ export class GuestConnector {
       () => `"${dots(path.length - 1)}.${name}" is not a function`
     );
     const method = methodCallee[name] as unknown as ApiMethod;
+    this.emit("beforecallhostmethod", { connector: this, name, path, args });
     return method.apply(methodCallee, [
       { id: this.id, url: this.url },
       ...args,

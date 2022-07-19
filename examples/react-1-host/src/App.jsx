@@ -23,6 +23,7 @@ function App() {
   );
 
   const { extensions } = useExtensions(() => ({
+    updateOn: "all",
     requires: {
       interestingNumbers: ["commentOn"],
     },

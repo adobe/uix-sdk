@@ -62,10 +62,8 @@ export function useExtensions<
   const [error, setError] = useState<Error>();
   useEffect(
     () =>
-      host.addEventListener("guesterror", (event) =>
-        setError(event.detail.error)
-      ),
+      host.addEventListener("error", (event) => setError(event.detail.error)),
     [host]
   );
-  return { extensions, loading: !host.isLoading, error };
+  return { extensions, loading: !host.loading, error };
 }

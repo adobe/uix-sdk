@@ -12,7 +12,8 @@ import {
 
 async function serveExamples(isDev) {
   const examples = (await getExamples()).map((example) => {
-    const port = ports[example.type]++;
+    const basePort = ports[example.type]++;
+    const port = isDev ? basePort + 80 : basePort;
     return {
       ...example,
       port,
@@ -72,7 +73,7 @@ async function serveExamples(isDev) {
 
   if (isDev) {
     runSpecs.unshift({
-      name: "SDK",
+      name: "@adobe/uix-sdk",
       command: "npm run -s compile:watch",
     });
   }

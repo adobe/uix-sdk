@@ -38,13 +38,13 @@ export function getRunnerOptions() {
     killOthers: ["failure"],
     prefixLength: 10,
     prefixColors: [
-      "red",
+      "cyan",
       "green",
       "yellow",
       "blue",
       "magenta",
-      "cyan",
       "white",
+      "red",
     ],
   };
 }

@@ -1,7 +1,9 @@
-import guest from "@adobe/uix-sdk/guest";
+import uixGuest from "@adobe/uix-sdk/guest";
+
+const uix = uixGuest();
 
 setTimeout(() => {
-  guest.register({
+  uix.register({
     interestingNumbers: {
       commentOn(n) {
         const comments = getComments(n);

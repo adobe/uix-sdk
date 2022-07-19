@@ -1,58 +1,57 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 import { AsyncMethodReturns, connectToParent } from "penpal";
-import { HostConnection, NamespacedApis } from "../common/types";
+import {
+  GuestEvents,
+  HostConnection,
+  NamespacedApis,
+  UIXGuest,
+  UIXGuestOptions,
+} from "../common/types";
+import { Emitter } from "../common/emitter";
+import { timeoutPromise } from "../common/timeout-promise";
+import { makeNamespaceProxy } from "../common/namespace-proxy";
 
-class GuestInFrame {
-  publicMethods: NamespacedApis;
-  private hostConnection!: AsyncMethodReturns<HostConnection>;
-  host: NamespacedApis = this.makeNamespaceProxy([]);
-  async register(apis: NamespacedApis) {
-    this.publicMethods = apis;
-    await this.connect();
-  }
-  private makeNamespaceProxy(path: string[]) {
-    const handler: ProxyHandler<Record<string, any>> = {
-      get: (target, prop) => {
-        if (typeof prop === "string") {
-          if (!Reflect.has(target, prop)) {
-            const next = this.makeNamespaceProxy(path.concat(prop));
-            Reflect.set(target, prop, next);
-          }
-          return Reflect.get(target, prop) as unknown;
-        } else {
-          throw new Error(
-            `Cannot look up a symbol ${String(
-              prop
-            )} on a host connection proxy.`
-          );
-        }
-      },
-    };
-    // Only trap the apply if there's at least two levels of namespace.
-    // uix.host() is not a function, and neither is uix.host.bareMethod().
-    if (path.length < 2) {
-      return new Proxy({}, handler);
+class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
+  constructor(options: UIXGuestOptions) {
+    super();
+    if (typeof options.timeout === "number") {
+      this.timeout = options.timeout;
     }
-    const invoker = (...args: any[]) =>
-      this.hostConnection.invokeHostMethod({
-        path: path.slice(0, -1),
-        name: path[path.length - 1],
-        args,
-      });
-    return new Proxy<typeof invoker>(invoker, {
-      ...handler,
-      apply(target, _, args: unknown[]) {
-        return target(...args);
-      },
-    });
+  }
+  host: NamespacedApis = makeNamespaceProxy(async (address) => {
+    const hostConnection = await this.hostConnectionPromise;
+    try {
+      const result = await timeoutPromise(
+        10000,
+        hostConnection.invokeHostMethod(address)
+      );
+      return result;
+    } catch (e) {
+      const error = e instanceof Error ? e : new Error(e as unknown as string);
+      throw new Error(
+        `Host method call host.${address.path.join(".")}() failed: ${
+          error.message
+        }`
+      );
+    }
+  });
+  private timeout = 10000;
+  private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
+  private localMethods: NamespacedApis;
+  private hostConnection!: AsyncMethodReturns<HostConnection>;
+  async register(apis: NamespacedApis) {
+    this.localMethods = apis;
+    await this.connect();
   }
   private async connect() {
     try {
       const connection = connectToParent<HostConnection>({
-        methods: this.publicMethods,
+        timeout: this.timeout,
+        methods: this.localMethods,
       });
+      this.hostConnectionPromise = connection.promise;
       console.debug("connection began", connection);
-      this.hostConnection = await connection.promise;
+      this.hostConnection = await this.hostConnectionPromise;
       console.debug("connection established", this.hostConnection);
     } catch (e) {
       console.error("connection failed", e);
@@ -60,4 +59,7 @@ class GuestInFrame {
   }
 }
 
-export default new GuestInFrame();
+export default function createGuest(options: UIXGuestOptions = {}) {
+  const guest = new GuestInFrame(options);
+  return guest;
+}

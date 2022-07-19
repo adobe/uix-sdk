@@ -1,4 +1,6 @@
-import uix from "@adobe/uix-sdk/guest";
+import uixGuest from "@adobe/uix-sdk/guest";
+
+const uix = uixGuest();
 
 uix
   .register({
