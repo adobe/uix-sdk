@@ -46,7 +46,7 @@ export function debugHost(tag: string, host: typeof window.__UIX_HOST) {
         e.detail.host
       );
     }),
-    host.addEventListener("unload", (e) =>
+    host.addEventListener("unload", () =>
       hostLogger.info("⚡️ unload Unloaded guest and container.")
     ),
   ];

@@ -17,9 +17,15 @@ setTimeout(() => {
   });
 }, 3000);
 
+let receivedLargeNumbers = 0;
+
 function getComments(n) {
+  if (receivedLargeNumbers === 3) {
+    return ["NOLO AMPLIVS VIDERE DE NVMERIS STVLTORVM TUORVM 😤"];
+  }
   const comments = [];
   if (n > 9000) {
+    receivedLargeNumbers++;
     const roman = convertToRoman(Math.floor(n / 1000));
     comments.push(
       roman.length > 20
@@ -27,6 +33,12 @@ function getComments(n) {
         : `NVMERVS ILLE ERIT PROPE (${roman})`,
       "ECCE NIMIUM MAGNVS EST"
     );
+    if (receivedLargeNumbers === 2) {
+      setTimeout(
+        () => uix.host.interestingNumbers.furthermore("DESINE HOS MIHI DARE"),
+        750
+      );
+    }
   } else {
     comments.push([`NVMERVS ILLE ERIT ${convertToRoman(n)}`]);
   }

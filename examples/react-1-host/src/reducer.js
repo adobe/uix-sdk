@@ -68,7 +68,9 @@ export const appReducer = (state, { type, payload }) => {
           state.comments,
           payload.comments
         ),
-        isSubmitting: type !== "end" && state.isSubmitting,
+        isSubmitting: false,
+        validationText: null,
+        isValid: null,
       };
     }
     case "reset": {

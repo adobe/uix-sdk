@@ -48,29 +48,30 @@ function App() {
   }));
 
   useEffect(() => {
-    if (Reflect.has(state, "theNumber")) {
-      Promise.all(
-        extensions.map(({ id, apis }) =>
-          apis.interestingNumbers
-            .commentOn(state.theNumber)
-            .then((comments) =>
-              comments.map((message) => ({
-                sender: id,
-                message,
-              }))
-            )
-            .catch((e) => {
-              throw new Error(`Error in extension "${id}": ${e.stack}`);
-            })
-        )
-      )
-        .then((comments) => dispatchA("end", { comments: comments.flat() }))
-        .catch((e) => {
-          console.error(e);
-          dispatchA("error", e);
-        });
+    async function getExtensionComments({ id, apis }) {
+      try {
+        const comments = await apis.interestingNumbers.commentOn(
+          state.theNumber
+        );
+        return comments.map((message) => ({ sender: id, message }));
+      } catch (e) {
+        throw new Error(`Error in extension "${id}": ${e.stack}`);
+      }
     }
-  }, [extensions, state.isSubmitting, state.theNumber]);
+
+    async function discussNumber() {
+      try {
+        const commentGroups = await Promise.all(
+          extensions.map(getExtensionComments)
+        );
+        dispatchA("end", { comments: commentGroups.flat() });
+      } catch (e) {
+        dispatchA("error", e);
+      }
+    }
+
+    if (Reflect.has(state, "theNumber")) discussNumber();
+  }, [extensions, state.theNumber]);
 
   return (
     <Provider theme={defaultTheme} scale="large">
