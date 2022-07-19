@@ -7,30 +7,48 @@ declare global {
   }
 }
 
-export default function debugHost(tag: string, host: typeof window.__UIX_HOST) {
+export function debugHost(tag: string, host: typeof window.__UIX_HOST) {
   window.__UIX_HOST = host;
   const hostLogger = customConsole("yellow", "Host", tag);
-  host.addEventListener("guestbeforeload", ({ detail: { guest } }) => {
-    hostLogger.info('Loading guest "%s"', guest.id);
-    const guestLogger = customConsole("yellow", "Guest", guest.id, hostLogger);
-    const subscriptions = [];
-    subscriptions.push(
-      guest.addEventListener("hostprovide", ({ detail: { apis } }) => {
-        guestLogger.info("Guest %s received APIs", guest.id, apis);
-      })
-    );
-  });
-  host.addEventListener("guestload", (e) => {
-    hostLogger.info('Guest "%s" loaded', e.detail.guest);
-  });
-  host.addEventListener("error", (e) => {
-    hostLogger.error(`Guest "%s" failed to load: ${e.detail.error.message}`, e);
-  });
-  host.addEventListener("loadallguests", (e) => {
-    hostLogger.info(
-      "All %d guests loaded",
-      e.detail.host.guests.size,
-      e.detail.host
-    );
-  });
+  const subscriptions = [
+    host.addEventListener("guestbeforeload", ({ detail: { guest } }) => {
+      hostLogger.info('️⚡️️ guestbeforeload Guest ID "%s"', guest.id);
+      const guestLogger = customConsole(
+        "yellow",
+        "Guest",
+        guest.id,
+        hostLogger
+      );
+      subscriptions.push(
+        guest.addEventListener("hostprovide", ({ detail: { apis } }) => {
+          guestLogger.info(
+            "⚡️️ hostprovide Guest ID %s received APIs",
+            guest.id,
+            apis
+          );
+        })
+      );
+    }),
+    host.addEventListener("guestload", (e) => {
+      hostLogger.info(
+        '⚡️ guestload Guest ID "%s"',
+        e.detail.guest.id,
+        e.detail.guest
+      );
+    }),
+    host.addEventListener("error", (e) => {
+      hostLogger.error(`Error: ${e.detail.error.message}`, e);
+    }),
+    host.addEventListener("loadallguests", (e) => {
+      hostLogger.info(
+        "⚡️ loadallguests All %d guests loaded",
+        e.detail.host.guests.size,
+        e.detail.host
+      );
+    }),
+    host.addEventListener("unload", (e) =>
+      hostLogger.info("⚡️ unload Unloaded guest and container.")
+    ),
+  ];
+  return () => subscriptions.forEach((unsubscribe) => unsubscribe());
 }

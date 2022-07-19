@@ -1,6 +1,9 @@
 import uixGuest from "@adobe/uix-sdk/guest";
 
-const uix = uixGuest();
+const uix = uixGuest({
+  id: "Hypatia",
+  debug: process.env.NODE_ENV !== "production",
+});
 
 setTimeout(() => {
   uix.register({

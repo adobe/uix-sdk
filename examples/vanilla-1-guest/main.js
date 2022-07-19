@@ -1,20 +1,19 @@
 import uixGuest from "@adobe/uix-sdk/guest";
 
-const uix = uixGuest();
+const uix = uixGuest({
+  id: "Primes Guy",
+  debug: process.env.NODE_ENV !== "production",
+});
 
-uix
-  .register({
-    interestingNumbers: {
-      commentOn(n) {
-        const comments = getComments(n);
-        record(n, comments);
-        return comments;
-      },
+uix.register({
+  interestingNumbers: {
+    commentOn(n) {
+      const comments = getComments(n);
+      record(n, comments);
+      return comments;
     },
-  })
-  .then(() => {
-    uix.host.discussion.introduce("I love prime numbers!");
-  });
+  },
+});
 
 function getComments(n) {
   if (isPrime(n)) {

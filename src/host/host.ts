@@ -6,6 +6,7 @@ import {
   UIXHost,
   UIXGuestConnector,
   GuestConnectorMap,
+  Unsubscriber,
 } from "../common/types";
 import { Emitter } from "../common/emitter";
 import { GuestConnector, GuestConnectorOptions } from "./guest-connector";
@@ -54,6 +55,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
   rootName: string;
   loading = false;
   guests: GuestConnectorMap = new Map();
+  private debug?: Promise<Unsubscriber>;
   private cachedCapabilityLists: WeakMap<object, UIXGuestConnector[]> =
     new WeakMap();
   private runtimeContainer: HTMLElement;
@@ -67,22 +69,20 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
       debug: guestOptions.debug === false ? false : !!config.debug,
     };
     this.rootName = config.rootName;
-    this.runtimeContainer =
-      config.runtimeContainer || this.createRuntimeContainer(window);
-
-    // if (config.debug) {
-    //   import("./debug-host")
-    //     .then((debugHost) => {
-    //       debugHost(this.rootName, this);
-    //     })
-    //     .catch((e) => {
-    //       console.error(
-    //         "Failed to attach debugger to UIX host %s",
-    //         this.rootName,
-    //         e
-    //       );
-    //     });
-    // }
+    this.runtimeContainer = config.runtimeContainer;
+    if (config.debug) {
+      this.debug = import("./debug-host")
+        .then(({ debugHost }) => debugHost(this.rootName, this))
+        .catch((e) => {
+          console.error(
+            "Failed to attach debugger to UIX host %s",
+            this.rootName,
+            e
+          );
+          // noop unsubscriber
+          return () => undefined;
+        });
+    }
   }
   /**
    * Return all loaded guests.
@@ -117,6 +117,9 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     extensions: InstalledExtensions,
     options?: GuestConnectorOptions
   ): Promise<void> {
+    await this.debug;
+    this.runtimeContainer =
+      this.runtimeContainer || this.createRuntimeContainer(window);
     this.loading = true;
     await Promise.all(
       Object.entries(extensions).map(([id, url]) =>
@@ -125,6 +128,19 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     );
     this.loading = false;
     this.emit("loadallguests", { host: this });
+  }
+  /**
+   * Unload all extensions and remove their frames/workers. Use this to unmount
+   * a UI or when switching to a different extensible UI.
+   */
+  async unload(): Promise<void> {
+    this.emit("beforeunload", { host: this });
+    await Promise.all([...this.guests.values()].map((guest) => guest.unload()));
+    this.guests.clear();
+    const unsubscribeDebug = await this.debug;
+    if (unsubscribeDebug) unsubscribeDebug();
+    this.runtimeContainer.parentElement.removeChild(this.runtimeContainer);
+    this.emit("unload", { host: this });
   }
   private createRuntimeContainer(window: Window) {
     const { document } = window;

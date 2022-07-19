@@ -18,7 +18,11 @@ async function main() {
 
   ReactDOM.render(
     <React.StrictMode>
-      <Extensible extensions={extensionsById} rootName="react-1-extensible">
+      <Extensible
+        debug={process.env.NODE_ENV !== "production"}
+        extensions={extensionsById}
+        rootName="Number Discussion"
+      >
         <App />
       </Extensible>
     </React.StrictMode>,

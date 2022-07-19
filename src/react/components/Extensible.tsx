@@ -30,6 +30,7 @@ export function Extensible({
   guestOptions,
   rootName,
   runtimeContainer,
+  debug,
 }: PropsWithChildren<ExtensionProviderProps>) {
   const installedRef = useRef<InstalledExtensions>();
   if (
@@ -39,25 +40,28 @@ export function Extensible({
     installedRef.current = extensions;
   }
 
-  const host = useMemo(
-    () =>
-      new Host({
-        rootName,
-        runtimeContainer,
-      }),
-    [rootName, runtimeContainer]
-  );
+  const host = useMemo(() => {
+    const host = new Host({
+      debug,
+      rootName,
+      runtimeContainer,
+    });
+    return host;
+  }, [rootName, runtimeContainer]);
 
   useEffect(() => {
-    host.load(installedRef.current, guestOptions).catch((e) => {
-      const error = e instanceof Error ? e : new Error(String(e));
-      console.error(
-        "Load of extensions failed!",
-        error,
-        installedRef.current,
-        guestOptions
-      );
-    });
+    function logError(msg: string) {
+      return (e: Error | unknown) => {
+        const error = e instanceof Error ? e : new Error(String(e));
+        console.error(msg, error, installedRef.current, guestOptions);
+      };
+    }
+    host
+      .load(installedRef.current, guestOptions)
+      .catch(logError("Load of extensions failed!"));
+    return () => {
+      host.unload().catch(logError("Unload of extensions failed!"));
+    };
   }, [host, installedRef.current]);
 
   return (

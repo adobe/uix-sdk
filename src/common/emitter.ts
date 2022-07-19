@@ -1,10 +1,4 @@
-import { Emits, NamedEvent } from "./types";
-
-/**
- * Returned from {@link Emitter.addEventListener}. Unsubscribes the original
- * handler when called.
- */
-type Unsubscriber = () => void;
+import { Emits, Unsubscriber, NamedEvent } from "./types";
 
 /**
  * Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget)

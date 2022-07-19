@@ -7,33 +7,27 @@ declare global {
   }
 }
 
-export default function debugGuest(
-  tag: string,
-  host: typeof window.__UIX_HOST
-) {
-  window.__UIX_HOST = host;
-  const hostLogger = customConsole("yellow", "Host", tag);
-  host.addEventListener("guestbeforeload", ({ detail: { guest } }) => {
-    hostLogger.info('Loading guest "%s"', guest.id);
-    const guestLogger = customConsole("yellow", "Guest", guest.id, hostLogger);
-    const subscriptions = [];
-    subscriptions.push(
-      guest.addEventListener("hostprovide", ({ detail: { apis } }) => {
-        guestLogger.info("Guest %s received APIs", guest.id, apis);
-      })
-    );
-  });
-  host.addEventListener("guestload", (e) => {
-    hostLogger.info('Guest "%s" loaded', e.detail.guest);
-  });
-  host.addEventListener("error", (e) => {
-    hostLogger.error(`Guest "%s" failed to load: ${e.detail.error.message}`, e);
-  });
-  host.addEventListener("loadallguests", (e) => {
-    hostLogger.info(
-      "All %d guests loaded",
-      e.detail.host.guests.size,
-      e.detail.host
-    );
-  });
+export function debugGuest(guest: typeof window.__UIX_GUEST) {
+  window.__UIX_GUEST = guest;
+  const guestLogger = customConsole("green", "Guest", guest.id);
+  const subscriptions = [
+    guest.addEventListener("beforeconnect", ({ detail: { guest } }) => {
+      guestLogger.info("⚡️ beforeconnect", guest);
+    }),
+    guest.addEventListener("connecting", ({ detail: { connection } }) => {
+      guestLogger.info("⚡️ connecting", connection);
+    }),
+    guest.addEventListener("connected", ({ detail: { guest } }) => {
+      guestLogger.info("⚡️ connected", guest);
+    }),
+    guest.addEventListener("error", ({ detail: { error, guest } }) => {
+      guestLogger.error(
+        "❌ Failed to connect! %s",
+        error.message,
+        guest,
+        error
+      );
+    }),
+  ];
+  return () => subscriptions.forEach((unsubscribe) => unsubscribe());
 }

@@ -5,25 +5,48 @@ import {
   HostConnection,
   NamespacedApis,
   UIXGuest,
-  UIXGuestOptions,
+  Unsubscriber,
 } from "../common/types";
 import { Emitter } from "../common/emitter";
 import { timeoutPromise } from "../common/timeout-promise";
 import { makeNamespaceProxy } from "../common/namespace-proxy";
 
+interface GuestConfig {
+  id: string;
+  debug?: boolean;
+  timeout?: number;
+  register?: NamespacedApis;
+}
+
 class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
-  constructor(options: UIXGuestOptions) {
+  id: string;
+  constructor(config: GuestConfig) {
     super();
-    if (typeof options.timeout === "number") {
-      this.timeout = options.timeout;
+    this.id = config.id;
+    if (typeof config.timeout === "number") {
+      this.timeout = config.timeout;
+    }
+    if (config.debug) {
+      this.debug = import("./debug-guest")
+        .then(({ debugGuest }) => debugGuest(this))
+        .catch((e) => {
+          console.error(
+            "Failed to attach debugger to UIX host %s",
+            this.id,
+            this,
+            e
+          );
+          // noop unsubscriber
+          return () => undefined;
+        });
     }
   }
   host: NamespacedApis = makeNamespaceProxy(async (address) => {
-    const hostConnection = await this.hostConnectionPromise;
+    await this.hostConnectionPromise;
     try {
       const result = await timeoutPromise(
         10000,
-        hostConnection.invokeHostMethod(address)
+        this.hostConnection.invokeHostMethod(address)
       );
       return result;
     } catch (e) {
@@ -39,27 +62,32 @@ class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
   private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
   private localMethods: NamespacedApis;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
+  private debug: Promise<Unsubscriber>;
   async register(apis: NamespacedApis) {
+    await this.debug;
     this.localMethods = apis;
     await this.connect();
   }
   private async connect() {
+    this.emit("beforeconnect", { guest: this });
     try {
       const connection = connectToParent<HostConnection>({
         timeout: this.timeout,
         methods: this.localMethods,
       });
+
+      this.emit("connecting", { guest: this, connection });
       this.hostConnectionPromise = connection.promise;
-      console.debug("connection began", connection);
       this.hostConnection = await this.hostConnectionPromise;
-      console.debug("connection established", this.hostConnection);
+      this.emit("connected", { guest: this, connection });
     } catch (e) {
+      this.emit("error", { guest: this, error: e });
       console.error("connection failed", e);
     }
   }
 }
 
-export default function createGuest(options: UIXGuestOptions = {}) {
-  const guest = new GuestInFrame(options);
+export default function createGuest(config: GuestConfig) {
+  const guest = new GuestInFrame(config);
   return guest;
 }

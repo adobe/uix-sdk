@@ -27,10 +27,10 @@ export function customConsole(
 ) {
   const { bg, hilight, shadow } = Colors[colorName];
   const prefix = `%cUIX ${type}%c ${name}%c`;
-  const prefixBaseStyle = `display: inline-block; background: ${bg}; font-size: 85%; padding: ${styles.padTop} ${styles.padSide}; border: 1px solid; border-color: ${hilight} ${shadow} ${shadow} ${hilight}`;
+  const prefixBaseStyle = `display: inline-block; background: ${bg}; padding: ${styles.padTop} ${styles.padSide}; border: 1px solid; border-color: ${hilight} ${shadow} ${shadow} ${hilight};`;
   const prefixStyles = [
     `${prefixBaseStyle} padding-right: 0px; border-right-width: 0; border-radius: 15px 0 0 15px`,
-    `${prefixBaseStyle} font-weight: bold; padding-left: 0px; border-right-left: 0; border-radius: 0 15px 15px 0`,
+    `${prefixBaseStyle} font-weight: bold; padding-left: 0px; border-left-width: 0; border-radius: 0 15px 15px 0`,
     "",
   ];
   const customConsole = Object.create(
@@ -40,7 +40,8 @@ export function customConsole(
         value(firstArg: string | unknown, ...args: unknown[]) {
           const message =
             typeof firstArg === "string" ? `${prefix} ${firstArg}` : prefix;
-          base[level](message, ...prefixStyles, ...args);
+          const loggerArgs = [message, ...prefixStyles, ...args];
+          base[level](...loggerArgs);
         },
       };
       return out;

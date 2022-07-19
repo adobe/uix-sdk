@@ -1,3 +1,5 @@
+import { Connection } from "penpal";
+
 export type ApiMethod<T = unknown> = (...args: unknown[]) => Promise<T>;
 
 export type GuestApi = {
@@ -33,6 +35,12 @@ export interface HostConnection<T = unknown> {
  * BEGIN EVENTS
  */
 
+/**
+ * Returned from {@link Emitter.addEventListener}. Unsubscribes the original
+ * handler when called.
+ */
+export type Unsubscriber = () => void;
+
 export type NamedEvent<
   Type extends string = string,
   Detail = Record<string, unknown>
@@ -65,6 +73,8 @@ export type HostEvents =
   | HostGuestEvent<"beforeload">
   | HostGuestEvent<"load">
   | HostEvent<"loadallguests">
+  | HostEvent<"beforeunload">
+  | HostEvent<"unload">
   | HostEvent<"error", { error: Error }>;
 
 export type GuestConnectorMap = Map<string, UIXGuestConnector>;
@@ -93,6 +103,7 @@ export type GuestConnectorEvents =
 export interface UIXGuestConnector extends Emits<GuestConnectorEvents> {
   load(): Promise<NamespacedApis>;
   isLoading(): boolean;
+  unload(): Promise<void>;
   id: string;
   hasCapabilities<Apis extends NamespacedApis>(
     requiredMethods: RequiredMethodsByName<Apis>
@@ -103,16 +114,22 @@ export interface UIXGuestConnector extends Emits<GuestConnectorEvents> {
 type GuestEvent<
   Type extends string = string,
   Detail = EventDetail
-> = NamedEvent<Type, Detail & EventDetail>;
+> = NamedEvent<
+  Type,
+  Detail &
+    EventDetail & {
+      guest: UIXGuest;
+    }
+>;
 
-export type GuestEvents = GuestEvent<"connect"> | GuestEvent<"provide">;
-
-export interface UIXGuestOptions {
-  timeout?: number;
-  register?: NamespacedApis;
-}
+export type GuestEvents =
+  | GuestEvent<"beforeconnect">
+  | GuestEvent<"connecting", { connection: Connection }>
+  | GuestEvent<"connected", { connection: Connection }>
+  | GuestEvent<"error", { error: Error }>;
 
 export interface UIXGuest extends Emits<GuestEvents> {
+  id: string;
   host: NamespacedApis;
   register(apis: NamespacedApis): Promise<void>;
 }

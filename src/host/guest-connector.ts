@@ -31,7 +31,10 @@ export class GuestConnector
   apis: NamespacedApis;
   error?: Error;
   private hostApis: NamespacedApis = {};
-  debugLogger?: Console;
+  private debugLogger?: Console;
+  private timeout: number;
+  private debug: boolean;
+  private runtimeContainer: HTMLElement;
   constructor(config: {
     owner: string;
     id: string;
@@ -42,31 +45,38 @@ export class GuestConnector
   }) {
     super();
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
+    this.timeout = timeout;
+    this.debug = debug;
     this.id = config.id;
     this.owner = config.owner;
     this.url = config.url;
-    this.frame = config.runtimeContainer.ownerDocument.createElement("iframe");
-    this.frame.setAttribute("src", config.url.href);
-    this.frame.setAttribute("data-uix-guest", "true");
-    config.runtimeContainer.appendChild(this.frame);
-    if (this.debugLogger) {
-      this.debugLogger.info(
-        `Guest ${this.id} attached iframe of ${this.url.href}`,
-        this
-      );
-    }
-    this.connection = connectToChild({
-      iframe: this.frame,
-      debug,
-      timeout,
-      methods: {
-        invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address),
-      },
-    });
+    this.runtimeContainer = config.runtimeContainer;
   }
   isLoading(): boolean {
     return !(this.error || this.apis);
+  }
+  async load() {
+    try {
+      if (!this.apis) {
+        await this.connect();
+      }
+      return this.apis;
+    } catch (e) {
+      this.apis = null;
+      this.error = e instanceof Error ? e : new Error(String(e));
+      throw e;
+    }
+  }
+  provide(apis: NamespacedApis) {
+    Object.assign(this.hostApis, apis);
+  }
+  async unload(): Promise<void> {
+    if (this.connection) {
+      await this.connection.destroy();
+    }
+    if (this.frame) {
+      this.frame.parentElement.removeChild(this.frame);
+    }
   }
   private invokeHostMethod<T = unknown>({
     name,
@@ -138,6 +148,25 @@ export class GuestConnector
     });
   }
   private async connect() {
+    this.frame = this.runtimeContainer.ownerDocument.createElement("iframe");
+    this.frame.setAttribute("src", this.url.href);
+    this.frame.setAttribute("data-uix-guest", "true");
+    this.runtimeContainer.appendChild(this.frame);
+    if (this.debugLogger) {
+      this.debugLogger.info(
+        `Guest ${this.id} attached iframe of ${this.url.href}`,
+        this
+      );
+    }
+    this.connection = connectToChild({
+      iframe: this.frame,
+      debug: this.debug,
+      timeout: this.timeout,
+      methods: {
+        invokeHostMethod: (address: HostMethodAddress) =>
+          this.invokeHostMethod(address),
+      },
+    });
     this.apis = (await this.connection.promise) as unknown as NamespacedApis;
     if (this.debugLogger) {
       this.debugLogger.info(
@@ -146,20 +175,5 @@ export class GuestConnector
         this
       );
     }
-  }
-  async load() {
-    try {
-      if (!this.apis) {
-        await this.connect();
-      }
-      return this.apis;
-    } catch (e) {
-      this.apis = null;
-      this.error = e instanceof Error ? e : new Error(String(e));
-      throw e;
-    }
-  }
-  provide(apis: NamespacedApis) {
-    Object.assign(this.hostApis, apis);
   }
 }
