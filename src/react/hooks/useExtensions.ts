@@ -1,5 +1,4 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { useSyncExternalStore } from "use-sync-external-store/shim";
 import type { NamespacedApis, RequiredMethodsByName } from "../../common/types";
 import type { GuestConnector, Host } from "../../host";
 import { ExtensionContext } from "../extension-context";
@@ -38,6 +37,19 @@ export function useExtensions<
     provides,
     updateOn = "each",
   } = useMemo(() => configFactory(host), baseDeps);
+
+  const getExtensions = useCallback(() => {
+    const newExtensions = [];
+    const guests = host.getLoadedGuests(requires);
+    for (const guest of guests) {
+      if (provides) {
+        guest.provide(provides);
+      }
+      newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
+    }
+    return newExtensions;
+  }, [...baseDeps, requires]);
+
   const subscribe = useCallback(
     (handler) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
@@ -47,23 +59,20 @@ export function useExtensions<
     },
     [...baseDeps, updateOn]
   );
-  const getSnapshot = useCallback(
-    () => host.getLoadedGuests(requires),
-    [...baseDeps, requires]
-  );
-  const guests = useSyncExternalStore(subscribe, getSnapshot);
-  const extensions = [];
-  for (const guest of guests) {
-    if (provides) {
-      guest.provide(provides);
-    }
-    extensions.push(guest as unknown as TypedGuestConnection<Incoming>);
-  }
+
+  const [extensions, setExtensions] = useState(() => getExtensions());
+  useEffect(() => {
+    return subscribe(() => {
+      setExtensions(getExtensions());
+    });
+  }, [subscribe, getExtensions]);
+
   const [error, setError] = useState<Error>();
   useEffect(
     () =>
       host.addEventListener("error", (event) => setError(event.detail.error)),
-    [host]
+    baseDeps
   );
+
   return { extensions, loading: !host.loading, error };
 }

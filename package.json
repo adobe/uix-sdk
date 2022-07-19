@@ -47,7 +47,6 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/react": "^17.0.16",
-    "@types/use-sync-external-store": "^0.0.3",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "chalk": "^5.0.1",
@@ -66,8 +65,5 @@
   "peerDependencies": {
     "penpal": "^6.2.2",
     "react": "^17.0.2"
-  },
-  "dependencies": {
-    "use-sync-external-store": "^1.2.0"
   }
 }

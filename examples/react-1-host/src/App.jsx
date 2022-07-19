@@ -23,7 +23,7 @@ function App() {
   );
 
   const { extensions } = useExtensions(() => ({
-    updateOn: "all",
+    updateOn: "each",
     requires: {
       interestingNumbers: ["commentOn"],
     },
@@ -48,29 +48,28 @@ function App() {
   }));
 
   useEffect(() => {
-    if (!state.isSubmitting) {
-      return;
-    }
-    Promise.all(
-      extensions.map(({ id, apis }) =>
-        apis.interestingNumbers
-          .commentOn(state.theNumber)
-          .then((comments) =>
-            comments.map((message) => ({
-              sender: id,
-              message,
-            }))
-          )
-          .catch((e) => {
-            throw new Error(`Error in extension "${id}": ${e.stack}`);
-          })
+    if (Reflect.has(state, "theNumber")) {
+      Promise.all(
+        extensions.map(({ id, apis }) =>
+          apis.interestingNumbers
+            .commentOn(state.theNumber)
+            .then((comments) =>
+              comments.map((message) => ({
+                sender: id,
+                message,
+              }))
+            )
+            .catch((e) => {
+              throw new Error(`Error in extension "${id}": ${e.stack}`);
+            })
+        )
       )
-    )
-      .then((comments) => dispatchA("end", { comments: comments.flat() }))
-      .catch((e) => {
-        console.error(e);
-        dispatchA("error", e);
-      });
+        .then((comments) => dispatchA("end", { comments: comments.flat() }))
+        .catch((e) => {
+          console.error(e);
+          dispatchA("error", e);
+        });
+    }
   }, [extensions, state.isSubmitting, state.theNumber]);
 
   return (

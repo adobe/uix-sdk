@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "@adobe/uix-sdk": {
-      "signature": "bfe46ea158ca9007ff1d126f52129939",
+      "signature": "26ad5632fd00f210fbc239c6821d1ecc",
       "file": true,
       "replaced": "*"
     }
