@@ -9,10 +9,14 @@ declare global {
 
 export function debugHost(tag: string, host: typeof window.__UIX_HOST) {
   window.__UIX_HOST = host;
-  const hostLogger = customConsole("yellow", "Host", tag);
+  const hostLogger = customConsole("host", "Host", tag);
   const subscriptions = [
-    host.addEventListener("guestbeforeload", ({ detail: { guest } }) => {
-      hostLogger.info('️⚡️️ guestbeforeload Guest ID "%s"', guest.id);
+    host.addEventListener("guestbeforeload", (event) => {
+      const {
+        detail: { guest },
+      } = event;
+      hostLogger.info(event, "Guest ID %s", guest.id);
+      // hostLogger.info('️⚡️️ %cguestbeforeload Guest ID "%s"', guest.id);
       const guestLogger = customConsole(
         "yellow",
         "Guest",
@@ -20,7 +24,8 @@ export function debugHost(tag: string, host: typeof window.__UIX_HOST) {
         hostLogger
       );
       subscriptions.push(
-        guest.addEventListener("hostprovide", ({ detail: { apis } }) => {
+        guest.addEventListener("hostprovide", (event) => {
+          const { detail: { apis } } = event;
           guestLogger.info(
             "⚡️️ hostprovide Guest ID %s received APIs",
             guest.id,
