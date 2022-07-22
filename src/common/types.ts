@@ -50,7 +50,8 @@ export type NamedEvent<
 
 type EventDetail = Record<string, unknown>;
 
-export interface Emits<Events extends NamedEvent = NamedEvent> extends EventTarget {
+export interface Emits<Events extends NamedEvent = NamedEvent>
+  extends EventTarget {
   id: string;
   addEventListener<Type extends Events["type"]>(
     type: Type,
