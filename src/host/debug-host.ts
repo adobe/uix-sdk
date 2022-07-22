@@ -1,5 +1,5 @@
-import { customConsole } from "../common/debuglog";
-import { UIXHost } from "../common/types";
+import { debugEmitter } from "../common/debug-emitter";
+import { PortEvents, HostEvents, UIXHost } from "../common/types";
 
 declare global {
   interface Window {
@@ -7,53 +7,42 @@ declare global {
   }
 }
 
-export function debugHost(tag: string, host: typeof window.__UIX_HOST) {
+export function debugHost(host: UIXHost) {
   window.__UIX_HOST = host;
-  const hostLogger = customConsole("host", "Host", tag);
-  const subscriptions = [
-    host.addEventListener("guestbeforeload", (event) => {
+  const hostLogger = debugEmitter<HostEvents>(host, { theme: "blue medium" });
+  hostLogger
+    .listen("guestbeforeload", (log, event) => {
       const {
         detail: { guest },
       } = event;
-      hostLogger.info(event, "Guest ID %s", guest.id);
-      // hostLogger.info('️⚡️️ %cguestbeforeload Guest ID "%s"', guest.id);
-      const guestLogger = customConsole(
-        "yellow",
-        "Guest",
-        guest.id,
-        hostLogger
-      );
-      subscriptions.push(
-        guest.addEventListener("hostprovide", (event) => {
-          const { detail: { apis } } = event;
-          guestLogger.info(
-            "⚡️️ hostprovide Guest ID %s received APIs",
-            guest.id,
-            apis
-          );
+      log.info(event, "Guest ID %s", guest.id);
+      const portLogger = debugEmitter<PortEvents>(guest, {
+        theme: "green medium",
+        id: `${host.id} ➔ ${guest.id}`,
+      });
+      portLogger
+        .listen("hostprovide", (log, event) => {
+          log.info("received APIs", event.detail.apis);
         })
-      );
-    }),
-    host.addEventListener("guestload", (e) => {
-      hostLogger.info(
-        '⚡️ guestload Guest ID "%s"',
-        e.detail.guest.id,
-        e.detail.guest
-      );
-    }),
-    host.addEventListener("error", (e) => {
-      hostLogger.error(`Error: ${e.detail.error.message}`, e);
-    }),
-    host.addEventListener("loadallguests", (e) => {
-      hostLogger.info(
-        "⚡️ loadallguests All %d guests loaded",
-        e.detail.host.guests.size,
-        e.detail.host
-      );
-    }),
-    host.addEventListener("unload", () =>
-      hostLogger.info("⚡️ unload Unloaded guest and container.")
-    ),
-  ];
-  return () => subscriptions.forEach((unsubscribe) => unsubscribe());
+        .listen("beforecallhostmethod", (log, event) => {
+          log.info(event.detail);
+        })
+        .listen("unload", (log, event) => {
+          log.info(event.detail);
+          log.detach();
+        });
+    })
+    .listen("guestload", (log, e) => {
+      log.info(e.detail.guest.id, e.detail.guest);
+    })
+    .listen("error", (log, e) => {
+      log.error(`Error: ${e.detail.error.message}`, e);
+    })
+    .listen("loadallguests", (log, e) => {
+      log.info("%d guests loaded", e.detail.host.guests.size, e.detail.host);
+    })
+    .listen("unload", (log) => {
+      log.info("Unloaded guest and container.");
+      log.detach();
+    });
 }

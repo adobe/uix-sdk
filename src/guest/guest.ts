@@ -5,7 +5,6 @@ import {
   HostConnection,
   NamespacedApis,
   UIXGuest,
-  Unsubscriber,
 } from "../common/types";
 import { Emitter } from "../common/emitter";
 import { timeoutPromise } from "../common/timeout-promise";
@@ -18,17 +17,18 @@ interface GuestConfig {
   register?: NamespacedApis;
 }
 
-class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
-  id: string;
+class Guest extends Emitter<GuestEvents> implements UIXGuest {
   constructor(config: GuestConfig) {
-    super();
-    this.id = config.id;
+    super(config.id);
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
     }
     if (config.debug) {
       this.debug = import("./debug-guest")
-        .then(({ debugGuest }) => debugGuest(this))
+        .then(({ debugGuest }) => {
+          debugGuest(this);
+          return true;
+        })
         .catch((e) => {
           console.error(
             "Failed to attach debugger to UIX host %s",
@@ -37,7 +37,7 @@ class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
             e
           );
           // noop unsubscriber
-          return () => undefined;
+          return false;
         });
     }
   }
@@ -62,7 +62,7 @@ class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
   private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
   private localMethods: NamespacedApis;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
-  private debug: Promise<Unsubscriber>;
+  private debug: Promise<boolean>;
   async register(apis: NamespacedApis) {
     await this.debug;
     this.localMethods = apis;
@@ -88,6 +88,6 @@ class GuestInFrame extends Emitter<GuestEvents> implements UIXGuest {
 }
 
 export default function createGuest(config: GuestConfig) {
-  const guest = new GuestInFrame(config);
+  const guest = new Guest(config);
   return guest;
 }

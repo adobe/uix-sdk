@@ -4,12 +4,11 @@ import {
   NamespacedApis,
   RequiredMethodsByName,
   UIXHost,
-  UIXGuestConnector,
-  GuestConnectorMap,
-  Unsubscriber,
+  UIXPort,
+  PortMap,
 } from "../common/types";
 import { Emitter } from "../common/emitter";
-import { GuestConnector, GuestConnectorOptions } from "./guest-connector";
+import { Port, PortOptions } from "./guest-link";
 
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 export interface HostConfig {
@@ -30,15 +29,15 @@ export interface HostConfig {
    */
   debug?: boolean;
   /**
-   * Default options to use for every guest connector.
+   * Default options to use for every guest guestPort.
    *
    * If `config.debug` is true, then the guest options will have `debug: true`
    * unless `debug: false` is explicitly passed in `guestOptions`.
    */
-  guestOptions?: GuestConnectorOptions;
+  guestOptions?: PortOptions;
 }
 
-type GuestFilter = (item: UIXGuestConnector) => boolean;
+type GuestFilter = (item: UIXPort) => boolean;
 
 const passAllGuests = () => true;
 
@@ -54,15 +53,14 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
   };
   rootName: string;
   loading = false;
-  guests: GuestConnectorMap = new Map();
-  private debug?: Promise<Unsubscriber>;
-  private cachedCapabilityLists: WeakMap<object, UIXGuestConnector[]> =
-    new WeakMap();
+  guests: PortMap = new Map();
+  private debug?: Promise<boolean>;
+  private cachedCapabilityLists: WeakMap<object, UIXPort[]> = new WeakMap();
   private runtimeContainer: HTMLElement;
-  private guestOptions: GuestConnectorOptions;
+  private guestOptions: PortOptions;
   private debugLogger: Console;
   constructor(config: HostConfig) {
-    super();
+    super(config.rootName);
     const { guestOptions = {} } = config;
     this.guestOptions = {
       ...guestOptions,
@@ -72,7 +70,10 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
       this.debug = import("./debug-host")
-        .then(({ debugHost }) => debugHost(this.rootName, this))
+        .then(({ debugHost }) => {
+          debugHost(this);
+          return true;
+        })
         .catch((e) => {
           console.error(
             "Failed to attach debugger to UIX host %s",
@@ -80,27 +81,27 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
             e
           );
           // noop unsubscriber
-          return () => undefined;
+          return false;
         });
     }
   }
   /**
    * Return all loaded guests.
    */
-  getLoadedGuests(): UIXGuestConnector[];
+  getLoadedGuests(): UIXPort[];
   /**
    * Return loaded guests which satisfy the passed test function.
    */
-  getLoadedGuests(filter: GuestFilter): UIXGuestConnector[];
+  getLoadedGuests(filter: GuestFilter): UIXPort[];
   /**
    * Return loaded guests which expose the provided capability spec object.
    */
   getLoadedGuests<Apis extends NamespacedApis>(
     capabilities: RequiredMethodsByName<Apis>
-  ): UIXGuestConnector[];
+  ): UIXPort[];
   getLoadedGuests<Apis extends NamespacedApis = never>(
     filterOrCapabilities?: RequiredMethodsByName<Apis> | GuestFilter
-  ): UIXGuestConnector[] {
+  ): UIXPort[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
@@ -115,7 +116,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
    */
   async load(
     extensions: InstalledExtensions,
-    options?: GuestConnectorOptions
+    options?: PortOptions
   ): Promise<void> {
     await this.debug;
     this.runtimeContainer =
@@ -137,8 +138,6 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     this.emit("beforeunload", { host: this });
     await Promise.all([...this.guests.values()].map((guest) => guest.unload()));
     this.guests.clear();
-    const unsubscribeDebug = await this.debug;
-    if (unsubscribeDebug) unsubscribeDebug();
     this.runtimeContainer.parentElement.removeChild(this.runtimeContainer);
     this.emit("unload", { host: this });
   }
@@ -153,12 +152,12 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
   private async loadOneGuest(
     id: string,
     urlString: string,
-    options: GuestConnectorOptions = {}
-  ): Promise<UIXGuestConnector> {
+    options: PortOptions = {}
+  ): Promise<UIXPort> {
     let guest = this.guests.get(id);
     if (!guest) {
       const url = new URL(urlString);
-      guest = new GuestConnector({
+      guest = new Port({
         owner: this.rootName,
         id,
         url,

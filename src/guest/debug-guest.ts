@@ -1,5 +1,5 @@
-import { customConsole } from "../common/debuglog";
-import { UIXGuest } from "../common/types";
+import { debugEmitter } from "../common/debug-emitter";
+import { GuestEvents, UIXGuest } from "../common/types";
 
 declare global {
   interface Window {
@@ -7,27 +7,21 @@ declare global {
   }
 }
 
-export function debugGuest(guest: typeof window.__UIX_GUEST) {
+export function debugGuest(guest: UIXGuest) {
   window.__UIX_GUEST = guest;
-  const guestLogger = customConsole("green", "Guest", guest.id);
-  const subscriptions = [
-    guest.addEventListener("beforeconnect", ({ detail: { guest } }) => {
-      guestLogger.info("⚡️ beforeconnect", guest);
-    }),
-    guest.addEventListener("connecting", ({ detail: { connection } }) => {
-      guestLogger.info("⚡️ connecting", connection);
-    }),
-    guest.addEventListener("connected", ({ detail: { guest } }) => {
-      guestLogger.info("⚡️ connected", guest);
-    }),
-    guest.addEventListener("error", ({ detail: { error, guest } }) => {
-      guestLogger.error(
-        "❌ Failed to connect! %s",
-        error.message,
-        guest,
-        error
-      );
-    }),
-  ];
-  return () => subscriptions.forEach((unsubscribe) => unsubscribe());
+  debugEmitter<GuestEvents>(guest, {
+    theme: "yellow medium",
+  })
+    .listen("beforeconnect", (log, { detail: { guest } }) => {
+      log.info(guest);
+    })
+    .listen("connecting", (log, { detail: { connection } }) => {
+      log.info(connection);
+    })
+    .listen("connected", (log, { detail: { guest } }) => {
+      log.info(guest);
+    })
+    .listen("error", (log, { detail: { error, guest } }) => {
+      log.error("❌ Failed to connect! %s", error.message, guest, error);
+    });
 }

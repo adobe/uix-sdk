@@ -10,8 +10,10 @@ export class Emitter<Events extends NamedEvent>
   extends EventTarget
   implements Emits<Events>
 {
-  constructor() {
+  id: string;
+  constructor(id: string) {
     super();
+    this.id = id;
   }
   protected emit<Event extends Events>(
     type: Event["type"],
@@ -31,7 +33,7 @@ export class Emitter<Events extends NamedEvent>
    */
   addEventListener<
     Type extends Events["type"],
-    Event extends Events & { type: Type }
+    Event extends Extract<Events, { type: Type }>
   >(type: Type, listener: (ev: Event) => unknown): Unsubscriber {
     super.addEventListener(type, listener);
     return () => super.removeEventListener(type, listener);
