@@ -1,16 +1,12 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { PropsWithChildren } from "react";
-import type {
-  InstalledExtensions,
-  HostConfig,
-  GuestConnectorOptions,
-} from "../../host";
+import type { InstalledExtensions, HostConfig, PortOptions } from "../../host";
 import { Host } from "../../host";
 import { ExtensionContext } from "../extension-context";
 
 interface ExtensionProviderProps extends HostConfig {
   extensions: InstalledExtensions;
-  guestOptions?: GuestConnectorOptions;
+  guestOptions?: PortOptions;
 }
 
 function areExtensionsDifferent(

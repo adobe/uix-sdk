@@ -3,13 +3,13 @@ import {
   NamespacedApis,
   HostMethodAddress,
   ApiMethod,
-  GuestConnectorEvents,
-  UIXGuestConnector,
+  PortEvents,
+  UIXPort,
 } from "../common/types";
 import { Connection, connectToChild } from "penpal";
 import { Emitter } from "../common/emitter";
 
-export type GuestConnectorOptions = {
+export type PortOptions = {
   timeout?: number;
   debug?: boolean;
 };
@@ -19,12 +19,8 @@ const defaultOptions = {
   debug: false,
 };
 
-export class GuestConnector
-  extends Emitter<GuestConnectorEvents>
-  implements UIXGuestConnector
-{
+export class Port extends Emitter<PortEvents> implements UIXPort {
   owner: string;
-  id: string;
   url: URL;
   frame: HTMLIFrameElement;
   connection: Connection<NamespacedApis>;
@@ -40,10 +36,10 @@ export class GuestConnector
     id: string;
     url: URL;
     runtimeContainer: HTMLElement;
-    options: GuestConnectorOptions;
+    options: PortOptions;
     debugLogger?: Console;
   }) {
-    super();
+    super(config.id);
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
     this.timeout = timeout;
     this.debug = debug;
@@ -69,6 +65,7 @@ export class GuestConnector
   }
   provide(apis: NamespacedApis) {
     Object.assign(this.hostApis, apis);
+    this.emit("hostprovide", { guestPort: this, apis });
   }
   async unload(): Promise<void> {
     if (this.connection) {
@@ -77,6 +74,7 @@ export class GuestConnector
     if (this.frame) {
       this.frame.parentElement.removeChild(this.frame);
     }
+    this.emit("unload", { guestPort: this });
   }
   private invokeHostMethod<T = unknown>({
     name,
@@ -112,7 +110,7 @@ export class GuestConnector
       () => `"${dots(path.length - 1)}.${name}" is not a function`
     );
     const method = methodCallee[name] as unknown as ApiMethod;
-    this.emit("beforecallhostmethod", { connector: this, name, path, args });
+    this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
     return method.apply(methodCallee, [
       { id: this.id, url: this.url },
       ...args,

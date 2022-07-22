@@ -1,4 +1,4 @@
-import { Connection } from "penpal";
+import type { Connection } from "penpal";
 
 export type ApiMethod<T = unknown> = (...args: unknown[]) => Promise<T>;
 
@@ -50,13 +50,11 @@ export type NamedEvent<
 
 type EventDetail = Record<string, unknown>;
 
-export interface Emits<Events extends NamedEvent = NamedEvent> {
-  addEventListener<
-    Type extends Events["type"],
-    Event extends Events & { type: Type }
-  >(
+export interface Emits<Events extends NamedEvent = NamedEvent> extends EventTarget {
+  id: string;
+  addEventListener<Type extends Events["type"]>(
     type: Type,
-    listener: (ev: Event) => unknown
+    listener: (ev: Extract<Events, { type: Type }>) => unknown
   ): () => void;
 }
 
@@ -66,7 +64,7 @@ type HostEvent<Type extends string = string, Detail = EventDetail> = NamedEvent<
 >;
 type HostGuestEvent<Type extends string> = HostEvent<
   `guest${Type}`,
-  { guest: UIXGuestConnector }
+  { guest: UIXPort }
 >;
 
 export type HostEvents =
@@ -77,30 +75,28 @@ export type HostEvents =
   | HostEvent<"unload">
   | HostEvent<"error", { error: Error }>;
 
-export type GuestConnectorMap = Map<string, UIXGuestConnector>;
+export type PortMap = Map<string, UIXPort>;
 
 export interface UIXHost extends Emits<HostEvents> {
   rootName: string;
   loading: boolean;
-  guests: GuestConnectorMap;
+  guests: PortMap;
 }
 
-type GuestConnectorEvent<
-  Type extends string = string,
-  Detail = EventDetail
-> = NamedEvent<
+type PortEvent<Type extends string = string, Detail = EventDetail> = NamedEvent<
   Type,
   Detail &
     EventDetail & {
-      connector: UIXGuestConnector;
+      guestPort: UIXPort;
     }
 >;
 
-export type GuestConnectorEvents =
-  | GuestConnectorEvent<"hostprovide">
-  | GuestConnectorEvent<"beforecallhostmethod", HostMethodAddress>;
+export type PortEvents =
+  | PortEvent<"hostprovide">
+  | PortEvent<"unload">
+  | PortEvent<"beforecallhostmethod", HostMethodAddress>;
 
-export interface UIXGuestConnector extends Emits<GuestConnectorEvents> {
+export interface UIXPort extends Emits<PortEvents> {
   load(): Promise<NamespacedApis>;
   isLoading(): boolean;
   unload(): Promise<void>;
