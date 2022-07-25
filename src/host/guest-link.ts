@@ -5,9 +5,9 @@ import {
   ApiMethod,
   PortEvents,
   UIXPort,
-} from "../common/types";
+} from "../common/types.js";
 import { Connection, connectToChild } from "penpal";
-import { Emitter } from "../common/emitter";
+import { Emitter } from "../common/emitter.js";
 
 export type PortOptions = {
   timeout?: number;

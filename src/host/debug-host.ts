@@ -1,5 +1,5 @@
-import { debugEmitter } from "../common/debug-emitter";
-import { PortEvents, HostEvents, UIXHost } from "../common/types";
+import { debugEmitter } from "../common/debug-emitter.js";
+import { PortEvents, HostEvents, UIXHost } from "../common/types.js";
 
 declare global {
   interface Window {

@@ -6,7 +6,10 @@
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
   },
   "type": "module",
-  "browser": "dist/index.js",
+  "browser": {
+    ".": "./dist/index.js",
+    "./*": "./dist/*/index.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -30,7 +33,7 @@
     "dev": "npm run -s examples:install && npm run -s compile && npm run -s dev:link && node scripts/multi-server.js --dev",
     "dev:link": "yalc publish --quiet --push --update",
     "examples:build": "node scripts/run-on-examples.js 'npm run -s build'",
-    "examples:install": "node scripts/run-on-examples.js 'npm install -s'",
+    "examples:install": "node scripts/run-on-examples.js 'npm install -s && npx yalc add @adobe/uix-sdk'",
     "examples:serve": "concurrently 'npm run -s compile:prod' 'npm run -s examples:install' && npm run -s examples:build && node scripts/multi-server.js",
     "format": "prettier --write --loglevel warn src && eslint --fix .",
     "lint": "prettier --check --loglevel warn src && eslint .",

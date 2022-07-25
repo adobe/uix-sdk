@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RemoteMethodInvoker } from "./types";
+import { RemoteMethodInvoker } from "./types.js";
 
 export function makeNamespaceProxy(
   invoke: RemoteMethodInvoker<unknown>,

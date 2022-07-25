@@ -1,1 +1,1 @@
-export * from "./Extensible";
+export * from "./Extensible.js";

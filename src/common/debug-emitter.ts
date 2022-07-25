@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { customConsole, DebugLogger, Theme } from "./debuglog";
-import { Emits, NamedEvent, Unsubscriber } from "./types";
+import { customConsole, DebugLogger, Theme } from "./debuglog.js";
+import { Emits, NamedEvent, Unsubscriber } from "./types.js";
 
 interface EmitterDebugLogger<Events extends NamedEvent> extends DebugLogger {
   listen<Type extends Events["type"]>(

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { DataSource } from "../../host/api-types/data-source";
-import { useExtensions } from "./useExtensions";
+import { DataSource } from "../../host/api-types/data-source.js";
+import { useExtensions } from "./useExtensions.js";
 
 interface ResultItemContainer<Result> {
   source: string;
