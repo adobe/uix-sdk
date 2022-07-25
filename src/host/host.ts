@@ -69,7 +69,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     this.rootName = config.rootName;
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
-      this.debug = import("./debug-host")
+      this.debug = import("./debug-host.js")
         .then(({ debugHost }) => {
           debugHost(this);
           return true;

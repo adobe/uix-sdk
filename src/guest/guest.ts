@@ -24,7 +24,7 @@ class Guest extends Emitter<GuestEvents> implements UIXGuest {
       this.timeout = config.timeout;
     }
     if (config.debug) {
-      this.debug = import("./debug-guest")
+      this.debug = import("./debug-guest.js")
         .then(({ debugGuest }) => {
           debugGuest(this);
           return true;
