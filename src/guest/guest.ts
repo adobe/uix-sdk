@@ -5,10 +5,10 @@ import {
   HostConnection,
   NamespacedApis,
   UIXGuest,
-} from "../common/types";
-import { Emitter } from "../common/emitter";
-import { timeoutPromise } from "../common/timeout-promise";
-import { makeNamespaceProxy } from "../common/namespace-proxy";
+} from "../common/types.js";
+import { Emitter } from "../common/emitter.js";
+import { timeoutPromise } from "../common/timeout-promise.js";
+import { makeNamespaceProxy } from "../common/namespace-proxy.js";
 
 interface GuestConfig {
   id: string;
@@ -24,7 +24,7 @@ class Guest extends Emitter<GuestEvents> implements UIXGuest {
       this.timeout = config.timeout;
     }
     if (config.debug) {
-      this.debug = import("./debug-guest")
+      this.debug = import("./debug-guest.js")
         .then(({ debugGuest }) => {
           debugGuest(this);
           return true;

@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { PropsWithChildren } from "react";
-import type { InstalledExtensions, HostConfig, PortOptions } from "../../host";
-import { Host } from "../../host";
-import { ExtensionContext } from "../extension-context";
+import type {
+  InstalledExtensions,
+  HostConfig,
+  PortOptions,
+} from "../../host/index.js";
+import { Host } from "../../host/index.js";
+import { ExtensionContext } from "../extension-context.js";
 
 interface ExtensionProviderProps extends HostConfig {
   extensions: InstalledExtensions;

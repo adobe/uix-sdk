@@ -9,7 +9,7 @@ import {
 } from "@adobe/react-spectrum";
 import { useExtensions } from "@adobe/uix-sdk/react";
 import React, { useEffect, useMemo, useReducer } from "react";
-import { appReducer, initialState } from "./reducer";
+import { appReducer, initialState } from "./reducer.js";
 import NumberSuggestionForm from "./NumberSuggestionForm";
 import CommentsList from "./CommentsList";
 

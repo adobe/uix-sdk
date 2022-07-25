@@ -1,7 +1,10 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import type { NamespacedApis, RequiredMethodsByName } from "../../common/types";
-import type { Port, Host } from "../../host";
-import { ExtensionContext } from "../extension-context";
+import type {
+  NamespacedApis,
+  RequiredMethodsByName,
+} from "../../common/types.js";
+import type { Port, Host } from "../../host/index.js";
+import { ExtensionContext } from "../extension-context.js";
 
 interface TypedGuestConnection<T extends NamespacedApis> {
   id: Port["id"];

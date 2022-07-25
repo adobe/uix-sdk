@@ -6,9 +6,9 @@ import {
   UIXHost,
   UIXPort,
   PortMap,
-} from "../common/types";
-import { Emitter } from "../common/emitter";
-import { Port, PortOptions } from "./guest-link";
+} from "../common/types.js";
+import { Emitter } from "../common/emitter.js";
+import { Port, PortOptions } from "./guest-link.js";
 
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 export interface HostConfig {
@@ -69,7 +69,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     this.rootName = config.rootName;
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
-      this.debug = import("./debug-host")
+      this.debug = import("./debug-host.js")
         .then(({ debugHost }) => {
           debugHost(this);
           return true;

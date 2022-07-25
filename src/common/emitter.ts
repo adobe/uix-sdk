@@ -1,4 +1,4 @@
-import { Emits, Unsubscriber, NamedEvent } from "./types";
+import { Emits, Unsubscriber, NamedEvent } from "./types.js";
 
 /**
  * Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget)
