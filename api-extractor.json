@@ -69,7 +69,7 @@
    *
    * DEFAULT VALUE: "crlf"
    */
-  // "newlineKind": "crlf",
+  "newlineKind": "lf",
 
   /**
    * Set to true when invoking API Extractor's test harness. When `testMode` is true, the `toolVersion` field in the
@@ -160,7 +160,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/"
      */
-    "reportFolder": "<projectFolder>/docs/build/",
+    "reportFolder": "<projectFolder>/docs/report/",
 
     /**
      * Specifies the folder where the temporary report file is written.  The file name portion is determined by
@@ -175,7 +175,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/"
      */
-    "reportTempFolder": "<projectFolder>/docs"
+    "reportTempFolder": "<projectFolder>/docs/temp/"
   },
 
   /**
@@ -196,7 +196,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
      */
-    "apiJsonFilePath": "<projectFolder>/docs/input/<unscopedPackageName>.api.json"
+    "apiJsonFilePath": "<projectFolder>/docs/temp/<unscopedPackageName>.api.json"
   },
 
   /**
