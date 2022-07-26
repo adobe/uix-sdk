@@ -11,7 +11,8 @@ interface TypedGuestConnection<T extends NamespacedApis> {
   apis: T;
 }
 
-interface UseExtensionsConfig<
+/** @public */
+export interface UseExtensionsConfig<
   Incoming extends NamespacedApis,
   Outgoing extends NamespacedApis
 > {
@@ -20,12 +21,21 @@ interface UseExtensionsConfig<
   updateOn?: "each" | "all";
 }
 
-interface UseExtensionsResult<T extends NamespacedApis> {
+/** @public */
+export interface UseExtensionsResult<T extends NamespacedApis> {
   extensions: TypedGuestConnection<T>[];
   loading: boolean;
   error?: Error;
 }
 
+/**
+ * TODO: document useExtensions
+ * @public
+ * @typeParam Incoming - Type of the methods object guests should send.
+ * @typeParam Outgoing - Type of the methods object send to the guest.
+ * @param configFactory - Function that returns a config object. Passing in a config object directly is not supported.
+ * @param deps - Any additional dependencies to break cache
+ */
 export function useExtensions<
   Incoming extends NamespacedApis,
   Outgoing extends NamespacedApis = NamespacedApis

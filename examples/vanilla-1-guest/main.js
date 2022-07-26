@@ -1,3 +1,7 @@
+/**
+ * Extension "Primes Guy" runs as a guest in an invisible iframe.
+ * Primes Guy only cares about prime numbers.
+ */
 import uixGuest from "@adobe/uix-sdk/guest";
 
 const uix = uixGuest({

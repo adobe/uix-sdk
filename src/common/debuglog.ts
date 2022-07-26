@@ -1,3 +1,9 @@
+/**
+ * Fancy looking console decorator.
+ * TODO: Outsource to @adobe/browser-console-chips
+ * @hidden
+ */
+
 const isDarkMode = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches;
 

@@ -11,5 +11,8 @@
     "**/Thumbs.db": true
   },
 
-	"git.mergeEditor": true
+	"git.mergeEditor": true,
+	"files.associations": {
+		"*.json": "jsonc"
+	}
 }

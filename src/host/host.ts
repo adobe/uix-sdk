@@ -1,16 +1,41 @@
 import {
   Extension,
-  HostEvents,
   NamespacedApis,
+  NamedEvent,
   RequiredMethodsByName,
-  UIXHost,
-  UIXPort,
-  PortMap,
 } from "../common/types.js";
 import { Emitter } from "../common/emitter.js";
-import { Port, PortOptions } from "./guest-link.js";
+import { Port, PortOptions } from "./port.js";
 
+/**
+ * Dictionary of {@link Port} objects by extension ID.
+ * @public
+ */
+export type PortMap = Map<string, Port>;
+
+/** @public */
+export type HostEvent<
+  Type extends string = string,
+  Detail = Record<string, unknown>
+> = NamedEvent<Type, Detail & Record<string, unknown> & { host: Host }>;
+type HostGuestEvent<Type extends string> = HostEvent<
+  `guest${Type}`,
+  { guest: Port }
+>;
+
+/** @public */
+export type HostEvents =
+  | HostGuestEvent<"beforeload">
+  | HostGuestEvent<"load">
+  | HostEvent<"loadallguests">
+  | HostEvent<"beforeunload">
+  | HostEvent<"unload">
+  | HostEvent<"error", { error: Error }>;
+
+/** @public */
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+
+/** @public */
 export interface HostConfig {
   /**
    * Human-readable "slug" name of the extensible area--often an entire app.
@@ -37,11 +62,15 @@ export interface HostConfig {
   guestOptions?: PortOptions;
 }
 
-type GuestFilter = (item: UIXPort) => boolean;
+type GuestFilter = (item: Port) => boolean;
 
 const passAllGuests = () => true;
 
-export class Host extends Emitter<HostEvents> implements UIXHost {
+/**
+ * TODO: document Host
+ * @public
+ */
+export class Host extends Emitter<HostEvents> {
   static containerStyle = {
     position: "fixed",
     width: "1px",
@@ -55,7 +84,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
   loading = false;
   guests: PortMap = new Map();
   private debug?: Promise<boolean>;
-  private cachedCapabilityLists: WeakMap<object, UIXPort[]> = new WeakMap();
+  private cachedCapabilityLists: WeakMap<object, Port[]> = new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
   private debugLogger: Console;
@@ -88,20 +117,20 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
   /**
    * Return all loaded guests.
    */
-  getLoadedGuests(): UIXPort[];
+  getLoadedGuests(): Port[];
   /**
    * Return loaded guests which satisfy the passed test function.
    */
-  getLoadedGuests(filter: GuestFilter): UIXPort[];
+  getLoadedGuests(filter: GuestFilter): Port[];
   /**
    * Return loaded guests which expose the provided capability spec object.
    */
   getLoadedGuests<Apis extends NamespacedApis>(
     capabilities: RequiredMethodsByName<Apis>
-  ): UIXPort[];
+  ): Port[];
   getLoadedGuests<Apis extends NamespacedApis = never>(
     filterOrCapabilities?: RequiredMethodsByName<Apis> | GuestFilter
-  ): UIXPort[] {
+  ): Port[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
@@ -153,7 +182,7 @@ export class Host extends Emitter<HostEvents> implements UIXHost {
     id: string,
     urlString: string,
     options: PortOptions = {}
-  ): Promise<UIXPort> {
+  ): Promise<Port> {
     let guest = this.guests.get(id);
     if (!guest) {
       const url = new URL(urlString);

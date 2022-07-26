@@ -4,10 +4,12 @@
 /dist
 /tmp
 /out-tsc
+/docs/build
 
 # dependencies
 node_modules
 .yalc
+yalc.lock
 
 # IDEs and editors
 /.idea

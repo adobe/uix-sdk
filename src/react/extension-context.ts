@@ -1,3 +1,6 @@
+/**
+ * @hidden
+ */
 import { createContext } from "react";
 import { Host } from "../host/index.js";
 

@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+/**
+ * Adapter to attach console logging listeners to all events on an emitter.
+ * @hidden
+ */
 import { customConsole, DebugLogger, Theme } from "./debuglog.js";
 import { Emits, NamedEvent, Unsubscriber } from "./types.js";
 

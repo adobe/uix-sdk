@@ -3,12 +3,30 @@ import {
   NamespacedApis,
   HostMethodAddress,
   ApiMethod,
-  PortEvents,
-  UIXPort,
+  NamedEvent,
 } from "../common/types.js";
 import { Connection, connectToChild } from "penpal";
 import { Emitter } from "../common/emitter.js";
 
+/** @public */
+type PortEvent<
+  Type extends string = string,
+  Detail = Record<string, unknown>
+> = NamedEvent<
+  Type,
+  Detail &
+    Record<string, unknown> & {
+      guestPort: Port;
+    }
+>;
+
+/** @public */
+export type PortEvents =
+  | PortEvent<"hostprovide">
+  | PortEvent<"unload">
+  | PortEvent<"beforecallhostmethod", HostMethodAddress>;
+
+/** @public */
 export type PortOptions = {
   timeout?: number;
   debug?: boolean;
@@ -19,7 +37,11 @@ const defaultOptions = {
   debug: false,
 };
 
-export class Port extends Emitter<PortEvents> implements UIXPort {
+/**
+ * TODO: document Port
+ * @public
+ */
+export class Port extends Emitter<PortEvents> {
   owner: string;
   url: URL;
   frame: HTMLIFrameElement;

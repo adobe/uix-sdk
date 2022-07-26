@@ -1,23 +1,59 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
-import { AsyncMethodReturns, connectToParent } from "penpal";
-import {
-  GuestEvents,
+import { AsyncMethodReturns, Connection, connectToParent } from "penpal";
+import type {
   HostConnection,
   NamespacedApis,
-  UIXGuest,
+  NamedEvent,
 } from "../common/types.js";
 import { Emitter } from "../common/emitter.js";
 import { timeoutPromise } from "../common/timeout-promise.js";
 import { makeNamespaceProxy } from "../common/namespace-proxy.js";
 
+type GuestEvent<
+  Type extends string = string,
+  Detail = Record<string, unknown>
+> = NamedEvent<
+  Type,
+  Detail &
+    Record<string, unknown> & {
+      guest: Guest;
+    }
+>;
+export type GuestEvents =
+  | GuestEvent<"beforeconnect">
+  | GuestEvent<"connecting", { connection: Connection }>
+  | GuestEvent<"connected", { connection: Connection }>
+  | GuestEvent<"error", { error: Error }>;
+
 interface GuestConfig {
+  /**
+   * String slug identifying extension. This may need to use IDs from an
+   * external system in the future.
+   */
   id: string;
+  /**
+   * Set debug flags on all libraries that have them, and add loggers to SDK
+   * objects. Log a lot to the console.
+   */
   debug?: boolean;
+  /**
+   * Time out and stop trying to reach the host after this many milliseconds
+   */
   timeout?: number;
+  /**
+   * You can pass an object to register into the constructor, as a shortcut to
+   * calling `guest.register()`
+   */
   register?: NamespacedApis;
 }
 
-class Guest extends Emitter<GuestEvents> implements UIXGuest {
+/**
+ *
+ * TODO: document Guest
+ * @public
+ *
+ */
+export class Guest extends Emitter<GuestEvents> {
   constructor(config: GuestConfig) {
     super(config.id);
     if (typeof config.timeout === "number") {

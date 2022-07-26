@@ -1,13 +1,18 @@
+/**
+ * Adapter to attach console logging listeners to a Host running in an app
+ * @hidden
+ */
 import { debugEmitter } from "../common/debug-emitter.js";
-import { PortEvents, HostEvents, UIXHost } from "../common/types.js";
+import type { PortEvents } from "../host/port.js";
+import type { Host, HostEvents } from "../host/host.js";
 
 declare global {
   interface Window {
-    __UIX_HOST?: UIXHost;
+    __UIX_HOST?: Host;
   }
 }
 
-export function debugHost(host: UIXHost) {
+export function debugHost(host: Host) {
   window.__UIX_HOST = host;
   const hostLogger = debugEmitter<HostEvents>(host, { theme: "blue medium" });
   hostLogger

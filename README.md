@@ -1,5 +1,3 @@
-# @adobe/uix-sdk
-
 ## UI Extensibility toolkit for Experience Cloud Apps
 
 With these libraries you can:
@@ -15,8 +13,16 @@ The host and guest cannot share live objects or closures; they communicate with 
 
 ### Installation
 
+The SDK has one explicit peer dependency, on the [Penpal](https://www.npmjs.com/package/penpal) iframe management library.
+
+When using the React bindings at `@adobe/uix-sdk/react`, there is an implicit React peer dependency.
+
+At minimum: 
+
 ```sh
 npm install penpal @adobe/uix-sdk
+# or
+yarn add penpal @adobe/uix-sdk
 ```
 
 ### Usage - Hosts
@@ -102,3 +108,17 @@ uix.register({
 setInterval(() => uix.host.annoy.cheerily('Hi!'), 5000);
 
 ```
+
+### Development
+
+#### Requirements
+
+- Node >= LTS Gallium (16)
+- NPM >= 7
+- **For publishing**: Access key for `https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/`
+
+:info: _This repository uses `npm` and not `yarn`, but `yarn` should work if necessary._
+
+#### Layout
+
+| 

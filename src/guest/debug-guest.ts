@@ -1,13 +1,17 @@
+/**
+ * Adapter to attach console logging listeners to a Guest running in a frame/
+ * @hidden
+ */
 import { debugEmitter } from "../common/debug-emitter.js";
-import { GuestEvents, UIXGuest } from "../common/types.js";
+import type { GuestEvents, Guest } from "./guest.js";
 
 declare global {
   interface Window {
-    __UIX_GUEST?: UIXGuest;
+    __UIX_GUEST?: Guest;
   }
 }
 
-export function debugGuest(guest: UIXGuest) {
+export function debugGuest(guest: Guest) {
   window.__UIX_GUEST = guest;
   debugEmitter<GuestEvents>(guest, {
     theme: "yellow medium",

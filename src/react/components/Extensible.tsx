@@ -8,7 +8,8 @@ import type {
 import { Host } from "../../host/index.js";
 import { ExtensionContext } from "../extension-context.js";
 
-interface ExtensionProviderProps extends HostConfig {
+/** @public */
+export interface ExtensionProviderProps extends HostConfig {
   extensions: InstalledExtensions;
   guestOptions?: PortOptions;
 }
@@ -24,6 +25,10 @@ function areExtensionsDifferent(
   );
 }
 
+/**
+ * TODO: Document Extensible.tsx
+ * @public
+ */
 export function Extensible({
   children,
   extensions,
