@@ -228,5 +228,5 @@ ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
   return result;
 }
 
-runWithArg(serveExamples, ["dev", "mode"]);
+runWithArg(serveExamples, ["dev", "demo"]);
 
