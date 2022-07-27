@@ -1,6 +1,0 @@
-*.{cjs,js,jsx}
-scripts
-node_modules
-examples
-dist
-docs

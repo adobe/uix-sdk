@@ -1,0 +1,18 @@
+{
+  "name": "guest-parcel-plain-omnibar",
+  "description": "Zalgo",
+  "private": true,
+  "version": "0.0.1",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "example:build": "parcel build src/index.html",
+    "example:dev": "parcel -p $MULTI_SERVER_PORT src/index.html",
+    "example:demo": "serve -p $MULTI_SERVER_PORT dist"
+  },
+  "dependencies": {
+    "@adobe/uix-guest": "*",
+    "humanize-duration": "^3.27.2",
+    "zalgo-js": "^1.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "guest-vite-plain-hypatia",
+  "description": "Hypatia",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "example:build": "vite build",
+    "example:dev": "vite",
+    "example:demo": "vite preview --mode production"
+  },
+  "dependencies": {
+    "@adobe/uix-guest": "*"
+  }
+}

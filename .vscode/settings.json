@@ -4,12 +4,11 @@
 		"**/dist": true
 	},
   "files.exclude": {
-    "**/.git": true,
-		"**/.yalc": true,
-		"**/dist": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true
-  },
+	"**/.DS_Store": true,
+	"**/.git": true,
+	"**/.yalc": true,
+	"**/Thumbs.db": true
+},
 
 	"git.mergeEditor": true,
 	"files.associations": {

@@ -1,55 +1,20 @@
 {
-  "name": "@adobe/uix-sdk",
-  "version": "0.0.6-rc2",
-  "description": "Tools for embedding UI Extensions into Adobe apps",
-  "publishConfig": {
-    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
-  },
-  "type": "module",
-  "browser": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
-  },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*/index.js"
-  },
-  "files": [
-    "dist",
-    "src",
-    "tsconfig.json"
-  ],
+  "name": "@adobe/uix-sdk-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for @adobe/uix-sdk development",
   "scripts": {
-    "build": "npm-run-all -p clean:{dist,docs} format -s compile:prod",
-    "clean": "run-p 'clean:*'",
-    "clean:dist": "rm -rf dist *.tsbuildinfo",
-    "clean:docs": "rm -rf docs/temp",
-    "clean:examples": "rm -rf examples/*/{dist,node_modules}",
-    "compile": "tsc --build",
-    "compile:debug": "tsc --build tsconfig-debug.json --verbose",
-    "compile:watch": "tsc-watch --noClear --onSuccess 'npm run -s dev:link'",
-    "compile:prod": "tsc --project tsconfig-prod.json",
-    "dev": "run-s --silent examples:install compile dev:link && node scripts/multi-server.js --dev",
-    "dev:link": "yalc publish --quiet --push --update",
-    "docs:build": "run-s compile docs:extract docs:generate",
-    "docs:dev": "run-p docs:watch docs:serve",
-    "docs:extract": "api-extractor run --local --verbose",
-    "docs:generate": "api-documenter markdown --input-folder ./docs/temp --output-folder ./docs/markdown/",
-    "docs:serve": "npx serve --no-clipboard docs",
-    "docs:watch": "tsc-watch --noClear --onSuccess 'npm run docs:build'",
-    "examples:build": "node scripts/run-on-examples.js 'npm run -s build'",
-    "examples:install": "node scripts/run-on-examples.js 'npm install -s && npx yalc add @adobe/uix-sdk'",
-    "examples:serve": "npm-run-all --silent -p compile:prod examples:install -s examples:build && node scripts/multi-server.js",
-    "format": "prettier --write --loglevel warn src && eslint --fix .",
-    "lint": "prettier --check --loglevel warn src && eslint .",
-    "prepare": "run-s clean lint compile:prod docs:build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "any": "npm run --workspaces --if-present",
+    "build": "npm run any build",
+    "clean": "rm -rf dist .parcel-cache node_modules/.cache examples/*/node_modules/.cache && npm run any clean",
+    "demo": "npm run any example:build && node scripts/multi-server.mjs demo",
+    "dev": "node scripts/multi-server.mjs dev",
+    "docs": "npm run run any docs",
+    "format": "prettier --write --loglevel warn packages/*/src package.json packages/*/package.json",
+    "lint": "prettier --check packages/*/src && eslint packages/*/src",
+    "test": "npm run any test",
+    "watch": "run-s dev"
   },
-  "browserslist": [
-    "> 0.2%, last 2 versions, not dead"
-  ],
   "repository": {
     "type": "git",
     "url": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk.git"
@@ -57,27 +22,43 @@
   "author": "Adobe, Inc,",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@adobe/react-spectrum": "^3.19.0",
+    "@babel/core": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
     "@microsoft/api-documenter": "^7.19.0",
     "@microsoft/api-extractor": "^7.28.6",
-    "@types/react": "^17.0.16",
+    "@types/react": "^17.0.47",
+    "@types/react-dom": "^17",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
+    "@vitejs/plugin-react": "^2.0.0",
+    "autoprefixer": "^10.4.7",
+    "bootstrap": "^5.2.0",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
+    "esbuild": "^0.14.50",
     "eslint": "^8.19.0",
     "figures": "^4.0.1",
+    "humanize-duration": "^3.27.2",
+    "jquery": "^3.6.0",
     "npm-run-all": "^4.1.5",
-    "penpal": "^6.2.2",
+    "parcel": "^2.6.2",
+    "penpal": "~6.2.2",
+    "popper.js": "^1.16.1",
+    "postcss-modules": "^4.3.1",
     "prettier": "^2.6.2",
+    "process": "^0.11.10",
     "react": "^17.0.2",
+    "react-dom": "^17",
     "serve": "^14.0.1",
     "ts-loader": "^9.3.0",
     "tsc-watch": "^5.0.3",
     "typescript": "~4.6.3",
-    "yalc": "^1.0.0-pre.53"
+    "vite": "^3.0.3",
+    "zalgo-js": "^1.0.0"
   },
-  "peerDependencies": {
-    "penpal": "^6.2.2",
-    "react": "^17.0.2"
-  }
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ]
 }

@@ -1,0 +1,45 @@
+{
+  "name": "@adobe/uix-host",
+  "version": "0.0.1",
+  "description": "Tools for embedding UIX Extensions into Adobe apps",
+  "publishConfig": {
+    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
+  },
+  "type": "module",
+  "browser": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": {
+    ".": "./src/index.ts",
+    "./*.js": "./src/$1.ts",
+    "./**/*.js": "./src/$1/$2.ts"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "tsconfig.json"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "run-p compile:*",
+    "clean": "rm -rf dist *.tsbuildinfo docs/temp",
+    "compile:bundle": "esbuild src/index.ts --sourcemap --outdir=dist --bundle --format=esm --splitting",
+    "compile:emit": "tsc --build tsconfig.json",
+    "debug-build": "tsc --project tsconfig-debug.json --verbose",
+    "watch": "tsc-watch --build tsconfig.json --silent --onSuccess 'npm run -s compile:bundle -- --log-level=error'"
+  },
+  "browserslist": [
+    "> 0.2%, last 2 versions, not dead"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk.git"
+  },
+  "author": "Adobe, Inc,",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@adobe/uix-core": "0.0.1",
+    "penpal": "~6.2.2"
+  }
+}
