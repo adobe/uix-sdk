@@ -15,7 +15,7 @@ The host and guest cannot share live objects or closures; they communicate with 
 
 The SDK has one explicit peer dependency, on the [Penpal](https://www.npmjs.com/package/penpal) iframe management library.
 
-When using the React bindings at `@adobe/uix-react`, there is an implicit React peer dependency.
+When using the React bindings at `@adobe/uix-host-react`, there is an implicit React peer dependency.
 
 At minimum: 
 
@@ -31,7 +31,7 @@ For host apps, the React bindings are currently the most mature. The underlying 
 
 #### `App.jsx`
 ```jsx
-import { Extensible } from '@adobe/uix-react'
+import { Extensible } from '@adobe/uix-host-react'
 
 // "<Extensible>" provides a singleton UIX Host object for the part of the React app it contains.
 // Any descendent component may use the `useExtensions()` hook.
@@ -52,7 +52,7 @@ function ExtensibleApp() {
 #### `Component.jsx`
 ```jsx
 import React, { useEffect, useState } from 'react';
-import { useExtensions } from '@adobe/uix-react'
+import { useExtensions } from '@adobe/uix-host-react'
 function App() {
 
   const { extensions } = useExtensions(() => ({

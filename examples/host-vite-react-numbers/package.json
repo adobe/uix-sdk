@@ -10,6 +10,6 @@
     "example:demo": "vite preview --mode production"
   },
   "dependencies": {
-    "@adobe/uix-react": "*"
+    "@adobe/uix-host-react": "*"
   }
 }

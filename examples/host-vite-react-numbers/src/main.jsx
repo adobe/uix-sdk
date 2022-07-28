@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Extensible } from "@adobe/uix-react";
+import { Extensible } from "@adobe/uix-host-react";
 import App from "./App";
 import "./index.css";
 
