@@ -1,6 +1,7 @@
 import { basename, resolve } from "path";
 import { readdir, readFile } from "fs/promises";
 import chalk from "chalk";
+import figures from "figures";
 
 export async function getWorkspaces(category) {
   const workspaceNames = await readdir(resolve(process.cwd(), category));
@@ -18,17 +19,34 @@ export async function getWorkspaces(category) {
   );
 }
 
-export async function runWithArg(fn, allowedArgs) {
-  const prefix = chalk.bold.redBright("Error");
-  const placeholder = chalk.yellow("%s");
-
-  const errorMessage = `${prefix}: Command line argument to ${placeholder} must be one of: ${placeholder}
+const errorPrefix = chalk.bold.redBright("Error");
+const placeholder = chalk.yellow("%s");
+const errorMessage = `${errorPrefix}: Command line argument to ${placeholder} must be one of: ${placeholder}
 but it was ${placeholder}`;
 
+const LogFormats = {
+  error: [figures.circleCross, chalk.redBright(" Error: "), chalk.red],
+  warn: [figures.warning, chalk.yellowBright(" Warning: "), chalk.yellow],
+  log: ["", "", (x) => x],
+  done: [figures.checkboxCircleOn, chalk.greenBright(" Done: "), chalk.green],
+};
+
+export const logger = Object.keys(LogFormats).reduce((logger, level) => {
+  const [symbol, prefix, color] = level;
+  const method = typeof console[level] === "function" ? level : "log";
+  return {
+    ...logger,
+    [level](first, ...rest) {
+      console[method](color(`${symbol}${prefix}${first}`), ...rest);
+    },
+  };
+}, {});
+
+export async function runWithArg(fn, allowedArgs) {
   try {
     const arg = process.argv[2] || "not provided";
     if (!arg || !allowedArgs.includes(arg)) {
-      console.error(
+      logger.error(
         errorMessage,
         basename(process.argv[1]),
         allowedArgs.map((opt) => `\n - ${opt}`).join(""),
@@ -38,7 +56,7 @@ but it was ${placeholder}`;
     }
     await fn(arg);
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     process.exit(1);
   }
 }
