@@ -1,27 +1,31 @@
 import { resolve } from "path";
 import { readFile, writeFile } from "fs/promises";
-import { execFileSync as exec, spawnSync } from "child_process";
-import { getWorkspaces, runWithArg, logger } from "./script-runner.mjs";
+import {
+  getWorkspaces,
+  logger,
+  runWithArg,
+  sh,
+  shResult,
+} from "./script-runner.mjs";
 import semver from "semver";
 
 const mainBranchName = "main";
 
-function doGit(...args) {
-  return exec("git", args, { encoding: "utf-8" }).trim();
+const gitSays = async (...args) => shResult("git", args);
+const gitDoes = async (...argSets) => {
+  for (const argSet of argSets) {
+    await sh("git", argSet);
+  }
+};
+
+async function notOnMainBranch() {
+  const currentBranch = await gitSays("branch", "--show-current");
+  return currentBranch !== mainBranchName;
 }
 
-function showGit(...args) {
-  logger.log(`git ${args.join(" ")}`);
-  spawnSync("git", args, { encoding: "utf-8" });
-}
-
-function notOnMainBranch() {
-  return doGit("branch", "--show-current") !== mainBranchName;
-}
-
-function workingTreeNotEmpty() {
-  const output = doGit("status", "--porcelain");
-  return !!output;
+async function workingTreeNotEmpty() {
+  const output = await gitSays("status", "--porcelain");
+  return output !== "";
 }
 
 function setDepRange(version) {
@@ -39,25 +43,12 @@ async function updatePackageJson(dir, newPkg) {
 
 async function release(releaseType) {
   const sdks = await getWorkspaces("packages");
-  let workingDir = process.cwd();
-  try {
-    const gitRoot = doGit("rev-parse", "--show-toplevel");
-    if (gitRoot !== workingDir) {
-      logger.warn("Changing directory to %s", gitRoot);
-      process.chdir(gitRoot);
-      workingDir = gitRoot;
-    }
-  } catch (e) {
-    throw new Error(
-      `Need to be in the git repo for @adobe/uix-sdk-monorepo. ${e.message}`
-    );
-  }
 
-  if (notOnMainBranch()) {
+  if (await notOnMainBranch()) {
     throw new Error(`Must be on branch "${mainBranchName}" to release.`);
   }
 
-  if (workingTreeNotEmpty()) {
+  if (await workingTreeNotEmpty()) {
     throw new Error(
       "There are outstanding changes in the git working tree. Commit or clean the work tree before running this script."
     );
@@ -117,18 +108,19 @@ Continue the release manually.`);
   logger.done("Updated monorepo base version to %s", newTag);
 
   logger.log("Rerunning install to rewrite package lock:");
-  spawnSync("npm", ["install"]);
+  await sh("npm", "install");
   logger.done("Installed. Creating git commit:");
-  showGit("add", ".");
-  showGit("commit", "-m", newTag);
-  showGit("tag", "-a", newTag, "-m", newTag);
-  logger.done("Version change committed and tagged.");
-  showGit("push", "--follow-tags");
+  await gitDoes(
+    ["add", "."],
+    ["commit", "-m"],
+    ["tag", "-a", newTag, "-m", newTag],
+    ["push", "--follow-tags"]
+  );
   logger.done("Pushed version commit and tag to remote.");
   logger.log("Running npm publish on each package.");
 
   for (const sdk of sdks) {
-    spawnSync("npm", ["publish"], { cwd: sdk.cwd });
+    await sh("npm", ["publish"], { cwd: sdk.cwd });
   }
 }
 

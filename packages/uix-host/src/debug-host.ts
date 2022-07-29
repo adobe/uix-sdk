@@ -1,30 +1,28 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import { debugEmitter } from "@adobe/uix-core";
+import { debugEmitter, Emits, GuestConnection } from "@adobe/uix-core";
 import type { PortEvents } from "./port.js";
-import type { Host, HostEvents } from "./host.js";
+import type { HostEvents } from "./host.js";
 
-declare global {
-  interface Window {
-    __UIX_HOST?: Host;
-  }
-}
+type GenericPortEvents = PortEvents<Record<string, unknown>>;
 
-export function debugHost(host: Host) {
-  window.__UIX_HOST = host;
-  const hostLogger = debugEmitter<HostEvents>(host, {
+type Portlike = GuestConnection & Emits<GenericPortEvents>;
+
+export function debugHost(host: Emits<HostEvents>) {
+  const hostLogger = debugEmitter(host, {
     theme: "blue medium",
     type: "Host",
   });
   hostLogger
     .listen("guestbeforeload", (log, event) => {
-      const {
-        detail: { guest },
-      } = event;
+      const { detail } = event;
+      const guest = detail.guest as Portlike;
       log.info(event, "Guest ID %s", guest.id);
-      const portLogger = debugEmitter<PortEvents>(guest, {
+      const portLogger = debugEmitter(guest, {
         theme: "green medium",
         type: "Port",
         id: `${host.id} ➔ ${guest.id}`,

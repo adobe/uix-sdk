@@ -1,3 +1,4 @@
+import { spawnSync } from "child_process";
 import esbuild from "esbuild";
 import { getWorkspaces, runWithArg } from "./script-runner.mjs";
 
@@ -12,18 +13,24 @@ const config = {
 async function bundle(mode) {
   const sdks = await getWorkspaces("packages");
   for (const { cwd, pkg } of sdks) {
-    console.log("Building %s", pkg.name);
-    const result = await esbuild.build({
-      absWorkingDir: cwd,
-      bundle: true,
-      entryPoints: ["src/index.ts"],
-      sourcemap: true,
-      outdir: "dist",
-      format: "esm",
-      splitting: true,
-      external: ["react"],
-    });
-    console.log(result);
+    if (
+      spawnSync("npm", ["run", "-w", pkg.name, "build"], { stdio: "inherit" })
+        .status !== 0
+    ) {
+      break;
+    }
+    // console.log("Building %s", pkg.name);
+    // const result = await esbuild.build({
+    //   absWorkingDir: cwd,
+    //   bundle: true,
+    //   entryPoints: ["src/index.ts"],
+    //   sourcemap: true,
+    //   outdir: "dist",
+    //   format: "esm",
+    //   splitting: true,
+    //   external: ["react"],
+    // });
+    // console.log(result);
   }
 }
 

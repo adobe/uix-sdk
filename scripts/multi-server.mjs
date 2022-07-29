@@ -4,7 +4,7 @@ import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import { getWorkspaces, runWithArg } from "./script-runner.mjs";
+import { getExamples, getSdks, runWithArg } from "./script-runner.mjs";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -107,7 +107,7 @@ async function serveExamples(mode) {
   // let's do an incremental compile
 
   const isDev = mode === "dev";
-  const allExamples = await getWorkspaces("examples");
+  const allExamples = await getExamples();
   let examples = await checkSdkResolution(allExamples);
 
   if (examples.broken.length > 0) {
@@ -179,14 +179,12 @@ async function serveExamples(mode) {
   let runSpecs = [...guests, ...hosts];
 
   if (isDev) {
-    const watchSdksToo = (await getWorkspaces("packages")).map(
-      (sdkPackage) => ({
-        cwd: sdkPackage.cwd,
-        id: sdkPackage.pkg.name,
-        name: sdkPackage.pkg.name,
-        command: "npm run -s watch",
-      })
-    );
+    const watchSdksToo = (await getSdks()).map((sdkPackage) => ({
+      cwd: sdkPackage.cwd,
+      id: sdkPackage.pkg.name,
+      name: sdkPackage.pkg.name,
+      command: "npm run -s watch",
+    }));
     runSpecs = runSpecs.concat(watchSdksToo);
   }
 

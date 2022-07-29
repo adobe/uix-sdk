@@ -1,28 +1,21 @@
+import { promisify } from "util";
 import { basename, resolve } from "path";
 import { readdir, readFile } from "fs/promises";
 import chalk from "chalk";
 import figures from "figures";
+import { execFile, spawn } from "child_process";
+const execP = promisify(execFile);
 
-export async function getWorkspaces(category) {
-  const workspaceNames = await readdir(resolve(process.cwd(), category));
-  return Promise.all(
-    workspaceNames.map(async (name) => {
-      const workspaceDir = resolve(process.cwd(), category, name);
-      const pkg = JSON.parse(
-        await readFile(resolve(workspaceDir, "package.json"))
-      );
-      return {
-        cwd: workspaceDir,
-        pkg,
-      };
-    })
-  );
-}
+const highlighter =
+  (formatter) =>
+  (parts, ...fields) => {
+    const [start, ...joins] = parts;
+    return `${start}${fields
+      .map((field, i) => `${formatter(field)}${joins[i]}`)
+      .join("")}`;
+  };
 
-const errorPrefix = chalk.bold.redBright("Error");
-const placeholder = chalk.yellow("%s");
-const errorMessage = `${errorPrefix}: Command line argument to ${placeholder} must be one of: ${placeholder}
-but it was ${placeholder}`;
+export const highlight = highlighter(chalk.yellow);
 
 const LogFormats = {
   error: [figures.circleCross, chalk.red],
@@ -42,21 +35,85 @@ export const logger = Object.keys(LogFormats).reduce((logger, level) => {
   };
 }, {});
 
-export async function runWithArg(fn, allowedArgs) {
-  try {
-    const arg = process.argv[2] || "not provided";
-    if (!arg || !allowedArgs.includes(arg)) {
-      logger.error(
-        errorMessage,
-        basename(process.argv[1]),
-        allowedArgs.map((opt) => `\n - ${opt}`).join(""),
-        arg
-      );
-      process.exit(1);
+export async function sh(cmd, args, opts) {
+  logger.log(`${cmd} ${args.join(" ")}`);
+  return new Promise((resolve, reject) => {
+    try {
+      const child = spawn(cmd, args, {
+        stdio: "inherit",
+        encoding: "utf-8",
+        ...opts,
+      });
+      child.on("error", reject);
+      child.on("close", (code) => (code === 0 ? resolve() : reject()));
+    } catch (e) {
+      reject(e);
     }
-    await fn(arg);
+  });
+}
+
+export async function shResult(cmd, args, opts = {}) {
+  return (await execP(cmd, args, { encoding: "utf-8", ...opts })).stdout.trim();
+}
+
+export async function getWorkspaces(category) {
+  const workspaceNames = await readdir(resolve(process.cwd(), category));
+  return Promise.all(
+    workspaceNames.map(async (name) => {
+      const workspaceDir = resolve(process.cwd(), category, name);
+      const pkg = JSON.parse(
+        await readFile(resolve(workspaceDir, "package.json"))
+      );
+      return {
+        cwd: workspaceDir,
+        pkg,
+      };
+    })
+  );
+}
+
+export const getSdks = () => getWorkspaces("packages");
+export const getExamples = () => getWorkspaces("examples");
+
+export function argIn(allowedArgs, passed) {
+  const arg = passed || "not provided";
+  if ((allowedArgs && !arg) || !allowedArgs.includes(arg)) {
+    return highlight`Command line argument to ${basename(
+      process.argv[1]
+    )} must be one of:${allowedArgs.map((opt) => `\n - ${opt}`).join("")}
+but it was ${arg}`;
+  }
+}
+
+function deny(reason) {
+  logger.error(reason);
+  process.exit(1);
+}
+
+export async function runWithArg(fn, validator = () => {}) {
+  const validateArg = Array.isArray(validator)
+    ? (arg) => argIn(validator, arg)
+    : validator;
+  const invalidReason = await validateArg(process.argv[2], highlight);
+  if (invalidReason) {
+    deny(invalidReason);
+  }
+  try {
+    let workingDir = process.cwd();
+    try {
+      const gitRoot = await shResult("git", ["rev-parse", "--show-toplevel"]);
+      if (gitRoot !== workingDir) {
+        logger.warn("Changing directory to %s", gitRoot);
+        process.chdir(gitRoot);
+        workingDir = gitRoot;
+      }
+    } catch (e) {
+      deny(
+        `Need to be in the git repo for @adobe/uix-sdk-monorepo. ${e.message}`
+      );
+    }
+    await fn(process.argv[2], workingDir);
   } catch (e) {
-    logger.error(e);
-    process.exit(1);
+    deny(e);
   }
 }

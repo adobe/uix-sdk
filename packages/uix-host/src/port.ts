@@ -1,8 +1,8 @@
 import type {
+  GuestConnection,
   RequiredMethodsByName,
-  NamespacedApis,
+  RemoteApis,
   HostMethodAddress,
-  ApiMethod,
   NamedEvent,
 } from "@adobe/uix-core";
 import { Emitter } from "@adobe/uix-core";
@@ -10,21 +10,25 @@ import { Connection, connectToChild } from "penpal";
 
 /** @public */
 type PortEvent<
+  GuestApi,
   Type extends string = string,
   Detail = Record<string, unknown>
 > = NamedEvent<
   Type,
   Detail &
     Record<string, unknown> & {
-      guestPort: Port;
+      guestPort: Port<GuestApi>;
     }
 >;
 
 /** @public */
-export type PortEvents =
-  | PortEvent<"hostprovide">
-  | PortEvent<"unload">
-  | PortEvent<"beforecallhostmethod", HostMethodAddress>;
+export type PortEvents<
+  GuestApi,
+  HostApi extends Record<string, unknown> = Record<string, unknown>
+> =
+  | PortEvent<GuestApi, "hostprovide">
+  | PortEvent<GuestApi, "unload">
+  | PortEvent<GuestApi, "beforecallhostmethod", HostMethodAddress<HostApi>>;
 
 /** @public */
 export type PortOptions = {
@@ -41,15 +45,19 @@ const defaultOptions = {
  * TODO: document Port
  * @public
  */
-export class Port extends Emitter<PortEvents> {
+export class Port<GuestApi>
+  extends Emitter<PortEvents<GuestApi>>
+  implements GuestConnection
+{
   owner: string;
   url: URL;
   frame: HTMLIFrameElement;
-  connection: Connection<NamespacedApis>;
-  apis: NamespacedApis;
+  connection: Connection<RemoteApis<GuestApi>>;
+  apis: RemoteApis;
   error?: Error;
-  private hostApis: NamespacedApis = {};
+  private hostApis: RemoteApis = {};
   private debugLogger?: Console;
+  private isLoaded = false;
   private timeout: number;
   private debug: boolean;
   private runtimeContainer: HTMLElement;
@@ -71,7 +79,7 @@ export class Port extends Emitter<PortEvents> {
     this.runtimeContainer = config.runtimeContainer;
   }
   isLoading(): boolean {
-    return !(this.error || this.apis);
+    return !(this.isLoaded || this.error);
   }
   async load() {
     try {
@@ -85,7 +93,7 @@ export class Port extends Emitter<PortEvents> {
       throw e;
     }
   }
-  provide(apis: NamespacedApis) {
+  provide(apis: RemoteApis) {
     Object.assign(this.hostApis, apis);
     this.emit("hostprovide", { guestPort: this, apis });
   }
@@ -124,14 +132,14 @@ export class Port extends Emitter<PortEvents> {
             level
           )}.${prop} is not an object; namespaces must be objects with methods`
       );
-      return next as NamespacedApis;
+      return next as RemoteApis<GuestApi>;
     }, this.hostApis);
     this.assert(
       typeof methodCallee[name] === "function" &&
         Reflect.has(methodCallee, name),
       () => `"${dots(path.length - 1)}.${name}" is not a function`
     );
-    const method = methodCallee[name] as unknown as ApiMethod;
+    const method = methodCallee[name] as (...args: unknown[]) => T;
     this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
     return method.apply(methodCallee, [
       { id: this.id, url: this.url },
@@ -151,19 +159,20 @@ export class Port extends Emitter<PortEvents> {
   private assertLoaded() {
     this.assert(!this.isLoading(), () => "Attempted to interact before loaded");
   }
-  hasCapabilities<Apis extends NamespacedApis>(
-    requiredMethods: RequiredMethodsByName<Apis>
-  ) {
+  hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
     this.assertLoaded();
-    return Object.keys(requiredMethods).every((key: string) => {
+    return Object.keys(requiredMethods).every((key) => {
       if (!Reflect.has(this.apis, key)) {
         return false;
       }
       const api = this.apis[key];
-      const methodList = requiredMethods[key];
+      const methodList = requiredMethods[
+        key as keyof typeof requiredMethods
+      ] as string[];
       return methodList.every(
         (methodName: string) =>
-          Reflect.has(api, methodName) && typeof api[methodName] === "function"
+          Reflect.has(api, methodName) &&
+          typeof api[methodName as keyof typeof api] === "function"
       );
     });
   }
@@ -187,7 +196,8 @@ export class Port extends Emitter<PortEvents> {
           this.invokeHostMethod(address),
       },
     });
-    this.apis = (await this.connection.promise) as unknown as NamespacedApis;
+    this.apis = (await this.connection.promise) as unknown as RemoteApis;
+    this.isLoaded = true;
     if (this.debugLogger) {
       this.debugLogger.info(
         `Guest ${this.id} established connection, received methods`,

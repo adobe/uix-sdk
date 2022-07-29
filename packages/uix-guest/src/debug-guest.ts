@@ -2,18 +2,13 @@
  * Adapter to attach console logging listeners to a Guest running in a frame/
  * @hidden
  */
-import { debugEmitter } from "@adobe/uix-core";
-import type { GuestEvents, Guest } from "./guest.js";
+import { debugEmitter, Emits } from "@adobe/uix-core";
+import { GuestEvents } from "./guest";
 
-declare global {
-  interface Window {
-    __UIX_GUEST?: Guest;
-  }
-}
-
-export function debugGuest(guest: Guest) {
-  window.__UIX_GUEST = guest;
-  debugEmitter<GuestEvents>(guest, {
+export function debugGuest<Out extends object, In extends object>(
+  guest: Emits<GuestEvents<Out, In>>
+) {
+  debugEmitter(guest, {
     theme: "yellow medium",
     type: "Guest",
   })
@@ -27,6 +22,11 @@ export function debugGuest(guest: Guest) {
       log.info(guest);
     })
     .listen("error", (log, { detail: { error, guest } }) => {
-      log.error("❌ Failed to connect! %s", error.message, guest, error);
+      log.error(
+        "❌ Failed to connect! %s",
+        (error as Error).message,
+        guest,
+        error
+      );
     });
 }

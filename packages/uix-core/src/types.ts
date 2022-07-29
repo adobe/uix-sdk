@@ -1,28 +1,49 @@
-/**
- * A generic function that returns a Promise for its type argument.
- */
-export type ApiMethod<T = unknown> = (...args: unknown[]) => Promise<T>;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { AsyncMethodReturns } from "penpal";
+
+type VirtualApi = Record<string, object | ((...args: unknown[]) => unknown)>;
 
 /**
- * A generic dictionary of {@link ApiMethod} object.
+ * Extract keys of T whose values are are assignable to U.
  */
-export type GuestApi = {
-  [methodName: string]: ApiMethod;
+type ExtractKeys<T, U> = {
+  [P in keyof T]: T[P] extends U ? P : never;
+}[keyof T];
+/**
+ * A mapped type to recursively convert non async methods into async methods and exclude
+ * any non function properties from T.
+ */
+export type LocalApis<Api = VirtualApi> = {
+  [K in ExtractKeys<
+    Api,
+    (...args: unknown[]) => unknown | object
+  >]: Api[K] extends (...args: unknown[]) => PromiseLike<any>
+    ? Api[K]
+    : Api[K] extends (...args: infer A) => infer R
+    ? (...args: A) => R
+    : LocalApis<Api[K]>;
 };
+/**
 
 /**
- * An arbitrary-depth dictionary of {@link GuestApi} objects.
+ * A recursive object of simple methods, all of which are async in the new type.
  */
-export interface NamespacedApis {
-  [k: string]: NamespacedApis | GuestApi;
-}
+export type RemoteApis<Api = VirtualApi> = AsyncMethodReturns<Api>;
+
+/**
+ * A local API paired with a remote API, describing a contract with a remote.
+ */
+export type ApiContract<Incoming, Outgoing> = {
+  incoming: RemoteApis<Incoming>;
+  outgoing: LocalApis<Outgoing>;
+};
 
 /**
  * A specifier for methods to be expected on a remote interface. Used in
  * `Port.hasCapabilities` and `useExtensions.requires`
  */
-export type RequiredMethodsByName<Apis extends NamespacedApis> = {
-  [Name in keyof Apis]: (keyof Apis[Name])[];
+export type RequiredMethodsByName<T> = {
+  [Name in keyof RemoteApis<T>]: (keyof RemoteApis<T>[Name])[];
 };
 
 /**
@@ -55,7 +76,7 @@ export interface Extension {
  * ```
  *
  */
-export interface HostMethodAddress {
+export interface HostMethodAddress<Args = unknown[]> {
   /**
    * Consecutive dot lookups on nested objects before the actual function call.
    */
@@ -67,7 +88,7 @@ export interface HostMethodAddress {
   /**
    * Any (serializable) arguments to the remote function.
    */
-  args: unknown[];
+  args: Args;
 }
 
 /**
@@ -85,6 +106,15 @@ export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
  */
 export interface HostConnection<T = unknown> {
   invokeHostMethod: RemoteMethodInvoker<T>;
+}
+
+export interface GuestConnection {
+  id: string;
+  load(): Promise<unknown>;
+  hasCapabilities(capabilities: unknown): boolean;
+  isLoading(): boolean;
+  provide(apis: unknown): void;
+  unload(): Promise<unknown>;
 }
 
 /**

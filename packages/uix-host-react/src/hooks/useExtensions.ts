@@ -1,17 +1,21 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import type { NamespacedApis, RequiredMethodsByName } from "@adobe/uix-core";
-import type { Port, Host } from "@adobe/uix-host";
+import type {
+  GuestConnection,
+  RemoteApis,
+  RequiredMethodsByName,
+} from "@adobe/uix-core";
+import type { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
-interface TypedGuestConnection<T extends NamespacedApis> {
-  id: Port["id"];
+interface TypedGuestConnection<T extends RemoteApis> extends GuestConnection {
+  id: GuestConnection["id"];
   apis: T;
 }
 
 /** @public */
 export interface UseExtensionsConfig<
-  Incoming extends NamespacedApis,
-  Outgoing extends NamespacedApis
+  Incoming extends RemoteApis,
+  Outgoing extends RemoteApis
 > {
   requires?: RequiredMethodsByName<Incoming>;
   provides?: Outgoing;
@@ -19,7 +23,7 @@ export interface UseExtensionsConfig<
 }
 
 /** @public */
-export interface UseExtensionsResult<T extends NamespacedApis> {
+export interface UseExtensionsResult<T extends RemoteApis> {
   extensions: TypedGuestConnection<T>[];
   loading: boolean;
   error?: Error;
@@ -34,8 +38,8 @@ export interface UseExtensionsResult<T extends NamespacedApis> {
  * @param deps - Any additional dependencies to break cache
  */
 export function useExtensions<
-  Incoming extends NamespacedApis,
-  Outgoing extends NamespacedApis = NamespacedApis
+  Incoming extends RemoteApis,
+  Outgoing extends RemoteApis = RemoteApis
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = []

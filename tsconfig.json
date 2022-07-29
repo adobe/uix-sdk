@@ -10,13 +10,14 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "jsx": "react",
-    "lib": ["es2020.promise", "dom"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "module": "ES2020",
     "moduleResolution": "node",
     "preserveWatchOutput": true,
     "noImplicitAny": true,
-    "outDir": "dist",
-    "rootDir": "src",
     "target": "ES2020",
     "sourceMap": true
   },

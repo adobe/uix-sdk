@@ -49,6 +49,7 @@
     "tsc-watch": "^5.0.3",
     "typescript": "~4.6.3",
     "vite": "^3.0.3",
+    "yalc": "^1.0.0-pre.53",
     "zalgo-js": "^1.0.0"
   },
   "workspaces": [

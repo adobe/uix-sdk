@@ -1,29 +1,32 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 import { AsyncMethodReturns, Connection, connectToParent } from "penpal";
 import type {
+  RemoteApis,
+  LocalApis,
   HostConnection,
-  NamespacedApis,
   NamedEvent,
 } from "@adobe/uix-core";
 import { Emitter, makeNamespaceProxy, timeoutPromise } from "@adobe/uix-core";
 
 type GuestEvent<
+  Outgoing extends object,
+  Incoming extends object,
   Type extends string = string,
   Detail = Record<string, unknown>
 > = NamedEvent<
   Type,
   Detail &
     Record<string, unknown> & {
-      guest: Guest;
+      guest: Guest<Outgoing, Incoming>;
     }
 >;
-export type GuestEvents =
-  | GuestEvent<"beforeconnect">
-  | GuestEvent<"connecting", { connection: Connection }>
-  | GuestEvent<"connected", { connection: Connection }>
-  | GuestEvent<"error", { error: Error }>;
+export type GuestEvents<Outgoing extends object, Incoming extends object> =
+  | GuestEvent<Outgoing, Incoming, "beforeconnect">
+  | GuestEvent<Outgoing, Incoming, "connecting", { connection: Connection }>
+  | GuestEvent<Outgoing, Incoming, "connected", { connection: Connection }>
+  | GuestEvent<Outgoing, Incoming, "error", { error: Error }>;
 
-interface GuestConfig {
+interface GuestConfig<GuestApi> {
   /**
    * String slug identifying extension. This may need to use IDs from an
    * external system in the future.
@@ -42,7 +45,7 @@ interface GuestConfig {
    * You can pass an object to register into the constructor, as a shortcut to
    * calling `guest.register()`
    */
-  register?: NamespacedApis;
+  register?: LocalApis<GuestApi>;
 }
 
 /**
@@ -51,8 +54,11 @@ interface GuestConfig {
  * @public
  *
  */
-export class Guest extends Emitter<GuestEvents> {
-  constructor(config: GuestConfig) {
+export class Guest<
+  Outgoing extends object,
+  Incoming extends object
+> extends Emitter<GuestEvents<Outgoing, Incoming>> {
+  constructor(config: GuestConfig<Outgoing>) {
     super(config.id);
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
@@ -60,7 +66,7 @@ export class Guest extends Emitter<GuestEvents> {
     if (config.debug) {
       this.debug = import("./debug-guest.js")
         .then(({ debugGuest }) => {
-          debugGuest(this);
+          debugGuest<Outgoing, Incoming>(this);
           return true;
         })
         .catch((e) => {
@@ -75,7 +81,7 @@ export class Guest extends Emitter<GuestEvents> {
         });
     }
   }
-  host: NamespacedApis = makeNamespaceProxy(async (address) => {
+  host: RemoteApis<Incoming> = makeNamespaceProxy<Incoming>(async (address) => {
     await this.hostConnectionPromise;
     try {
       const result = await timeoutPromise(
@@ -94,10 +100,10 @@ export class Guest extends Emitter<GuestEvents> {
   });
   private timeout = 10000;
   private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
-  private localMethods: NamespacedApis;
+  private localMethods: LocalApis<Outgoing>;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
   private debug: Promise<boolean>;
-  async register(apis: NamespacedApis) {
+  async register(apis: LocalApis<Outgoing>) {
     await this.debug;
     this.localMethods = apis;
     await this.connect();
@@ -105,7 +111,7 @@ export class Guest extends Emitter<GuestEvents> {
   private async connect() {
     this.emit("beforeconnect", { guest: this });
     try {
-      const connection = connectToParent<HostConnection>({
+      const connection = connectToParent<HostConnection<Incoming>>({
         timeout: this.timeout,
         methods: this.localMethods,
       });
@@ -121,7 +127,9 @@ export class Guest extends Emitter<GuestEvents> {
   }
 }
 
-export function createGuest(config: GuestConfig) {
+export function createGuest<Outgoing extends object>(
+  config: GuestConfig<Outgoing>
+) {
   const guest = new Guest(config);
   return guest;
 }

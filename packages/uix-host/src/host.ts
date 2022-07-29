@@ -1,6 +1,7 @@
 import type {
   Extension,
-  NamespacedApis,
+  GuestConnection,
+  RemoteApis,
   NamedEvent,
   RequiredMethodsByName,
 } from "@adobe/uix-core";
@@ -11,7 +12,7 @@ import { Port, PortOptions } from "./port.js";
  * Dictionary of {@link Port} objects by extension ID.
  * @public
  */
-export type PortMap = Map<string, Port>;
+export type PortMap = Map<string, GuestConnection>;
 
 /** @public */
 export type HostEvent<
@@ -20,7 +21,7 @@ export type HostEvent<
 > = NamedEvent<Type, Detail & Record<string, unknown> & { host: Host }>;
 type HostGuestEvent<Type extends string> = HostEvent<
   `guest${Type}`,
-  { guest: Port }
+  { guest: GuestConnection }
 >;
 
 /** @public */
@@ -62,7 +63,7 @@ export interface HostConfig {
   guestOptions?: PortOptions;
 }
 
-type GuestFilter = (item: Port) => boolean;
+type GuestFilter = (item: GuestConnection) => boolean;
 
 const passAllGuests = () => true;
 
@@ -84,7 +85,8 @@ export class Host extends Emitter<HostEvents> {
   loading = false;
   guests: PortMap = new Map();
   private debug?: Promise<boolean>;
-  private cachedCapabilityLists: WeakMap<object, Port[]> = new WeakMap();
+  private cachedCapabilityLists: WeakMap<object, GuestConnection[]> =
+    new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
   private debugLogger: Console;
@@ -117,20 +119,20 @@ export class Host extends Emitter<HostEvents> {
   /**
    * Return all loaded guests.
    */
-  getLoadedGuests(): Port[];
+  getLoadedGuests(): GuestConnection[];
   /**
    * Return loaded guests which satisfy the passed test function.
    */
-  getLoadedGuests(filter: GuestFilter): Port[];
+  getLoadedGuests(filter: GuestFilter): GuestConnection[];
   /**
    * Return loaded guests which expose the provided capability spec object.
    */
-  getLoadedGuests<Apis extends NamespacedApis>(
+  getLoadedGuests<Apis extends RemoteApis>(
     capabilities: RequiredMethodsByName<Apis>
-  ): Port[];
-  getLoadedGuests<Apis extends NamespacedApis = never>(
+  ): GuestConnection[];
+  getLoadedGuests<Apis extends RemoteApis = never>(
     filterOrCapabilities?: RequiredMethodsByName<Apis> | GuestFilter
-  ): Port[] {
+  ): GuestConnection[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
@@ -182,7 +184,7 @@ export class Host extends Emitter<HostEvents> {
     id: string,
     urlString: string,
     options: PortOptions = {}
-  ): Promise<Port> {
+  ): Promise<GuestConnection> {
     let guest = this.guests.get(id);
     if (!guest) {
       const url = new URL(urlString);
@@ -212,7 +214,7 @@ export class Host extends Emitter<HostEvents> {
     this.emit("guestload", { guest, host: this });
     return guest;
   }
-  private getLoadedGuestsWith<Apis extends NamespacedApis>(
+  private getLoadedGuestsWith<Apis extends RemoteApis>(
     capabilities: RequiredMethodsByName<Apis>
   ) {
     if (this.cachedCapabilityLists.has(capabilities)) {

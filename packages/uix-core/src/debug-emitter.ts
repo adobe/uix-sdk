@@ -4,32 +4,29 @@
  * @hidden
  */
 import { customConsole, DebugLogger, Theme } from "./debuglog.js";
-import { Emits, NamedEvent, Unsubscriber } from "./types.js";
+import { Emits, Unsubscriber } from "./types.js";
 
-interface EmitterDebugLogger<Events extends NamedEvent> extends DebugLogger {
-  listen<Type extends Events["type"]>(
-    type: Type,
-    listener: (
-      logger: DebugLogger,
-      ev: Extract<Events, { type: Type }>
-    ) => unknown
+interface EmitterDebugLogger extends DebugLogger {
+  listen(
+    type: string,
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
   ): this;
 }
 
-export function debugEmitter<Events extends NamedEvent>(
-  emitter: Emits<Events>,
+export function debugEmitter(
+  emitter: Emits,
   opts: {
     theme: Theme;
     type?: string;
     id?: string;
   }
-): EmitterDebugLogger<Events> {
+): EmitterDebugLogger {
   const logger = customConsole(
     opts.theme,
     opts.type ||
       (Object.getPrototypeOf(emitter) as typeof emitter).constructor.name,
     opts.id || emitter.id
-  );
+  ) as EmitterDebugLogger;
   const oldDispatch = emitter.dispatchEvent;
   emitter.dispatchEvent = (event) => {
     logger.pushState({ type: "event", name: event.type });
@@ -46,22 +43,17 @@ export function debugEmitter<Events extends NamedEvent>(
     subscriptions.forEach((unsubscribe) => unsubscribe());
   };
 
-  const emitterLogger = logger as EmitterDebugLogger<Events>;
-
-  function listen<Type extends Events["type"]>(
-    type: Type,
-    listener: (
-      logger: DebugLogger,
-      ev: Extract<Events, { type: Type }>
-    ) => unknown
-  ): typeof emitterLogger {
+  function listen(
+    type: string,
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
+  ) {
     subscriptions.push(
-      emitter.addEventListener(type, (event) => listener(emitterLogger, event))
+      emitter.addEventListener(type, (event) => listener(logger, event))
     );
-    return emitterLogger;
+    return logger;
   }
 
-  emitterLogger.listen = listen;
+  logger.listen = listen;
 
-  return emitterLogger;
+  return logger;
 }
