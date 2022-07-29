@@ -41,7 +41,7 @@ async function updatePackageJson(dir, newPkg) {
   );
 }
 
-async function release(releaseType) {
+async function release(releaseType, workingDir) {
   const sdks = await getWorkspaces("packages");
 
   if (await notOnMainBranch()) {
