@@ -7,12 +7,12 @@ import semver from "semver";
 const mainBranchName = "main";
 
 function doGit(...args) {
-  return exec("git", args);
+  return exec("git", args, { encoding: "utf-8" }).trim();
 }
 
 function showGit(...args) {
   logger.log(`git ${args.join(" ")}`);
-  spawnSync("git", args);
+  spawnSync("git", args, { encoding: "utf-8" });
 }
 
 function notOnMainBranch() {
@@ -21,12 +21,20 @@ function notOnMainBranch() {
 
 function workingTreeNotEmpty() {
   const output = doGit("status", "--porcelain");
-  return !output;
+  return !!output;
 }
 
 function setDepRange(version) {
   // mutual dependencies will use a caret range (see semver)
   return `^${version}`;
+}
+
+async function updatePackageJson(dir, newPkg) {
+  await writeFile(
+    resolve(dir, "package.json"),
+    `${JSON.stringify(newPkg, null, 2)}\n`,
+    "utf-8"
+  );
 }
 
 async function release(releaseType) {
@@ -98,20 +106,12 @@ Continue the release manually.`);
         }
         newVersionPkg[depType] = newDepList;
       }
-      await writeFile(
-        resolve(cwd, "package.json"),
-        JSON.stringify(newVersionPkg, null, 2),
-        "utf-8"
-      );
+      await updatePackageJson(cwd, newVersionPkg);
       logger.done("Updated %s package.json to v%s", pkg.name, newVersion);
     })
   );
 
-  await writeFile(
-    resolve(workingDir, "package.json"),
-    JSON.stringify({ ...basePkg, version: newVersion }, null, 2),
-    "utf-8"
-  );
+  await updatePackageJson(workingDir, { ...basePkg, version: newVersion });
   logger.done("Updated monorepo base version to v%s", newVersion);
 
   logger.log("Rerunning install to rewrite package lock:");
