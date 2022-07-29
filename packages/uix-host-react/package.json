@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host-react",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Tools for embedding UI Extensions into React apps",
   "publishConfig": {
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
@@ -39,8 +39,8 @@
   "author": "Adobe, Inc,",
   "license": "UNLICENSED",
   "dependencies": {
-    "@adobe/uix-core": "^0.2.0",
-    "@adobe/uix-host": "^0.2.0",
+    "@adobe/uix-core": "^0.2.1",
+    "@adobe/uix-host": "^0.2.1",
     "penpal": "~6.2.2"
   }
 }

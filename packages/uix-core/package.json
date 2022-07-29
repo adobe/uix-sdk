@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Internal utilities for the UIX SDK",
   "publishConfig": {
     "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
