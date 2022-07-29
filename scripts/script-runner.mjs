@@ -36,6 +36,13 @@ export const logger = Object.keys(LogFormats).reduce((logger, level) => {
 }, {});
 
 export async function sh(cmd, args, opts) {
+  if (!Array.isArray(args)) {
+    throw new Error(
+      `Internal error: called sh("${cmd}"... with ${JSON.stringify(
+        args
+      )} instead of an args array`
+    );
+  }
   logger.log(`${cmd} ${args.join(" ")}`);
   return new Promise((resolve, reject) => {
     try {
@@ -53,6 +60,13 @@ export async function sh(cmd, args, opts) {
 }
 
 export async function shResult(cmd, args, opts = {}) {
+  if (!Array.isArray(args)) {
+    throw new Error(
+      `Internal error: called shResult("${cmd}"... with ${JSON.stringify(
+        args
+      )} instead of an args array`
+    );
+  }
   return (await execP(cmd, args, { encoding: "utf-8", ...opts })).stdout.trim();
 }
 

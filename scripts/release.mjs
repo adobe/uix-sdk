@@ -108,11 +108,11 @@ Continue the release manually.`);
   logger.done("Updated monorepo base version to %s", newTag);
 
   logger.log("Rerunning install to rewrite package lock:");
-  await sh("npm", "install");
+  await sh("npm", ["install"]);
   logger.done("Installed. Creating git commit:");
   await gitDoes(
     ["add", "."],
-    ["commit", "-m"],
+    ["commit", "-m", newTag],
     ["tag", "-a", newTag, "-m", newTag],
     ["push", "--follow-tags"]
   );
