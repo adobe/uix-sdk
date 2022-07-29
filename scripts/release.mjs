@@ -112,14 +112,16 @@ Continue the release manually.`);
   );
 
   await updatePackageJson(workingDir, { ...basePkg, version: newVersion });
-  logger.done("Updated monorepo base version to v%s", newVersion);
+
+  const newTag = `v${newVersion}`;
+  logger.done("Updated monorepo base version to %s", newTag);
 
   logger.log("Rerunning install to rewrite package lock:");
   spawnSync("npm", ["install"]);
   logger.done("Installed. Creating git commit:");
   showGit("add", ".");
-  showGit("commit", "-m", newVersion);
-  showGit("tag", "-a", newVersion, "-m", newVersion);
+  showGit("commit", "-m", newTag);
+  showGit("tag", "-a", newTag, "-m", newTag);
   logger.done("Version change committed and tagged.");
   showGit("push", "--follow-tags");
   logger.done("Pushed version commit and tag to remote.");
