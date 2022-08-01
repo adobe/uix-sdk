@@ -24,10 +24,12 @@
   "scripts": {
     "build": "run-p compile:*",
     "clean": "rm -rf dist *.tsbuildinfo docs/temp",
-    "compile:bundle": "esbuild src/index.ts --sourcemap --outdir=dist --bundle --format=esm --splitting",
+    "compile:bundle": "tsup",
     "compile:emit": "tsc --build tsconfig.json",
     "debug-build": "tsc --project tsconfig-debug.json --verbose",
-    "watch": "tsc-watch --build tsconfig.json --silent --onSuccess 'npm run -s compile:bundle -- --log-level=error'"
+    "watch": "run-p watch:*",
+    "watch:bundle": "tsup --watch --silent",
+    "watch:emit": "tsc --watch"
   },
   "browserslist": [
     "> 0.2%, last 2 versions, not dead"

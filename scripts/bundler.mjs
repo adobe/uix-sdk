@@ -1,36 +1,44 @@
 import { spawnSync } from "child_process";
-import esbuild from "esbuild";
-import { getWorkspaces, runWithArg } from "./script-runner.mjs";
+import {
+  getWorkspaces,
+  highlight,
+  logger,
+  runWithArg,
+} from "./script-runner.mjs";
 
 const modes = ["development", "production"];
 
-const config = {
-  base: {},
-  development: {},
-  production: {},
-};
-
 async function bundle(mode) {
+  const log = mode === "production" ? logger.log : () => {};
   const sdks = await getWorkspaces("packages");
-  for (const { cwd, pkg } of sdks) {
+  const completed = [];
+  log(
+    highlight`Building ${sdks.length} packages:
+ - ${sdks.map(({ pkg }) => pkg.name).join("\n - ")}`
+  );
+  for (const { pkg } of sdks) {
+    log(highlight`Building ${pkg.name}`);
     if (
-      spawnSync("npm", ["run", "-w", pkg.name, "build"], { stdio: "inherit" })
-        .status !== 0
+      spawnSync("npm", ["run", "-s", "-w", pkg.name, "build"], {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          NODE_ENV: mode,
+        },
+      }).status !== 0
     ) {
+      logger.error(
+        highlight`Failed to build ${pkg.name}. ${
+          completed.length
+        } previous packages succeeded: ${completed.join(",")}`
+      );
       break;
+    } else {
+      completed.push(pkg.name);
     }
-    // console.log("Building %s", pkg.name);
-    // const result = await esbuild.build({
-    //   absWorkingDir: cwd,
-    //   bundle: true,
-    //   entryPoints: ["src/index.ts"],
-    //   sourcemap: true,
-    //   outdir: "dist",
-    //   format: "esm",
-    //   splitting: true,
-    //   external: ["react"],
-    // });
-    // console.log(result);
+  }
+  if (completed.length === sdks.length) {
+    logger.done(highlight`Built ${completed.length} packages.`);
   }
 }
 

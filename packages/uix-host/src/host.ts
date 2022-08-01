@@ -99,7 +99,7 @@ export class Host extends Emitter<HostEvents> {
     };
     this.rootName = config.rootName;
     this.runtimeContainer = config.runtimeContainer;
-    if (config.debug) {
+    if (process.env.NODE_ENV === "development" && config.debug) {
       this.debug = import("./debug-host.js")
         .then(({ debugHost }) => {
           debugHost(this);

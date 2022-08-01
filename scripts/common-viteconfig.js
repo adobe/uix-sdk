@@ -1,5 +1,6 @@
 export default function commonExampleConfig() {
   return {
+    logLevel: "warn",
     clearScreen: false,
     optimizeDeps: {
       include: ["react"],

@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "example:build": "parcel build src/index.html",
-    "example:dev": "parcel -p $MULTI_SERVER_PORT src/index.html",
+    "example:dev": "parcel --log-level warn -p $MULTI_SERVER_PORT src/index.html",
     "example:demo": "serve -p $MULTI_SERVER_PORT dist"
   },
   "dependencies": {

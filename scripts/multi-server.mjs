@@ -1,10 +1,17 @@
 import { promisify } from "util";
+import { Writable } from "stream";
 import { execFile } from "child_process";
 import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import { getExamples, getSdks, runWithArg } from "./script-runner.mjs";
+import {
+  getExamples,
+  getSdks,
+  highlight,
+  logger,
+  runWithArg,
+} from "./script-runner.mjs";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -24,7 +31,7 @@ const host = "localhost";
 
 const registryUrl = `http://${host}:${ports.registry}/`;
 
-function getRunnerOptions() {
+function getRunnerOptions(overrides = {}) {
   return {
     prefix: "name",
     killOthers: ["failure"],
@@ -38,6 +45,7 @@ function getRunnerOptions() {
       "white",
       "red",
     ],
+    ...overrides,
   };
 }
 
@@ -176,19 +184,53 @@ async function serveExamples(mode) {
   });
   console.log("launched registry at %s", registryUrl);
 
-  let runSpecs = [...guests, ...hosts];
+  let watchSdksToo = {
+    result: Promise.resolve(),
+    commands: [],
+  };
 
   if (isDev) {
-    const watchSdksToo = (await getSdks()).map((sdkPackage) => ({
-      cwd: sdkPackage.cwd,
-      id: sdkPackage.pkg.name,
-      name: sdkPackage.pkg.name,
-      command: "npm run -s watch",
-    }));
-    runSpecs = runSpecs.concat(watchSdksToo);
+    watchSdksToo = concurrently(
+      (await getSdks()).map((sdkPackage) => ({
+        cwd: sdkPackage.cwd,
+        id: sdkPackage.pkg.name,
+        name: sdkPackage.pkg.name.replace("@adobe/uix-", ""),
+        command: "npm run -s watch",
+      })),
+      getRunnerOptions({
+        outputStream: new Writable({ write() {} }),
+      })
+    );
+    const DROP_LINES_RE = /(Starting compilation|change detected)/i;
+    watchSdksToo.commands.forEach((command) => {
+      let preamble = false;
+      command.stdout.subscribe({
+        next(value) {
+          const line = value.toString().trim();
+          if (!preamble && line.includes("Found 0 errors.")) {
+            preamble = true;
+          } else if (line && !DROP_LINES_RE.test(line)) {
+            logger.log(highlight`[${command.name}] ` + line);
+          }
+        },
+      });
+    });
   }
 
-  const { result, commands } = concurrently(runSpecs, getRunnerOptions());
+  let guestRunner = concurrently(
+    guests,
+    getRunnerOptions({
+      killOthers: undefined,
+      prefix: "guest {name}",
+    })
+  );
+  let hostRunner = concurrently(
+    hosts,
+    getRunnerOptions({
+      killOthers: ["failure"],
+      prefix: "host {name}",
+    })
+  );
 
   const { hamburger, pointer } = figures;
 
@@ -211,20 +253,46 @@ ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
     listExamples(guests)
   )}
 `;
-
   console.log(report);
+
+  const allRunners = [watchSdksToo, hostRunner, guestRunner];
 
   process.on("SIGINT", () => {
     console.log("closing servers...");
-    commands.forEach((command) => command.kill());
+    closeAll();
     console.log("closing registry...");
     registry.close();
     console.log("registry closed");
     process.exit(0);
   });
 
-  return result;
+  const closeAll = () =>
+    allRunners.forEach(({ commands }) =>
+      commands.forEach((command) => command.kill())
+    );
+
+  function throwMultiError(closeEvents) {
+    throw new Error(
+      `Multiserver crashed!
+${closeEvents
+  .map(
+    ({ command, exitCode, killed }) =>
+      ` - [${command.name}] exited ${exitCode}${killed ? " (killed)" : ""}`
+  )
+  .join("\n")}`
+    );
+  }
+
+  try {
+    await Promise.all(allRunners.map((runner) => runner.result));
+  } catch (e) {
+    closeAll();
+    if (Array.isArray(e)) {
+      throwMultiError(e);
+    } else {
+      throw e;
+    }
+  }
 }
 
 runWithArg(serveExamples, ["dev", "demo"]);
-

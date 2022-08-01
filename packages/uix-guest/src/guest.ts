@@ -63,22 +63,24 @@ export class Guest<
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
     }
-    if (config.debug) {
-      this.debug = import("./debug-guest.js")
-        .then(({ debugGuest }) => {
-          debugGuest<Outgoing, Incoming>(this);
-          return true;
-        })
-        .catch((e) => {
-          console.error(
-            "Failed to attach debugger to UIX host %s",
-            this.id,
-            this,
-            e
-          );
-          // noop unsubscriber
-          return false;
-        });
+    if (process.env.NODE_ENV === "development") {
+      this.debug =
+        config.debug &&
+        import("./debug-guest.js")
+          .then(({ debugGuest }) => {
+            debugGuest<Outgoing, Incoming>(this);
+            return true;
+          })
+          .catch((e) => {
+            console.error(
+              "Failed to attach debugger to UIX host %s",
+              this.id,
+              this,
+              e
+            );
+            // noop unsubscriber
+            return false;
+          });
     }
   }
   host: RemoteApis<Incoming> = makeNamespaceProxy<Incoming>(async (address) => {

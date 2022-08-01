@@ -70,11 +70,22 @@ export async function shResult(cmd, args, opts = {}) {
   return (await execP(cmd, args, { encoding: "utf-8", ...opts })).stdout.trim();
 }
 
+const IS_NOT_WORKSPACE = Symbol("IS_NOT_WORKSPACE");
 export async function getWorkspaces(category) {
   const workspaceNames = await readdir(resolve(process.cwd(), category));
-  return Promise.all(
+  const workspaces = await Promise.all(
     workspaceNames.map(async (name) => {
       const workspaceDir = resolve(process.cwd(), category, name);
+      try {
+        const hasPkg = (await readdir(workspaceDir)).some(
+          (filename) => filename === "package.json"
+        );
+        if (!hasPkg) {
+          return IS_NOT_WORKSPACE;
+        }
+      } catch (e) {
+        return IS_NOT_WORKSPACE;
+      }
       const pkg = JSON.parse(
         await readFile(resolve(workspaceDir, "package.json"))
       );
@@ -84,6 +95,7 @@ export async function getWorkspaces(category) {
       };
     })
   );
+  return workspaces.filter((result) => result !== IS_NOT_WORKSPACE);
 }
 
 export const getSdks = () => getWorkspaces("packages");
