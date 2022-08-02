@@ -1,12 +1,11 @@
 const base = {
-  entry: ["src/index.ts"],
-  tsconfig: "./tsconfig.json",
+  entry: ["src/index.ts"], // will be relative to the directory that uses it
+  tsconfig: "./tsconfig.json", // see above
   format: "esm",
   platform: "browser",
-  target: "es2020",
+  target: "es2020", // TODO: this is cool, right?
   esbuildOptions: () => ({
     color: true,
-    logLimit: 0,
   }),
   replaceNodeEnv: true,
 };
@@ -21,12 +20,19 @@ const configs = {
     ...base,
     clean: true,
     minify: true,
-    treeshake: true,
   },
 };
+
+if (process.env.UIX_SDK_BUILDMODE === "report") {
+  // pessimistic settings to estimate bundle size when built in some external
+  // project, that doesn't tree-shake, etc
+  configs.production.treeshake = false;
+  configs.production.metafile = true;
+  configs.production.noExternal = [/@adobe\/uix/];
+}
 
 module.exports = {
   base,
   ...configs,
-  config: configs[process.env.NODE_ENV] || configs.development,
+  config: configs[process.env.NODE_ENV || "production"],
 };

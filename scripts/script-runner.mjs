@@ -6,7 +6,7 @@ import figures from "figures";
 import { execFile, spawn } from "child_process";
 const execP = promisify(execFile);
 
-const highlighter =
+export const logVarHighlighter =
   (formatter) =>
   (parts, ...fields) => {
     const [start, ...joins] = parts;
@@ -15,24 +15,29 @@ const highlighter =
       .join("")}`;
   };
 
-export const highlight = highlighter(chalk.yellow);
+export const highlightLogVars = logVarHighlighter(chalk.bold);
 
 const LogFormats = {
-  error: [figures.circleCross, chalk.red],
+  error: [figures.circleCross, chalk.red, chalk.white],
   warn: [figures.warning, chalk.yellow],
   log: ["", (x) => x],
-  done: [figures.checkboxCircleOn, chalk.green],
+  done: [figures.tick, chalk.green],
 };
 
 export const logger = Object.keys(LogFormats).reduce((logger, level) => {
-  const [symbol, color] = LogFormats[level];
+  const [symbol, color, highlightColor] = LogFormats[level];
   const method = typeof console[level] === "function" ? level : "log";
-  return {
+  const outConsole = {
     ...logger,
     [level](first, ...rest) {
-      console[method](color(`${symbol}  ${first}`), ...rest);
+      console[method](color(`${symbol} ${first}`), ...rest);
     },
   };
+  const highlight = highlightColor
+    ? logVarHighlighter(highlightColor)
+    : highlightLogVars;
+  outConsole[level].hl = (...args) => outConsole[level](highlight(...args));
+  return outConsole;
 }, {});
 
 export async function sh(cmd, args, opts) {
@@ -104,7 +109,7 @@ export const getExamples = () => getWorkspaces("examples");
 export function argIn(allowedArgs, passed) {
   const arg = passed || "not provided";
   if ((allowedArgs && !arg) || !allowedArgs.includes(arg)) {
-    return highlight`Command line argument to ${basename(
+    return highlightLogVars`Command line argument to ${basename(
       process.argv[1]
     )} must be one of:${allowedArgs.map((opt) => `\n - ${opt}`).join("")}
 but it was ${arg}`;
@@ -120,7 +125,7 @@ export async function runWithArg(fn, validator = () => {}) {
   const validateArg = Array.isArray(validator)
     ? (arg) => argIn(validator, arg)
     : validator;
-  const invalidReason = await validateArg(process.argv[2], highlight);
+  const invalidReason = await validateArg(process.argv[2], highlightLogVars);
   if (invalidReason) {
     deny(invalidReason);
   }

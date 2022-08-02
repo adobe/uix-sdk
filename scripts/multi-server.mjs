@@ -5,13 +5,7 @@ import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import {
-  getExamples,
-  getSdks,
-  highlight,
-  logger,
-  runWithArg,
-} from "./script-runner.mjs";
+import { getExamples, getSdks, logger, runWithArg } from "./script-runner.mjs";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -210,7 +204,7 @@ async function serveExamples(mode) {
           if (!preamble && line.includes("Found 0 errors.")) {
             preamble = true;
           } else if (line && !DROP_LINES_RE.test(line)) {
-            logger.log(highlight`[${command.name}] ` + line);
+            logger.log(`[${command.name}] ${line}`);
           }
         },
       });

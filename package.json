@@ -13,6 +13,7 @@
     "docs": "npm run run any docs",
     "format": "prettier --write --loglevel warn packages/*/src package.json packages/*/package.json",
     "lint": "prettier --check packages/*/src && eslint packages/*/src",
+    "report": "node scripts/bundler.mjs report",
     "test": "npm run any test",
     "watch": "run-s dev"
   },
@@ -34,6 +35,7 @@
     "@typescript-eslint/parser": "^5.30.6",
     "@vitejs/plugin-react": "^2.0.0",
     "chalk": "^5.0.1",
+    "cli-highlight": "^2.1.11",
     "concurrently": "^7.2.2",
     "eslint": "^8.19.0",
     "figures": "^4.0.1",
