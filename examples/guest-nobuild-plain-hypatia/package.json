@@ -1,0 +1,13 @@
+{
+  "name": "guest-nobuild-plain-hypatia",
+  "description": "Hypatia",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "example:dev": "rm -rf ./dist && mkdir -p dist && cp ../../packages/uix-guest/dist/index.global.* ./dist/ && serve -p $MULTI_SERVER_PORT .",
+    "example:demo": "npm run -s example:dev"
+  },
+  "dependencies": {
+    "@adobe/uix-guest": "*"
+  }
+}

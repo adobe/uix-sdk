@@ -2,11 +2,10 @@
  * Extension "Hypatia" runs as a guest in an invisible iframe.
  * Hypatia was a mathematician and philosopher. She lived in the 4th century.
  */
-import { createGuest } from "@adobe/uix-guest";
 
-const uix = createGuest({
+const uix = AdobeUIXGuest.createGuest({
   id: "Hypatia",
-  debug: process.env.NODE_ENV !== "production",
+  debug: true,
 });
 
 setTimeout(() => {
