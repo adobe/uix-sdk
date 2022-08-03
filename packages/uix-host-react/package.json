@@ -2,9 +2,6 @@
   "name": "@adobe/uix-host-react",
   "version": "0.2.1",
   "description": "Tools for embedding UI Extensions into React apps",
-  "publishConfig": {
-    "registry": "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/"
-  },
   "type": "module",
   "browser": "dist/index.js",
   "main": "dist/index.js",

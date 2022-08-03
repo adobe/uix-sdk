@@ -9,6 +9,10 @@ import {
 } from "./script-runner.mjs";
 import semver from "semver";
 
+const artifactories = [
+  "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/",
+  "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/",
+];
 const mainBranchName = "main";
 
 const gitSays = async (...args) => shResult("git", args);
@@ -120,7 +124,11 @@ Continue the release manually.`);
   logger.log("Running npm publish on each package.");
 
   for (const sdk of sdks) {
-    await sh("npm", ["publish"], { cwd: sdk.cwd });
+    for (const artifactory of artifactories) {
+      await sh("npm", ["publish", `--@adobe:registry='${artifactory}'`], {
+        cwd: sdk.cwd,
+      });
+    }
   }
 }
 
