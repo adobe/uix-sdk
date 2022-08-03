@@ -6,8 +6,8 @@
   "scripts": {
     "clean": "rm -rf dist",
     "example:build": "vite build",
-    "example:dev": "vite",
-    "example:demo": "vite preview --mode production"
+    "example:development": "vite",
+    "example:production": "vite preview --mode production"
   },
   "dependencies": {
     "@adobe/uix-host-react": "*"

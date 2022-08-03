@@ -1,11 +1,17 @@
-import { promisify } from "util";
+import { inspect } from "util";
 import { Writable } from "stream";
-import { execFile } from "child_process";
 import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import { getExamples, getSdks, logger, runWithArg } from "./script-runner.mjs";
+import {
+  getExamples,
+  getSdks,
+  logger,
+  runWithArg,
+  shResult,
+} from "./script-runner.mjs";
+import { SIGINT, SIGTERM } from "constants";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -14,8 +20,8 @@ const basePorts = {
 
 const ports = {
   registry: process.env.PORT_REGISTRY || 3000,
-  dev: basePorts,
-  demo: {
+  development: basePorts,
+  production: {
     host: basePorts.host + 80,
     guest: basePorts.guest + 80,
   },
@@ -43,11 +49,9 @@ function getRunnerOptions(overrides = {}) {
   };
 }
 
-const execFileP = promisify(execFile);
-
 function cannotResolveFrom(cwd, deps) {
   const resolveCalls = deps.map((dep) => `require.resolve("${dep}");`).join("");
-  return execFileP(process.argv0, ["-p", resolveCalls], {
+  return shResult(process.argv0, ["-p", resolveCalls], {
     cwd,
   }).then(
     () => false,
@@ -106,33 +110,22 @@ function createRunSpec(example, command, mode) {
 }
 
 async function serveExamples(mode) {
-  // let's do an incremental compile
+  // initial compile
+  await shResult("npm", ["run", "clean"]);
+  await shResult("npm", ["run", `build:${mode}`]);
 
-  const isDev = mode === "dev";
+  const isDev = mode === "development";
   const allExamples = await getExamples();
   let examples = await checkSdkResolution(allExamples);
 
   if (examples.broken.length > 0) {
-    console.warn(
-      "%d examples would not build. Retrying SDK build one time",
-      examples.broken.length
-    );
-    await execFileP("npm", ["run", "build"]);
-    await concurrently(
-      examples.broken.map(([, , example]) =>
-        createRunSpec(example, `npm install && npm run example:build`, mode)
-      )
-    ).result;
-    examples = await checkSdkResolution(allExamples);
-    if (examples.broken.length > 0) {
-      for (const [info, stack] of examples.broken) {
-        console.error(info, stack);
-      }
+    for (const [info, stack] of examples.broken) {
+      logger.error(info, stack);
     }
   }
   if (examples.working.length < 1) {
-    console.error(chalk.red("No examples ran."));
-    return 1;
+    logger.error("No examples ran.");
+    process.exit(1);
   }
 
   const [guests, hosts] = examples.working.reduce(
@@ -190,6 +183,10 @@ async function serveExamples(mode) {
         id: sdkPackage.pkg.name,
         name: sdkPackage.pkg.name.replace("@adobe/uix-", ""),
         command: "npm run -s watch",
+        env: {
+          UIX_SDK_BUILDMODE: mode,
+          NODE_ENV: mode,
+        },
       })),
       getRunnerOptions({
         outputStream: new Writable({ write() {} }),
@@ -197,15 +194,20 @@ async function serveExamples(mode) {
     );
     const DROP_LINES_RE = /(Starting compilation|change detected)/i;
     watchSdksToo.commands.forEach((command) => {
-      let preamble = false;
+      let preambles = 0;
       command.stdout.subscribe({
         next(value) {
           const line = value.toString().trim();
-          if (!preamble && line.includes("Found 0 errors.")) {
-            preamble = true;
+          if (preambles < 2 && line.includes("Found 0 errors.")) {
+            preambles++;
           } else if (line && !DROP_LINES_RE.test(line)) {
             logger.log(`[${command.name}] ${line}`);
           }
+        },
+      });
+      command.stderr.subscribe({
+        next(value) {
+          logger.error(`[${command.name}] ${value}`);
         },
       });
     });
@@ -214,7 +216,7 @@ async function serveExamples(mode) {
   let guestRunner = concurrently(
     guests,
     getRunnerOptions({
-      killOthers: undefined,
+      killOthers: ["failure"],
       prefix: "guest {name}",
     })
   );
@@ -252,17 +254,58 @@ ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
   const allRunners = [watchSdksToo, hostRunner, guestRunner];
 
   process.on("SIGINT", () => {
-    console.log("closing servers...");
-    closeAll();
     console.log("closing registry...");
-    registry.close();
-    console.log("registry closed");
-    process.exit(0);
+    registry.close(() => {
+      console.log("registry closed");
+      console.log("closing servers...");
+      closeAll()
+        .then(() => {
+          process.exit(0);
+        })
+        .catch((e) => {
+          console.error(e);
+          process.exit(1);
+        });
+    });
   });
 
   const closeAll = () =>
-    allRunners.forEach(({ commands }) =>
-      commands.forEach((command) => command.kill())
+    Promise.all(
+      allRunners.map(({ commands }) =>
+        Promise.all(
+          commands.map(
+            (command) =>
+              new Promise((resolve, reject) => {
+                if (command.exited) {
+                  resolve();
+                } else {
+                  const tryTerm = setTimeout(() => {
+                    command.kill(SIGTERM);
+                  }, 1000);
+                  const giveUp = setTimeout(
+                    () =>
+                      reject(
+                        new Error(
+                          `Could not kill job for ${command.name}: ${inspect(
+                            command
+                          )}`
+                        )
+                      ),
+                    6000
+                  );
+                  command.close.subscribe({
+                    next() {
+                      clearTimeout(tryTerm);
+                      clearTimeout(giveUp);
+                      resolve();
+                    },
+                  });
+                  command.kill(SIGINT);
+                }
+              })
+          )
+        )
+      )
     );
 
   function throwMultiError(closeEvents) {
@@ -280,13 +323,16 @@ ${closeEvents
   try {
     await Promise.all(allRunners.map((runner) => runner.result));
   } catch (e) {
-    closeAll();
-    if (Array.isArray(e)) {
-      throwMultiError(e);
-    } else {
-      throw e;
+    try {
+      await closeAll();
+    } finally {
+      if (Array.isArray(e)) {
+        throwMultiError(e);
+      } else {
+        throw e;
+      }
     }
   }
 }
 
-runWithArg(serveExamples, ["dev", "demo"]);
+runWithArg(serveExamples, ["development", "production"]);

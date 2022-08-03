@@ -7,8 +7,8 @@
   "scripts": {
     "clean": "rm -rf dist",
     "example:build": "parcel build src/index.html",
-    "example:dev": "parcel --log-level warn -p $MULTI_SERVER_PORT src/index.html",
-    "example:demo": "serve -p $MULTI_SERVER_PORT dist"
+    "example:development": "parcel --log-level warn -p $MULTI_SERVER_PORT src/index.html",
+    "example:production": "serve -p $MULTI_SERVER_PORT dist"
   },
   "dependencies": {
     "@adobe/uix-guest": "*",

@@ -24,11 +24,16 @@ type HostGuestEvent<Type extends string> = HostEvent<
   { guest: GuestConnection }
 >;
 
+export type HostEventLoadAllGuests = HostEvent<
+  "loadallguests",
+  { failed: GuestConnection[]; loaded: GuestConnection[] }
+>;
+
 /** @public */
 export type HostEvents =
   | HostGuestEvent<"beforeload">
   | HostGuestEvent<"load">
-  | HostEvent<"loadallguests">
+  | HostEventLoadAllGuests
   | HostEvent<"beforeunload">
   | HostEvent<"unload">
   | HostEvent<"error", { error: Error }>;
@@ -152,14 +157,17 @@ export class Host extends Emitter<HostEvents> {
     await this.debug;
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
+    const failed: GuestConnection[] = [];
+    const loaded: GuestConnection[] = [];
     this.loading = true;
     await Promise.all(
-      Object.entries(extensions).map(([id, url]) =>
-        this.loadOneGuest(id, url, options)
-      )
+      Object.entries(extensions).map(async ([id, url]) => {
+        const port = await this.loadOneGuest(id, url, options);
+        (port.error ? failed : loaded).push(port);
+      })
     );
     this.loading = false;
-    this.emit("loadallguests", { host: this });
+    this.emit("loadallguests", { host: this, failed, loaded });
   }
   /**
    * Unload all extensions and remove their frames/workers. Use this to unmount
@@ -207,6 +215,7 @@ export class Host extends Emitter<HostEvents> {
     } catch (e: unknown) {
       const error = e instanceof Error ? e : new Error(String(e));
       this.emit("error", { host: this, guest, error });
+      return guest;
     }
     // this new guest might have new capabilities, so the identities of the
     // cached capability sets will need to change, to alert subscribers

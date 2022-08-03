@@ -111,6 +111,7 @@ export interface HostConnection<T = unknown> {
 export interface GuestConnection {
   id: string;
   load(): Promise<unknown>;
+  error?: Error;
   hasCapabilities(capabilities: unknown): boolean;
   isLoading(): boolean;
   provide(apis: unknown): void;

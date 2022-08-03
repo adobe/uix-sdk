@@ -11,11 +11,12 @@ const outputDir = "dist";
 
 async function bundle(arguedMode) {
   const reportMode = arguedMode === "report";
-  let mode = arguedMode === "development" ? arguedMode : "production";
-  const log = mode === "production" ? logger.log.hl : () => {};
+  const mode = arguedMode === "development" ? arguedMode : "production";
   const sdks = await getWorkspaces("packages");
   const completed = [];
-  log`Building ${sdks.length} packages in ${arguedMode || mode} mode:`;
+  logger.log.hl`Building ${sdks.length} packages in ${
+    arguedMode || mode
+  } mode:`;
   for (const { cwd, pkg } of sdks) {
     let spawnArgs = ["run", "-s", "-w", pkg.name, "build"];
     if (reportMode) process.stderr.write(`${basename(cwd)}...`);
@@ -114,6 +115,9 @@ async function bundle(arguedMode) {
   @adobe/uix-host-react alone.
 `);
     execFileSync("npm", ["run", "any", "clean"]);
+    logger.warn(
+      "Temporary reporting builds have been removed. Run another production build to get them back."
+    );
   }
 }
 

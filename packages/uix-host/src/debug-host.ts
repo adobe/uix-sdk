@@ -6,7 +6,7 @@
  */
 import { debugEmitter, Emits, GuestConnection } from "@adobe/uix-core";
 import type { PortEvents } from "./port.js";
-import type { HostEvents } from "./host.js";
+import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
 
 type GenericPortEvents = PortEvents<Record<string, unknown>>;
 
@@ -21,7 +21,7 @@ export function debugHost(host: Emits<HostEvents>) {
     .listen("guestbeforeload", (log, event) => {
       const { detail } = event;
       const guest = detail.guest as Portlike;
-      log.info(event, "Guest ID %s", guest.id);
+      log.info(event, `Guest ID ${guest.id}`);
       const portLogger = debugEmitter(guest, {
         theme: "green medium",
         type: "Port",
@@ -45,9 +45,15 @@ export function debugHost(host: Emits<HostEvents>) {
     .listen("error", (log, e) => {
       log.error(`Error: ${e.detail.error.message}`, e);
     })
-    .listen("loadallguests", (log, e) => {
-      log.info("%d guests loaded", e.detail.host.guests.size, e.detail.host);
-    })
+    .listen(
+      "loadallguests",
+      (log, { detail: { failed, host } }: HostEventLoadAllGuests) => {
+        if (failed.length > 0) {
+          log.error("%d guests failed to load!", failed.length);
+        }
+        log.info("%d guests loaded", failed, host);
+      }
+    )
     .listen("unload", (log) => {
       log.info("Unloaded guest and container.");
       log.detach();

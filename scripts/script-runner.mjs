@@ -117,7 +117,7 @@ but it was ${arg}`;
 }
 
 function deny(reason) {
-  logger.error(reason);
+  logger.error(reason instanceof Error ? reason.stack : reason);
   process.exit(1);
 }
 
