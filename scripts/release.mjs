@@ -125,7 +125,7 @@ Continue the release manually.`);
 
   for (const sdk of sdks) {
     for (const artifactory of artifactories) {
-      await sh("npm", ["publish", `--@adobe:registry='${artifactory}'`], {
+      await sh("npm", ["publish", `--@adobe:registry=${artifactory}`], {
         cwd: sdk.cwd,
       });
     }
