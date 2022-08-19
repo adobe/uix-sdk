@@ -1,28 +1,17 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo } from "react";
 import type { PropsWithChildren } from "react";
 import type {
   InstalledExtensions,
   HostConfig,
   PortOptions,
 } from "@adobe/uix-host";
-import { Host } from "@adobe/uix-host";
+import {Host} from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
 /** @public */
 export interface ExtensionProviderProps extends HostConfig {
-  extensions: InstalledExtensions;
+  extensionLoader: () => Promise<InstalledExtensions>;
   guestOptions?: PortOptions;
-}
-
-function areExtensionsDifferent(
-  set1: InstalledExtensions,
-  set2: InstalledExtensions
-) {
-  const ids1 = Object.keys(set1).sort();
-  const ids2 = Object.keys(set2).sort();
-  return (
-    ids1.length !== ids2.length || ids1.some((id, index) => id !== ids2[index])
-  );
 }
 
 /**
@@ -31,20 +20,12 @@ function areExtensionsDifferent(
  */
 export function Extensible({
   children,
-  extensions,
+  extensionLoader,
   guestOptions,
   rootName,
   runtimeContainer,
   debug,
 }: PropsWithChildren<ExtensionProviderProps>) {
-  const installedRef = useRef<InstalledExtensions>();
-  if (
-    !installedRef.current ||
-    areExtensionsDifferent(installedRef.current, extensions)
-  ) {
-    installedRef.current = extensions;
-  }
-
   const host = useMemo(() => {
     const host = new Host({
       debug,
@@ -58,16 +39,20 @@ export function Extensible({
     function logError(msg: string) {
       return (e: Error | unknown) => {
         const error = e instanceof Error ? e : new Error(String(e));
-        console.error(msg, error, installedRef.current, guestOptions);
+        console.error(msg, error, guestOptions);
       };
     }
-    host
-      .load(installedRef.current, guestOptions)
-      .catch(logError("Load of extensions failed!"));
+
+    async function load() {
+      return host.load(await extensionLoader(), guestOptions)
+    }
+
+    load().catch(logError("Load of extensions failed!"));
+
     return () => {
       host.unload().catch(logError("Unload of extensions failed!"));
     };
-  }, [host, installedRef.current]);
+  }, [host, extensionLoader]);
 
   return (
     <ExtensionContext.Provider value={host}>

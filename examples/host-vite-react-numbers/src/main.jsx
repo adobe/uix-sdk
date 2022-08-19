@@ -3,24 +3,22 @@ import ReactDOM from "react-dom";
 import { Extensible } from "@adobe/uix-host-react";
 import App from "./App";
 import "./index.css";
+import {getExtensionRegistryExtensions} from "@adobe/uix-host";
 
 async function main() {
-  const extensionListResponse = await fetch(REGISTRY_URL);
-  const extensionList = await extensionListResponse.json();
-
-  const extensionsById = extensionList.reduce(
-    (byId, extension) => ({
-      ...byId,
-      [extension.id]: extension.url,
-    }),
-    {}
-  );
+  const extensionLoader = () =>
+    getExtensionRegistryExtensions("aem/cf-console-admin/1", {
+      imsToken: 'eyJ...I2vg',
+      imsOrgId: '52962F2C5F2D746C0A49402B@AdobeOrg',
+      apiKey: 'exchangeweb2',
+      exchangeUrl: 'https://appregistry-stage.adobe.io',
+    })
 
   ReactDOM.render(
     <React.StrictMode>
       <Extensible
         debug={process.env.NODE_ENV !== "production"}
-        extensions={extensionsById}
+        extensionLoader={extensionLoader}
         rootName="Number Discussion"
       >
         <App />

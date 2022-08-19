@@ -51,9 +51,9 @@ export class ExtensionRegistry {
   async getExtensions(org: string, xtp: string): Promise<Array<ExtensionDefinition>> {
     const resp = await fetch(`${this.exchangeUrl}/myxchng/v1/org/${encodeURIComponent(org)}/xtn/${xtp}?auth=true`, {
       headers: {
-        "accept": "application/json",
-        "authorization": this.token,
-        "x-api-key": this.apiKey,
+        "Accept": "application/json",
+        "Authorization": this.token,
+        "X-Api-Key": this.apiKey,
       },
     });
 
