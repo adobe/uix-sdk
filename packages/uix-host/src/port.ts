@@ -4,9 +4,16 @@ import type {
   RemoteApis,
   HostMethodAddress,
   NamedEvent,
+  Emits,
+  Unsubscriber,
 } from "@adobe/uix-core";
 import { Emitter } from "@adobe/uix-core";
 import { Connection, connectToChild } from "penpal";
+
+interface GuestMethods {
+  emit(type: string, detail: unknown): Promise<void>;
+  apis: RemoteApis;
+}
 
 /** @public */
 type PortEvent<
@@ -56,11 +63,14 @@ export class Port<GuestApi>
   apis: RemoteApis;
   error?: Error;
   private hostApis: RemoteApis = {};
+  private guest: GuestMethods;
   private debugLogger?: Console;
   private isLoaded = false;
   private timeout: number;
   private debug: boolean;
   private runtimeContainer: HTMLElement;
+  private sharedContext: Record<string, unknown>;
+  private subscriptions: Unsubscriber[] = [];
   constructor(config: {
     owner: string;
     id: string;
@@ -68,6 +78,8 @@ export class Port<GuestApi>
     runtimeContainer: HTMLElement;
     options: PortOptions;
     debugLogger?: Console;
+    sharedContext: Record<string, unknown>;
+    events: Emits;
   }) {
     super(config.id);
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
@@ -77,6 +89,13 @@ export class Port<GuestApi>
     this.owner = config.owner;
     this.url = config.url;
     this.runtimeContainer = config.runtimeContainer;
+    this.sharedContext = config.sharedContext;
+    this.subscriptions.push(
+      config.events.addEventListener("contextchange", async ({ detail }) => {
+        await this.connect();
+        await this.guest.emit("contextchange", detail);
+      })
+    );
   }
   isLoading(): boolean {
     return !(this.isLoaded || this.error);
@@ -89,6 +108,7 @@ export class Port<GuestApi>
       return this.apis;
     } catch (e) {
       this.apis = null;
+      this.guest = null;
       this.error = e instanceof Error ? e : new Error(String(e));
       throw e;
     }
@@ -192,11 +212,13 @@ export class Port<GuestApi>
       debug: this.debug,
       timeout: this.timeout,
       methods: {
+        getSharedContext: () => this.sharedContext,
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address),
       },
     });
-    this.apis = (await this.connection.promise) as unknown as RemoteApis;
+    this.guest = (await this.connection.promise) as unknown as GuestMethods;
+    this.apis = this.guest.apis;
     this.isLoaded = true;
     if (this.debugLogger) {
       this.debugLogger.info(

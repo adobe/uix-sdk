@@ -4,6 +4,7 @@ import type {
   RemoteApis,
   NamedEvent,
   RequiredMethodsByName,
+  Emits,
 } from "@adobe/uix-core";
 import { Emitter } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
@@ -35,11 +36,14 @@ export type HostEvents =
   | HostGuestEvent<"load">
   | HostEventLoadAllGuests
   | HostEvent<"beforeunload">
+  | HostEvent<"contextchange", { context: SharedContext }>
   | HostEvent<"unload">
   | HostEvent<"error", { error: Error }>;
 
 /** @public */
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+
+type SharedContext = Record<string, unknown>;
 
 /** @public */
 export interface HostConfig {
@@ -66,6 +70,11 @@ export interface HostConfig {
    * unless `debug: false` is explicitly passed in `guestOptions`.
    */
   guestOptions?: PortOptions;
+  /**
+   * A read-only dictionary of values that the host will supply to all the
+   * guests.
+   */
+  sharedContext?: SharedContext;
 }
 
 type GuestFilter = (item: GuestConnection) => boolean;
@@ -95,6 +104,7 @@ export class Host extends Emitter<HostEvents> {
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
   private debugLogger: Console;
+  private sharedContext: SharedContext;
   constructor(config: HostConfig) {
     super(config.rootName);
     const { guestOptions = {} } = config;
@@ -103,6 +113,7 @@ export class Host extends Emitter<HostEvents> {
       debug: guestOptions.debug === false ? false : !!config.debug,
     };
     this.rootName = config.rootName;
+    this.sharedContext = config.sharedContext || {};
     this.runtimeContainer = config.runtimeContainer;
     if (process.env.NODE_ENV === "development" && config.debug) {
       this.debug = import("./debug-host.js")
@@ -145,6 +156,13 @@ export class Host extends Emitter<HostEvents> {
     return [...this.guests.values()].filter(
       (guest) => !guest.isLoading() && filter(guest)
     );
+  }
+  shareContext(setter: (context: SharedContext) => SharedContext) {
+    this.sharedContext = setter(this.sharedContext);
+    this.emit("contextchange", {
+      host: this,
+      context: this.sharedContext,
+    });
   }
   /**
    * Load extension into host application from provided extension description.
@@ -206,6 +224,8 @@ export class Host extends Emitter<HostEvents> {
           ...options,
         },
         debugLogger: this.debugLogger,
+        sharedContext: this.sharedContext,
+        events: this as Emits,
       });
       this.guests.set(id, guest);
     }

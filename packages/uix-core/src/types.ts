@@ -105,6 +105,7 @@ export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
  * @hidden
  */
 export interface HostConnection<T = unknown> {
+  getSharedContext(): Record<string, unknown>;
   invokeHostMethod: RemoteMethodInvoker<T>;
 }
 
