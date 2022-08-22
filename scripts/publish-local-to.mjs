@@ -7,7 +7,7 @@ let dependentName;
 async function publishLocalTo(dependent, workDir) {
   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
   try {
-    await shResult(yalc);
+    await shResult(yalc, ['--version']);
   } catch (e) {
     throw new Error(`Could not find "yalc" in npm path: ${e.message}`);
   }
