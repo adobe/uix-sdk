@@ -21,7 +21,7 @@ async function main() {
       <Extensible
         debug={process.env.NODE_ENV !== "production"}
         extensions={extensionsById}
-        rootName="Number Discussion"
+        appName="Number Discussion"
       >
         <App />
       </Extensible>
