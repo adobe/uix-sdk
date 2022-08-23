@@ -14,12 +14,12 @@ async function publishLocalTo(dependent, workDir) {
   }
 
   const sdks = await getSdks();
-
+  const sdkPackages = new Set(sdks.map(sdkPart => sdkPart.pkg.name));
+  const unlinkedSdkPackages = new Set();
+  
   if (dependent) {
     const absDependentDir = resolve(workDir, dependent);
-    const sdkPackages = new Set(sdks.map(sdkPart => sdkPart.pkg.name));
     const usedSdkPackages = new Set();
-    const unlinkedSdkPackages = new Set();
     const yalcConfigDir = await shResult(yalc, ["dir"], {
       cwd: absDependentDir,
     });
