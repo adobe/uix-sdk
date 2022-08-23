@@ -47,11 +47,11 @@ export function debugHost(host: Emits<HostEvents>) {
     })
     .listen(
       "loadallguests",
-      (log, { detail: { failed, host } }: HostEventLoadAllGuests) => {
+      (log, { detail: { failed, loaded, host } }: HostEventLoadAllGuests) => {
         if (failed.length > 0) {
           log.error("%d guests failed to load!", failed.length);
         }
-        log.info("%d guests loaded", failed, host);
+        log.info("%d guests loaded", loaded.length, host);
       }
     )
     .listen("unload", (log) => {

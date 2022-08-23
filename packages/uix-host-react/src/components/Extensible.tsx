@@ -9,7 +9,8 @@ import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
 /** @public */
-export interface ExtensionProviderProps extends HostConfig {
+export interface ExtensionProviderProps extends Omit<HostConfig, 'hostName'> {
+  appName?: string;
   extensions: InstalledExtensions;
   guestOptions?: PortOptions;
 }
@@ -30,10 +31,10 @@ function areExtensionsDifferent(
  * @public
  */
 export function Extensible({
+  appName,
   children,
   extensions,
   guestOptions,
-  rootName,
   runtimeContainer,
   debug,
   sharedContext = {},
@@ -46,15 +47,16 @@ export function Extensible({
     installedRef.current = extensions;
   }
 
+  const hostName = appName || window.location.host || 'mainframe';
   const host = useMemo(() => {
     const host = new Host({
       debug,
-      rootName,
+      hostName,
       runtimeContainer,
       sharedContext,
     });
     return host;
-  }, [rootName, runtimeContainer]);
+  }, [hostName, runtimeContainer]);
 
   useEffect(() => {
     function logError(msg: string) {

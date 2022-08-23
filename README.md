@@ -41,8 +41,7 @@ function ExtensibleApp() {
       extensions={{
         "cc1": "https://creative-cloud-ext.adobeio-static.net",
         "exc1": "https://experience-cloud-ext.adobeio-static.net",
-      }}
-      rootName="my-app-root">
+      }}>
       <App/>
     </Extensible>
   )

@@ -51,7 +51,7 @@ export interface HostConfig {
    * Human-readable "slug" name of the extensible area--often an entire app.
    * This string serves as a namespace for extension points within the area.
    */
-  rootName: string;
+  hostName: string;
   /**
    * A DOM element _outside_ of the React root. This is necessary to preserve
    * the lifetime of the iframes which are running extension objects; if they
@@ -95,7 +95,7 @@ export class Host extends Emitter<HostEvents> {
     top: 0,
     left: "-1px",
   };
-  rootName: string;
+  hostName: string;
   loading = false;
   guests: PortMap = new Map();
   private debug?: Promise<boolean>;
@@ -106,13 +106,13 @@ export class Host extends Emitter<HostEvents> {
   private debugLogger: Console;
   private sharedContext: SharedContext;
   constructor(config: HostConfig) {
-    super(config.rootName);
+    super(config.hostName);
     const { guestOptions = {} } = config;
     this.guestOptions = {
       ...guestOptions,
       debug: guestOptions.debug === false ? false : !!config.debug,
     };
-    this.rootName = config.rootName;
+    this.hostName = config.hostName;
     this.sharedContext = config.sharedContext || {};
     this.runtimeContainer = config.runtimeContainer;
     if (process.env.NODE_ENV === "development" && config.debug) {
@@ -124,7 +124,7 @@ export class Host extends Emitter<HostEvents> {
         .catch((e) => {
           console.error(
             "Failed to attach debugger to UIX host %s",
-            this.rootName,
+            this.hostName,
             e
           );
           // noop unsubscriber
@@ -201,7 +201,7 @@ export class Host extends Emitter<HostEvents> {
   private createRuntimeContainer(window: Window) {
     const { document } = window;
     const container = document.createElement("div");
-    container.setAttribute("data-uix-guest-container", this.rootName);
+    container.setAttribute("data-uix-guest-container", this.hostName);
     Object.assign(container.style, Host.containerStyle);
     document.body.appendChild(container);
     return container;
@@ -215,7 +215,7 @@ export class Host extends Emitter<HostEvents> {
     if (!guest) {
       const url = new URL(urlString);
       guest = new Port({
-        owner: this.rootName,
+        owner: this.hostName,
         id,
         url,
         runtimeContainer: this.runtimeContainer,

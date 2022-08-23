@@ -1,4 +1,5 @@
 import { resolve, relative } from "path";
+import { readFileSync } from "fs";
 import { getSdks, logger, runWithArg, sh, shResult } from "./script-runner.mjs";
 
 let absDependentDir;
@@ -7,48 +8,70 @@ let dependentName;
 async function publishLocalTo(dependent, workDir) {
   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
   try {
-    await shResult(yalc, ['--version']);git 
+    await shResult(yalc, ['--version']); 
   } catch (e) {
     throw new Error(`Could not find "yalc" in npm path: ${e.message}`);
   }
 
-  const absDependentDir = resolve(workDir, dependent);
   const sdks = await getSdks();
-  const unlinked = new Set(sdks.map((_, pkg) => pkg.name));
-  logger.log(
-    "Checking if %s has already yalc-added SDK packages",
-    dependentName
-  );
-  try {
-    const found = JSON.parse(
-      await shResult("npm", ["explain", "--json", ...unlinked], {
-        cwd: absDependentDir,
-      })
+
+  if (dependent) {
+    const absDependentDir = resolve(workDir, dependent);
+    const sdkPackages = new Set(sdks.map(sdkPart => sdkPart.pkg.name));
+    const usedSdkPackages = new Set();
+    const unlinkedSdkPackages = new Set();
+    const yalcConfigDir = await shResult(yalc, ["dir"], {
+      cwd: absDependentDir,
+    });
+    const yalcInstallations = JSON.parse(
+      readFileSync(resolve(yalcConfigDir, 'installations.json'))
     );
-    for (const entry of found) {
-      if (unlinked.has(entry.name)) {
-        unlinked.delete(entry.name);
-      }
-    }
-    if (unlinked.size > 0) {
-      logger.warn(
-        `${unlinked.size} SDKs were not linked and will be added: %s`,
-        [...unlinked]
+
+    logger.log(
+      "Checking if %s has already yalc-added SDK packages",
+      dependentName
+    );
+    try {
+      const found = JSON.parse(
+        await shResult("npm", ["explain", "--json", ...sdkPackages], {
+          cwd: absDependentDir,
+        })
       );
-    }
-  } catch (e) {}
-  await Promise.all(
-    sdks.map(async (sdk) => {
-      await sh(yalc, ["push", relative(workDir, sdk.cwd)]);
-      if (unlinked.has(sdk.pkg.name)) {
-        await sh(yalc, ["add", sdk.pkg.name], { cwd: absDependentDir });
+      for (const entry of found) {
+        if (sdkPackages.has(entry.name)) {
+          usedSdkPackages.add(entry.name)
+          if (!yalcInstallations[entry.name] || !yalcInstallations[entry.name].includes(absDependentDir)) {
+            unlinkedSdkPackages.add(entry.name)
+          }
+        }
       }
-    })
-  );
-  logger.done("All changes to all SDKs pushed.");
+      if (usedSdkPackages.size) {
+        logger.log(`Used SDK packages: %s`, [...usedSdkPackages]);
+        if (unlinkedSdkPackages) {
+          logger.log(`SDK packages were not linked and will be added with yalc: %s`, [...unlinkedSdkPackages]);
+        }
+      } else {
+        sdkPackages.forEach(sdkPkg => unlinkedSdkPackages.add(sdkPkg));
+        logger.log(`SDKs were not used and will be added: %s`, unlinkedSdkPackages);
+      }
+    } catch (e) {}
+  }
+
+
+  for (const sdk of sdks) {
+    await sh(yalc, ["push", relative(workDir, sdk.cwd)]);
+    if (dependent && unlinkedSdkPackages.has(sdk.pkg.name)) {
+      await sh(yalc, ["add", sdk.pkg.name], { cwd: absDependentDir });
+    }
+  }
+  logger.done("All changes to all SDKs pushed.");  
 }
 
 runWithArg(publishLocalTo, async (dependent, highlight) => {
+  if (!dependent) {
+    return;
+  }
+
   absDependentDir = resolve(dependent);
   try {
     dependentName = await shResult("npm", ["pkg", "-s", "get", "name"], {
