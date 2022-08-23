@@ -37,6 +37,7 @@ export function Extensible({
   guestOptions,
   runtimeContainer,
   debug,
+  sharedContext = {},
 }: PropsWithChildren<ExtensionProviderProps>) {
   const installedRef = useRef<InstalledExtensions>();
   if (
@@ -52,6 +53,7 @@ export function Extensible({
       debug,
       hostName,
       runtimeContainer,
+      sharedContext,
     });
     return host;
   }, [hostName, runtimeContainer]);

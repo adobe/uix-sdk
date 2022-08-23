@@ -58,6 +58,7 @@ export class Guest<
   Outgoing extends object,
   Incoming extends object
 > extends Emitter<GuestEvents<Outgoing, Incoming>> {
+  private sharedContext: Record<string, unknown>;
   constructor(config: GuestConfig<Outgoing>) {
     super(config.id);
     if (typeof config.timeout === "number") {
@@ -115,12 +116,23 @@ export class Guest<
     try {
       const connection = connectToParent<HostConnection<Incoming>>({
         timeout: this.timeout,
-        methods: this.localMethods,
+        methods: {
+          emit: (
+            type: string,
+            detail: { context: Record<string, unknown> }
+          ) => {
+            if (type === "contextchange") {
+              this.sharedContext = detail.context;
+            }
+          },
+          apis: this.localMethods,
+        },
       });
 
       this.emit("connecting", { guest: this, connection });
       this.hostConnectionPromise = connection.promise;
       this.hostConnection = await this.hostConnectionPromise;
+      this.sharedContext = await this.hostConnection.getSharedContext();
       this.emit("connected", { guest: this, connection });
     } catch (e) {
       this.emit("error", { guest: this, error: e });
