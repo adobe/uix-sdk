@@ -42,6 +42,8 @@ export type HostEvents =
 
 /** @public */
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+/** @public */
+export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
 type SharedContext = Record<string, unknown>;
 
