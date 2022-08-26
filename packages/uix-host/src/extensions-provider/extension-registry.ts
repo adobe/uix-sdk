@@ -63,7 +63,7 @@ export interface ExtensionRegistryConfig
 function buildEndpointPath(
   config: ExtensionRegistryEndpointRegistration
 ): string {
-  return `${config.service}/${config.service}/${config.version}`;
+  return `${config.service}/${config.extensionPoint}/${config.version}`;
 }
 
 async function fetchExtensionsFromRegistry(
