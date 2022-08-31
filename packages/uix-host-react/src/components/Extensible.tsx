@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import type { PropsWithChildren } from "react";
 import type {
   InstalledExtensions,
+  ExtensionsProvider,
   HostConfig,
   PortOptions,
 } from "@adobe/uix-host";
@@ -9,9 +10,9 @@ import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
 /** @public */
-export interface ExtensionProviderProps extends Omit<HostConfig, 'hostName'> {
+export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
   appName?: string;
-  extensions: InstalledExtensions;
+  extensionsProvider: ExtensionsProvider;
   guestOptions?: PortOptions;
 }
 
@@ -33,21 +34,27 @@ function areExtensionsDifferent(
 export function Extensible({
   appName,
   children,
-  extensions,
+  extensionsProvider,
   guestOptions,
   runtimeContainer,
   debug,
   sharedContext = {},
-}: PropsWithChildren<ExtensionProviderProps>) {
-  const installedRef = useRef<InstalledExtensions>();
-  if (
-    !installedRef.current ||
-    areExtensionsDifferent(installedRef.current, extensions)
-  ) {
-    installedRef.current = extensions;
-  }
+}: PropsWithChildren<ExtensibleProps>) {
+  const [extensions, setExtensions] = useState({});
 
-  const hostName = appName || window.location.host || 'mainframe';
+  useEffect(() => {
+    extensionsProvider()
+      .then((loadedExtensions: InstalledExtensions) => {
+        if (areExtensionsDifferent(extensions, loadedExtensions)) {
+          setExtensions(loadedExtensions);
+        }
+      })
+      .catch((e: Error | unknown) => {
+        console.error("Fetching list of extensions failed!", e);
+      });
+  }, [extensionsProvider]);
+
+  const hostName = appName || window.location.host || "mainframe";
   const host = useMemo(() => {
     const host = new Host({
       debug,
@@ -56,22 +63,27 @@ export function Extensible({
       sharedContext,
     });
     return host;
-  }, [hostName, runtimeContainer]);
+  }, [debug, hostName, runtimeContainer, sharedContext]);
 
   useEffect(() => {
     function logError(msg: string) {
       return (e: Error | unknown) => {
         const error = e instanceof Error ? e : new Error(String(e));
-        console.error(msg, error, installedRef.current, guestOptions);
+        console.error(msg, error, extensions, guestOptions);
       };
     }
+
+    if (!Object.entries(extensions).length) {
+      return;
+    }
+
     host
-      .load(installedRef.current, guestOptions)
+      .load(extensions, guestOptions)
       .catch(logError("Load of extensions failed!"));
     return () => {
       host.unload().catch(logError("Unload of extensions failed!"));
     };
-  }, [host, installedRef.current]);
+  }, [host, extensions]);
 
   return (
     <ExtensionContext.Provider value={host}>

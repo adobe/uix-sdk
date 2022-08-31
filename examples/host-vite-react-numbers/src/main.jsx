@@ -5,23 +5,22 @@ import App from "./App";
 import "./index.css";
 
 async function main() {
-  const extensionListResponse = await fetch(REGISTRY_URL);
-  const extensionList = await extensionListResponse.json();
-
-  const extensionsById = extensionList.reduce(
-    (byId, extension) => ({
-      ...byId,
-      [extension.id]: extension.url,
-    }),
-    {}
-  );
+  const extensionsProvider = () => fetch(REGISTRY_URL)
+      .then(extensionListResponse => extensionListResponse.json())
+      .then(extensionList => extensionList.reduce(
+        (byId, extension) => ({
+          ...byId,
+          [extension.id]: extension.url,
+        }),
+        {}
+      ));
 
   ReactDOM.render(
     <React.StrictMode>
       <Extensible
-        debug={process.env.NODE_ENV !== "production"}
-        extensions={extensionsById}
         appName="Number Discussion"
+        debug={process.env.NODE_ENV !== "production"}
+        extensionsProvider={extensionsProvider}
       >
         <App />
       </Extensible>
