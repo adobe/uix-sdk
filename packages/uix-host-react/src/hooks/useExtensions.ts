@@ -4,7 +4,7 @@ import type {
   RemoteApis,
   RequiredMethodsByName,
 } from "@adobe/uix-core";
-import type { Host } from "@adobe/uix-host";
+import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
 interface TypedGuestConnection<T extends RemoteApis> extends GuestConnection {
@@ -29,6 +29,15 @@ export interface UseExtensionsResult<T extends RemoteApis> {
   error?: Error;
 }
 
+export class OutsideOfExtensionContextError extends Error {
+  outsideOfExtensionContext: boolean;
+  constructor(msg: string) {
+    super(msg);
+    this.outsideOfExtensionContext = true;
+    Object.setPrototypeOf(this, OutsideOfExtensionContextError.prototype);
+  }
+}
+
 /**
  * TODO: document useExtensions
  * @public
@@ -44,7 +53,18 @@ export function useExtensions<
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = []
 ): UseExtensionsResult<Incoming> {
-  const host = useContext(ExtensionContext);
+  const host = useContext<Host | unknown>(ExtensionContext);
+  if (!(host instanceof Host)) {
+    const error = new OutsideOfExtensionContextError(
+      "Attempt to invoke useExtensions hook outside of ExtensionContext. Wrap extensible part of application with Extensible component."
+    );
+    return {
+      extensions: [],
+      loading: false,
+      error,
+    };
+  }
+
   const baseDeps = [host, ...deps];
   const {
     requires,
