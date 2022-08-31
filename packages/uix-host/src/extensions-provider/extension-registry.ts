@@ -48,7 +48,7 @@ export interface ExtensionRegistryExtensionRegistration
 
 /** @public */
 export interface ExtensionRegistryConnection {
-  host?: string;
+  baseUrl?: string;
   apiKey: string;
   auth: {
     schema: "Basic" | "Bearer";
@@ -66,13 +66,23 @@ function buildEndpointPath(
   return `${config.service}/${config.extensionPoint}/${config.version}`;
 }
 
+function ensureProtocolSpecified(url: string) {
+  if (url.startsWith("https://")) {
+    return url;
+  }
+  if (url.startsWith("http://")) {
+    return url;
+  }
+  return `https://${url}`;
+}
+
 async function fetchExtensionsFromRegistry(
   config: ExtensionRegistryConfig
 ): Promise<Array<ExtensionDefinition>> {
   const resp = await fetch(
-    `https://${
-      config.host || "appregistry.adobe.io"
-    }/myxchng/v1/org/${encodeURIComponent(
+    `${ensureProtocolSpecified(
+      config.baseUrl || "appregistry.adobe.io"
+    )}/myxchng/v1/org/${encodeURIComponent(
       config.imsOrg
     )}/xtn/${buildEndpointPath(config)}?auth=true`,
     {
