@@ -1,5 +1,5 @@
 const { defineConfig } = require("tsup");
-const { config } = require("../../scripts/common-tsupconfig");
+const { config } = require("../../configs/common-tsupconfig");
 export default defineConfig({
   ...config,
   format: ["esm", "cjs", "iife"], // the guest library should be highly portable

@@ -1,22 +1,30 @@
 import { resolve, relative } from "path";
 import { readFileSync } from "fs";
-import { getSdks, logger, runWithArg, sh, shResult } from "./script-runner.mjs";
+import {
+  getSdks,
+  highlightLogVars,
+  logger,
+  runWithArg,
+  sh,
+  shResult,
+} from "./script-runner.mjs";
 
 let absDependentDir;
 let dependentName;
 
-async function publishLocalTo(dependent, workDir) {
+async function publishLocalTo(dependent) {
+  const workDir = process.cwd();
   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
   try {
-    await shResult(yalc, ['--version']); 
+    await shResult(yalc, ["--version"]);
   } catch (e) {
     throw new Error(`Could not find "yalc" in npm path: ${e.message}`);
   }
 
   const sdks = await getSdks();
-  const sdkPackages = new Set(sdks.map(sdkPart => sdkPart.pkg.name));
+  const sdkPackages = new Set(sdks.map((sdkPart) => sdkPart.pkg.name));
   const unlinkedSdkPackages = new Set();
-  
+
   if (dependent) {
     const absDependentDir = resolve(workDir, dependent);
     const usedSdkPackages = new Set();
@@ -24,7 +32,7 @@ async function publishLocalTo(dependent, workDir) {
       cwd: absDependentDir,
     });
     const yalcInstallations = JSON.parse(
-      readFileSync(resolve(yalcConfigDir, 'installations.json'))
+      readFileSync(resolve(yalcConfigDir, "installations.json"))
     );
 
     logger.log(
@@ -39,35 +47,43 @@ async function publishLocalTo(dependent, workDir) {
       );
       for (const entry of found) {
         if (sdkPackages.has(entry.name)) {
-          usedSdkPackages.add(entry.name)
-          if (!yalcInstallations[entry.name] || !yalcInstallations[entry.name].includes(absDependentDir)) {
-            unlinkedSdkPackages.add(entry.name)
+          usedSdkPackages.add(entry.name);
+          if (
+            !yalcInstallations[entry.name] ||
+            !yalcInstallations[entry.name].includes(absDependentDir)
+          ) {
+            unlinkedSdkPackages.add(entry.name);
           }
         }
       }
       if (usedSdkPackages.size) {
         logger.log(`Used SDK packages: %s`, [...usedSdkPackages]);
         if (unlinkedSdkPackages) {
-          logger.log(`SDK packages were not linked and will be added with yalc: %s`, [...unlinkedSdkPackages]);
+          logger.log(
+            `SDK packages were not linked and will be added with yalc: %s`,
+            [...unlinkedSdkPackages]
+          );
         }
       } else {
-        sdkPackages.forEach(sdkPkg => unlinkedSdkPackages.add(sdkPkg));
-        logger.log(`SDKs were not used and will be added: %s`, unlinkedSdkPackages);
+        sdkPackages.forEach((sdkPkg) => unlinkedSdkPackages.add(sdkPkg));
+        logger.log(
+          `SDKs were not used and will be added: %s`,
+          unlinkedSdkPackages
+        );
       }
     } catch (e) {}
   }
 
-
   for (const sdk of sdks) {
-    await sh(yalc, ["push", relative(workDir, sdk.cwd)]);
     if (dependent && unlinkedSdkPackages.has(sdk.pkg.name)) {
       await sh(yalc, ["add", sdk.pkg.name], { cwd: absDependentDir });
     }
+    await sh(yalc, ["push", relative(workDir, sdk.cwd)]);
   }
-  logger.done("All changes to all SDKs pushed.");  
+  logger.done("All changes to all SDKs pushed.");
 }
 
-runWithArg(publishLocalTo, async (dependent, highlight) => {
+runWithArg(publishLocalTo, async (dependent) => {
   if (!dependent) {
     return;
   }
@@ -83,6 +99,6 @@ runWithArg(publishLocalTo, async (dependent, highlight) => {
       const { error } = JSON.parse(problem);
       problem = error.summary;
     } catch (e) {}
-    return highlight`A valid NPM package could not be found in ${absDependentDir}, so we cannot continue. Error was:\n  ${problem}`;
+    return highlightLogVars`A valid NPM package could not be found in ${absDependentDir}, so we cannot continue. Error was:\n  ${problem}`;
   }
 });

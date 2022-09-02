@@ -40,6 +40,11 @@ export const logger = Object.keys(LogFormats).reduce((logger, level) => {
   return outConsole;
 }, {});
 
+function deny(reason) {
+  logger.error(reason instanceof Error ? reason.stack : reason);
+  process.exit(1);
+}
+
 export async function sh(cmd, args, opts) {
   if (!Array.isArray(args)) {
     throw new Error(
@@ -116,34 +121,32 @@ but it was ${arg}`;
   }
 }
 
-function deny(reason) {
-  logger.error(reason instanceof Error ? reason.stack : reason);
-  process.exit(1);
-}
-
 export async function runWithArg(fn, validator = () => {}) {
-  const validateArg = Array.isArray(validator)
+  let workingDir = process.cwd();
+  try {
+    const gitRoot = await shResult("git", ["rev-parse", "--show-toplevel"]);
+    if (gitRoot !== workingDir) {
+      logger.warn("Changing directory to %s", gitRoot);
+      process.chdir(gitRoot);
+      workingDir = gitRoot;
+    }
+  } catch (e) {
+    deny(
+      `Need to be in the git repo for @adobe/uix-sdk-monorepo. ${e.message}`
+    );
+  }
+  const validateArgs = Array.isArray(validator)
     ? (arg) => argIn(validator, arg)
     : validator;
-  const invalidReason = await validateArg(process.argv[2], highlightLogVars);
-  if (invalidReason) {
-    deny(invalidReason);
-  }
+  let argv = process.argv.slice(2);
   try {
-    let workingDir = process.cwd();
-    try {
-      const gitRoot = await shResult("git", ["rev-parse", "--show-toplevel"]);
-      if (gitRoot !== workingDir) {
-        logger.warn("Changing directory to %s", gitRoot);
-        process.chdir(gitRoot);
-        workingDir = gitRoot;
-      }
-    } catch (e) {
-      deny(
-        `Need to be in the git repo for @adobe/uix-sdk-monorepo. ${e.message}`
-      );
+    const validation = await validateArgs(...argv);
+    if (typeof validation === "string") {
+      return deny(validation);
+    } else if (validation) {
+      argv = validation;
     }
-    await fn(process.argv[2], workingDir);
+    await fn(...argv);
   } catch (e) {
     deny(e);
   }

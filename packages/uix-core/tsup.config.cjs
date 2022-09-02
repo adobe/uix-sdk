@@ -1,3 +1,3 @@
 const { defineConfig } = require("tsup");
-const { config } = require("../../scripts/common-tsupconfig");
+const { config } = require("../../configs/common-tsupconfig");
 export default defineConfig(config);
