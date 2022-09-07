@@ -1,7 +1,7 @@
 {
   "name": "@adobe/uix-sdk-monorepo",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Monorepo for @adobe/uix-sdk development",
   "scripts": {
     "any": "npm run --workspaces --if-present",
