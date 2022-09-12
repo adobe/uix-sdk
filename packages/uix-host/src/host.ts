@@ -159,8 +159,16 @@ export class Host extends Emitter<HostEvents> {
       (guest) => !guest.isLoading() && filter(guest)
     );
   }
-  shareContext(setter: (context: SharedContext) => SharedContext) {
-    this.sharedContext = setter(this.sharedContext);
+  shareContext(context: SharedContext): void;
+  shareContext(setter: (context: SharedContext) => SharedContext): void;
+  shareContext(
+    setterOrContext: ((context: SharedContext) => SharedContext) | SharedContext
+  ) {
+    if (typeof setterOrContext === "function") {
+      this.sharedContext = setterOrContext(this.sharedContext);
+    } else {
+      this.sharedContext = setterOrContext;
+    }
     this.emit("contextchange", {
       host: this,
       context: this.sharedContext,

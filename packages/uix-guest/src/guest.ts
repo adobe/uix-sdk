@@ -48,17 +48,26 @@ interface GuestConfig<GuestApi> {
   register?: LocalApis<GuestApi>;
 }
 
+class ReadOnlySharedContext {
+  private _map: Map<string, unknown>;
+  constructor(values: Record<string, unknown>) {
+    this._map = new Map(Object.entries(values));
+  }
+  get(key: string) {
+    return this._map.get(key);
+  }
+}
+
 /**
  *
  * TODO: document Guest
  * @public
  *
  */
-export class Guest<
-  Outgoing extends object,
-  Incoming extends object
-> extends Emitter<GuestEvents<Outgoing, Incoming>> {
-  private sharedContext: Record<string, unknown>;
+export class Guest<Outgoing extends object, Incoming extends object> extends Emitter<
+  GuestEvents<Outgoing, Incoming>
+> {
+  sharedContext: ReadOnlySharedContext;
   constructor(config: GuestConfig<Outgoing>) {
     super(config.id);
     if (typeof config.timeout === "number") {
@@ -122,7 +131,7 @@ export class Guest<
             detail: { context: Record<string, unknown> }
           ) => {
             if (type === "contextchange") {
-              this.sharedContext = detail.context;
+              this.sharedContext = new ReadOnlySharedContext(detail.context);
             }
           },
           apis: this.localMethods,
@@ -132,7 +141,9 @@ export class Guest<
       this.emit("connecting", { guest: this, connection });
       this.hostConnectionPromise = connection.promise;
       this.hostConnection = await this.hostConnectionPromise;
-      this.sharedContext = await this.hostConnection.getSharedContext();
+      this.sharedContext = new ReadOnlySharedContext(
+        await this.hostConnection.getSharedContext()
+      );
       this.emit("connected", { guest: this, connection });
     } catch (e) {
       this.emit("error", { guest: this, error: e });

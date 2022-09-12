@@ -91,9 +91,12 @@ export class Port<GuestApi>
     this.runtimeContainer = config.runtimeContainer;
     this.sharedContext = config.sharedContext;
     this.subscriptions.push(
-      config.events.addEventListener("contextchange", async ({ detail }) => {
+      config.events.addEventListener("contextchange", async (event) => {
+        this.sharedContext = (
+          (event as CustomEvent).detail as unknown as Record<string, unknown>
+        ).context as Record<string, unknown>;
         await this.connect();
-        await this.guest.emit("contextchange", detail);
+        await this.guest.emit("contextchange", { context: this.sharedContext });
       })
     );
   }
