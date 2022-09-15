@@ -111,6 +111,12 @@ export interface HostConnection<T = unknown> {
 
 export interface GuestConnection {
   id: string;
+  url: URL;
+  attachUI(frame: HTMLIFrameElement): {
+    promise: Promise<unknown>;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    destroy: Function;
+  };
   load(): Promise<unknown>;
   error?: Error;
   hasCapabilities(capabilities: unknown): boolean;

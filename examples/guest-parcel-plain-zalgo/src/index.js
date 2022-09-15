@@ -2,27 +2,9 @@
  * Extension "Hypatia" runs as a guest in an invisible iframe.
  * Hypatia was a mathematician and philosopher. She lived in the 4th century.
  */
-import { createGuest } from "@adobe/uix-guest";
+import { register } from "@adobe/uix-guest";
 import zalgo from "zalgo-js";
 import humanize from "humanize-duration";
-
-const uix = createGuest({
-  id: "Zalgo",
-  debug: process.env.NODE_ENV !== "production",
-});
-
-uix.register({
-  interestingNumbers: {
-    commentOn(n) {
-      // should we say anything?
-      if (Math.random() > 0.7) {
-        return getComments(n);
-      } else {
-        return [];
-      }
-    },
-  },
-});
 
 const maxMult = 15;
 function getComments(n) {
@@ -46,3 +28,22 @@ document.querySelector("#app").innerHTML = `
    <p>Here are some examples of zalgoing numbers.</p>
    <ul>${exampleResults.join("")}</ul>
  `;
+
+register({
+  id: "Zalgo",
+  debug: process.env.NODE_ENV !== "production",
+  methods: {
+    interestingNumbers: {
+      commentOn(n) {
+        // should we say anything?
+        if (Math.random() > 0.7) {
+          return getComments(n);
+        } else {
+          return [];
+        }
+      },
+    },
+  },
+}).catch((e) => {
+  console.error(e);
+});

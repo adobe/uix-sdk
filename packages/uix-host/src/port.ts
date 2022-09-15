@@ -60,6 +60,7 @@ export class Port<GuestApi>
   url: URL;
   frame: HTMLIFrameElement;
   connection: Connection<RemoteApis<GuestApi>>;
+  uiConnections: Map<string, Connection<RemoteApis<GuestApi>>>;
   apis: RemoteApis;
   error?: Error;
   private hostApis: RemoteApis = {};
@@ -123,6 +124,9 @@ export class Port<GuestApi>
   async unload(): Promise<void> {
     if (this.connection) {
       await this.connection.destroy();
+    }
+    for (const connection of this.uiConnections.values()) {
+      await connection.destroy();
     }
     if (this.frame) {
       this.frame.parentElement.removeChild(this.frame);
@@ -199,6 +203,21 @@ export class Port<GuestApi>
       );
     });
   }
+  attachUI(iframe: HTMLIFrameElement) {
+    const uniqueId = Math.random().toString(36);
+    const uiConnection = connectToChild<RemoteApis<GuestApi>>({
+      iframe,
+      debug: this.debug,
+      timeout: this.timeout,
+      methods: {
+        getSharedContext: () => this.sharedContext,
+        invokeHostMethod: (address: HostMethodAddress) =>
+          this.invokeHostMethod(address),
+      },
+    });
+    this.uiConnections.set(uniqueId, uiConnection);
+    return uiConnection;
+  }
   private async connect() {
     this.frame = this.runtimeContainer.ownerDocument.createElement("iframe");
     this.frame.setAttribute("src", this.url.href);
@@ -221,7 +240,7 @@ export class Port<GuestApi>
       },
     });
     this.guest = (await this.connection.promise) as unknown as GuestMethods;
-    this.apis = this.guest.apis;
+    this.apis = this.guest.apis || {};
     this.isLoaded = true;
     if (this.debugLogger) {
       this.debugLogger.info(

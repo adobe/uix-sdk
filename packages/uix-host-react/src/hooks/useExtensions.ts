@@ -1,11 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   GuestConnection,
   RemoteApis,
   RequiredMethodsByName,
 } from "@adobe/uix-core";
-import { Host } from "@adobe/uix-host";
-import { ExtensionContext } from "../extension-context.js";
+import { Host, HostEvents } from "@adobe/uix-host";
+import { useHost } from "./useHost.js";
 
 interface TypedGuestConnection<T extends RemoteApis> extends GuestConnection {
   id: GuestConnection["id"];
@@ -29,15 +29,6 @@ export interface UseExtensionsResult<T extends RemoteApis> {
   error?: Error;
 }
 
-export class OutsideOfExtensionContextError extends Error {
-  outsideOfExtensionContext: boolean;
-  constructor(msg: string) {
-    super(msg);
-    this.outsideOfExtensionContext = true;
-    Object.setPrototypeOf(this, OutsideOfExtensionContextError.prototype);
-  }
-}
-
 /**
  * TODO: document useExtensions
  * @public
@@ -53,11 +44,8 @@ export function useExtensions<
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = []
 ): UseExtensionsResult<Incoming> {
-  const host = useContext<Host | unknown>(ExtensionContext);
-  if (!(host instanceof Host)) {
-    const error = new OutsideOfExtensionContextError(
-      "Attempt to invoke useExtensions hook outside of ExtensionContext. Wrap extensible part of application with Extensible component."
-    );
+  const { host, error } = useHost();
+  if (error) {
     return {
       extensions: [],
       loading: false,
@@ -101,12 +89,16 @@ export function useExtensions<
     });
   }, [subscribe, getExtensions]);
 
-  const [error, setError] = useState<Error>();
+  const [hostError, setHostError] = useState<Error>();
   useEffect(
     () =>
-      host.addEventListener("error", (event) => setError(event.detail.error)),
+      host.addEventListener(
+        "error",
+        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+          setHostError(event.detail.error)
+      ),
     baseDeps
   );
 
-  return { extensions, loading: !host.loading, error };
+  return { extensions, loading: !host.loading, error: hostError };
 }

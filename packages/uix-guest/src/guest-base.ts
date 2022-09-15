@@ -17,7 +17,7 @@ type GuestEvent<
   Type,
   Detail &
     Record<string, unknown> & {
-      guest: Guest<Outgoing, Incoming>;
+      guest: BaseGuest<Outgoing, Incoming>;
     }
 >;
 export type GuestEvents<Outgoing extends object, Incoming extends object> =
@@ -26,7 +26,7 @@ export type GuestEvents<Outgoing extends object, Incoming extends object> =
   | GuestEvent<Outgoing, Incoming, "connected", { connection: Connection }>
   | GuestEvent<Outgoing, Incoming, "error", { error: Error }>;
 
-interface GuestConfig<GuestApi> {
+export interface GuestConfig<GuestApi> {
   /**
    * String slug identifying extension. This may need to use IDs from an
    * external system in the future.
@@ -64,9 +64,10 @@ class ReadOnlySharedContext {
  * @public
  *
  */
-export class Guest<Outgoing extends object, Incoming extends object> extends Emitter<
-  GuestEvents<Outgoing, Incoming>
-> {
+export class BaseGuest<
+  Outgoing extends object,
+  Incoming extends object
+> extends Emitter<GuestEvents<Outgoing, Incoming>> {
   sharedContext: ReadOnlySharedContext;
   constructor(config: GuestConfig<Outgoing>) {
     super(config.id);
@@ -112,30 +113,24 @@ export class Guest<Outgoing extends object, Incoming extends object> extends Emi
   });
   private timeout = 10000;
   private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
-  private localMethods: LocalApis<Outgoing>;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
   private debug: Promise<boolean>;
-  async register(apis: LocalApis<Outgoing>) {
-    await this.debug;
-    this.localMethods = apis;
-    await this.connect();
+  protected getLocalMethods() {
+    return {
+      emit: (type: string, detail: { context: Record<string, unknown> }) => {
+        if (type === "contextchange") {
+          this.sharedContext = new ReadOnlySharedContext(detail.context);
+        }
+      },
+    };
   }
-  private async connect() {
+  async connect() {
+    await this.debug;
     this.emit("beforeconnect", { guest: this });
     try {
       const connection = connectToParent<HostConnection<Incoming>>({
         timeout: this.timeout,
-        methods: {
-          emit: (
-            type: string,
-            detail: { context: Record<string, unknown> }
-          ) => {
-            if (type === "contextchange") {
-              this.sharedContext = new ReadOnlySharedContext(detail.context);
-            }
-          },
-          apis: this.localMethods,
-        },
+        methods: this.getLocalMethods(),
       });
 
       this.emit("connecting", { guest: this, connection });
@@ -151,12 +146,3 @@ export class Guest<Outgoing extends object, Incoming extends object> extends Emi
     }
   }
 }
-
-export function createGuest<Outgoing extends object>(
-  config: GuestConfig<Outgoing>
-) {
-  const guest = new Guest(config);
-  return guest;
-}
-
-export default createGuest;

@@ -3,7 +3,7 @@
  * @hidden
  */
 import { debugEmitter, Emits } from "@adobe/uix-core";
-import { GuestEvents } from "./guest";
+import { GuestEvents } from "./guest-base";
 
 export function debugGuest<Out extends object, In extends object>(
   guest: Emits<GuestEvents<Out, In>>

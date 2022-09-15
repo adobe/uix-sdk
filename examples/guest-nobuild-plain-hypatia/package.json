@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "scripts": {
     "example:build": "echo ''",
-    "example:development": "rm -rf ./dist && mkdir -p dist && cp ../../packages/uix-guest/dist/index.global.* ./dist/ && serve -p $MULTI_SERVER_PORT .",
+    "example:development": "rm -rf ./dist; ln -s ../../packages/uix-guest/dist/ ./dist && serve -p $MULTI_SERVER_PORT .",
     "example:production": "npm run -s example:development"
   },
   "dependencies": {
