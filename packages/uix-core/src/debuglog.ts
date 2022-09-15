@@ -5,6 +5,7 @@
  */
 
 const isDarkMode = () =>
+  typeof window.matchMedia === "function" &&
   window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 type Layout = {

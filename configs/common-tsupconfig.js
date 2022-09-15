@@ -1,7 +1,7 @@
 const base = {
   entry: ["src/index.ts"], // will be relative to the directory that uses it
   tsconfig: "./tsconfig.json", // see above
-  format: "esm",
+  format: ["esm", "cjs"],
   platform: "browser",
   target: "es2020", // TODO: this is cool, right?
   replaceNodeEnv: true,

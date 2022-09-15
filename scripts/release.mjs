@@ -10,6 +10,10 @@ import {
 } from "./script-runner.mjs";
 import semver from "semver";
 
+const allowedReleaseTypes = ["major", "minor", "patch", "prerelease"];
+const isAllowedReleaseType = (releaseType) =>
+  allowedReleaseTypes.includes(releaseType);
+
 const artifactories = [
   "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/",
   "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/",
@@ -23,14 +27,30 @@ const gitDoes = async (...argSets) => {
   }
 };
 
-async function notOnMainBranch() {
-  const currentBranch = await gitSays("branch", "--show-current");
-  return currentBranch !== mainBranchName;
+async function getCurrentBranch() {
+  return gitSays("branch", "--show-current");
 }
 
 async function workingTreeNotEmpty() {
   const output = await gitSays("status", "--porcelain");
   return output !== "";
+}
+
+async function getCurrentVersion(workingDir) {
+  let version;
+  try {
+    version = JSON.parse(
+      await readFile(resolve(workingDir, "package.json"))
+    ).version;
+    if (!version) {
+      throw new Error("package.json had no valid 'version' entry");
+    }
+  } catch (e) {
+    throw new Error(
+      `Could not fetch base version from package.json: ${e.message}`
+    );
+  }
+  return version;
 }
 
 function setDepRange(version) {
@@ -51,6 +71,7 @@ async function updatePackageJson(dir, updates) {
 
 async function updatePackageVersions(version, sdks, workingDir) {
   const depTypes = ["dependencies", "devDependencies", "peerDependencies"];
+  const semverVersion = setDepRange(version);
   await Promise.all(
     sdks.map(async ({ cwd, pkg }) => {
       const pkgUpdates = { version };
@@ -61,23 +82,23 @@ async function updatePackageVersions(version, sdks, workingDir) {
         const newDepList = { ...pkg[depType] };
         for (const sdk of sdks) {
           if (Reflect.has(newDepList, sdk.pkg.name)) {
-            newDepList[sdk.pkg.name] = setDepRange(version);
+            newDepList[sdk.pkg.name] = semverVersion;
           }
         }
         pkgUpdates[depType] = newDepList;
       }
       await updatePackageJson(cwd, pkgUpdates);
-      logger.done("Updated %s package.json to v%s", pkg.name, version);
+      logger.done.hl`Updated ${pkg.name} package.json to ${semverVersion}`;
     })
   );
 
   await updatePackageJson(workingDir, { version });
 
-  logger.done("Updated monorepo base version to %s", version);
+  logger.done.hl`Updated monorepo base version to ${semverVersion}`;
 
   logger.log("Rerunning install to rewrite package lock:");
   await sh("npm", ["install"]);
-  logger.done("All versions updated to %s", version);
+  logger.done.hl`All versions updated to ${semverVersion}`;
 }
 
 async function gitTagAndPush(newVersion) {
@@ -97,7 +118,7 @@ async function publishAll(sdks, registry) {
   logger.log("Running npm publish on each package.");
   let registries = artifactories;
   if (registry) {
-    logger.warn("Overriding default registries, publishing to: %s", registry);
+    logger.warn.hl`Overriding default registries, publishing to: ${registry}`;
     registries = [].concat(registry);
   }
   for (const sdk of sdks) {
@@ -116,31 +137,32 @@ async function release(releaseType, options) {
     );
   }
 
-  if (await notOnMainBranch()) {
-    throw new Error(`Must be on branch "${mainBranchName}" to release.`);
+  const currentBranch = await getCurrentBranch();
+
+  if (currentBranch !== mainBranchName) {
+    logger.warn.hl`On branch ${currentBranch} instead of ${mainBranchName}`;
+    if (options.force) {
+      logger.warn("--force passed, ignoring.");
+    } else {
+      throw new Error(
+        `Must be on branch "${mainBranchName}" to release. Pass --force to override.`
+      );
+    }
   }
 
   if (await workingTreeNotEmpty()) {
-    throw new Error(
-      "There are outstanding changes in the git working tree. Commit or clean the work tree before running this script."
-    );
+    logger.warn("Uncommitted changes in working directory.");
+    if (options.force) {
+      logger.warn("--force passed, ignoring.");
+    } else {
+      throw new Error(
+        `Working directory must be empty to publish. Pass --force to override.`
+      );
+    }
   }
-
   const workingDir = process.cwd();
 
-  let version;
-  try {
-    version = JSON.parse(
-      await readFile(resolve(workingDir, "package.json"))
-    ).version;
-    if (!version) {
-      throw new Error("package.json had no valid 'version' entry");
-    }
-  } catch (e) {
-    throw new Error(
-      `Could not fetch base version from package.json: ${e.message}`
-    );
-  }
+  let version = await getCurrentVersion(workingDir);
 
   const sdks = await getWorkspaces("packages");
 
@@ -163,11 +185,20 @@ Continue the release manually.`);
   if (options.noVersion) {
     logger.warn("Skipping version update.");
   } else {
-    version = semver.inc(version, releaseType);
+    if (semver.valid(releaseType)) {
+      if (semver.lte(version, releaseType)) {
+        throw new Error(
+          `Cannot set new version "${releaseType}" because it is less than, or equal to, the current version "${version}".`
+        );
+      }
+      version = releaseType;
+    } else {
+      version = semver.inc(version, releaseType);
+    }
     await updatePackageVersions(version, sdks, workingDir);
   }
 
-  if (options.noGit) {
+  if (options.noVersion || options.noGit) {
     logger.warn("Skipping git commit and tag.");
   } else {
     await gitTagAndPush(version);
@@ -180,8 +211,8 @@ Continue the release manually.`);
   }
 }
 
-const allowedReleaseTypes = ["major", "minor", "patch", "prerelease"];
 const knownFlags = {
+  force: /^--force$/,
   noVersion: /^--no-version$/,
   noGit: /^--no-git$/,
   noPublish: /^--no-publish$/,
@@ -189,8 +220,11 @@ const knownFlags = {
 };
 
 runWithArg(release, (releaseType, ...flags) => {
-  if (!allowedReleaseTypes.includes(releaseType)) {
-    return highlightLogVars`First argument must be one of the following release types:
+  if (
+    !allowedReleaseTypes.includes(releaseType) &&
+    !semver.valid(releaseType)
+  ) {
+    return highlightLogVars`First argument must be a valid version string, or one of the following release types:
  - ${allowedReleaseTypes.join("\n - ")}`;
   }
   const options = {};

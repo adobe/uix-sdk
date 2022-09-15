@@ -4,12 +4,22 @@
   "description": "Internal utilities for the UIX SDK",
   "type": "module",
   "browser": "dist/index.js",
-  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
-  "source": {
-    ".": "./src/index.ts",
-    "./*.js": "./src/$1.ts",
-    "./**/*.js": "./src/$1/$2.ts"
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./*.js": {
+      "import": "./dist/$1.js",
+      "require": "./dist/$1.cjs"
+    },
+    "./**/*.js": {
+      "import": "./src/$1/$2.js",
+      "require": "./src/$1/$2.cjs"
+    }
   },
   "files": [
     "dist",
