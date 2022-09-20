@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-guest",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Tools for connecting to UIX Host apps from extension apps",
   "type": "module",
   "browser": "dist/index.js",
@@ -49,7 +49,7 @@
   "author": "Adobe, Inc,",
   "license": "UNLICENSED",
   "dependencies": {
-    "@adobe/uix-core": "^0.4.0",
+    "@adobe/uix-core": "^0.5.0",
     "penpal": "~6.2.2"
   }
 }
