@@ -113,8 +113,6 @@ async function gitTagAndPush(newVersion) {
 }
 
 async function publishAll(sdks, registry) {
-  logger.log("Running build before publish.");
-  await sh("npm", ["run", "-s", "build:production"]);
   logger.log("Running npm publish on each package.");
   let registries = artifactories;
   if (registry) {
@@ -181,6 +179,9 @@ ${displayedMismatches.join("\n")}
 This may have been intentional, but this script is only designed for lockstep releasing.
 Continue the release manually.`);
   }
+
+  logger.log("Running build before publish.");
+  await sh("npm", ["run", "-s", "build:production"]);
 
   if (options.noVersion) {
     logger.warn("Skipping version update.");
