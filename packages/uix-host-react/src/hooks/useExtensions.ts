@@ -29,7 +29,7 @@ export interface UseExtensionsResult<T extends RemoteApis> {
   error?: Error;
 }
 
-const NO_EXTENSIONS: never[] = [];
+const NO_EXTENSIONS: [] = [];
 
 /**
  * TODO: document useExtensions
