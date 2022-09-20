@@ -53,24 +53,26 @@ export function GuestUIFrame({
   const guest = host.guests.get(guestId);
   const frameUrl = new URL(src, guest.url.href);
 
-  const ref = useCallback((iframe) => {
-    const connection = guest.attachUI(iframe);
-
-    connection.promise
-      .then(() => {
-        if (onConnect) {
-          onConnect();
+  const ref = useCallback((iframe: HTMLIFrameElement) => {
+    if (iframe) {
+      const connection = guest.attachUI(iframe);
+      connection.promise
+        .then(() => {
+          if (onConnect) {
+            onConnect();
+          }
+        })
+        .catch((error: Error) => {
+          if (onConnectionError) onConnectionError(error);
+          else throw error;
+        });
+      return async () => {
+        if (onDisconnect) {
+          await onDisconnect();
+          return guest.unload();
         }
-      })
-      .catch((error: Error) => {
-        if (onConnectionError) onConnectionError(error);
-        else throw error;
-      });
-
-    return () => {
-      connection.destroy();
-      if (onDisconnect) onDisconnect();
-    };
+      };
+    }
   }, []);
 
   const frameProps = { ...defaultFrameProps, ...customFrameProps };
@@ -81,6 +83,7 @@ export function GuestUIFrame({
       src={frameUrl.href}
       name={`uix-guest-${guest.id}`}
       {...frameProps}
+      sandbox="allow-scripts allow-downloads allow-same-origin allow-presentation"
     />
   );
 }

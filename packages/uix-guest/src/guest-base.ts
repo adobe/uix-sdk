@@ -8,7 +8,7 @@ import type {
 } from "@adobe/uix-core";
 import { Emitter, makeNamespaceProxy, timeoutPromise } from "@adobe/uix-core";
 
-type GuestEvent<
+export type GuestEvent<
   Outgoing extends object,
   Incoming extends object,
   Type extends string = string,
@@ -22,6 +22,12 @@ type GuestEvent<
 >;
 export type GuestEvents<Outgoing extends object, Incoming extends object> =
   | GuestEvent<Outgoing, Incoming, "beforeconnect">
+  | GuestEvent<
+      Outgoing,
+      Incoming,
+      "contextchange",
+      { context: Record<string, unknown> }
+    >
   | GuestEvent<Outgoing, Incoming, "connecting", { connection: Connection }>
   | GuestEvent<Outgoing, Incoming, "connected", { connection: Connection }>
   | GuestEvent<Outgoing, Incoming, "error", { error: Error }>;
@@ -51,6 +57,9 @@ export interface GuestConfig<GuestApi> {
 class ReadOnlySharedContext {
   private _map: Map<string, unknown>;
   constructor(values: Record<string, unknown>) {
+    this.reset(values);
+  }
+  private reset(values: Record<string, unknown>) {
     this._map = new Map(Object.entries(values));
   }
   get(key: string) {
@@ -93,6 +102,9 @@ export class BaseGuest<
             return false;
           });
     }
+    this.addEventListener("contextchange", (event) => {
+      this.sharedContext = new ReadOnlySharedContext(event.detail.context);
+    });
   }
   host: RemoteApis<Incoming> = makeNamespaceProxy<Incoming>(async (address) => {
     await this.hostConnectionPromise;
@@ -116,13 +128,7 @@ export class BaseGuest<
   private hostConnection!: AsyncMethodReturns<HostConnection>;
   private debug: Promise<boolean>;
   protected getLocalMethods() {
-    return {
-      emit: (type: string, detail: { context: Record<string, unknown> }) => {
-        if (type === "contextchange") {
-          this.sharedContext = new ReadOnlySharedContext(detail.context);
-        }
-      },
-    };
+    return { emit: this.emit.bind(this) };
   }
   async connect() {
     await this.debug;

@@ -125,6 +125,18 @@ export interface GuestConnection {
   unload(): Promise<unknown>;
 }
 
+export interface GuestMethods {
+  apis: RemoteApis;
+  emit(type: string, detail: unknown): Promise<void>;
+}
+
+export interface UIGuestPositioning {
+  attached: boolean;
+  parent: DOMRect;
+  ui: DOMRect;
+}
+
+
 /**
  * BEGIN EVENTS
  */

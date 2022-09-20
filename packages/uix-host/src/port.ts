@@ -1,19 +1,16 @@
 import type {
   GuestConnection,
+  GuestMethods,
   RequiredMethodsByName,
   RemoteApis,
   HostMethodAddress,
   NamedEvent,
   Emits,
+  UIGuestPositioning,
   Unsubscriber,
 } from "@adobe/uix-core";
 import { Emitter } from "@adobe/uix-core";
-import { Connection, connectToChild } from "penpal";
-
-interface GuestMethods {
-  emit(type: string, detail: unknown): Promise<void>;
-  apis: RemoteApis;
-}
+import { Connection, connectToChild, Methods } from "penpal";
 
 /** @public */
 type PortEvent<
@@ -56,22 +53,31 @@ export class Port<GuestApi>
   extends Emitter<PortEvents<GuestApi>>
   implements GuestConnection
 {
-  owner: string;
-  url: URL;
-  frame: HTMLIFrameElement;
-  connection: Connection<RemoteApis<GuestApi>>;
-  uiConnections: Map<string, Connection<RemoteApis<GuestApi>>>;
-  apis: RemoteApis;
-  error?: Error;
-  private hostApis: RemoteApis = {};
-  private guest: GuestMethods;
-  private debugLogger?: Console;
-  private isLoaded = false;
-  private timeout: number;
+  // #region Properties (16)
+
   private debug: boolean;
+  private debugLogger?: Console;
+  private guest: GuestMethods;
+  private hostApis: RemoteApis = {};
+  private isLoaded = false;
   private runtimeContainer: HTMLElement;
   private sharedContext: Record<string, unknown>;
   private subscriptions: Unsubscriber[] = [];
+  private timeout: number;
+
+  public apis: RemoteApis;
+  public connection: Connection<RemoteApis<GuestApi>>;
+  error?: Error;
+  public frame: HTMLIFrameElement;
+  public owner: string;
+  public uiConnections: Map<string, Connection<RemoteApis<GuestApi>>> =
+    new Map();
+  public url: URL;
+
+  // #endregion Properties (16)
+
+  // #region Constructors (1)
+
   constructor(config: {
     owner: string;
     id: string;
@@ -101,10 +107,41 @@ export class Port<GuestApi>
       })
     );
   }
-  isLoading(): boolean {
+
+  // #endregion Constructors (1)
+
+  // #region Public Methods (6)
+
+  public attachUI(iframe: HTMLIFrameElement) {
+    const uniqueId = Math.random().toString(36);
+    const uiConnection = this.attachFrame(iframe);
+    this.uiConnections.set(uniqueId, uiConnection);
+    return uiConnection;
+  }
+
+  public hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
+    this.assertLoaded();
+    return Object.keys(requiredMethods).every((key) => {
+      if (!Reflect.has(this.apis, key)) {
+        return false;
+      }
+      const api = this.apis[key];
+      const methodList = requiredMethods[
+        key as keyof typeof requiredMethods
+      ] as string[];
+      return methodList.every(
+        (methodName: string) =>
+          Reflect.has(api, methodName) &&
+          typeof api[methodName as keyof typeof api] === "function"
+      );
+    });
+  }
+
+  public isLoading(): boolean {
     return !(this.isLoaded || this.error);
   }
-  async load() {
+
+  public async load() {
     try {
       if (!this.apis) {
         await this.connect();
@@ -117,22 +154,83 @@ export class Port<GuestApi>
       throw e;
     }
   }
-  provide(apis: RemoteApis) {
+
+  public provide(apis: RemoteApis) {
     Object.assign(this.hostApis, apis);
     this.emit("hostprovide", { guestPort: this, apis });
   }
-  async unload(): Promise<void> {
+
+  public async unload(): Promise<void> {
     if (this.connection) {
       await this.connection.destroy();
     }
     for (const connection of this.uiConnections.values()) {
       await connection.destroy();
     }
-    if (this.frame) {
+    if (this.frame && this.frame.parentElement) {
       this.frame.parentElement.removeChild(this.frame);
+      this.frame = undefined;
     }
     this.emit("unload", { guestPort: this });
   }
+
+  // #endregion Public Methods (6)
+
+  // #region Private Methods (5)
+
+  private assert(
+    condition: boolean,
+    errorMessage: () => string
+  ): asserts condition {
+    if (!condition) {
+      throw new Error(
+        `Error in guest extension "${this.id}": ${errorMessage()}`
+      );
+    }
+  }
+
+  private assertLoaded() {
+    this.assert(!this.isLoading(), () => "Attempted to interact before loaded");
+  }
+
+  private attachFrame(iframe: HTMLIFrameElement) {
+    return connectToChild<RemoteApis<GuestApi>>({
+      iframe,
+      debug: this.debug,
+      childOrigin: this.url.origin,
+      timeout: this.timeout,
+      methods: {
+        getSharedContext: () => this.sharedContext,
+        invokeHostMethod: (address: HostMethodAddress) =>
+          this.invokeHostMethod(address),
+      },
+    });
+  }
+
+  private async connect() {
+    this.frame = this.runtimeContainer.ownerDocument.createElement("iframe");
+    this.frame.setAttribute("src", this.url.href);
+    this.frame.setAttribute("data-uix-guest", "true");
+    this.runtimeContainer.appendChild(this.frame);
+    if (this.debugLogger) {
+      this.debugLogger.info(
+        `Guest ${this.id} attached iframe of ${this.url.href}`,
+        this
+      );
+    }
+    this.connection = this.attachFrame(this.frame);
+    this.guest = (await this.connection.promise) as unknown as GuestMethods;
+    this.apis = this.guest.apis || {};
+    this.isLoaded = true;
+    if (this.debugLogger) {
+      this.debugLogger.info(
+        `Guest ${this.id} established connection, received methods`,
+        this.apis,
+        this
+      );
+    }
+  }
+
   private invokeHostMethod<T = unknown>({
     name,
     path,
@@ -173,81 +271,6 @@ export class Port<GuestApi>
       ...args,
     ]) as T;
   }
-  private assert(
-    condition: boolean,
-    errorMessage: () => string
-  ): asserts condition {
-    if (!condition) {
-      throw new Error(
-        `Error in guest extension "${this.id}": ${errorMessage()}`
-      );
-    }
-  }
-  private assertLoaded() {
-    this.assert(!this.isLoading(), () => "Attempted to interact before loaded");
-  }
-  hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
-    this.assertLoaded();
-    return Object.keys(requiredMethods).every((key) => {
-      if (!Reflect.has(this.apis, key)) {
-        return false;
-      }
-      const api = this.apis[key];
-      const methodList = requiredMethods[
-        key as keyof typeof requiredMethods
-      ] as string[];
-      return methodList.every(
-        (methodName: string) =>
-          Reflect.has(api, methodName) &&
-          typeof api[methodName as keyof typeof api] === "function"
-      );
-    });
-  }
-  attachUI(iframe: HTMLIFrameElement) {
-    const uniqueId = Math.random().toString(36);
-    const uiConnection = connectToChild<RemoteApis<GuestApi>>({
-      iframe,
-      debug: this.debug,
-      timeout: this.timeout,
-      methods: {
-        getSharedContext: () => this.sharedContext,
-        invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address),
-      },
-    });
-    this.uiConnections.set(uniqueId, uiConnection);
-    return uiConnection;
-  }
-  private async connect() {
-    this.frame = this.runtimeContainer.ownerDocument.createElement("iframe");
-    this.frame.setAttribute("src", this.url.href);
-    this.frame.setAttribute("data-uix-guest", "true");
-    this.runtimeContainer.appendChild(this.frame);
-    if (this.debugLogger) {
-      this.debugLogger.info(
-        `Guest ${this.id} attached iframe of ${this.url.href}`,
-        this
-      );
-    }
-    this.connection = connectToChild({
-      iframe: this.frame,
-      debug: this.debug,
-      timeout: this.timeout,
-      methods: {
-        getSharedContext: () => this.sharedContext,
-        invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address),
-      },
-    });
-    this.guest = (await this.connection.promise) as unknown as GuestMethods;
-    this.apis = this.guest.apis || {};
-    this.isLoaded = true;
-    if (this.debugLogger) {
-      this.debugLogger.info(
-        `Guest ${this.id} established connection, received methods`,
-        this.apis,
-        this
-      );
-    }
-  }
+
+  // #endregion Private Methods (5)
 }

@@ -1,5 +1,5 @@
 import type { GuestConfig } from "./guest-base.js";
-import { SecondaryGuest } from "./guest-secondary.js";
+import { UIGuest } from "./guest-ui.js";
 import { PrimaryGuest } from "./guest-primary.js";
 import { LocalApis } from "@adobe/uix-core";
 
@@ -15,7 +15,7 @@ export function createGuest<Outgoing extends object>(
 }
 
 export async function attach(config: GuestConfig<never>) {
-  const guest = new SecondaryGuest(config);
+  const guest = new UIGuest(config);
   await guest.connect();
   return guest;
 }
@@ -24,9 +24,8 @@ export async function register<Outgoing>(
   config: GuestConfigWithMethods<Outgoing>
 ) {
   const guest = createGuest(config);
-  console.log(config);
   await guest.register(config.methods);
   return guest;
 }
 
-export { SecondaryGuest, PrimaryGuest };
+export { UIGuest, PrimaryGuest };
