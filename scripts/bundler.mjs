@@ -14,6 +14,7 @@ async function bundle(arguedMode) {
   const mode = arguedMode === "development" ? arguedMode : "production";
   const sdks = await getWorkspaces("packages");
   const completed = [];
+  let failed;
   logger.log.hl`Building ${sdks.length} packages in ${
     arguedMode || mode
   } mode:`;
@@ -30,15 +31,19 @@ async function bundle(arguedMode) {
         },
       }).status !== 0
     ) {
-      logger.error.hl`Failed to build ${pkg.name}. ${
-        completed.length
-      } previous packages succeeded: ${completed.join(",")}`;
+      failed = pkg.name;
       break;
     } else {
       completed.push(pkg.name);
     }
   }
-  if (completed.length === sdks.length) {
+  if (failed) {
+    throw new Error(
+      `Failed to build ${failed}. ${
+        completed.length
+      } previous packages succeeded: ${completed.join(",")}`
+    );
+  } else {
     logger.done.hl`Built ${completed.length} packages.`;
   }
   if (arguedMode === "report") {
