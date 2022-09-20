@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Tools for embedding UIX Extensions into Adobe apps",
   "type": "module",
   "browser": "dist/index.js",
@@ -48,7 +48,7 @@
   "author": "Adobe, Inc,",
   "license": "UNLICENSED",
   "dependencies": {
-    "@adobe/uix-core": "^0.5.0",
+    "@adobe/uix-core": "^0.5.1",
     "penpal": "~6.2.2"
   }
 }
