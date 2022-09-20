@@ -29,6 +29,8 @@ export interface UseExtensionsResult<T extends RemoteApis> {
   error?: Error;
 }
 
+const NO_EXTENSIONS: never[] = [];
+
 /**
  * TODO: document useExtensions
  * @public
@@ -47,7 +49,7 @@ export function useExtensions<
   const { host, error } = useHost();
   if (error) {
     return {
-      extensions: [],
+      extensions: NO_EXTENSIONS,
       loading: false,
       error,
     };
@@ -69,7 +71,7 @@ export function useExtensions<
       }
       newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
     }
-    return newExtensions;
+    return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
   }, [...baseDeps, requires]);
 
   const subscribe = useCallback(
