@@ -11,8 +11,6 @@ import {
 import semver from "semver";
 
 const allowedReleaseTypes = ["major", "minor", "patch", "prerelease"];
-const isAllowedReleaseType = (releaseType) =>
-  allowedReleaseTypes.includes(releaseType);
 
 const artifactories = [
   "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/",
@@ -187,7 +185,8 @@ Continue the release manually.`);
     logger.warn("Skipping version update.");
   } else {
     if (semver.valid(releaseType)) {
-      if (semver.lte(version, releaseType)) {
+      // it's a manual version, not a type like "major". is it a higher version?
+      if (semver.lte(releaseType, version)) {
         throw new Error(
           `Cannot set new version "${releaseType}" because it is less than, or equal to, the current version "${version}".`
         );

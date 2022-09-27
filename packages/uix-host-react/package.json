@@ -3,24 +3,8 @@
   "version": "0.5.1",
   "description": "Tools for embedding UI Extensions into React apps",
   "type": "module",
-  "browser": "dist/index.js",
-  "module": "dist/index.js",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./*.js": {
-      "import": "./dist/$1.js",
-      "require": "./dist/$1.cjs"
-    },
-    "./**/*.js": {
-      "import": "./src/$1/$2.js",
-      "require": "./src/$1/$2.cjs"
-    }
-  },
   "source": {
     ".": "./src/index.ts",
     "./*.js": "./src/$1.ts",
