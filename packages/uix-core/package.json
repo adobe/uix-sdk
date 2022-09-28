@@ -2,7 +2,6 @@
   "name": "@adobe/uix-core",
   "version": "0.5.2",
   "description": "Internal utilities for the UIX SDK",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

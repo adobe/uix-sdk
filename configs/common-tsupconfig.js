@@ -1,11 +1,12 @@
 const base = {
   entry: ["src/index.ts"], // will be relative to the directory that uses it
   tsconfig: "./tsconfig.json", // see above
-  format: ["esm"],
+  format: ["cjs"],
   platform: "browser",
   shims: true,
-  target: "es2020", // TODO: this is cool, right?
+  target: "ES6", // TODO: this is cool, right?
   replaceNodeEnv: true,
+  legacyOutput: true,
 };
 
 const allowedModes = ["development", "production", "report"];

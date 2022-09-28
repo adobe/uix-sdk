@@ -2,7 +2,6 @@
   "name": "@adobe/uix-host-react",
   "version": "0.5.2",
   "description": "Tools for embedding UI Extensions into React apps",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "source": {
