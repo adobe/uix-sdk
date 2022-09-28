@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host-react",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Tools for embedding UI Extensions into React apps",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,8 +36,8 @@
   "author": "Adobe, Inc,",
   "license": "UNLICENSED",
   "dependencies": {
-    "@adobe/uix-core": "^0.5.3",
-    "@adobe/uix-host": "^0.5.3",
+    "@adobe/uix-core": "^0.5.4",
+    "@adobe/uix-host": "^0.5.4",
     "penpal": "~6.2.2"
   }
 }

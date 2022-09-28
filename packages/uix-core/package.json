@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-core",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Internal utilities for the UIX SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
