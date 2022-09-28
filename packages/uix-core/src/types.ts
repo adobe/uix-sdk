@@ -120,7 +120,7 @@ export interface GuestConnection {
   load(): Promise<unknown>;
   error?: Error;
   hasCapabilities(capabilities: unknown): boolean;
-  isLoading(): boolean;
+  isReady(): boolean;
   provide(apis: unknown): void;
   unload(): Promise<unknown>;
 }

@@ -156,7 +156,7 @@ export class Host extends Emitter<HostEvents> {
     }
     const filter = filterOrCapabilities || passAllGuests;
     return [...this.guests.values()].filter(
-      (guest) => !guest.isLoading() && filter(guest)
+      (guest) => guest.isReady() && filter(guest)
     );
   }
   shareContext(context: SharedContext): void;
@@ -245,6 +245,10 @@ export class Host extends Emitter<HostEvents> {
     } catch (e: unknown) {
       const error = e instanceof Error ? e : new Error(String(e));
       this.emit("error", { host: this, guest, error });
+      console.warn(
+        "Failed to load extension at endpoint %s",
+        guest.url
+      );
       return guest;
     }
     // this new guest might have new capabilities, so the identities of the

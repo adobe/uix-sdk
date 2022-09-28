@@ -120,10 +120,7 @@ export class Port<GuestApi>
   }
 
   public hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
-    this.assertLoaded();
-    if (!this.apis || typeof this.apis !== "object") {
-      return false;
-    }
+    this.assertReady();
     return Object.keys(requiredMethods).every((key) => {
       if (!Reflect.has(this.apis, key)) {
         return false;
@@ -140,8 +137,8 @@ export class Port<GuestApi>
     });
   }
 
-  public isLoading(): boolean {
-    return !(this.isLoaded || this.error);
+  public isReady(): boolean {
+    return this.isLoaded && !this.error;
   }
 
   public async load() {
@@ -192,8 +189,8 @@ export class Port<GuestApi>
     }
   }
 
-  private assertLoaded() {
-    this.assert(!this.isLoading(), () => "Attempted to interact before loaded");
+  private assertReady() {
+    this.assert(this.isReady(), () => "Attempted to interact before loaded");
   }
 
   private attachFrame(iframe: HTMLIFrameElement) {
