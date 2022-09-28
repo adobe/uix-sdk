@@ -111,11 +111,17 @@ function extensionRegistryExtensionsProvider(
   const erEndpoint = buildEndpointPath(config);
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce(
-      (a, e) => ({
-        ...a,
-        // todo: make safer way to extract href
-        [e.name]: e.endpoints[erEndpoint].view[0].href,
-      }),
+      (a, e: ExtensionDefinition) => {
+        if (e.status !== "PUBLISHED") {
+          return a;
+        }
+        
+        return {
+          ...a,
+          // todo: make safer way to extract href
+          [e.name]: e.endpoints[erEndpoint].view[0].href,
+        }
+      },
       {}
     )
   );
