@@ -121,6 +121,9 @@ export class Port<GuestApi>
 
   public hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
     this.assertLoaded();
+    if (!this.apis || typeof this.apis !== "object") {
+      return false;
+    }
     return Object.keys(requiredMethods).every((key) => {
       if (!Reflect.has(this.apis, key)) {
         return false;
