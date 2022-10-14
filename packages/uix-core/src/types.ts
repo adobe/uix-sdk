@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AsyncMethodReturns } from "penpal";
 
-type VirtualApi = Record<string, object | ((...args: unknown[]) => unknown)>;
+export type VirtualApi = Record<
+  string,
+  object | ((...args: unknown[]) => unknown)
+>;
 
 /**
  * Extract keys of T whose values are are assignable to U.

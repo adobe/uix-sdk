@@ -1,3 +1,4 @@
+import type { VirtualApi } from "@adobe/uix-core";
 import React, { useCallback } from "react";
 import type { PropsWithChildren, IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
@@ -23,6 +24,13 @@ export interface GuestUIProps extends FrameProps {
    * Optional custom URL or path.
    */
   src: string;
+  /**
+   * Host methods to provide only to the guest inside this iframe.
+   *
+   * @type {VirtualApi}
+   * @memberof GuestUIProps
+   */
+  methods?: VirtualApi;
 }
 
 const defaultFrameProps: FrameProps = {
@@ -44,6 +52,7 @@ export function GuestUIFrame({
   onConnect,
   onDisconnect,
   onConnectionError,
+  methods,
   ...customFrameProps
 }: PropsWithChildren<GuestUIProps>) {
   const { host } = useHost();
@@ -55,6 +64,9 @@ export function GuestUIFrame({
 
   const ref = useCallback((iframe: HTMLIFrameElement) => {
     if (iframe) {
+      if (methods) {
+        guest.provide(methods);
+      }
       const connection = guest.attachUI(iframe);
       connection.promise
         .then(() => {
