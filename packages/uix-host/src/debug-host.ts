@@ -4,7 +4,12 @@
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import { debugEmitter, Emits, GuestConnection } from "@adobe/uix-core";
+import {
+  debugEmitter,
+  EmitterDebugLogger,
+  Emits,
+  GuestConnection,
+} from "@adobe/uix-core";
 import type { PortEvents } from "./port.js";
 import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
 
@@ -12,7 +17,7 @@ type GenericPortEvents = PortEvents<Record<string, unknown>>;
 
 type Portlike = GuestConnection & Emits<GenericPortEvents>;
 
-export function debugHost(host: Emits<HostEvents>) {
+export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
   const hostLogger = debugEmitter(host, {
     theme: "blue medium",
     type: "Host",
@@ -58,4 +63,5 @@ export function debugHost(host: Emits<HostEvents>) {
       log.info("Unloaded guest and container.");
       log.detach();
     });
+  return hostLogger;
 }

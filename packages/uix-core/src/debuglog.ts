@@ -228,3 +228,9 @@ export function customConsole(
   ) as DebugLogger;
   return customConsole;
 }
+
+export const quietConsole = new Proxy(console, {
+  get() {
+    return noop;
+  },
+});

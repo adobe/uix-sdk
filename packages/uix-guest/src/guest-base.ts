@@ -6,7 +6,13 @@ import type {
   HostConnection,
   NamedEvent,
 } from "@adobe/uix-core";
-import { Emitter, makeNamespaceProxy, timeoutPromise } from "@adobe/uix-core";
+import {
+  Emitter,
+  makeNamespaceProxy,
+  timeoutPromise,
+  quietConsole,
+} from "@adobe/uix-core";
+import { debugGuest } from "./debug-guest.js";
 
 export type GuestEvent<
   Outgoing extends object,
@@ -78,29 +84,14 @@ export class BaseGuest<
   Incoming extends object
 > extends Emitter<GuestEvents<Outgoing, Incoming>> {
   sharedContext: ReadOnlySharedContext;
+  private debugLogger: Console = quietConsole;
   constructor(config: GuestConfig<Outgoing>) {
     super(config.id);
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
     }
-    if (process.env.NODE_ENV === "development") {
-      this.debug =
-        config.debug &&
-        import("./debug-guest.js")
-          .then(({ debugGuest }) => {
-            debugGuest<Outgoing, Incoming>(this);
-            return true;
-          })
-          .catch((e) => {
-            console.error(
-              "Failed to attach debugger to UIX host %s",
-              this.id,
-              this,
-              e
-            );
-            // noop unsubscriber
-            return false;
-          });
+    if (config.debug) {
+      this.debugLogger = debugGuest<Outgoing, Incoming>(this);
     }
     this.addEventListener("contextchange", (event) => {
       this.sharedContext = new ReadOnlySharedContext(event.detail.context);
@@ -116,22 +107,27 @@ export class BaseGuest<
       return result;
     } catch (e) {
       const error = e instanceof Error ? e : new Error(e as unknown as string);
-      throw new Error(
+      const methodError = new Error(
         `Host method call host.${address.path.join(".")}() failed: ${
           error.message
         }`
       );
+      this.debugLogger.error(methodError);
+      throw methodError;
     }
   });
   private timeout = 10000;
   private hostConnectionPromise: Promise<AsyncMethodReturns<HostConnection>>;
   private hostConnection!: AsyncMethodReturns<HostConnection>;
-  private debug: Promise<boolean>;
   protected getLocalMethods() {
-    return { emit: this.emit.bind(this) };
+    return {
+      emit: (...args: Parameters<typeof this.emit>) => {
+        this.debugLogger.log(`Event "${args[0]}" emitted from host`);
+        this.emit(...args);
+      },
+    };
   }
   async connect() {
-    await this.debug;
     this.emit("beforeconnect", { guest: this });
     try {
       const connection = connectToParent<HostConnection<Incoming>>({
@@ -145,10 +141,11 @@ export class BaseGuest<
       this.sharedContext = new ReadOnlySharedContext(
         await this.hostConnection.getSharedContext()
       );
+      this.debugLogger.log("retrieved sharedContext", this.sharedContext);
       this.emit("connected", { guest: this, connection });
     } catch (e) {
       this.emit("error", { guest: this, error: e });
-      console.error("connection failed", e);
+      this.debugLogger.error("Connection failed!", e);
     }
   }
 }

@@ -6,8 +6,9 @@ import type {
   RequiredMethodsByName,
   Emits,
 } from "@adobe/uix-core";
-import { Emitter } from "@adobe/uix-core";
+import { Emitter, quietConsole } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
+import { debugHost } from "./debug-host.js";
 
 /**
  * Dictionary of {@link Port} objects by extension ID.
@@ -100,12 +101,11 @@ export class Host extends Emitter<HostEvents> {
   hostName: string;
   loading = false;
   guests: PortMap = new Map();
-  private debug?: Promise<boolean>;
   private cachedCapabilityLists: WeakMap<object, GuestConnection[]> =
     new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
-  private debugLogger: Console;
+  private debugLogger: Console = quietConsole;
   private sharedContext: SharedContext;
   constructor(config: HostConfig) {
     super(config.hostName);
@@ -117,21 +117,8 @@ export class Host extends Emitter<HostEvents> {
     this.hostName = config.hostName;
     this.sharedContext = config.sharedContext || {};
     this.runtimeContainer = config.runtimeContainer;
-    if (process.env.NODE_ENV === "development" && config.debug) {
-      this.debug = import("./debug-host.js")
-        .then(({ debugHost }) => {
-          debugHost(this);
-          return true;
-        })
-        .catch((e) => {
-          console.error(
-            "Failed to attach debugger to UIX host %s",
-            this.hostName,
-            e
-          );
-          // noop unsubscriber
-          return false;
-        });
+    if (config.debug) {
+      this.debugLogger = debugHost(this);
     }
   }
   /**
@@ -186,7 +173,6 @@ export class Host extends Emitter<HostEvents> {
     extensions: InstalledExtensions,
     options?: PortOptions
   ): Promise<void> {
-    await this.debug;
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
     const failed: GuestConnection[] = [];

@@ -1,9 +1,21 @@
+const allSdks = [
+  "@adobe/uix-core",
+  "@adobe/uix-guest",
+  "@adobe/uix-host",
+  "@adobe/uix-host-react",
+];
 export default function commonExampleConfig() {
-  return {
+  /** @type {import('vite').UserConfig} */
+  const commonConfig = {
     logLevel: "warn",
     clearScreen: false,
     optimizeDeps: {
-      include: ["react"],
+      include: [...allSdks, "react"],
+    },
+    build: {
+      commonjsOptions: {
+        include: allSdks,
+      },
     },
     server: {
       strictPort: true,
@@ -19,4 +31,5 @@ export default function commonExampleConfig() {
       ),
     },
   };
+  return commonConfig;
 }

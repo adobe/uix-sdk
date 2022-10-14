@@ -6,7 +6,7 @@
 import { customConsole, DebugLogger, Theme } from "./debuglog.js";
 import { Emits, Unsubscriber } from "./types.js";
 
-interface EmitterDebugLogger extends DebugLogger {
+export interface EmitterDebugLogger extends DebugLogger {
   listen(
     type: string,
     listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
