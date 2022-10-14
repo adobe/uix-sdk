@@ -75,11 +75,11 @@ export function useExtensions<
   }, [...baseDeps, requires]);
 
   const subscribe = useCallback(
-    (handler) => {
+    (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
-      host.addEventListener(eventName, handler as EventListener);
+      host.addEventListener(eventName, handler);
       return () =>
-        host.removeEventListener(eventName, handler as EventListener);
+        host.removeEventListener(eventName, handler);
     },
     [...baseDeps, updateOn]
   );

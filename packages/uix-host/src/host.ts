@@ -155,9 +155,13 @@ export class Host extends Emitter<HostEvents> {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
     const filter = filterOrCapabilities || passAllGuests;
-    return [...this.guests.values()].filter(
-      (guest) => guest.isReady() && filter(guest)
-    );
+    const result = []
+    for (const guest of this.guests.values()) {
+      if (guest.isReady() && filter(guest)) {
+        result.push(guest)
+      }
+    }
+    return result
   }
   shareContext(context: SharedContext): void;
   shareContext(setter: (context: SharedContext) => SharedContext): void;
