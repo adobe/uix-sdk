@@ -178,8 +178,19 @@ This may have been intentional, but this script is only designed for lockstep re
 Continue the release manually.`);
   }
 
-  logger.log("Running build before publish.");
-  await sh("npm", ["run", "-s", "build:production"]);
+  logger.log("Running lint and build before publish.");
+  try {
+    await sh("npm", ["run", "-s", "lint"]);
+  } catch (e) {
+    throw new Error(
+      `Lint failed, cannot proceed with release. Run "npm run format" to correct autocorrectable issues and then try again.`
+    );
+  }
+  try {
+    await sh("npm", ["run", "-s", "build:production"]);
+  } catch (e) {
+    throw new Error("Build failed, cannot proceed with release.");
+  }
 
   if (options.noVersion) {
     logger.warn("Skipping version update.");

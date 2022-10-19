@@ -139,7 +139,6 @@ export interface UIGuestPositioning {
   ui: DOMRect;
 }
 
-
 /**
  * BEGIN EVENTS
  */

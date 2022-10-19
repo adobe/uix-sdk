@@ -78,8 +78,7 @@ export function useExtensions<
     (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
-      return () =>
-        host.removeEventListener(eventName, handler);
+      return () => host.removeEventListener(eventName, handler);
     },
     [...baseDeps, updateOn]
   );
