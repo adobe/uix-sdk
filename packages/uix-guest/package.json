@@ -2,36 +2,38 @@
   "name": "@adobe/uix-guest",
   "version": "0.6.1",
   "description": "Tools for connecting to UIX Host apps from extension apps",
+  "author": "Adobe, Inc,",
+  "type": "module",
+  "module": "dist/esm/index.js",
   "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/index.js"
+  },
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src",
-    "README.md",
-    "tsconfig.json"
-  ],
-  "sideEffects": false,
   "scripts": {
-    "build": "run-p compile:*",
-    "clean": "rm -rf dist *.tsbuildinfo docs/temp",
-    "compile:bundle": "tsup",
-    "compile:emit": "tsc --build tsconfig.json",
-    "debug-build": "tsc --project tsconfig-debug.json --verbose",
-    "watch": "run-p watch:*",
-    "watch:bundle": "tsup --watch --silent",
-    "watch:emit": "tsc --watch"
+    "build": "tsup",
+    "watch": "tsup --watch --silent"
   },
   "browserslist": [
     "> 0.2%, last 2 versions, not dead"
   ],
+  "bugs": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk/issues",
+  "dependencies": {
+    "@adobe/uix-core": "^0.6.1",
+    "penpal": "~6.2.2"
+  },
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "tsconfig.json"
+  ],
+  "homepage": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk.git"
   },
-  "author": "Adobe, Inc,",
-  "license": "UNLICENSED",
-  "dependencies": {
-    "@adobe/uix-core": "^0.6.1",
-    "penpal": "~6.2.2"
-  }
+  "sideEffects": false
 }

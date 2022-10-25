@@ -1,12 +1,14 @@
 {
   "name": "guest-nobuild-plain-hypatia",
-  "description": "Hypatia",
-  "private": true,
+  "private": "true",
   "version": "0.0.1",
+  "description": "Hypatia",
   "scripts": {
+    "clean": "del ./dist",
     "example:build": "echo ''",
-    "example:development": "rm -rf ./dist; ln -s ../../packages/uix-guest/dist/ ./dist && serve -p $MULTI_SERVER_PORT .",
-    "example:production": "npm run -s example:development"
+    "example:development": "serve -p $MULTI_SERVER_PORT .",
+    "example:production": "npm run -s example:development",
+    "preexample:development": "del ./dist; ln -s ../../packages/uix-guest/dist/ ./dist"
   },
   "dependencies": {
     "@adobe/uix-guest": "*"

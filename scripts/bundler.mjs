@@ -4,26 +4,46 @@ import { readdir, readFile } from "fs/promises";
 import chalk from "chalk";
 import figures from "figures";
 import { highlight } from "cli-highlight";
-import { getWorkspaces, logger, runWithArg } from "./script-runner.mjs";
+import {
+  getWorkspaces,
+  logger,
+  runWithArg,
+  shResult,
+} from "./script-runner.mjs";
 
-const modes = ["", "development", "production", "report"];
+const modes = ["development", "production", "report"];
 const outputDir = "dist";
 
-async function bundle(arguedMode) {
+async function bundle(mode, argv) {
+  const jobs = [emitBundle(mode, argv)];
+  if (argv.declarations !== false && mode !== 'report') {
+    jobs.push(emitDeclarations());
+  }
+  await Promise.all(jobs);
+}
+
+async function emitDeclarations() {
+  await shResult("npm", ["run", "-s", "declarations:build"]);
+}
+
+async function emitBundle(arguedMode, { silent }) {
   const reportMode = arguedMode === "report";
   const mode = arguedMode === "development" ? arguedMode : "production";
   const sdks = await getWorkspaces("packages");
   const completed = [];
   let failed;
-  logger.log.hl`Building ${sdks.length} packages in ${
-    arguedMode || mode
-  } mode:`;
+  if (!silent)
+    logger.log.hl`Building ${sdks.length} packages in ${
+      arguedMode || mode
+    } mode:`;
   for (const { cwd, pkg } of sdks) {
     let spawnArgs = ["run", "-s", "-w", pkg.name, "build"];
     if (reportMode) process.stderr.write(`${basename(cwd)}...`);
     if (
       spawnSync("npm", spawnArgs, {
-        stdio: ["inherit", reportMode ? "pipe" : "inherit", "inherit"],
+        stdio: silent
+          ? "ignore"
+          : ["inherit", reportMode ? "pipe" : "inherit", "inherit"],
         env: {
           ...process.env,
           UIX_SDK_BUILDMODE: arguedMode,
@@ -44,7 +64,7 @@ async function bundle(arguedMode) {
       } previous packages succeeded: ${completed.join(",")}`
     );
   } else {
-    logger.done.hl`Built ${completed.length} packages.`;
+    if (!silent) logger.done.hl`Built ${completed.length} packages.`;
   }
   if (arguedMode === "report") {
     const expectedFilename = {
@@ -119,10 +139,6 @@ async function bundle(arguedMode) {
   another copy of @adobe/uix-host; the total bundle cost will still be that of
   @adobe/uix-host-react alone.
 `);
-    execFileSync("npm", ["run", "any", "clean"]);
-    logger.warn(
-      "Temporary reporting builds have been removed. Run another production build to get them back."
-    );
   }
 }
 

@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "extendedDiagnostics": true,
-    "explainFiles": true,
-    "listEmittedFiles": true,
-    "noErrorTruncation": true
-  }
-}

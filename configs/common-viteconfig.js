@@ -14,7 +14,7 @@ export default function commonExampleConfig() {
     },
     build: {
       commonjsOptions: {
-        include: allSdks,
+        exclude: ["react"],
       },
     },
     server: {

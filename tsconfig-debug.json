@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "traceResolution": true,
     "extendedDiagnostics": true,
     "explainFiles": true,
     "listEmittedFiles": true,

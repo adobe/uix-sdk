@@ -1,10 +1,10 @@
+/** @type {import("tsup").Options} */
 const base = {
   entry: ["src/index.ts"], // will be relative to the directory that uses it
   tsconfig: "./tsconfig.json", // see above
-  format: ["cjs"],
+  format: ["esm", "cjs"],
   platform: "browser",
-  shims: true,
-  target: "ES6", // TODO: this is cool, right?
+  target: "ES2020", // TODO: this is cool, right?
   replaceNodeEnv: true,
   legacyOutput: true,
   treeshake: "recommended",

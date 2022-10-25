@@ -1,10 +1,10 @@
 {
   "name": "host-vite-react-numbers",
-  "description": "Number Discussion",
-  "private": true,
+  "private": "true",
   "version": "0.0.1",
+  "description": "Number Discussion",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "del dist",
     "example:build": "vite build",
     "example:development": "vite",
     "example:production": "vite preview --mode production"

@@ -1,29 +1,23 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig-base.json",
+  "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"],
+  "exclude": ["packages/*/src/**/*.d.ts", "packages/*/src/**/*.d.tsx"],
   "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react",
-    "lib": [
-      "ES2020",
-      "DOM"
-    ],
-    "module": "ES2020",
-    "moduleResolution": "node",
-    "preserveWatchOutput": true,
-    "noImplicitAny": true,
-    "target": "ES2020",
-    "sourceMap": true
+    "outDir": "./dist"
   },
-  "include": [
-    "packages/*/src/**/*"
-  ],
-  "exclude": [
-    "packages/*/src/**/*.test.tsx?"
+  "references": [
+    {
+      "path": "packages/uix-core"
+    },
+    {
+      "path": "packages/uix-guest"
+    },
+    {
+      "path": "packages/uix-host"
+    },
+    {
+      "path": "packages/uix-host-react"
+    }
   ]
 }

@@ -222,15 +222,14 @@ Continue the release manually.`);
   }
 }
 
-const knownFlags = {
-  force: /^--force$/,
-  noVersion: /^--no-version$/,
-  noGit: /^--no-git$/,
-  noPublish: /^--no-publish$/,
-  registry: /^--registry=(http.+)$/,
-};
-
-runWithArg(release, (releaseType, ...flags) => {
+runWithArg(release, (argv) => {
+  if (argv._.length !== 1) {
+    return `Missing version argument.`;
+  }
+  if (argv._.length > 1) {
+    return `Too many arguments.`;
+  }
+  const [releaseType] = argv._;
   if (
     !allowedReleaseTypes.includes(releaseType) &&
     !semver.valid(releaseType)
@@ -238,30 +237,5 @@ runWithArg(release, (releaseType, ...flags) => {
     return highlightLogVars`First argument must be a valid version string, or one of the following release types:
  - ${allowedReleaseTypes.join("\n - ")}`;
   }
-  const options = {};
-  for (const [name, matcher] of Object.entries(knownFlags)) {
-    const matches = flags
-      .map((flag, index) => ({ index, match: flag.match(matcher) }))
-      .filter(({ match }) => !!match);
-    // remove matched flags
-    matches.forEach((arg, i) => {
-      flags.splice(arg.index - i, 1);
-    });
-    if (matches.length === 1) {
-      options[name] = matches[0].match[1] || true;
-    } else if (matches.length > 1) {
-      options[name] = matches.map(({ match }) => match[1]);
-    }
-  }
-
-  if (flags.length > 0) {
-    throw new Error(
-      `Did not recognize flags:
- ${flags.join("\n - ")}
-
-(Use a = for flags with arguments, not a space.)`
-    );
-  }
-
-  return [releaseType, options];
+  return [releaseType, argv];
 });

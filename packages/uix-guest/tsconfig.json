@@ -1,6 +1,6 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig-base.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"
@@ -10,6 +10,11 @@
   ],
   "exclude": [
     "src/**/*.test.tsx?"
+  ],
+  "references": [
+    {
+      "path": "../uix-core"
+    }
   ]
 }
 

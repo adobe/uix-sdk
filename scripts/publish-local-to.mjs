@@ -83,11 +83,11 @@ async function publishLocalTo(dependent) {
   logger.done("All changes to all SDKs pushed.");
 }
 
-runWithArg(publishLocalTo, async (dependent) => {
+runWithArg(publishLocalTo, async (argv) => {
+  const dependent = argv._[0];
   if (!dependent) {
-    return;
+    return false;
   }
-
   absDependentDir = resolve(dependent);
   try {
     dependentName = await shResult("npm", ["pkg", "-s", "get", "name"], {
@@ -101,4 +101,5 @@ runWithArg(publishLocalTo, async (dependent) => {
     } catch (e) {}
     return highlightLogVars`A valid NPM package could not be found in ${absDependentDir}, so we cannot continue. Error was:\n  ${problem}`;
   }
+  return dependent;
 });

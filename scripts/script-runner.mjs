@@ -21,31 +21,51 @@ const LogFormats = {
   error: [figures.circleCross, chalk.red, chalk.white],
   warn: [figures.warning, chalk.yellow],
   log: ["", (x) => x],
+  debug: [figures.circle, (x) => x],
+  trace: [figures.circleDotted, (x) => x],
   done: [figures.tick, chalk.green],
 };
 
-export const logger = Object.keys(LogFormats).reduce((logger, level) => {
-  const [symbol, color, highlightColor] = LogFormats[level];
-  const method = typeof console[level] === "function" ? level : "log";
-  const outConsole = {
-    ...logger,
-    [level](first, ...rest) {
-      console[method](color(`${symbol} ${first}`), ...rest);
-    },
-  };
-  const highlight = highlightColor
-    ? logVarHighlighter(highlightColor)
-    : highlightLogVars;
-  outConsole[level].hl = (...args) => outConsole[level](highlight(...args));
-  return outConsole;
-}, {});
+const LogSynonyms = {
+  error: ["fatal"],
+  warn: ["warning"],
+  debug: ["verbose"],
+  trace: ["silly"],
+};
+
+export const makeLogger = (tagTxt) =>
+  Object.keys(LogFormats).reduce((logger, methodName) => {
+    const [symbol, color, highlightColor] = LogFormats[methodName];
+    const tag = tagTxt ? chalk.dim(` (${tagTxt})`) : "";
+    const prefix = color(symbol + tag);
+    const level = typeof console[methodName] === "function" ? methodName : "log";
+    const method = (first, ...rest) =>
+      console[level](`${prefix} ${color(first)}`, ...rest);
+    const outConsole = {
+      ...logger,
+      [methodName]: method,
+    };
+    if (LogSynonyms[methodName]) {
+      for (const synonym of LogSynonyms[methodName]) {
+        outConsole[synonym] = method;
+      }
+    }
+    const highlight = highlightColor
+      ? logVarHighlighter(highlightColor)
+      : highlightLogVars;
+    outConsole[methodName].hl = (...args) => outConsole[methodName](highlight(...args));
+    return outConsole;
+  }, {});
+
+export const logger = makeLogger();
 
 function deny(reason) {
   logger.error(reason instanceof Error ? reason.stack : reason);
   process.exit(1);
 }
 
-export async function sh(cmd, args, opts) {
+export function sh(cmd, args, opts = {}) {
+  const { silent, ...spawnOpts } = opts;
   if (!Array.isArray(args)) {
     throw new Error(
       `Internal error: called sh("${cmd}"... with ${JSON.stringify(
@@ -53,13 +73,13 @@ export async function sh(cmd, args, opts) {
       )} instead of an args array`
     );
   }
-  logger.log(`${cmd} ${args.join(" ")}`);
+  if (!silent) logger.log(`${cmd} ${args.join(" ")}`);
   return new Promise((resolve, reject) => {
     try {
       const child = spawn(cmd, args, {
-        stdio: "inherit",
+        stdio: ["pipe", silent ? "ignore" : "inherit", "inherit"],
         encoding: "utf-8",
-        ...opts,
+        ...spawnOpts,
       });
       child.on("error", reject);
       child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`"${cmd} ${args.join(' ')}" exited with errors.`))));
@@ -101,6 +121,7 @@ export async function getWorkspaces(category) {
       );
       return {
         cwd: workspaceDir,
+        shortName: basename(workspaceDir).replace("uix-", ""),
         pkg,
       };
     })
@@ -111,13 +132,81 @@ export async function getWorkspaces(category) {
 export const getSdks = () => getWorkspaces("packages");
 export const getExamples = () => getWorkspaces("examples");
 
-export function argIn(allowedArgs, passed) {
-  const arg = passed || "not provided";
-  if ((allowedArgs && !arg) || !allowedArgs.includes(arg)) {
-    return highlightLogVars`Command line argument to ${basename(
-      process.argv[1]
-    )} must be one of:${allowedArgs.map((opt) => `\n - ${opt}`).join("")}
-but it was ${arg}`;
+const capCase = (str) =>
+  str.replaceAll(/-([a-z])/gi, (_, letter) => letter.toUpperCase());
+
+const NO_VALUE = Symbol.for("NO_VALUE");
+const startsWithNo = /^no[A-Z]/;
+export function parseArgs(args) {
+  const flags = {};
+  const positional = [];
+  for (const arg of args) {
+    if (arg.startsWith("--")) {
+      let prop;
+      let value = NO_VALUE;
+      const assignment = arg.slice(2).split("=");
+      if (assignment.length > 2) {
+        throw new Error(
+          `Unrecognized argument: "${arg}". Too many equals signs.`
+        );
+      }
+      const isAssignment = assignment.length === 2;
+      prop = assignment[0];
+      if (isAssignment) {
+        value = assignment[1];
+      }
+      const dotPath = prop.split(".").map(capCase);
+      if (dotPath.length > 2) {
+        throw new Error(`Unrecognized argument: "${arg}". Too many dots.`);
+      }
+      let flagTarget = flags;
+      const isDotPath = dotPath.length === 2;
+      let [flag, subFlag] = dotPath;
+      if (isDotPath) {
+        if (typeof flags[flag] !== "object") {
+          flags[flag] = {};
+        }
+        flagTarget = flags[flag];
+        flag = subFlag;
+      }
+      if (value === NO_VALUE) {
+        value = true;
+        if (startsWithNo.test(flag)) {
+          flagTarget[flag.charAt(2).toLowerCase() + flag.slice(3)] = false;
+        }
+      } else if (value === "undefined") {
+        value = undefined;
+      } else {
+        try {
+          value = JSON.parse(value);
+        } catch (e) {
+          // probably a barestring
+        }
+      }
+      flagTarget[flag] = value;
+    } else {
+      positional.push(arg);
+    }
+  }
+  return { ...flags, _: positional };
+}
+
+export function argIn(allowedArgs, argv) {
+  const argsList = allowedArgs.map((opt) => `\n - ${opt}`).join("");
+  const thisCmd = basename(process.argv[1]);
+  const numPassed = argv._.length;
+  const [arg] = argv._;
+  if (numPassed === 1 && allowedArgs.includes(arg)) {
+    return [arg, argv];
+  }
+  const helpText = highlightLogVars`Must provide exactly one argument to ${thisCmd}, one of:${argsList}`;
+  switch (numPassed) {
+    case 0:
+      return `No positional args found. ${helpText}`;
+    case 1:
+      return `Unrecognized argument "${arg}". ${helpText}`;
+    default:
+      return `Too many arguments: "${argv._}". ${helpText}`;
   }
 }
 
@@ -135,18 +224,22 @@ export async function runWithArg(fn, validator = () => {}) {
       `Need to be in the git repo for @adobe/uix-sdk-monorepo. ${e.message}`
     );
   }
+  let argv = parseArgs(process.argv.slice(2));
   const validateArgs = Array.isArray(validator)
-    ? (arg) => argIn(validator, arg)
+    ? () => argIn(validator, argv)
     : validator;
-  let argv = process.argv.slice(2);
   try {
-    const validation = await validateArgs(...argv);
+    const validation = await validateArgs(argv);
     if (typeof validation === "string") {
       return deny(validation);
-    } else if (validation) {
+    } else if (validation !== undefined) {
       argv = validation;
     }
-    await fn(...argv);
+    if (Array.isArray(argv)) {
+      await fn(...argv);
+    } else {
+      await fn(argv);
+    }
   } catch (e) {
     deny(e);
   }

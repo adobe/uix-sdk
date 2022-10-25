@@ -1,10 +1,10 @@
 {
   "name": "guest-vite-plain-primes",
-  "description": "Primes Guy",
-  "private": true,
+  "private": "true",
   "version": "0.0.1",
+  "description": "Primes Guy",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "del dist",
     "example:build": "vite build",
     "example:development": "vite",
     "example:production": "vite preview --mode production"

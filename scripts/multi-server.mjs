@@ -1,17 +1,24 @@
 import { inspect } from "util";
 import { Writable } from "stream";
-import { createServer } from "http";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import {
-  getExamples,
-  getSdks,
-  logger,
-  runWithArg,
-  shResult,
-} from "./script-runner.mjs";
+import { getExamples, getSdks, logger, runWithArg } from "./script-runner.mjs";
+import { startRegistry } from "./mock-registry.mjs";
 import { SIGINT, SIGTERM } from "constants";
+import {
+  combineLatest,
+  filter,
+  debounceTime,
+  merge,
+  share,
+  firstValueFrom,
+  map,
+  timer,
+  skipUntil,
+  of,
+  distinctUntilChanged,
+} from "rxjs";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -31,70 +38,107 @@ const host = "localhost";
 
 const registryUrl = `http://${host}:${ports.registry}/`;
 
-function getRunnerOptions(overrides = {}) {
-  return {
-    prefix: "name",
-    killOthers: ["failure"],
-    prefixLength: 10,
-    prefixColors: [
-      "cyan",
-      "green",
-      "yellow",
-      "blue",
-      "magenta",
-      "white",
-      "red",
-    ],
+const typeColors = {
+  sdk: chalk.ansi256(1),
+  guest: chalk.ansi256(4),
+  host: chalk.ansi256(6),
+};
+
+const blackHole = new Writable({ write() {} });
+
+const runParallelDefaults = {
+  ignore: [],
+  overrides: {},
+  awaitAll: false,
+};
+
+const formatLine = (prefix, line) =>
+  prefix +
+  line
+    .toString("utf8")
+    .replace(/^\s*\n*/g, "") // remove newlines
+    .replace(/\s*\d\d?:\d\d:\d\d [PA]M?\s*/i, ""); // remove timestamps
+const lineProcessors = (prefix, ignore) => [
+  map((buf) => buf.toString("utf-8")),
+  filter((line) => line.trim() && ignore.every((re) => !re.test(line))),
+  map((line) => formatLine(prefix, line)),
+  distinctUntilChanged(),
+];
+async function runParallel(runSpecs, opts = {}) {
+  const { ignore, overrides, awaitAll } = { ...runParallelDefaults, ...opts };
+  const concurrentlyOptions = {
+    outputStream: blackHole,
+    killOthers: ["success", "failure"],
     ...overrides,
   };
-}
-
-function cannotResolveFrom(cwd, deps) {
-  const resolveCalls = deps.map((dep) => `require.resolve("${dep}");`).join("");
-  return shResult(process.argv0, ["-p", resolveCalls], {
-    cwd,
-  }).then(
-    () => false,
-    (e) => e
-  );
-}
-
-async function checkSdkResolution(examples) {
-  const result = {
-    working: [],
-    broken: [],
-  };
-
-  for (const example of examples) {
-    const resolveError = await cannotResolveFrom(
-      example.cwd,
-      Object.keys(example.pkg.dependencies)
+  const noisyLoggers = [];
+  const connectStdouts = [];
+  const connectStderrs = [];
+  const jobs = concurrently(runSpecs, concurrentlyOptions);
+  for (let i = 0; i < runSpecs.length; i++) {
+    const spec = runSpecs[i];
+    const cmd = jobs.commands[i];
+    const outColor = typeColors[spec.type];
+    const prefix = `[${chalk.dim(spec.type)} ${spec.name}] `;
+    const outPrefix = outColor(`[${chalk.dim(spec.type)} ${spec.name}] `);
+    const errPrefix = outColor.bold(`[${spec.type} ${spec.name}] `);
+    const stdout = cmd.stdout.pipe(share());
+    const stderr = cmd.stderr.pipe(share());
+    noisyLoggers.push(merge(stdout, stderr));
+    connectStdouts.push((start) =>
+      stdout.pipe(skipUntil(start), ...lineProcessors(outPrefix, ignore))
     );
-    if (resolveError) {
-      result.broken.push([
-        chalk.bold.red(
-          `Cannot resolve ${chalk.bold.white(
-            "@adobe/uix-sdk"
-          )} from example project ${chalk.bold.white(
-            example.cwd
-          )}) Will not run this example.`
-        ),
-        resolveError.stack,
-        example,
-      ]);
-    } else {
-      result.working.push(example);
-    }
+    connectStderrs.push((start) =>
+      stderr.pipe(skipUntil(start), ...lineProcessors(errPrefix, ignore))
+    );
   }
-  return result;
+  if (process.env.DEBUG && process.env.DEBUG.includes("multi-server")) {
+    const goNow = of(true).pipe(share());
+    connectStdouts.map((toPipe) =>
+      toPipe(goNow).subscribe((line) => process.stdout.write(line))
+    );
+    connectStderrs.map((toPipe) =>
+      toPipe(goNow).subscribe((line) => process.stderr.write(line))
+    );
+    return {
+      ...jobs,
+      startLog() {},
+    };
+  }
+  const operator = awaitAll ? combineLatest : merge;
+  const noiseDone = merge(
+    operator(noisyLoggers).pipe(debounceTime(2000)),
+    timer(5000)
+  );
+  await firstValueFrom(noiseDone);
+  return {
+    ...jobs,
+    startLog() {
+      connectStdouts.map((toPipe) =>
+        toPipe(noiseDone).subscribe((line) => process.stdout.write(line))
+      );
+      connectStderrs.map((toPipe) =>
+        toPipe(noiseDone).subscribe((line) => process.stderr.write(line))
+      );
+    },
+  };
 }
 
+/**
+ * Create the options object that `concurrently` uses to launch a subprocess
+ *
+ * @param {Example} example - Example to launch
+ * @param {string} command - Command to run in the example directory
+ * @param {string} mode - "development" or "production"
+ * @return {import("concurrently").Command}
+ */
 function createRunSpec(example, command, mode) {
   const type = example.pkg.name.startsWith("guest") ? "guest" : "host";
   const port = ports[mode][type]++;
   const env = {
-    MULTI_SERVER_PORT: port,
-    REGISTRY_URL: registryUrl,
+    FORCE_COLOR: 2,
+    MULTI_SERVER_PORT: port, // pass the assigned port down
+    REGISTRY_URL: registryUrl, // examples will call the registry URL
   };
   const name = example.pkg.description || example.pkg.name;
   return {
@@ -105,136 +149,19 @@ function createRunSpec(example, command, mode) {
     command,
     env,
     port,
+    keywords: example.pkg.keywords, // for simple filtering in the fake registry
     url: `http://${host}:${port}/`,
   };
 }
 
-async function serveExamples(mode) {
-  // initial compile
-  await shResult("npm", ["run", "clean"]);
-  await shResult("npm", ["run", `build:${mode}`]);
-
-  const isDev = mode === "development";
-  const allExamples = await getExamples();
-  let examples = await checkSdkResolution(allExamples);
-
-  if (examples.broken.length > 0) {
-    for (const [info, stack] of examples.broken) {
-      logger.error(info, stack);
-    }
-  }
-  if (examples.working.length < 1) {
-    logger.error("No examples ran.");
-    process.exit(1);
-  }
-
-  const [guests, hosts] = examples.working.reduce(
-    ([guests, hosts], example) => {
-      const runSpec = createRunSpec(
-        example,
-        `npm run -s example:${mode}`,
-        mode
-      );
-      return runSpec.type === "guest"
-        ? [[...guests, runSpec], hosts]
-        : [guests, [...hosts, runSpec]];
-    },
-    [[], []]
-  );
-
-  const registry = createServer((req, res) => {
-    const url = new URL(req.url, registryUrl);
-    let qualifyingGuests = guests;
-    const tags = url.searchParams.get("tags");
-    if (tags) {
-      const tagFilter = new Set(tags.split(","));
-      qualifyingGuests = guests.filter(({ tags }) =>
-        tags.some((tag) => tagFilter.has(tag))
-      );
-    }
-
-    res.writeHead(200, {
-      "Content-Type": "text/json",
-      "Access-Control-Allow-Origin": "*",
-    });
-    res.write(JSON.stringify(qualifyingGuests, null, 2));
-    res.end();
-  });
-
-  await new Promise((resolve, reject) => {
-    try {
-      registry.on("error", reject);
-      registry.listen(ports.registry, host, resolve);
-    } catch (e) {
-      reject(e);
-    }
-  });
-  console.log("launched registry at %s", registryUrl);
-
-  let watchSdksToo = {
-    result: Promise.resolve(),
-    commands: [],
-  };
-
-  if (isDev) {
-    watchSdksToo = concurrently(
-      (await getSdks()).map((sdkPackage) => ({
-        cwd: sdkPackage.cwd,
-        id: sdkPackage.pkg.name,
-        name: sdkPackage.pkg.name.replace("@adobe/uix-", ""),
-        command: "npm run -s watch",
-        env: {
-          UIX_SDK_BUILDMODE: mode,
-          NODE_ENV: mode,
-        },
-      })),
-      getRunnerOptions({
-        outputStream: new Writable({ write() {} }),
-      })
-    );
-    const DROP_LINES_RE = /(Starting compilation|change detected)/i;
-    watchSdksToo.commands.forEach((command) => {
-      let preambles = 0;
-      command.stdout.subscribe({
-        next(value) {
-          const line = value.toString().trim();
-          if (preambles < 2 && line.includes("Found 0 errors.")) {
-            preambles++;
-          } else if (line && !DROP_LINES_RE.test(line)) {
-            logger.log(`[${command.name}] ${line}`);
-          }
-        },
-      });
-      command.stderr.subscribe({
-        next(value) {
-          logger.error(`[${command.name}] ${value}`);
-        },
-      });
-    });
-  }
-
-  let guestRunner = concurrently(
-    guests,
-    getRunnerOptions({
-      killOthers: ["failure"],
-      prefix: "guest {name}",
-    })
-  );
-  let hostRunner = concurrently(
-    hosts,
-    getRunnerOptions({
-      killOthers: ["failure"],
-      prefix: "host {name}",
-    })
-  );
-
+function showExampleLinks(hosts, guests) {
   const { hamburger, pointer } = figures;
 
   const listExamples = (list) =>
     list
       .map(
-        ({ url, id }) => `
-    ${pointer} ${url}  ${id}`
+        ({ url, name }) => `
+    ${pointer} ${url}  ${name}`
       )
       .join("");
 
@@ -250,22 +177,92 @@ ${chalk.bold.whiteBright(hamburger + " Example servers running!")}
   )}
 `;
   console.log(report);
+}
 
-  const allRunners = [watchSdksToo, hostRunner, guestRunner];
+async function serveExamples(mode) {
+  const isDev = mode === "development";
+  const examples = await getExamples();
 
-  process.on("SIGINT", () => {
-    console.log("closing registry...");
+  const [guests, hosts] = examples.reduce(
+    ([guests, hosts], example) => {
+      const runSpec = createRunSpec(
+        example,
+        `npm run -s example:${mode}`,
+        mode
+      );
+      return runSpec.type === "guest"
+        ? [[...guests, runSpec], hosts]
+        : [guests, [...hosts, runSpec]];
+    },
+    [[], []]
+  );
+
+  const registry = await startRegistry(registryUrl, guests);
+
+  const allRunners = [];
+
+  if (isDev) {
+    allRunners.push(
+      await runParallel(
+        (
+          await getSdks()
+        ).map((sdkPackage) => ({
+          cwd: sdkPackage.cwd,
+          name: sdkPackage.pkg.name.split("-").pop(),
+          command: "npm run -s watch",
+          type: "sdk",
+          env: {
+            FORCE_COLOR: 2,
+            UIX_SDK_BUILDMODE: mode,
+            NODE_ENV: mode,
+          },
+        })),
+        {
+          awaitAll: true,
+          ignore: [
+            /(?:starting (?:.+?)?compilation|exited with code (?:SIGINT|0)|exited with code 0)/i,
+            /^\[\.+\]\s*$/,
+          ],
+        }
+      )
+    );
+  }
+
+  const runnerOpts = {
+    ignore: isDev
+      ? [
+          /Accepting connections/,
+          /Gracefully shutting down/,
+          /http:\/\/(127|0|localhost)/,
+          // /(Local|Network):/m,
+          /use .+ to expose/m,
+          /(Built|ready) in .+ms/,
+          /Server running at/,
+          /Building.../,
+          /Bundling.../,
+          /Packaging & Optimizing.../,
+        ]
+      : [],
+  };
+
+  let [guestRunners, hostRunners] = await Promise.all([
+    runParallel(guests, runnerOpts),
+    runParallel(hosts, runnerOpts),
+  ]);
+
+  allRunners.push(guestRunners, hostRunners);
+
+  showExampleLinks(hosts, guests);
+
+  allRunners.forEach((runner) => runner.startLog());
+
+  process.once("SIGINT", () => {
+    console.log("Stopping all servers..");
     registry.close(() => {
-      console.log("registry closed");
-      console.log("closing servers...");
-      closeAll()
-        .then(() => {
-          process.exit(0);
-        })
-        .catch((e) => {
-          console.error(e);
-          process.exit(1);
-        });
+      closeAll().catch((e) => {
+        console.error(e);
+        process.exit(1);
+      });
     });
   });
 
@@ -322,6 +319,7 @@ ${closeEvents
 
   try {
     await Promise.all(allRunners.map((runner) => runner.result));
+    await closeAll();
   } catch (e) {
     try {
       await closeAll();

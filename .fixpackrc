@@ -1,0 +1,47 @@
+{
+  "sortToTop": [
+    "name",
+    "private",
+    "version",
+    "publishConfig",
+    "description",
+    "author",
+    "type",
+    "module",
+    "main",
+    "browser",
+    "exports",
+    "types",
+    "scripts"
+  ],
+  "required": [
+    "name",
+    "main",
+    "version"
+  ],
+  "requiredOnPrivate": [],
+  "warnOnPrivate": [
+    "name",
+    "version"
+  ],
+  "sortedSubItems": [
+    "dependencies",
+    "devDependencies",
+    "exports",
+    "peerDependencies",
+    "scripts",
+    "files",
+    "keywords"
+  ],
+  "finalNewLine": true,
+  "indent": 2,
+  "warn": [
+    "description",
+    "author",
+    "repository",
+    "main",
+    "bugs",
+    "homepage",
+    "license"
+  ]
+}
