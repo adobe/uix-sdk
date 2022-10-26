@@ -1,47 +1,100 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   GuestConnection,
-  RemoteApis,
-  RequiredMethodsByName,
+  GuestApis,
+  RemoteGuestApis,
+  VirtualApi,
 } from "@adobe/uix-core";
+
 import { Host, HostEvents } from "@adobe/uix-host";
+import type { CapabilitySpec } from "@adobe/uix-host";
 import { useHost } from "./useHost.js";
 
-interface TypedGuestConnection<T extends RemoteApis> extends GuestConnection {
+/**
+ * @internal
+ */
+export interface TypedGuestConnection<T extends GuestApis>
+  extends GuestConnection {
   id: GuestConnection["id"];
-  apis: T;
+  apis: RemoteGuestApis<T>;
 }
 
 /** @public */
 export interface UseExtensionsConfig<
-  Incoming extends RemoteApis,
-  Outgoing extends RemoteApis
+  Incoming extends GuestApis,
+  Outgoing extends VirtualApi
 > {
-  requires?: RequiredMethodsByName<Incoming>;
+  /**
+   * A {@link @adobe/uix-host#CapabilitySpec} describing the namespaced methods
+   * extensions must implement to be used by this component.
+   *
+   * @remarks
+   * This declaration is used to filter the extensions that will be
+   * returned; if they don't implement those methods, they will be filtered out.
+   */
+  requires?: CapabilitySpec<Incoming>;
+  /**
+   * A namespaced object of methods which extensions will be able to call.
+   *
+   * @remarks This is the counterpart of `requires`; in `requires`, the you
+   * describes methods the extension must implement that your host code will
+   * call, and in `provides`, you implement host methods that extensions will be
+   * able to call.
+   *
+   * Most cases for host-side methods will use the state of the component. This
+   * can cause unexpected bugs in React if the config callback is run on every
+   * render. **useExtensions caches the config callback by default!**
+   * So remember to pass a deps array, so that the config callback re-runs under
+   * the right conditions.
+   */
   provides?: Outgoing;
+  /**
+   * Sets when re-render is triggered on extension load.
+   *
+   * @remarks
+   * Set to `each` to trigger a component re-render every time an individual
+   * extension loads, which may result in multiple UI updates. Set to `all` to
+   * wait until all extensions have loaded to re-render the component.
+   * @defaultValue "each"
+   */
   updateOn?: "each" | "all";
 }
 
 /** @public */
-export interface UseExtensionsResult<T extends RemoteApis> {
+export interface UseExtensionsResult<T extends GuestApis> {
+  /**
+   * A list of loaded guests which implement the methods specified in
+   * `requires`, represented as {@link @adobe/uix-host#Port} objects which
+   * present methods to be called.
+   */
   extensions: TypedGuestConnection<T>[];
+  /**
+   * This is `true` until all extensions are loaded. Use for rendering spinners
+   * or other intermediate UI.
+   */
   loading: boolean;
+  /**
+   * Populated with an Error if there were any problems during the load process.
+   */
   error?: Error;
 }
 
 const NO_EXTENSIONS: [] = [];
 
 /**
- * TODO: document useExtensions
+ * Fetch extensions which implement an API, provide them methods, and use them.
+ *
+ * @remarks `useExtensions` does three things at once:
+ *  - Gets all extensions which implement the APIs described in the `require` field
+ *  - Exposes any functions defined in the `provide` field to those extensions
+ *  - Returns an object whose `extensions` property is a list of `Port` objects representing those extensions
+ *
+ * useExtensions will trigger a re-render when extensions load. You can choose whether it triggers that rerender as each extension loads, or only after all extensions have loaded.
  * @public
- * @typeParam Incoming - Type of the methods object guests should send.
- * @typeParam Outgoing - Type of the methods object send to the guest.
- * @param configFactory - Function that returns a config object. Passing in a config object directly is not supported.
- * @param deps - Any additional dependencies to break cache
  */
 export function useExtensions<
-  Incoming extends RemoteApis,
-  Outgoing extends RemoteApis = RemoteApis
+  Incoming extends GuestApis,
+  Outgoing extends VirtualApi
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = []

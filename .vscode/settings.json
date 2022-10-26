@@ -1,17 +1,28 @@
 {
-	"search.exclude": {
-		"**/.yalc": true,
-		"**/dist": true
-	},
+  "search.exclude": {
+    "**/.yalc": true,
+    "**/dist": true
+  },
   "files.exclude": {
-	"**/.DS_Store": true,
-	"**/.git": true,
-	"**/.yalc": true,
-	"**/Thumbs.db": true
-},
-
-	"git.mergeEditor": true,
-	"files.associations": {
-		"*.json": "jsonc"
-	}
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.yalc": true,
+    "**/Thumbs.db": true
+  },
+  "workbench.localHistory.exclude": {
+    "docs/**": true
+  },
+  "git.mergeEditor": true,
+  "files.associations": {
+    "*.json": "jsonc"
+  },
+  "[typescript][typescriptreact]": {
+    "editor.tabCompletion": "on",
+    "editor.snippetSuggestions": "top",
+    "editor.quickSuggestions": {
+      "other": "on",
+      "comments": "on",
+      "strings": "off"
+    }
+  }
 }

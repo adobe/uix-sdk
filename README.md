@@ -13,30 +13,36 @@ The host and guest cannot share live objects or closures; they communicate with 
 
 ## Installation
 
-The SDK has one explicit peer dependency, on the [Penpal](https://www.npmjs.com/package/penpal) iframe management library.
+### Requirements
 
-When using the React bindings at `@adobe/uix-host-react`, there is an implicit React peer dependency.
+The SDK runs in modern browsers of the last several versions. It is not extensively tested in Internet Explorer. The SDKs use relatively recent native browser features, including [EventTarget](https://caniuse.com/mdn-api_eventtarget), [fetch](https://caniuse.com/fetch), [for...of loops](https://caniuse.com/mdn-javascript_statements_for_of), [Proxy](https://caniuse.com/proxy), [Reflect](https://caniuse.com/mdn-javascript_builtins_reflect), [WeakMap](https://caniuse.com/mdn-javascript_builtins_weakmap), and others. Using the SDK in browsers that don't support these features requires transpiling it with tools like Webpack and Parcel; most projects do this by default.
 
-At minimum: 
+As of v0.5.0, The SDK has no peer dependencies. It has only one direct dependency, on the [Penpal](https://www.npmjs.com/package/penpal) iframe management library. It shouldn't add much weight to your bundles.
 
-```sh
-npm install penpal @adobe/uix-sdk
-# or
-yarn add penpal @adobe/uix-sdk
-```
+When using the host-side React bindings at `@adobe/uix-host-react`, there is an implicit React peer dependency.
+
+### Host Application
+
+Host applications built in React should use the React bindings library: `npm install @adobe/uix-host-react` / `yarn add @adobe/uix-host-react`
+
+Host apps not built in React can use the underlying host library objects: `npm install @adobe/uix-host` / `yarn add @adobe/uix-host` _(and consider contributing higher-level bindings for your app's framework!)_
+
+### Guest Application
+
+Guest applications built in any framework should use the guest objects library: `npm install @adobe/uix-guest` / `yarn add @adobe/uix-guest`
 
 ## Usage
 
-### Usage - Hosts
+### Usage - React App Hosts
 
-For host apps, the React bindings are currently the most mature. The underlying Host and Guest objects are not React-dependent,
+Make a React app extensible with UI Extensions by wrapping all or part of the app UI component tree in the `Extensible` provider.
+`<Extensible>` provides a singleton UIX Host object for the part of the React app it contains.
+Any descendent component may use the `useExtensions()` hook.
 
-#### `App.jsx`
+#### `App.jsx` with hardcoded extensions
 ```jsx
 import { Extensible } from '@adobe/uix-host-react'
 
-// "<Extensible>" provides a singleton UIX Host object for the part of the React app it contains.
-// Any descendent component may use the `useExtensions()` hook.
 function ExtensibleApp() {
   return (
     <Extensible
@@ -50,6 +56,45 @@ function ExtensibleApp() {
 }
 ```
 
+In a real app, hardcoded extensions are unlikely; instead, extensions can be
+supplied in the form of a function which returns a Promise for the list. The
+React bindings provide convenience methods for creating these functions.
+
+#### `App.jsx` using ExtensionProvider and a preinitialized shared context
+```jsx
+import {
+  Extensible,
+  createExtensionRegistryProvider
+} from '@adobe/uix-host-react'
+
+function ExtensibleApp({ params, auth, shell, service, version, env }) {
+  return (
+    <Extensible
+      extensions={createExtensionRegistryProvider({
+        baseUrl: env === "prod" ? "appregistry.adobe.io" : params.registry,
+        apiKey: shell.imsClientId,
+        auth: {
+          schema: auth.authScheme || "Bearer",
+          imsToken: auth.imsToken,
+        },
+        service: "aem",
+        extensionPoint: service,
+        version: version || "1",
+        imsOrg: auth.imsOrg
+      })}
+      sharedContext={{
+        locale: shell.locale,
+        theme: COLOR_SCHEME,
+        auth,
+      }}>
+      <App/>
+    </Extensible>
+  )
+}
+```
+
+Components inside the Extensible provider can use the `useExtensions` hook.
+
 #### `Component.jsx`
 ```jsx
 import React, { useEffect, useState } from 'react';
@@ -57,12 +102,16 @@ import { useExtensions } from '@adobe/uix-host-react'
 function App() {
 
   const { extensions } = useExtensions(() => ({
-    updateOn: "each",
+    // Only re-render when all extensions have loaded
+    updateOn: "all",
+    // Get only the extensions that implement these methods
     requires: {
       someNamespace: ["getSomeData", "getOtherData"]
     },
+    // Extensions can remotely call these methods
     provides: {
       annoy: {
+        // First argument is always the extension description
         cheerily(source, greeting) {
           console.log(`Extension ${source.id} says ${greeting}`);
         },
@@ -72,7 +121,9 @@ function App() {
   
   const [data, setData] = useState([]);
   useEffect(() => {
-    Promise.all(extensions.map(({ apis }) => apis.someNamespace.getSomeData("query")))
+    Promise.all(
+      // Call extensions; all remote methods return Promises
+      extensions.map(({ apis }) => apis.someNamespace.getSomeData("query")))
     .then(setData);
   }, extensions);
   return (
@@ -83,32 +134,69 @@ function App() {
 }
 ```
 
-_Note that the way the SDK acquires the list of extensions available to the current org/app is not currently in scope for the SDK. Something else needs to query the registry and return the map of extensions._
-
 ### Usage - Guests
+
+An extension has its own runtime inside a Host app. It starts with one hidden
+iframe, called the "bootstrap" frame or the "GuestServer", which runs first and
+registers the extension's capabilities. This can be considered the "entry point"
+of the guest, which can control other iframes (see below). It runs in the
+background and should not have visible UI.
+
+Create your GuestServer with `register()`.
 
 #### `creative-cloud-ext/web-src/main.js`
 ```js
-import uixGuest from "@adobe/uix-guest";
+import { register } from "@adobe/uix-guest";
 import { externalDataSource } from "./guest-functionality";
 
-const uix = uixGuest({ id: "cc1" });
+async function start() {
 
-uix.register({
-  someNamespace: {
-    getSomeData(query) {
-      return externalDataSource.get(query);
+  const guestServer = await register({
+    methods: {
+      someNamespace: {
+        getSomeData(query) {
+          return externalDataSource.get(query);
+        },
+        async getOtherData() {
+          const res = await fetch(externalDataSource.meta);
+          return res.json();
+        }
+      },
     },
-    async getOtherData() {
-      const res = await fetch(externalDataSource.meta);
-      return res.json();
-    }
-  },
-});
+    id: "creative-cloud-ext"
+  });
 
-setInterval(() => uix.host.annoy.cheerily('Hi!'), 5000);
-
+  // The returned guest object has access to any methods provided by the host in
+  // the 'useExtensions({ provide })` parameter.
+  setInterval(() => guestServer.host.annoy.cheerily('Hi!'), 5000);
+}
 ```
+
+Extensions can control host UI if the host exposes methods that let them do so,
+entirely from within the GuestServer. But in many cases, the host may want to
+display UI rendered by the extension. Because the GuestServer is a background
+process, it can't display this UI itself; instead, the host app can spawn
+additional iframes that point to other URLs on the extension host; extensions
+can attach these "UI frames" to the host via `attach()`.
+
+```js
+import { attach } from "@adobe/uix-guest";
+
+async function start() {
+
+  const guestUI = await attach({
+    id: 'creative-cloud-ext'
+  });
+  // when guest UI returns, we are already connected. it's time to render!
+  document.body.innerHTML = "This is a bad way to render, though."
+  //call methods host exposed
+  await guestUI.host.renderDone();
+  // subscribe to shared context changes
+  guestUI.addEventListener("contextchange", (event) => {
+    document.body.innerHTML += "A very bad way to render. Updated context:"
+    document.body.innerHTML ++ JSON.stringify(event.detail.context);
+  })
+}
 
 ## Development
 

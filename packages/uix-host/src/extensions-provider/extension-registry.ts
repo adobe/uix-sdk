@@ -56,6 +56,7 @@ export interface ExtensionRegistryConnection {
   };
 }
 
+/** @public */
 export interface ExtensionRegistryConfig
   extends ExtensionRegistryExtensionRegistration,
     ExtensionRegistryConnection {}
@@ -126,6 +127,10 @@ function extensionRegistryExtensionsProvider(
   return Promise.resolve({});
 }
 
+/**
+ * Create a callback that fetches extensions from the registry.
+ * @public
+ */
 export function createExtensionRegistryProvider(
   config: ExtensionRegistryConfig
 ): ExtensionsProvider {

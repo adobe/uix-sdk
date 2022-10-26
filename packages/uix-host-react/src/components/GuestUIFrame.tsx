@@ -3,6 +3,9 @@ import React, { useCallback } from "react";
 import type { PropsWithChildren, IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
 
+/**
+ * @public
+ */
 type FrameProps = IframeHTMLAttributes<HTMLIFrameElement>;
 
 /** @public */
@@ -26,11 +29,14 @@ export interface GuestUIProps extends FrameProps {
   src: string;
   /**
    * Host methods to provide only to the guest inside this iframe.
-   *
-   * @type {VirtualApi}
-   * @memberof GuestUIProps
    */
   methods?: VirtualApi;
+
+  /**
+   *
+   * @defaultValue "100%"
+   */
+  width: FrameProps["width"];
 }
 
 const defaultFrameProps: FrameProps = {
@@ -43,7 +49,8 @@ const defaultFrameProps: FrameProps = {
 };
 
 /**
- * TODO: Document GuestUI.tsx
+ * An iframe that attaches to a running GuestServer, to display visible UI pages
+ * delivered by the Extension server.
  * @public
  */
 export function GuestUIFrame({

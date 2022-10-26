@@ -1,13 +1,11 @@
 /**
  * Adapter to attach console logging listeners to a Guest running in a frame/
- * @hidden
+ * @internal @preapproved
  */
 import { debugEmitter, Emits, EmitterDebugLogger } from "@adobe/uix-core";
-import { GuestEvents } from "./guest-base";
+import { GuestEvents } from "./guest";
 
-export function debugGuest<Out extends object, In extends object>(
-  guest: Emits<GuestEvents<Out, In>>
-): EmitterDebugLogger {
+export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
   return debugEmitter(guest, {
     theme: "yellow medium",
     type: "Guest",

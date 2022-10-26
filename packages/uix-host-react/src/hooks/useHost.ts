@@ -2,6 +2,9 @@ import { useContext } from "react";
 import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
+/**
+ * @public
+ */
 export class OutsideOfExtensionContextError extends Error {
   outsideOfExtensionContext: boolean;
   constructor(msg: string) {
@@ -11,10 +14,17 @@ export class OutsideOfExtensionContextError extends Error {
   }
 }
 
+/** @public */
 type UseHostResponse =
   | { host: undefined; error: Error }
   | { host: Host; error: undefined };
 
+/**
+ * Retrieve the {@link @adobe/uix-host#Host} object hosting all extensions inside the current parent provider.
+ *
+ * @remarks Returns a `{ host, error }` tuple, not the host object directly.
+ * @beta
+ */
 export function useHost(): UseHostResponse {
   const host = useContext(ExtensionContext);
   if (!(host instanceof Host)) {

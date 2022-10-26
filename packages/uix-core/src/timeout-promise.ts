@@ -2,8 +2,9 @@
  * Add a timeout to a Promise. The returned Promise will resolve to the value of
  * the original Promise, but if it doesn't resolve within the timeout interval,
  * it will reject with a timeout error.
+ * @internal
  *
- * @param {number} timeoutMs - Time to wait (ms) before rejecting
+ * @param timeoutMs - Time to wait (ms) before rejecting
  * @param promise - Original promise to set a timeout for
  * @returns - Promise that rejects after X milliseconds have passed
  */

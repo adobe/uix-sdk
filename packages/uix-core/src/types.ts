@@ -1,59 +1,88 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { AsyncMethodReturns } from "penpal";
 
+/**
+ * Extract keys of T whose values are are assignable to U.
+ * @internal
+ */
+type ExtractKeys<T, U> = {
+  [P in keyof T]: T[P] extends U ? P : never;
+}[keyof T];
+
+/**
+ * @internal
+ */
+type GuestApiMethod = (...args: any[]) => any;
+
+/**
+ * @internal
+ */
+export interface GuestApiNS {
+  [k: string]: GuestApiMethod;
+}
+
+/**
+ * @internal
+ */
+export interface GuestApis {
+  [k: string]: GuestApiNS;
+}
+
+/**
+ * @internal
+ */
+export type RemoteGuestApiNS<G extends GuestApiNS = GuestApiNS> = {
+  [K in ExtractKeys<G, GuestApiMethod>]: (
+    ...args: Parameters<G[K]>
+  ) => Promise<ReturnType<G[K]>>;
+};
+
+/**
+ * @internal
+ */
+export type RemoteGuestApis<G extends GuestApis = GuestApis> = {
+  [K in ExtractKeys<G, GuestApiNS>]: RemoteGuestApiNS<GuestApiNS>;
+};
+
+/**
+ * @internal
+ */
 export type VirtualApi = Record<
   string,
   object | ((...args: unknown[]) => unknown)
 >;
 
 /**
- * Extract keys of T whose values are are assignable to U.
+ * @internal
  */
-type ExtractKeys<T, U> = {
-  [P in keyof T]: T[P] extends U ? P : never;
-}[keyof T];
-/**
- * A mapped type to recursively convert non async methods into async methods and exclude
- * any non function properties from T.
- */
-export type LocalApis<Api = VirtualApi> = {
-  [K in ExtractKeys<
-    Api,
-    (...args: unknown[]) => unknown | object
-  >]: Api[K] extends (...args: unknown[]) => PromiseLike<any>
+export type RemoteHostApis<Api = VirtualApi> = {
+  [K in ExtractKeys<Api, CallableFunction | object>]: Api[K] extends (
+    ...args: unknown[]
+  ) => PromiseLike<any>
     ? Api[K]
     : Api[K] extends (...args: infer A) => infer R
-    ? (...args: A) => R
-    : LocalApis<Api[K]>;
+    ? (...args: A) => Promise<R>
+    : RemoteHostApis<Api[K]>;
 };
 /**
 
 /**
- * A recursive object of simple methods, all of which are async in the new type.
- */
-export type RemoteApis<Api = VirtualApi> = AsyncMethodReturns<Api>;
-
-/**
- * A local API paired with a remote API, describing a contract with a remote.
- */
-export type ApiContract<Incoming, Outgoing> = {
-  incoming: RemoteApis<Incoming>;
-  outgoing: LocalApis<Outgoing>;
-};
-
-/**
- * A specifier for methods to be expected on a remote interface. Used in
- * `Port.hasCapabilities` and `useExtensions.requires`
- */
-export type RequiredMethodsByName<T> = {
-  [Name in keyof RemoteApis<T>]: (keyof RemoteApis<T>[Name])[];
-};
-
-/**
- * Simple tuple of a unique ID and a URL where the extension is deployed.
+ * An individual UI extension retrieved from the registry.
+ *
+ * @remarks This interface is likely to expand. As the metadata from the
+ * extension registry stabilizes, it should probably be passed through.
+ * Right now, there are too many cases where an extension string ID
+ * is directly used; this should probably be an opaque, structured object.
+ *
+ * @public
  */
 export interface Extension {
+  /**
+   * Unique ID of the extension. Must be unique across entire app
+   */
   id: string;
+  /**
+   * Location of the document to load for the {@link @adobe/uix-guest#GuestServer}
+   */
   url: string;
 }
 
@@ -77,6 +106,7 @@ export interface Extension {
  *  args: ["Kevin", { "pick": "homeAddress" }]
  * }
  * ```
+ * @internal
  *
  */
 export interface HostMethodAddress<Args = unknown[]> {
@@ -95,27 +125,42 @@ export interface HostMethodAddress<Args = unknown[]> {
 }
 
 /**
- * A callback to pass to a new {@link !./namespace-proxy}. It will call that
+ * A callback to pass to a new namespace proxy. It will call that
  * call back with a {@link HostMethodAddress} when one of its properties is
  * invoked as a method.
  *
  * Because the typical use case is for asynchronous cross-realm communication,
  * the callback is expected to return a Promise for the return value.
+ * @internal
  */
 export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
 
 /**
- * @hidden
+ * Interface for decoupling Port from GuestServer.host
+ * @internal
  */
 export interface HostConnection<T = unknown> {
+  /**
+   * see {@link @adobe/uix-host#Port}
+   */
   getSharedContext(): Record<string, unknown>;
+  /**
+   * see {@link @adobe/uix-host#Port}
+   */
   invokeHostMethod: RemoteMethodInvoker<T>;
 }
 
+/**
+ * {@inheritDoc @adobe/uix-host#Port}
+ * @internal
+ */
 export interface GuestConnection {
   id: string;
   url: URL;
-  attachUI(frame: HTMLIFrameElement): {
+  attachUI(
+    frame: HTMLIFrameElement,
+    privateMethods?: RemoteHostApis
+  ): {
     promise: Promise<unknown>;
     // eslint-disable-next-line @typescript-eslint/ban-types
     destroy: Function;
@@ -128,17 +173,6 @@ export interface GuestConnection {
   unload(): Promise<unknown>;
 }
 
-export interface GuestMethods {
-  apis: RemoteApis;
-  emit(type: string, detail: unknown): Promise<void>;
-}
-
-export interface UIGuestPositioning {
-  attached: boolean;
-  parent: DOMRect;
-  ui: DOMRect;
-}
-
 /**
  * BEGIN EVENTS
  */
@@ -146,11 +180,13 @@ export interface UIGuestPositioning {
 /**
  * Returned from {@link Emitter.addEventListener}. Unsubscribes the original
  * handler when called.
+ * @internal
  */
 export type Unsubscriber = () => void;
 
 /**
  * Strongly typed event with a string `type` parameter.
+ * @internal
  */
 export type NamedEvent<
   Type extends string = string,
@@ -159,9 +195,16 @@ export type NamedEvent<
   readonly type: Type;
 };
 
+/**
+ * Typed EventTarget
+ * @internal
+ */
 export interface Emits<Events extends NamedEvent = NamedEvent>
   extends EventTarget {
   id: string;
+  /**
+   * Same as EventTarget.addEventListener but returns an unsubscribe callback.
+   */
   addEventListener<Type extends Events["type"]>(
     type: Type,
     listener: (ev: Extract<Events, { type: Type }>) => unknown

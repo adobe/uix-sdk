@@ -1,13 +1,15 @@
 /**
  * Fancy looking console decorator.
- * TODO: Outsource to @adobe/browser-console-chips
  * @hidden
+ * @internal
  */
 
+/** @internal */
 const isDarkMode = () =>
   typeof window.matchMedia === "function" &&
   window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+/** @internal */
 type Layout = {
   padX: number;
   padY: number;
@@ -15,15 +17,19 @@ type Layout = {
   fontSize: number;
   emphasis: Style;
 };
+/** @internal */
 type HexColor = `#${string}` | "transparent";
+/** @internal */
 type Color = {
   text: HexColor;
   bg: HexColor;
   hilight: HexColor;
   shadow: HexColor;
 };
+/** @internal */
 type ThemeSpec = Color & Layout;
 
+/** @internal */
 const Layouts: Record<string, Layout> = {
   medium: {
     padX: 5,
@@ -41,6 +47,7 @@ const Layouts: Record<string, Layout> = {
   },
 };
 
+/** @internal */
 const Colors: Record<string, Color> = {
   yellow: {
     text: "#333333",
@@ -75,12 +82,18 @@ const Colors: Record<string, Color> = {
       },
 };
 
+/** @internal */
 type ThemeTag = `${keyof typeof Colors} ${keyof typeof Layouts}`;
 
+/**
+ * @internal
+ */
 export type Theme = ThemeSpec | ThemeTag;
 
+/** @internal */
 type LogDecorator = (...args: unknown[]) => unknown[];
 
+/** @internal */
 type Style = `${string};`;
 
 function memoizeUnary<T, U>(fn: (arg: T) => U): typeof fn {
@@ -145,12 +158,14 @@ function toBubblePrepender(
   };
 }
 
+/** @internal */
 const stateTypes = {
   event: "️⚡️",
 } as const;
 
 const stateDelim = " ⤻ ";
 
+/** @internal */
 type DebugState = { type: keyof typeof stateTypes; name: string };
 
 // Serialize to memoize.
@@ -173,13 +188,31 @@ const identity = <T>(x: T) => x;
 
 const noop = (): (() => undefined) => undefined;
 
+/**
+ * A console, plus some methods to track event lifecycles.
+ * @internal
+ */
 export interface DebugLogger extends Console {
+  /**
+   * Stop all logging; methods do nothing
+   * @internal
+   */
   detach(): void;
+  /**
+   * Add an event bubble to the log during handler.
+   */
   pushState(state: DebugState): void;
+  /**
+   * Remove the bubble when event is done dispatching
+   */
   popState(): void;
 }
 
-export function customConsole(
+/**
+ * Returns a console whose methods autoformat with bubbles.
+ * @internal
+ */
+export function _customConsole(
   theme: Theme,
   type: string,
   name: string
@@ -229,6 +262,9 @@ export function customConsole(
   return customConsole;
 }
 
+/**
+ * @internal
+ */
 export const quietConsole = new Proxy(console, {
   get() {
     return noop;

@@ -5,15 +5,30 @@ import type {
   ExtensionsProvider,
   HostConfig,
   PortOptions,
+  SharedContextValues,
 } from "@adobe/uix-host";
 import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
 
 /** @public */
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
+  /**
+   * Unique name for identifying this extensible app. May be used as metadata in
+   * extension registry in the future.
+   */
   appName?: string;
+  /**
+   * Function which returns a promise for the full list of extensions.
+   */
   extensionsProvider: ExtensionsProvider;
+  /**
+   * {@inheritDoc HostConfig.guestOptions}
+   */
   guestOptions?: PortOptions;
+  /**
+   * {@inheritDoc HostConfig.sharedContext}
+   */
+  sharedContext?: SharedContextValues;
 }
 
 function areExtensionsDifferent(
@@ -28,7 +43,19 @@ function areExtensionsDifferent(
 }
 
 /**
- * TODO: Document Extensible.tsx
+ * Declares an extensible area in an app, and provides host and extension
+ * objects to all descendents. The {@link useExtensions} hook can only be called
+ * in a descendent of this component.
+ *
+ * @remarks
+ * For many apps, there will be only one Extensible provider, fairly high in the
+ * component tree. It is a context provider component that may be bundled with
+ * other context providers in your app architecture.
+ *
+ * Each Extensible element creates one {@link @adobe/uix-host#Host} object and
+ * one call to an extensions provider. If multiple Extensible elements are used,
+ * this may cause redundant calls. Such a design should be carefully considered.
+ *
  * @public
  */
 export function Extensible({

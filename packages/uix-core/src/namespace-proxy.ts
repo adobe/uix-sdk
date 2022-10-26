@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RemoteApis, RemoteMethodInvoker } from "./types.js";
+import { RemoteHostApis, RemoteMethodInvoker } from "./types.js";
 
 /**
  * Build a fake object that turns "method calls" into RPC messages
  * The resulting object will recursively make more fake proxies on demand until
  * one of the looked-up properties is invoked as a function.
- * Then it will call the passed `invoke` method with a {@link ./types!HostMethodAddress}
+ * Then it will call the passed `invoke` method with a {@link HostMethodAddress}
  * that can send the method invocation as an RPC message to another realm.
  *
  * @example
@@ -26,15 +26,14 @@ import { RemoteApis, RemoteMethodInvoker } from "./types.js";
  * 'message'
  * ["foo", 1]
  *```
+ * @internal
  *
- * @param {RemoteMethodInvoker<unknown>} invoke - Callback that receives address
- * @param {string[]} [path=[]] - Paths already traversed (optional)
- * @return {Object} A magical object with any sub-objects with any methods.
+ * @param invoke - Callback that receives address
  */
 export function makeNamespaceProxy<ProxiedApi extends object>(
   invoke: RemoteMethodInvoker<unknown>,
   path: string[] = []
-): RemoteApis<ProxiedApi> {
+): RemoteHostApis<ProxiedApi> {
   const handler: ProxyHandler<Record<string, any>> = {
     get: (target, prop) => {
       if (typeof prop === "string") {
@@ -50,11 +49,11 @@ export function makeNamespaceProxy<ProxiedApi extends object>(
       }
     },
   };
-  const target = {} as unknown as RemoteApis<ProxiedApi>;
+  const target = {} as unknown as RemoteHostApis<ProxiedApi>;
   // Only trap the apply if there's at least two levels of namespace.
   // uix.host() is not a function, and neither is uix.host.bareMethod().
   if (path.length < 2) {
-    return new Proxy<RemoteApis<ProxiedApi>>(target, handler);
+    return new Proxy<RemoteHostApis<ProxiedApi>>(target, handler);
   }
   const invoker = (...args: unknown[]) =>
     invoke({

@@ -5,6 +5,14 @@ dist
 /tmp
 /out-tsc
 /docs/temp
+/packages/*/temp
+/packages/*/src/**/*.js
+/packages/*/src/**/*.js.map
+/packages/*/src/**/*.d.ts
+/packages/*/src/**/*.d.ts.map
+
+# Docgen output stays in repo for now, so it can be viewed on GitHub
+# /docs/markdown
 
 # dependencies
 node_modules

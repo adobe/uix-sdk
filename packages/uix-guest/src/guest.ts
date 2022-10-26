@@ -1,0 +1,243 @@
+/* eslint @typescript-eslint/no-explicit-any: "off" */
+import { Connection, connectToParent } from "penpal";
+import type {
+  RemoteHostApis,
+  HostConnection,
+  NamedEvent,
+  VirtualApi,
+} from "@adobe/uix-core";
+import {
+  Emitter,
+  makeNamespaceProxy,
+  timeoutPromise,
+  quietConsole,
+} from "@adobe/uix-core";
+import { debugGuest } from "./debug-guest.js";
+
+/**
+ * @public
+ */
+export type GuestEvent<
+  Type extends string = string,
+  Detail = Record<string, unknown>
+> = NamedEvent<
+  Type,
+  Detail &
+    Record<string, unknown> & {
+      guest: Guest;
+    }
+>;
+
+/**
+ * @public
+ */
+export type GuestEventContextChange = GuestEvent<
+  "contextchange",
+  { context: Record<string, unknown> }
+>;
+
+/** @public */
+export type GuestEventBeforeConnect = GuestEvent<"beforeconnect">;
+/** @public */
+export type GuestEventConnected = GuestEvent<
+  "connected",
+  { connection: Connection }
+>;
+/** @public */
+export type GuestEventError = GuestEvent<"error", { error: Error }>;
+
+/**
+ * @public
+ */
+export type GuestEvents =
+  | GuestEventContextChange
+  | GuestEventBeforeConnect
+  | GuestEventConnected
+  | GuestEventError;
+
+/**
+ * @public
+ */
+export interface GuestConfig {
+  /**
+   * String slug identifying extension. This may need to use IDs from an
+   * external system in the future.
+   */
+  id: string;
+  /**
+   * Set debug flags on all libraries that have them, and add loggers to SDK
+   * objects. Log a lot to the console.
+   */
+  debug?: boolean;
+  /**
+   * Time out and stop trying to reach the host after this many milliseconds
+   */
+  timeout?: number;
+}
+
+/**
+ * A `Map` representing the {@link @adobe/uix-host#HostConfig.sharedContext}
+ * object.
+ *
+ * @remarks While the Host object is a plain JavaScript object. the `sharedContext` in the Guest object implements the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map | Map} interface.
+ *
+ * @example
+ * In the host app window, the Host object shares context:
+ * ```javascript
+ *host.shareContext({
+ *  someAuthToken: 'abc'
+ *});
+ * ```
+ *
+ * After the `contentchange` event has fired in the guest window:
+ * ```javascript
+ * guest.sharedContext.get('someAuthToken') === 'abc'
+ * ```
+ * @public
+ */
+export class SharedContext {
+  private _map: Map<string, unknown>;
+  constructor(values: Record<string, unknown>) {
+    this.reset(values);
+  }
+  private reset(values: Record<string, unknown>) {
+    this._map = new Map(Object.entries(values));
+  }
+  /**
+   * @public
+   * Retrieve a copy of a value from the {@link @adobe/uix-host#HostConfig.sharedContext} object. *Note that this is not a reference to any actual objects from the parent. If the parent updates an "inner object" inside the SharedContext, that change will not be reflected in the Guest!*
+   */
+  get(key: string) {
+    return this._map.get(key);
+  }
+}
+
+/**
+ * Generic Guest object, with methods shared by all types of Guest.
+ * @internal
+ */
+export class Guest<
+  Incoming extends object = VirtualApi
+> extends Emitter<GuestEvents> {
+  /**
+   * Shared context has been set or updated.
+   * @eventProperty
+   */
+  public contextchange: GuestEventContextChange;
+  /**
+   * About to attempt connection to the host.
+   * @eventProperty
+   */
+  public beforeconnect: GuestEventBeforeConnect;
+  /**
+   * Host connection has been established.
+   * @eventProperty
+   */
+  public connected: GuestEventConnected;
+  /**
+   * Host connection has failed.
+   * @eventProperty
+   */
+  public error: GuestEventError;
+  /**
+   * {@inheritdoc SharedContext}
+   */
+  sharedContext: SharedContext;
+  private debugLogger: Console = quietConsole;
+
+  /**
+   * @param config - Initializer for guest object, including ID.
+   */
+  constructor(config: GuestConfig) {
+    super(config.id);
+    if (typeof config.timeout === "number") {
+      this.timeout = config.timeout;
+    }
+    if (config.debug) {
+      this.debugLogger = debugGuest(this);
+    }
+    this.addEventListener("contextchange", (event) => {
+      this.sharedContext = new SharedContext(event.detail.context);
+    });
+  }
+  /**
+   * Proxy object for calling methods on the host.
+   *
+   * @remarks Any APIs exposed to the extension via {@link @adobe/uix-host#Port.provide}
+   * can be called on this object. Because these methods are called with RPC,
+   * they are all asynchronous, The return types of all Host methods will be
+   * Promises which resolve to the value the Host method returns.
+   * @public
+   */
+  host: RemoteHostApis<Incoming> = makeNamespaceProxy<Incoming>(
+    async (address) => {
+      await this.hostConnectionPromise;
+      try {
+        const result = await timeoutPromise(
+          10000,
+          this.hostConnection.invokeHostMethod(address)
+        );
+        return result;
+      } catch (e) {
+        const error =
+          e instanceof Error ? e : new Error(e as unknown as string);
+        const methodError = new Error(
+          `Host method call host.${address.path.join(".")}() failed: ${
+            error.message
+          }`
+        );
+        this.debugLogger.error(methodError);
+        throw methodError;
+      }
+    }
+  );
+  private timeout = 10000;
+  private hostConnectionPromise: Promise<RemoteHostApis<HostConnection>>;
+  private hostConnection!: RemoteHostApis<HostConnection>;
+  /** @internal */
+  protected getLocalMethods() {
+    return {
+      emit: (...args: Parameters<typeof this.emit>) => {
+        this.debugLogger.log(`Event "${args[0]}" emitted from host`);
+        this.emit(...args);
+      },
+    };
+  }
+  /**
+   * Accept a connection from the Host.
+   * @returns A Promise that resolves when the Host has established a connection.
+   * @deprecated It is preferable to use {@link register} for primary frames,
+   * and {@link attach} for UI frames and other secondary frames, than to
+   * instantiate a Guest and then call `.connect()` on it. The latter style
+   * returns an object that cannot be used until it is connected, and therefore
+   * risks errors.
+   * @public
+   */
+  async connect() {
+    return this._connect();
+  }
+
+  /**
+   * @internal
+   */
+  async _connect() {
+    this.emit("beforeconnect", { guest: this });
+    try {
+      const connection = connectToParent<HostConnection<Incoming>>({
+        timeout: this.timeout,
+        methods: this.getLocalMethods(),
+      });
+
+      this.hostConnectionPromise = connection.promise;
+      this.hostConnection = await this.hostConnectionPromise;
+      this.sharedContext = new SharedContext(
+        await this.hostConnection.getSharedContext()
+      );
+      this.debugLogger.log("retrieved sharedContext", this.sharedContext);
+      this.emit("connected", { guest: this, connection });
+    } catch (e) {
+      this.emit("error", { guest: this, error: e });
+      this.debugLogger.error("Connection failed!", e);
+    }
+  }
+}

@@ -1,16 +1,70 @@
 import type {
+  Emits,
   GuestConnection,
-  GuestMethods,
-  RequiredMethodsByName,
-  RemoteApis,
   HostMethodAddress,
   NamedEvent,
-  Emits,
-  UIGuestPositioning,
+  RemoteHostApis,
+  GuestApis,
   Unsubscriber,
 } from "@adobe/uix-core";
 import { Emitter } from "@adobe/uix-core";
 import { Connection, connectToChild, Methods } from "penpal";
+
+/**
+ * A specifier for methods to be expected on a remote interface.
+ *
+ * @remarks
+ * A CapabilitySpec is a description of an interface, like a very simplified
+ * type definition. It specifies an object structure and the paths in that
+ * structure that must be functions. (It doesn't specify anything about the
+ * signatures or return values of those functions.)
+ *
+ * Use CapabilitySpec objects as queries, or filters, to get a subset of
+ * installed extensions which have registered methods which match the spec.
+ *
+ * @example
+ * As an extensible app developer, you are making an extension point for spell
+ * check. Your code expects extensions to register an API `spellCheck` with
+ * methods called `spellCheck.correct(text)` and `spellCheck.suggest(text)`.
+ *
+ * ```javascript
+ * async function correctText(text) {
+ *   const spellCheckers = host.getLoadedGuests({
+ *     spellCheck: [
+ *       'correct',
+ *       'suggest'
+ *     ]
+ *   });
+ *   let correcting = text;
+ *   for (const checker of spellCheckers) {
+ *     correcting = await checker.apis.spellCheck.correct(correcting);
+ *   }
+ *   return Promise.all(checkers.map(checker =>
+ *     checker.apis.spellCheck.suggest(correcting)
+ *   ));
+ * }
+ * ```
+ *
+ * @public
+ */
+export type CapabilitySpec<T extends GuestApis> = {
+  [Name in keyof T]: (keyof T[Name])[];
+};
+
+/**
+ * Interface for decoupling of guest Penpal object
+ * @internal
+ */
+interface GuestProxyWrapper {
+  /**
+   * Methods from guest
+   */
+  apis: RemoteHostApis;
+  /**
+   * Emit an event in the guest frame
+   */
+  emit(type: string, detail: unknown): Promise<void>;
+}
 
 /** @public */
 type PortEvent<
@@ -36,7 +90,13 @@ export type PortEvents<
 
 /** @public */
 export type PortOptions = {
+  /**
+   * Time in milliseconds to wait for the guest to connect before throwing.
+   */
   timeout?: number;
+  /**
+   * Set true to log copiously in the console.
+   */
   debug?: boolean;
 };
 
@@ -46,35 +106,70 @@ const defaultOptions = {
 };
 
 /**
- * TODO: document Port
+ * A Port is the Host-maintained  object representing an extension running as a
+ * guest. It exposes methods registered by the Guest, and can provide Host
+ * methods back to the guest.
+ *
+ * @remarks
+ * When the Host object loads extensions via {@link Host.load}, it creates a
+ * Port object for each extension. When retrieving and filtering extensions
+ * via {@link Host.(getLoadedGuests:2)}, a list of Port objects is returned. From
+ * the point of view of the extensible app using the Host object, extensions
+ * are always Port objects, which expose the methods registered by the
+ * extension at the {@link Port.apis} property.
+ *
+ * @privateRemarks
+ * We've gone through several possible names for this object. GuestProxy,
+ * GuestInterface, GuestConnection, etc. "Port" is not ideal, but it conflicted
+ * the least with other types we defined in early drafts. It's definitely
+ * something we should review.
  * @public
  */
 export class Port<GuestApi>
   extends Emitter<PortEvents<GuestApi>>
   implements GuestConnection
 {
-  // #region Properties (16)
+  // #region Properties (15)
 
+  private connection: Connection<RemoteHostApis<GuestApi>>;
   private debug: boolean;
   private debugLogger?: Console;
-  private guest: GuestMethods;
-  private hostApis: RemoteApis = {};
+  private frame: HTMLIFrameElement;
+  private guest: GuestProxyWrapper;
+  private hostApis: RemoteHostApis = {};
   private isLoaded = false;
   private runtimeContainer: HTMLElement;
   private sharedContext: Record<string, unknown>;
   private subscriptions: Unsubscriber[] = [];
   private timeout: number;
 
-  public apis: RemoteApis;
-  public connection: Connection<RemoteApis<GuestApi>>;
+  /**
+   * Dictionary of namespaced methods that were registered by this guest at the
+   * time of connection, using {@link @adobe/uix-guest#register}.
+   *
+   * @remarks
+   * These methods are proxy methods; you can only pass serializable objects to
+   * them, not class instances, methods or callbacks.
+   * @public
+   */
+  public apis: RemoteHostApis;
+  /**
+   * If any errors occurred during the loading of guests, this property will
+   * contain the error that was raised.
+   * @public
+   */
   error?: Error;
-  public frame: HTMLIFrameElement;
-  public owner: string;
-  public uiConnections: Map<string, Connection<RemoteApis<GuestApi>>> =
+  private uiConnections: Map<string, Connection<RemoteHostApis<GuestApi>>> =
     new Map();
-  public url: URL;
+  /**
+   * The URL of the guest provided by the extension registry. The Host will
+   * load this URL in the background, in the invisible the bootstrap frame, so
+   * this URL must point to a page that calls {@link @adobe/uix-guest#register}
+   * when it loads.
+   */
+  url: URL;
 
-  // #endregion Properties (16)
+  // #endregion Properties (15)
 
   // #region Constructors (1)
 
@@ -82,9 +177,17 @@ export class Port<GuestApi>
     owner: string;
     id: string;
     url: URL;
+    /**
+     * An alternate DOM element to use for invisible iframes. Will create its
+     * own if this option is not populated with a DOM element.
+     */
     runtimeContainer: HTMLElement;
     options: PortOptions;
     debugLogger?: Console;
+    /**
+     * Initial object to populate the shared context with. Once the guest
+     * connects, it will be able to access these properties.
+     */
     sharedContext: Record<string, unknown>;
     events: Emits;
   }) {
@@ -93,7 +196,6 @@ export class Port<GuestApi>
     this.timeout = timeout;
     this.debug = debug;
     this.id = config.id;
-    this.owner = config.owner;
     this.url = config.url;
     this.runtimeContainer = config.runtimeContainer;
     this.sharedContext = config.sharedContext;
@@ -112,6 +214,10 @@ export class Port<GuestApi>
 
   // #region Public Methods (6)
 
+  /**
+   * Connect an iframe element which is displaying another page in the extension
+   * with the extension's bootstrap frame, so they can share context and events.
+   */
   public attachUI(iframe: HTMLIFrameElement) {
     const uniqueId = Math.random().toString(36);
     const uiConnection = this.attachFrame(iframe);
@@ -119,7 +225,13 @@ export class Port<GuestApi>
     return uiConnection;
   }
 
-  public hasCapabilities(requiredMethods: RequiredMethodsByName<GuestApi>) {
+  /**
+   * Returns true if the guest has registered methods matching the provided
+   * capability spec. A capability spec is simply an object whose properties are
+   * declared in an array of keys, description the names of the functions and
+   * methods that the Port will expose.
+   */
+  public hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>) {
     this.assertReady();
     return Object.keys(requiredMethods).every((key) => {
       if (!Reflect.has(this.apis, key)) {
@@ -137,10 +249,17 @@ export class Port<GuestApi>
     });
   }
 
+  /**
+   * True when al extensions have loaded.
+   */
   public isReady(): boolean {
     return this.isLoaded && !this.error;
   }
 
+  /**
+   * Loads the extension. Returns a promise which resolves when the extension
+   * has loaded. The Host calls this method after retrieving extensions.
+   */
   public async load() {
     try {
       if (!this.apis) {
@@ -155,11 +274,18 @@ export class Port<GuestApi>
     }
   }
 
-  public provide(apis: RemoteApis) {
+  /**
+   * The host-side equivalent of {@link @adobe/uix-guest#register}. Pass a set
+   * of methods down to the guest as proxies.
+   */
+  public provide(apis: RemoteHostApis) {
     Object.assign(this.hostApis, apis);
     this.emit("hostprovide", { guestPort: this, apis });
   }
 
+  /**
+   * Disconnect from the extension.
+   */
   public async unload(): Promise<void> {
     if (this.connection) {
       await this.connection.destroy();
@@ -176,7 +302,7 @@ export class Port<GuestApi>
 
   // #endregion Public Methods (6)
 
-  // #region Private Methods (5)
+  // #region Private Methods (6)
 
   private assert(
     condition: boolean,
@@ -194,7 +320,7 @@ export class Port<GuestApi>
   }
 
   private attachFrame(iframe: HTMLIFrameElement) {
-    return connectToChild<RemoteApis<GuestApi>>({
+    return connectToChild<RemoteHostApis<GuestApi>>({
       iframe,
       debug: this.debug,
       childOrigin: this.url.origin,
@@ -219,7 +345,8 @@ export class Port<GuestApi>
       );
     }
     this.connection = this.attachFrame(this.frame);
-    this.guest = (await this.connection.promise) as unknown as GuestMethods;
+    this.guest = (await this.connection
+      .promise) as unknown as GuestProxyWrapper;
     this.apis = this.guest.apis || {};
     this.isLoaded = true;
     if (this.debugLogger) {
@@ -231,17 +358,10 @@ export class Port<GuestApi>
     }
   }
 
-  private invokeHostMethod<T = unknown>({
-    name,
-    path,
-    args = [],
-  }: HostMethodAddress): T {
-    this.assert(name && typeof name === "string", () => "Method name required");
-    this.assert(
-      path.length > 0,
-      () =>
-        `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`
-    );
+  private getHostMethodCallee<T = unknown>(
+    { name, path }: HostMethodAddress,
+    methodSource: RemoteHostApis
+  ): Methods {
     const dots = (level: number) =>
       `uix.host.${path.slice(0, level).join(".")}`;
     const methodCallee = path.reduce((current, prop, level) => {
@@ -257,13 +377,35 @@ export class Port<GuestApi>
             level
           )}.${prop} is not an object; namespaces must be objects with methods`
       );
-      return next as RemoteApis<GuestApi>;
-    }, this.hostApis);
+      return next as RemoteHostApis<GuestApi>;
+    }, methodSource);
     this.assert(
       typeof methodCallee[name] === "function" &&
         Reflect.has(methodCallee, name),
       () => `"${dots(path.length - 1)}.${name}" is not a function`
     );
+    return methodCallee;
+  }
+
+  private invokeHostMethod<T = unknown>(
+    address: HostMethodAddress,
+    privateMethods?: RemoteHostApis
+  ): T {
+    const { name, path, args = [] } = address;
+    this.assert(name && typeof name === "string", () => "Method name required");
+    this.assert(
+      path.length > 0,
+      () =>
+        `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`
+    );
+    let methodCallee;
+    if (privateMethods) {
+      try {
+        methodCallee = this.getHostMethodCallee(address, privateMethods);
+      } catch (e) {
+        methodCallee = this.getHostMethodCallee(address, this.hostApis);
+      }
+    }
     const method = methodCallee[name] as (...args: unknown[]) => T;
     this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
     return method.apply(methodCallee, [
@@ -272,5 +414,5 @@ export class Port<GuestApi>
     ]) as T;
   }
 
-  // #endregion Private Methods (5)
+  // #endregion Private Methods (6)
 }

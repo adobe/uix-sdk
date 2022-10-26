@@ -1,11 +1,11 @@
 import type {
   Extension,
   GuestConnection,
-  RemoteApis,
   NamedEvent,
-  RequiredMethodsByName,
   Emits,
+  GuestApis,
 } from "@adobe/uix-core";
+import type { CapabilitySpec } from "./port.js";
 import { Emitter, quietConsole } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
@@ -21,32 +21,57 @@ export type HostEvent<
   Type extends string = string,
   Detail = Record<string, unknown>
 > = NamedEvent<Type, Detail & Record<string, unknown> & { host: Host }>;
+/** @public */
 type HostGuestEvent<Type extends string> = HostEvent<
   `guest${Type}`,
   { guest: GuestConnection }
 >;
 
+/**
+ * All guests requested by host have been loaded and connected.
+ * @public
+ */
 export type HostEventLoadAllGuests = HostEvent<
   "loadallguests",
   { failed: GuestConnection[]; loaded: GuestConnection[] }
 >;
 
+/**
+ * Shared context has been set or updated; all guests receive this event too.
+ * @public
+ */
+
+export type HostEventContextChange = HostEvent<
+  "contextchange",
+  { context: SharedContextValues }
+>;
+
+/**
+ * An error has occurred during loading or unloading of guests.
+ * @public
+ */
+export type HostEventError = HostEvent<"error", { error: Error }>;
+
 /** @public */
 export type HostEvents =
   | HostGuestEvent<"beforeload">
   | HostGuestEvent<"load">
-  | HostEventLoadAllGuests
   | HostEvent<"beforeunload">
-  | HostEvent<"contextchange", { context: SharedContext }>
   | HostEvent<"unload">
-  | HostEvent<"error", { error: Error }>;
+  | HostEventLoadAllGuests
+  | HostEventContextChange
+  | HostEventError;
 
 /** @public */
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 /** @public */
 export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
-type SharedContext = Record<string, unknown>;
+/**
+ * Values for shared context. Must be a plain object, serializable to JSON.
+ * @public
+ */
+export type SharedContextValues = Record<string, unknown>;
 
 /** @public */
 export interface HostConfig {
@@ -67,7 +92,7 @@ export interface HostConfig {
    */
   debug?: boolean;
   /**
-   * Default options to use for every guest guestPort.
+   * Default options to use for every guest Port.
    *
    * If `config.debug` is true, then the guest options will have `debug: true`
    * unless `debug: false` is explicitly passed in `guestOptions`.
@@ -77,19 +102,87 @@ export interface HostConfig {
    * A read-only dictionary of values that the host will supply to all the
    * guests.
    */
-  sharedContext?: SharedContext;
+  sharedContext?: SharedContextValues;
 }
 
+/**
+ * Callback to use to filter the list returned from {@link Host.(getLoadedGuests:2)}
+ * @public
+ */
 type GuestFilter = (item: GuestConnection) => boolean;
 
 const passAllGuests = () => true;
 
 /**
- * TODO: document Host
+ * Manager object for connecting to {@link @adobe/uix-guest#GuestServer |
+ * GuestServers} and {@link @adobe/uix-guest#GuestUI | GuestUIs}, providing and
+ * receiving their APIs, and providing them to the app for interacting with UI.
+ *
+ * @remarks
+ * The Host object is the main connection manager for all UIX Guests.
+ * Making an app extensible requires creating a Host object.
+ *
+ * The extensible app using the Hostis responsible for providing a list of
+ * extension references to the Host object. Use {@link
+ * createExtensionRegistryProvider} for that purpose. Once you have retrieved a
+ * list of extensions available to the host app, pass it to {@link Host.load}.
+ *
+ * When a Host creates a Guest, it must create an `<iframe>` element to contain
+ * the Guest's main {@link @adobe/uix-guest#GuestServer} runtime, which runs
+ * invisibly in the background. To do this, the Host creates a hidden container
+ * in the body of the document. It is a `<div>` element with the attribute
+ * `data-uix-guest-container`. Loaded GuestServers will be injected into this
+ * hidden element and removed as necessary. When {@link Host.unload} is called,
+ * the Host removes the hidden container from the document after unloading.
+ *
  * @public
  */
 export class Host extends Emitter<HostEvents> {
-  static containerStyle = {
+  /**
+   * {@inheritDoc HostEventLoadAllGuests}
+   * @eventProperty
+   */
+  public loadallguests: HostEventLoadAllGuests;
+
+  /**
+   * One guest has loaded.
+   * @eventProperty
+   */
+  public guestload: HostGuestEvent<"load">;
+
+  /**
+   * About to attempt to load and connect to a Guest.
+   * @eventProperty
+   */
+  public guestbeforeload: HostGuestEvent<"beforeload">;
+
+  /**
+   * About to unload a guest and remove its {@link @adobe/uix-guest#GuestServer}
+   * instance as well as all its {@link @adobe/uix-guest#GuestUI} instances.
+   * @eventProperty
+   */
+  public guestbeforeunload: HostGuestEvent<"beforeunload">;
+
+  /**
+   * Unloaded a guest and removed its {@link @adobe/uix-guest#GuestServer}
+   * instance as well as all its {@link @adobe/uix-guest#GuestUI} instances.
+   * @eventProperty
+   */
+  public guestunload: HostGuestEvent<"unload">;
+
+  /**
+   * {@inheritDoc HostEventContextChange}
+   * @eventProperty
+   */
+  public contextchange: HostEventContextChange;
+
+  /**
+   * {@inheritDoc HostEventError}
+   * @eventProperty
+   */
+  public error: HostEventError;
+
+  private static containerStyle = {
     position: "fixed",
     width: "1px",
     height: "1px",
@@ -98,15 +191,25 @@ export class Host extends Emitter<HostEvents> {
     top: 0,
     left: "-1px",
   };
+  /**
+   * Unique string identifying the Host object.
+   */
   hostName: string;
+  /**
+   * `true` if any extension in {@link Host.guests} has created a {@link
+   * @adobe/uix-guest#GuestServer}, but the Guest has not yet loaded.
+   */
   loading = false;
+  /**
+   * A Map of of the loaded guests.
+   */
   guests: PortMap = new Map();
   private cachedCapabilityLists: WeakMap<object, GuestConnection[]> =
     new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
   private debugLogger: Console = quietConsole;
-  private sharedContext: SharedContext;
+  private sharedContext: SharedContextValues;
   constructor(config: HostConfig) {
     super(config.hostName);
     const { guestOptions = {} } = config;
@@ -130,13 +233,13 @@ export class Host extends Emitter<HostEvents> {
    */
   getLoadedGuests(filter: GuestFilter): GuestConnection[];
   /**
-   * Return loaded guests which expose the provided capability spec object.
+   * Return loaded guests which expose the provided {@link CapabilitySpec}.
    */
-  getLoadedGuests<Apis extends RemoteApis>(
-    capabilities: RequiredMethodsByName<Apis>
+  getLoadedGuests<Apis extends GuestApis>(
+    capabilities: CapabilitySpec<Apis>
   ): GuestConnection[];
-  getLoadedGuests<Apis extends RemoteApis = never>(
-    filterOrCapabilities?: RequiredMethodsByName<Apis> | GuestFilter
+  getLoadedGuests<Apis extends GuestApis = never>(
+    filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter
   ): GuestConnection[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
@@ -150,10 +253,61 @@ export class Host extends Emitter<HostEvents> {
     }
     return result;
   }
-  shareContext(context: SharedContext): void;
-  shareContext(setter: (context: SharedContext) => SharedContext): void;
+  /**
+   * Set the object of shared values that all Guests can access via {@link @adobe/uix-guest#GuestServer.sharedContext}.
+   * This overwrites any previous object.
+   *
+   * @example Exposes `authToken` to all Guests. Guests can call `this.sharedContext.get('authToken')` to retrieve this value.
+   * ```javascript
+   * host.shareContext({
+   *   authToken: '82ba19b'
+   * });
+   * ```
+   *
+   * @example Overwrites the previous sharedContext, deleting `authToken` and providing `secret` and `auth` instead.
+   * ```javascript
+   * host.shareContext({
+   *   secret: 'squirrel',
+   *   auth: false
+   * });
+   * ```
+   */
+  shareContext(context: SharedContextValues): void;
+  /**
+   * Update the object of shared values that all Guests can access via {@link
+   * @adobe/uix-guest#GuestServer.sharedContext}. This method takes a callback
+   * which receives the previous context and may return an entirely new context,
+   * or new values merged with the old context.
+   *
+   * @remarks This callback pattern allows the shared context values to be
+   * mutable while the internal context object references are immutable, which
+   * is important for synchronizing. with guests.
+   *
+   * @example Overwrites a context object based on the previous one.
+   * ```javascript
+   * host.shareContext(oldContext => ({
+   *   counter: oldContext.counter + 1
+   * }))
+   * ```
+   *
+   * @example Updates a context while preserving other existing values.
+   * ```javascript
+   * host.shareContext(oldContext => ({
+   *   ...oldContext,
+   *   counter: oldContext.counter + 1
+   * }))
+   * ```
+   */
   shareContext(
-    setterOrContext: ((context: SharedContext) => SharedContext) | SharedContext
+    setter: (context: SharedContextValues) => SharedContextValues
+  ): void;
+  shareContext(
+    setter: (context: SharedContextValues) => SharedContextValues
+  ): void;
+  shareContext(
+    setterOrContext:
+      | ((context: SharedContextValues) => SharedContextValues)
+      | SharedContextValues
   ) {
     if (typeof setterOrContext === "function") {
       this.sharedContext = setterOrContext(this.sharedContext);
@@ -168,6 +322,10 @@ export class Host extends Emitter<HostEvents> {
   /**
    * Load extension into host application from provided extension description.
    * Returned promise resolves when all extensions are loaded and registered.
+   *
+   * @param extensions - List of extension descriptors. Normally, the Host should receive this value from an {@link ExtensionsProvider}.
+   * @param options - Custom options to be used as defaults for each {@link Port} object created for each guest.
+   * @returns Promise which resolves when all guests have been loaded.
    */
   async load(
     extensions: InstalledExtensions,
@@ -244,8 +402,8 @@ export class Host extends Emitter<HostEvents> {
     this.emit("guestload", { guest, host: this });
     return guest;
   }
-  private getLoadedGuestsWith<Apis extends RemoteApis>(
-    capabilities: RequiredMethodsByName<Apis>
+  private getLoadedGuestsWith<Apis extends GuestApis>(
+    capabilities: CapabilitySpec<Apis>
   ) {
     if (this.cachedCapabilityLists.has(capabilities)) {
       return this.cachedCapabilityLists.get(capabilities);
