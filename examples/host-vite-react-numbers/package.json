@@ -11,5 +11,6 @@
   },
   "dependencies": {
     "@adobe/uix-host-react": "*"
-  }
+  },
+  "license": "Apache-2.0"
 }

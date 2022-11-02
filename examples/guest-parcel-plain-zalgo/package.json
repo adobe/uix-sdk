@@ -13,5 +13,6 @@
     "@adobe/uix-guest": "*",
     "humanize-duration": "^3.27.2",
     "zalgo-js": "^1.0.0"
-  }
+  },
+  "license": "Apache-2.0"
 }
