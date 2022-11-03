@@ -25,8 +25,7 @@ import semver from "semver";
 const allowedReleaseTypes = ["major", "minor", "patch", "prerelease"];
 
 const artifactories = [
-  "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/",
-  "https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-release/",
+  "https://registry.npmjs.org"
 ];
 const mainBranchName = "main";
 

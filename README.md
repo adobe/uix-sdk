@@ -228,7 +228,6 @@ To customize the behavior of the release script, see [Release Script](#release-s
 
 - Node >= LTS Gallium (16)
 - NPM >= 7
-- **For publishing**: Access key for `https://artifactory.corp.adobe.com/artifactory/api/npm/npm-adobe-platform-release/`
 
 ### Repository Layout
 
