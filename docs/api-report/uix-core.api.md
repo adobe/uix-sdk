@@ -156,12 +156,12 @@ export type VirtualApi = Record<string, object | ((...args: unknown[]) => unknow
 
 // Warnings were encountered during analysis:
 //
-// src/debuglog.ts:18:3 - (ae-forgotten-export) The symbol "Style" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:24:3 - (ae-forgotten-export) The symbol "HexColor" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:33:7 - (ae-forgotten-export) The symbol "Layout" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:51:7 - (ae-forgotten-export) The symbol "Color" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:86:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:86:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
-// src/debuglog.ts:169:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:30:3 - (ae-forgotten-export) The symbol "Style" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:36:3 - (ae-forgotten-export) The symbol "HexColor" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:45:7 - (ae-forgotten-export) The symbol "Layout" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:63:7 - (ae-forgotten-export) The symbol "Color" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
+// src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
 
 ```

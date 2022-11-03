@@ -1,0 +1,38 @@
+name: on-push-publish-to-npm
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: "<newversion> | major | minor | patch | prerelease"
+        required: true
+        default: "patch"
+
+jobs:
+  publish:
+    if: github.repository == 'adobe/uix-sdk'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Install project dependencies
+        run: npm install
+      - name: Format code
+        run: npm run format
+      - name: Run linter
+        run: npm run lint
+      - name: Build packages
+        run: npm run build
+      - name: Test
+        run: npm run test
+      - name: Update documentation
+        run: npm run docs
+      - name: Collect reports
+        run: npm run report
+      - name: Publish SDK packages
+        run: node scripts/release.mjs ${{ github.event.inputs.level }} --no-git --no-publish --registry=https://registry.npmjs.org
+        env:
+          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
