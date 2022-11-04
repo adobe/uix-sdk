@@ -202,11 +202,6 @@ Continue the release manually.`);
   } catch (e) {
     throw new Error("Build failed, cannot proceed with release.");
   }
-  try {
-    await sh("npm", ["run", "-s", "docs"]);
-  } catch (e) {
-    throw new Error("Documentation update failed, cannot proceed with release.");
-  }
 
   if (options.noVersion) {
     logger.warn("Skipping version update.");
@@ -223,6 +218,12 @@ Continue the release manually.`);
       version = semver.inc(version, releaseType);
     }
     await updatePackageVersions(version, sdks, workingDir);
+  }
+
+  try {
+    await sh("npm", ["run", "-s", "docs"]);
+  } catch (e) {
+    throw new Error("Documentation update failed, cannot proceed with release.");
   }
 
   if (options.noVersion || options.noGit) {
