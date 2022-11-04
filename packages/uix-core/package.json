@@ -19,18 +19,18 @@
   "browserslist": [
     "> 0.2%, last 2 versions, not dead"
   ],
-  "bugs": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk/issues",
+  "bugs": "https://github.com/adobe/uix-sdk/issues",
   "files": [
     "README.md",
     "dist",
     "src",
     "tsconfig.json"
   ],
-  "homepage": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk",
+  "homepage": "https://github.com/adobe/uix-sdk",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk.git"
+    "url": "https://github.com/adobe/uix-sdk.git"
   },
   "sideEffects": false
 }

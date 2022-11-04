@@ -68,7 +68,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk.git"
+    "url": "https://github.com/adobe/uix-sdk.git"
   },
   "workspaces": [
     "packages/*",

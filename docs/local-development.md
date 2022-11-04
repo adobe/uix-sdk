@@ -2,7 +2,7 @@
 
 In case you would like to introduce changes to UIX SDK during integration with a service you will need:
 1. Local source code copy of service you integrate with UIX
-2. Local copy of [UIX SDK monorepo](https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk)
+2. Local copy of [UIX SDK monorepo](https://github.com/adobe/uix-sdk)
 3. [Yalc](https://www.npmjs.com/package/yalc)
 
 To use a local copy of SDK packages:
