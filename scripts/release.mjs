@@ -75,7 +75,7 @@ async function updatePackageJson(dir, updates) {
   for (const [prop, value] of Object.entries(updates)) {
     pkg[prop] = value;
   }
-  await writeFile(pkgPath, JSON.stringify(pkg, null, 2), "utf-8");
+  await writeFile(pkgPath, `$(JSON.stringify(pkg, null, 2)\n`, "utf-8");
 }
 
 async function updatePackageVersions(version, sdks, workingDir) {
@@ -201,6 +201,11 @@ Continue the release manually.`);
     await sh("npm", ["run", "-s", "build:production"]);
   } catch (e) {
     throw new Error("Build failed, cannot proceed with release.");
+  }
+  try {
+    await sh("npm", ["run", "-s", "docs"]);
+  } catch (e) {
+    throw new Error("Documentation update failed, cannot proceed with release.");
   }
 
   if (options.noVersion) {

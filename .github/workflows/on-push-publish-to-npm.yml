@@ -22,18 +22,8 @@ jobs:
           node-version: 16
       - name: Install project dependencies
         run: npm install
-      - name: Format code
-        run: npm run format
-      - name: Run linter
-        run: npm run lint
-      - name: Build packages
-        run: npm run build
       - name: Test
         run: npm run test
-      - name: Update documentation
-        run: npm run docs
-      - name: Collect reports
-        run: npm run report
       - name: Publish SDK packages
         run: node scripts/release.mjs ${{ github.event.inputs.level }}
         env:
