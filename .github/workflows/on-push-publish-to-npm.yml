@@ -35,6 +35,6 @@ jobs:
       - name: Collect reports
         run: npm run report
       - name: Publish SDK packages
-        run: node scripts/release.mjs ${{ github.event.inputs.level }} --no-version --no-git --registry=https://registry.npmjs.org
+        run: node scripts/release.mjs ${{ github.event.inputs.level }}
         env:
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
