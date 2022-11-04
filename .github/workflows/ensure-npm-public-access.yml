@@ -1,4 +1,4 @@
-name: on-push-publish-to-npm
+name: ensure-npm-public-access
 on:
   workflow_dispatch:
 
