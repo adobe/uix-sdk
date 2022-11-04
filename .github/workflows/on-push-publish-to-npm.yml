@@ -12,8 +12,10 @@ jobs:
     if: github.repository == 'adobe/uix-sdk'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
+      - name: Setup git user
+        uses: fregante/setup-git-user@v1
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
