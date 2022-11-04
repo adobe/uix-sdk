@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-core",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Internal utilities for the UIX SDK",
   "author": "Adobe, Inc,",
   "type": "module",

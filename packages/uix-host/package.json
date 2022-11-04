@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Tools for embedding UIX Extensions into Adobe apps",
   "author": "Adobe, Inc,",
   "type": "module",
@@ -20,7 +20,7 @@
   ],
   "bugs": "https://git.corp.adobe.com/dx-devex-acceleration/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.6.2",
+    "@adobe/uix-core": "^0.6.3",
     "penpal": "~6.2.2"
   },
   "files": [
