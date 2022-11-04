@@ -14,9 +14,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup git user
+      - name: Set up git user
         uses: fregante/setup-git-user@v1
-      - name: Setup Node
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -35,6 +35,6 @@ jobs:
       - name: Collect reports
         run: npm run report
       - name: Publish SDK packages
-        run: node scripts/release.mjs ${{ github.event.inputs.level }} --registry=https://registry.npmjs.org
+        run: node scripts/release.mjs ${{ github.event.inputs.level }} --no-version --no-git --registry=https://registry.npmjs.org
         env:
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
