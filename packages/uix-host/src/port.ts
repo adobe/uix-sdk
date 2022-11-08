@@ -18,9 +18,9 @@ import type {
   RemoteHostApis,
   GuestApis,
   Unsubscriber,
+  VirtualApi,
 } from "@adobe/uix-core";
-import { Emitter } from "@adobe/uix-core";
-import { Connection, connectToChild, Methods } from "penpal";
+import { Emitter, phantogram } from "@adobe/uix-core";
 
 /**
  * A specifier for methods to be expected on a remote interface.
@@ -68,14 +68,23 @@ export type CapabilitySpec<T extends GuestApis> = {
  * @internal
  */
 interface GuestProxyWrapper {
+  // #region Properties (1)
+
   /**
    * Methods from guest
    */
   apis: RemoteHostApis;
+
+  // #endregion Properties (1)
+
+  // #region Public Methods (1)
+
   /**
    * Emit an event in the guest frame
    */
   emit(type: string, detail: unknown): Promise<void>;
+
+  // #endregion Public Methods (1)
 }
 
 /** @public */
@@ -141,11 +150,10 @@ export class Port<GuestApi>
   extends Emitter<PortEvents<GuestApi>>
   implements GuestConnection
 {
-  // #region Properties (15)
+  // #region Properties (13)
 
-  private connection: Connection<RemoteHostApis<GuestApi>>;
   private debug: boolean;
-  private debugLogger?: Console;
+  private logger?: Console;
   private frame: HTMLIFrameElement;
   private guest: GuestProxyWrapper;
   private hostApis: RemoteHostApis = {};
@@ -171,17 +179,15 @@ export class Port<GuestApi>
    * @public
    */
   error?: Error;
-  private uiConnections: Map<string, Connection<RemoteHostApis<GuestApi>>> =
-    new Map();
   /**
    * The URL of the guest provided by the extension registry. The Host will
    * load this URL in the background, in the invisible the bootstrap frame, so
    * this URL must point to a page that calls {@link @adobe/uix-guest#register}
    * when it loads.
    */
-  url: URL;
+  public url: URL;
 
-  // #endregion Properties (15)
+  // #endregion Properties (13)
 
   // #region Constructors (1)
 
@@ -195,7 +201,7 @@ export class Port<GuestApi>
      */
     runtimeContainer: HTMLElement;
     options: PortOptions;
-    debugLogger?: Console;
+    logger?: Console;
     /**
      * Initial object to populate the shared context with. Once the guest
      * connects, it will be able to access these properties.
@@ -231,10 +237,7 @@ export class Port<GuestApi>
    * with the extension's bootstrap frame, so they can share context and events.
    */
   public attachUI(iframe: HTMLIFrameElement) {
-    const uniqueId = Math.random().toString(36);
-    const uiConnection = this.attachFrame(iframe);
-    this.uiConnections.set(uniqueId, uiConnection);
-    return uiConnection;
+    return this.attachFrame(iframe);
   }
 
   /**
@@ -299,12 +302,6 @@ export class Port<GuestApi>
    * Disconnect from the extension.
    */
   public async unload(): Promise<void> {
-    if (this.connection) {
-      await this.connection.destroy();
-    }
-    for (const connection of this.uiConnections.values()) {
-      await connection.destroy();
-    }
     if (this.frame && this.frame.parentElement) {
       this.frame.parentElement.removeChild(this.frame);
       this.frame = undefined;
@@ -332,17 +329,22 @@ export class Port<GuestApi>
   }
 
   private attachFrame(iframe: HTMLIFrameElement) {
-    return connectToChild<RemoteHostApis<GuestApi>>({
-      iframe,
-      debug: this.debug,
-      childOrigin: this.url.origin,
-      timeout: this.timeout,
-      methods: {
-        getSharedContext: () => this.sharedContext,
-        invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address),
-      },
-    });
+    return {
+      promise: phantogram<GuestProxyWrapper>(
+        {
+          key: this.id,
+          remote: iframe,
+          targetOrigin: "*",
+          timeout: this.timeout,
+        },
+        {
+          getSharedContext: () => this.sharedContext,
+          invokeHostMethod: (address: HostMethodAddress) =>
+            this.invokeHostMethod(address),
+        }
+      ) as Promise<GuestProxyWrapper>,
+      destroy() {},
+    };
   }
 
   private async connect() {
@@ -350,19 +352,18 @@ export class Port<GuestApi>
     this.frame.setAttribute("src", this.url.href);
     this.frame.setAttribute("data-uix-guest", "true");
     this.runtimeContainer.appendChild(this.frame);
-    if (this.debugLogger) {
-      this.debugLogger.info(
+    if (this.logger) {
+      this.logger.info(
         `Guest ${this.id} attached iframe of ${this.url.href}`,
         this
       );
     }
-    this.connection = this.attachFrame(this.frame);
-    this.guest = (await this.connection
-      .promise) as unknown as GuestProxyWrapper;
+    const { promise } = this.attachFrame(this.frame);
+    this.guest = await promise;
     this.apis = this.guest.apis || {};
     this.isLoaded = true;
-    if (this.debugLogger) {
-      this.debugLogger.info(
+    if (this.logger) {
+      this.logger.info(
         `Guest ${this.id} established connection, received methods`,
         this.apis,
         this
@@ -373,7 +374,7 @@ export class Port<GuestApi>
   private getHostMethodCallee<T = unknown>(
     { name, path }: HostMethodAddress,
     methodSource: RemoteHostApis
-  ): Methods {
+  ): RemoteHostApis<VirtualApi> {
     const dots = (level: number) =>
       `uix.host.${path.slice(0, level).join(".")}`;
     const methodCallee = path.reduce((current, prop, level) => {
@@ -415,7 +416,7 @@ export class Port<GuestApi>
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
       } catch (e) {
-        this.debugLogger.warn("Private method not found!", address);
+        this.logger.warn("Private method not found!", address);
       }
     }
     if (!methodCallee) {

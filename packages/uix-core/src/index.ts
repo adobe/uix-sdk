@@ -21,3 +21,4 @@ export * from "./emitter";
 export * from "./namespace-proxy";
 export * from "./timeout-promise";
 export * from "./types";
+export * from "./phantogram";

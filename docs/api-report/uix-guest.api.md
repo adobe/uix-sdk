@@ -4,8 +4,6 @@
 
 ```ts
 
-import { CallSender } from 'penpal';
-import { Connection } from 'penpal';
 import { Emitter } from '@adobe/uix-core';
 import { GuestApis } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
@@ -54,10 +52,6 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
         }) | (Record<string, unknown> & {
             guest: Guest<VirtualApi>;
         }) | ({
-            connection: Connection<CallSender>;
-        } & Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
-        }) | ({
             error: Error;
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
@@ -65,6 +59,8 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     };
     // @public
     host: RemoteHostApis<Incoming>;
+    // (undocumented)
+    logger: Console;
     // Warning: (ae-forgotten-export) The symbol "SharedContext" needs to be exported by the entry point index.d.ts
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "SharedContext"
     //
@@ -86,10 +82,6 @@ class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
         }) | (Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
-        }) | ({
-            connection: Connection<CallSender>;
-        } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
         }) | ({
             error: Error;

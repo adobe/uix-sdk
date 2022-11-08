@@ -8,9 +8,7 @@
 <b>Signature:</b>
 
 ```typescript
-export declare type GuestEventConnected = GuestEvent<"connected", {
-    connection: Connection;
-}>;
+export declare type GuestEventConnected = GuestEvent<"connected">;
 ```
 <b>References:</b> [GuestEvent](./uix-guest.guestevent.md)
 

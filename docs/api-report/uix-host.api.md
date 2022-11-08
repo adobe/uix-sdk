@@ -4,7 +4,6 @@
 
 ```ts
 
-import { Connection } from 'penpal';
 import type { Emits } from '@adobe/uix-core';
 import { Emitter } from '@adobe/uix-core';
 import type { Extension } from '@adobe/uix-core';
@@ -13,7 +12,7 @@ import type { GuestConnection } from '@adobe/uix-core';
 import type { HostMethodAddress } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
-import { VirtualApi } from '@adobe/uix-core';
+import type { VirtualApi } from '@adobe/uix-core';
 
 // @public
 export type CapabilitySpec<T extends GuestApis> = {
@@ -143,12 +142,15 @@ export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements Gue
         url: URL;
         runtimeContainer: HTMLElement;
         options: PortOptions;
-        debugLogger?: Console;
+        logger?: Console;
         sharedContext: Record<string, unknown>;
         events: Emits;
     });
     apis: RemoteHostApis;
-    attachUI(iframe: HTMLIFrameElement): Connection<RemoteHostApis<GuestApi>>;
+    attachUI(iframe: HTMLIFrameElement): {
+        promise: Promise<GuestProxyWrapper>;
+        destroy(): void;
+    };
     error?: Error;
     hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
@@ -174,5 +176,9 @@ export type PortOptions = {
 
 // @public
 export type SharedContextValues = Record<string, unknown>;
+
+// Warnings were encountered during analysis:
+//
+// src/port.ts:240:14 - (ae-forgotten-export) The symbol "GuestProxyWrapper" needs to be exported by the entry point index.d.ts
 
 ```

@@ -9,9 +9,9 @@ Loads the extension. Returns a promise which resolves when the extension has loa
 <b>Signature:</b>
 
 ```typescript
-load(): Promise<RemoteHostApis<import("@adobe/uix-core").VirtualApi>>;
+load(): Promise<RemoteHostApis<VirtualApi>>;
 ```
 <b>Returns:</b>
 
-Promise&lt;RemoteHostApis&lt;import("@adobe/uix-core").VirtualApi&gt;&gt;
+Promise&lt;RemoteHostApis&lt;VirtualApi&gt;&gt;
 

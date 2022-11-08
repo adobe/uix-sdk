@@ -220,7 +220,7 @@ export class Host extends Emitter<HostEvents> {
     new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
-  private debugLogger: Console = quietConsole;
+  private logger: Console = quietConsole;
   private sharedContext: SharedContextValues;
   constructor(config: HostConfig) {
     super(config.hostName);
@@ -233,7 +233,7 @@ export class Host extends Emitter<HostEvents> {
     this.sharedContext = config.sharedContext || {};
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
-      this.debugLogger = debugHost(this);
+      this.logger = debugHost(this);
     }
   }
   /**
@@ -393,7 +393,7 @@ export class Host extends Emitter<HostEvents> {
           ...this.guestOptions,
           ...options,
         },
-        debugLogger: this.debugLogger,
+        logger: this.logger,
         sharedContext: this.sharedContext,
         events: this as Emits,
       });

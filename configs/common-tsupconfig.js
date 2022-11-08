@@ -19,7 +19,7 @@ const base = {
   target: "ES2020", // TODO: this is cool, right?
   replaceNodeEnv: true,
   legacyOutput: true,
-  treeshake: "recommended",
+  treeshake: "recommended"
 };
 
 const allowedModes = ["development", "production", "report"];

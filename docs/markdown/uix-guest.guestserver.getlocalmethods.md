@@ -16,10 +16,6 @@ protected getLocalMethods(): {
         }) | (Record<string, unknown> & {
             guest: Guest<import("@adobe/uix-core").VirtualApi>;
         }) | ({
-            connection: import("penpal").Connection<import("penpal").CallSender>;
-        } & Record<string, unknown> & {
-            guest: Guest<import("@adobe/uix-core").VirtualApi>;
-        }) | ({
             error: Error;
         } & Record<string, unknown> & {
             guest: Guest<import("@adobe/uix-core").VirtualApi>;
@@ -28,5 +24,5 @@ protected getLocalMethods(): {
 ```
 <b>Returns:</b>
 
-{ apis: Outgoing; emit: (type: "contextchange" \| "beforeconnect" \| "connected" \| "error", detail: ({ context: Record&lt;string, unknown&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| (Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| ({ connection: import("penpal").Connection&lt;import("penpal").CallSender&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| ({ error: Error; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; })) =&gt; void; }
+{ apis: Outgoing; emit: (type: "contextchange" \| "beforeconnect" \| "connected" \| "error", detail: ({ context: Record&lt;string, unknown&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| (Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| ({ error: Error; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; })) =&gt; void; }
 
