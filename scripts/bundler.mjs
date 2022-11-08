@@ -10,32 +10,26 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { spawnSync, execFileSync } from "child_process";
+import { spawnSync } from "child_process";
 import { resolve, basename } from "path";
 import { readdir, readFile } from "fs/promises";
 import chalk from "chalk";
 import figures from "figures";
 import { highlight } from "cli-highlight";
-import {
-  getWorkspaces,
-  logger,
-  runWithArg,
-  shResult,
-} from "./script-runner.mjs";
+import { getWorkspaces, logger, runWithArg, sh } from "./script-runner.mjs";
 
 const modes = ["development", "production", "report"];
 const outputDir = "dist";
 
 async function bundle(mode, argv) {
-  const jobs = [emitBundle(mode, argv)];
-  if (argv.declarations !== false && mode !== 'report') {
-    jobs.push(emitDeclarations());
+  if (argv.declarations !== false && mode !== "report") {
+    await emitDeclarations();
   }
-  await Promise.all(jobs);
+  await emitBundle(mode, argv);
 }
 
 async function emitDeclarations() {
-  await shResult("npm", ["run", "-s", "declarations:build"]);
+  await sh("npm", ["run", "-s", "declarations:build"]);
 }
 
 async function emitBundle(arguedMode, { silent }) {
