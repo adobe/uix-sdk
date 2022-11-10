@@ -10,6 +10,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export * from "./extension-registry.js";
-export * from "./composition.js";
-export * from "./mute.js";
+import {ExtensionsProvider} from "../host.js";
+
+/**
+ * Mute any errors produced by provider.
+ * This function would execute given provider and return its results as is, if any error occurs this provider will log it
+ * any return an empty array of extensions.
+ * @public
+ */
+export function mutedProvider(provider: ExtensionsProvider): ExtensionsProvider {
+    return async () => {
+      try {
+        return await provider()
+      } catch (error) {
+        console.error(`Extension provider has failed: ${error.message}`, {error})
+        return {};
+      }
+    }
+}
