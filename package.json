@@ -9,7 +9,7 @@
     "build": "npm run -s build:development",
     "build:development": "node scripts/bundler.mjs development",
     "build:production": "node scripts/bundler.mjs production",
-    "clean": "del {dist,*.tsbuildinfo,docs/temp,.parcel-cache,node_modules/.cache} {packages,examples}/*/{dist,*.tsbuildinfo,node_modules/.cache,.parcel-cache} packages/*/src/**/*.{d.ts,d.ts.map,js,js.map} && npm run -s any -- -s clean",
+    "clean": "del {dist,*.tsbuildinfo,docs/temp,.parcel-cache,node_modules/.cache} {packages,examples}/*/{dist,*.tsbuildinfo,node_modules/.cache,.parcel-cache,node_modules/.vite} packages/*/src/**/*.{d.ts,d.ts.map,js,js.map} && npm run -s any -- -s clean",
     "declarations:build": "tsc --build",
     "declarations:watch": "tsc --build tsconfig.json --watch",
     "demo": "npm run build:production -- --silent && npm run any example:build && node scripts/multi-server.mjs production",
