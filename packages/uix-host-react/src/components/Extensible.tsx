@@ -79,7 +79,7 @@ export function Extensible({
   debug,
   sharedContext,
 }: PropsWithChildren<ExtensibleProps>) {
-  const hostName = useMemo(() => appName || window.location.host || "mainframe", [appName]);
+  const hostName = appName || window.location.host || "mainframe";
 
   const [extensions, setExtensions] = useState({});
   useEffect(() => {
