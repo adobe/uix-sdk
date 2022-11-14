@@ -43,6 +43,17 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
   sharedContext?: SharedContextValues;
 }
 
+function areExtensionsDifferent(
+  set1: InstalledExtensions,
+  set2: InstalledExtensions
+) {
+  const ids1 = Object.keys(set1).sort();
+  const ids2 = Object.keys(set2).sort();
+  return (
+    ids1.length !== ids2.length || ids1.some((id, index) => id !== ids2[index])
+  );
+}
+
 /**
  * Declares an extensible area in an app, and provides host and extension
  * objects to all descendents. The {@link useExtensions} hook can only be called
@@ -73,8 +84,8 @@ export function Extensible({
   const [extensions, setExtensions] = useState({});
   useEffect(() => {
     extensionsProvider()
-      .then((loadedExtensions: InstalledExtensions) => {
-          setExtensions(loadedExtensions);
+      .then((loaded: InstalledExtensions) => {
+          setExtensions((prev) => areExtensionsDifferent(prev, loaded) ? loaded : prev);
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);
