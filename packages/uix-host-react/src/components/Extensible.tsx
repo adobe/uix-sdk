@@ -77,33 +77,22 @@ export function Extensible({
   guestOptions,
   runtimeContainer,
   debug,
-  sharedContext = {},
+  sharedContext,
 }: PropsWithChildren<ExtensibleProps>) {
-  const [extensions, setExtensions] = useState({});
+  const hostName = appName || window.location.host || "mainframe";
 
+  const [extensions, setExtensions] = useState({});
   useEffect(() => {
     extensionsProvider()
-      .then((loadedExtensions: InstalledExtensions) => {
-        if (areExtensionsDifferent(extensions, loadedExtensions)) {
-          setExtensions(loadedExtensions);
-        }
+      .then((loaded: InstalledExtensions) => {
+          setExtensions((prev) => areExtensionsDifferent(prev, loaded) ? loaded : prev);
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);
       });
   }, [extensionsProvider]);
 
-  const hostName = appName || window.location.host || "mainframe";
-  const host = useMemo(() => {
-    const host = new Host({
-      debug,
-      hostName,
-      runtimeContainer,
-      sharedContext,
-    });
-    return host;
-  }, [debug, hostName, runtimeContainer, sharedContext]);
-
+  const [host, setHost] = useState<Host>();
   useEffect(() => {
     function logError(msg: string) {
       return (e: Error | unknown) => {
@@ -111,6 +100,9 @@ export function Extensible({
         console.error(msg, error, extensions, guestOptions);
       };
     }
+
+    const host = new Host({debug, hostName, runtimeContainer, sharedContext});
+    setHost(host);
 
     if (!Object.entries(extensions).length) {
       return;
@@ -122,7 +114,12 @@ export function Extensible({
     return () => {
       host.unload().catch(logError("Unload of extensions failed!"));
     };
-  }, [host, extensions]);
+  }, [debug, hostName, runtimeContainer, sharedContext, extensions]);
+
+  // skip render before host is initialized
+  if (!host) {
+    return null;
+  }
 
   return (
     <ExtensionContext.Provider value={host}>
