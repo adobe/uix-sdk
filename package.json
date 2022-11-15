@@ -22,10 +22,11 @@
     "lint": "run-p lint:*",
     "lint:format": "prettier --check packages/*/src",
     "lint:pkg": "fixpack --dryRun; npx --ws -p fixpack -c 'fixpack --dryRun --quiet'",
+    "prepare": "husky install",
     "report": "run-s clean report:*",
     "report:api": "node scripts/generate-docs.mjs --no-markdown",
     "report:size": "node scripts/bundler.mjs report",
-    "test": "npm run any test"
+    "test": "run-s lint 'any -- test'"
   },
   "devDependencies": {
     "@adobe/react-spectrum": "^3.20.0",
@@ -48,6 +49,7 @@
     "figures": "^4.0.1",
     "fixpack": "^4.0.0",
     "humanize-duration": "^3.27.2",
+    "husky": "^8.0.0",
     "npm-run-all": "^4.1.5",
     "parcel": "^2.7.0",
     "penpal": "~6.2.2",
