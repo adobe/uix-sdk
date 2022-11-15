@@ -10,7 +10,6 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
-    "build:esm": "tsup --format esm,cjs",
     "watch": "tsup --watch --silent"
   },
   "browserslist": [
