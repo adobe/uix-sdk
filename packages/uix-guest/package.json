@@ -3,13 +3,8 @@
   "version": "0.6.4",
   "description": "Tools for connecting to UIX Host apps from extension apps",
   "author": "Adobe, Inc,",
-  "type": "module",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
-  "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/index.js"
-  },
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",

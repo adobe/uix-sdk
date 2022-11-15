@@ -3,13 +3,8 @@
   "version": "0.6.4",
   "description": "Tools for embedding UIX Extensions into Adobe apps",
   "author": "Adobe, Inc,",
-  "type": "module",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
-  "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/index.js"
-  },
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
