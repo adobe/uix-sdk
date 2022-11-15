@@ -415,8 +415,11 @@ export class Port<GuestApi>
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
       } catch (e) {
-        methodCallee = this.getHostMethodCallee(address, this.hostApis);
+        this.debugLogger.warn("Private method not found!", address);
       }
+    }
+    if (!methodCallee) {
+      methodCallee = this.getHostMethodCallee(address, this.hostApis);
     }
     const method = methodCallee[name] as (...args: unknown[]) => T;
     this.emit("beforecallhostmethod", { guestPort: this, name, path, args });

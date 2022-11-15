@@ -57,6 +57,9 @@ export const appReducer = (state, { type, payload }) => {
     }
     case "submit": {
       const [problem, theNumber] = whyBad(payload.suggestion);
+      if (state.theNumber === theNumber) {
+        return state;
+      }
       return {
         ...state,
         theNumber,
