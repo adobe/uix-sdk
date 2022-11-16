@@ -3,7 +3,6 @@
   "version": "0.6.4",
   "description": "Internal utilities for the UIX SDK",
   "author": "Adobe, Inc,",
-  "module": "dist/esm/index.js",
   "main": "dist/index.js",
   "browser": "dist/index.js",
   "types": "dist/index.d.ts",
