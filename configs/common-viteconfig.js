@@ -21,6 +21,14 @@ export default function commonExampleConfig() {
   const commonConfig = {
     logLevel: "warn",
     clearScreen: false,
+    resolve: {
+      alias: {
+        "@adobe/uix-core": "@adobe/uix-core/dist/esm/index.js",
+        "@adobe/uix-guest": "@adobe/uix-guest/dist/esm/index.js",
+        "@adobe/uix-host": "@adobe/uix-host/dist/esm/index.js",
+        "@adobe/uix-host-react": "@adobe/uix-host-react/dist/esm/index.js",
+      }
+    },
     optimizeDeps: {
       include: [...allSdks, "react"],
     },
