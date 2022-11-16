@@ -133,6 +133,9 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 
 // @public
+export function mutedProvider(provider: ExtensionsProvider): ExtensionsProvider;
+
+// @public
 export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements GuestConnection {
     constructor(config: {
         owner: string;

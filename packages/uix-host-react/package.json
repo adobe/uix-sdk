@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host-react",
-  "version": "0.6.4",
+  "version": "0.6.5-0",
   "description": "Tools for embedding UI Extensions into React apps",
   "author": "Adobe, Inc,",
   "type": "module",
@@ -20,8 +20,8 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.6.4",
-    "@adobe/uix-host": "^0.6.4",
+    "@adobe/uix-core": "^0.6.5-0",
+    "@adobe/uix-host": "^0.6.5-0",
     "penpal": "~6.2.2"
   },
   "files": [

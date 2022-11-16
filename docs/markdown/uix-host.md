@@ -67,6 +67,7 @@ A React binding is currently available. See [Extensible()](./uix-host-react.exte
 |  --- | --- |
 |  [combineExtensionsFromProviders(providers)](./uix-host.combineextensionsfromproviders.md) | Combine multiple [ExtensionsProvider](./uix-host.extensionsprovider.md) callbacks into a single callback, which aggregates and dedupes all extensions from all providers into one namespaced object. |
 |  [createExtensionRegistryProvider(config)](./uix-host.createextensionregistryprovider.md) | Create a callback that fetches extensions from the registry. |
+|  [mutedProvider(provider)](./uix-host.mutedprovider.md) | Mute any errors produced by provider. This function would execute given provider and return its results as is, if any error occurs this provider will log it any return an empty array of extensions. |
 
 ## Interfaces
 
