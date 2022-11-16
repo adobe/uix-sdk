@@ -85,7 +85,9 @@ export function Extensible({
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
-          setExtensions((prev) => areExtensionsDifferent(prev, loaded) ? loaded : prev);
+        setExtensions((prev) =>
+          areExtensionsDifferent(prev, loaded) ? loaded : prev
+        );
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);
@@ -101,7 +103,7 @@ export function Extensible({
       };
     }
 
-    const host = new Host({debug, hostName, runtimeContainer, sharedContext});
+    const host = new Host({ debug, hostName, runtimeContainer, sharedContext });
     setHost(host);
 
     if (!Object.entries(extensions).length) {

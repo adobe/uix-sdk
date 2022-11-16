@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import {ExtensionsProvider} from "../host.js";
+import { ExtensionsProvider } from "../host.js";
 
 /**
  * Mute any errors produced by provider.
@@ -18,13 +18,17 @@ import {ExtensionsProvider} from "../host.js";
  * any return an empty array of extensions.
  * @public
  */
-export function mutedProvider(provider: ExtensionsProvider): ExtensionsProvider {
-    return async () => {
-      try {
-        return await provider()
-      } catch (error) {
-        console.error(`Extension provider has failed: ${error.message}`, {error})
-        return {};
-      }
+export function mutedProvider(
+  provider: ExtensionsProvider
+): ExtensionsProvider {
+  return async () => {
+    try {
+      return await provider();
+    } catch (error) {
+      console.error(`Extension provider has failed: ${error.message}`, {
+        error,
+      });
+      return {};
     }
+  };
 }
