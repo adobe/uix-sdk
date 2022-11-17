@@ -14,7 +14,7 @@ governing permissions and limitations under the License.
 const base = {
   entry: ["src/index.ts"], // will be relative to the directory that uses it
   tsconfig: "./tsconfig.json", // see above
-  format: ["esm", "cjs"],
+  format: ["cjs"],
   platform: "browser",
   target: "ES2020", // TODO: this is cool, right?
   replaceNodeEnv: true,

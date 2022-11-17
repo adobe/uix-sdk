@@ -3,16 +3,11 @@
   "version": "0.6.5-0",
   "description": "Tools for embedding UI Extensions into React apps",
   "author": "Adobe, Inc,",
-  "type": "module",
-  "module": "dist/esm/index.js",
   "main": "dist/index.js",
-  "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/index.js"
-  },
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup",
+    "build:esm": "tsup --format esm,cjs",
     "watch": "tsup --watch --silent"
   },
   "browserslist": [

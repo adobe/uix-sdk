@@ -22,8 +22,8 @@ const modes = ["development", "production", "report"];
 const outputDir = "dist";
 
 async function bundle(mode, argv) {
-  if (argv.declarations !== false && mode !== "report") {
-    await emitDeclarations();
+  if (argv.declarations !== false && mode !== "report" && !argv.esm) {
+    await emitDeclarations(mode, argv);
   }
   await emitBundle(mode, argv);
 }
@@ -32,18 +32,23 @@ async function emitDeclarations() {
   await sh("npm", ["run", "-s", "declarations:build"]);
 }
 
-async function emitBundle(arguedMode, { silent }) {
+async function emitBundle(arguedMode, { silent, esm }) {
   const reportMode = arguedMode === "report";
   const mode = arguedMode === "development" ? arguedMode : "production";
   const sdks = await getWorkspaces("packages");
   const completed = [];
   let failed;
+  if (esm) {
+    logger.warn
+      .hl`${"esm"} option passed, will build ES Modules as well. DO NOT publish the SDKs before rebuilding.`;
+  }
   if (!silent)
     logger.log.hl`Building ${sdks.length} packages in ${
       arguedMode || mode
     } mode:`;
   for (const { cwd, pkg } of sdks) {
-    let spawnArgs = ["run", "-s", "-w", pkg.name, "build"];
+    const buildScriptName = esm ? "build:esm" : "build";
+    let spawnArgs = ["run", "-w", pkg.name, buildScriptName];
     if (reportMode) process.stderr.write(`${basename(cwd)}...`);
     if (
       spawnSync("npm", spawnArgs, {
