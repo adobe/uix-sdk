@@ -7,7 +7,7 @@
     "clean": "del dist",
     "example:build": "parcel build src/index.html",
     "example:development": "parcel -p $MULTI_SERVER_PORT src/index.html",
-    "example:production": "serve -p $MULTI_SERVER_PORT dist"
+    "example:production": "node ../../scripts/serve.mjs --quiet"
   },
   "dependencies": {
     "@adobe/uix-guest": "*",

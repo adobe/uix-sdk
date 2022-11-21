@@ -1,8 +1,8 @@
 {
-  "name": "guest-nobuild-plain-hypatia",
+  "name": "guest-phantogram",
   "private": "true",
   "version": "0.0.1",
-  "description": "Hypatia",
+  "description": "Phantogram Guest",
   "scripts": {
     "example:development": "node ../../scripts/serve.mjs",
     "example:production": "node ../../scripts/serve.mjs --quiet"

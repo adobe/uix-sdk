@@ -8,18 +8,10 @@
       rel="icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hypatia: Plain App</title>
-  <script>
-    const statereport = setInterval(() => {
-      console.log("%s readystate %s", document.title, document.readyState);
-      if (document.readyState === "complete") {
-        clearInterval(statereport);
-      }
-    }, 50);
-  </script>
   </head>
   <body>
     <div id="app"></div>
-    <script src="/dist/iife/index.js"></script>
+    <script src="/@adobe/uix-guest/iife/index.js"></script>
     <script src="/main.js"></script>
   </body>
 </html>

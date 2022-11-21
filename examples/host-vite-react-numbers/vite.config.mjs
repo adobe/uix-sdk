@@ -12,10 +12,10 @@ governing permissions and limitations under the License.
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import commonExampleConfig from "../../configs/common-viteconfig";
+import commonExampleConfig from "../../configs/common-viteconfig.js";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(async () => ({
   plugins: [react()],
-  ...commonExampleConfig(),
-});
+  ...(await commonExampleConfig()),
+}));

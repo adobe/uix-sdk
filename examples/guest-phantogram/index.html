@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- blank favicon to avoid the 404 in console-->
+    <link
+      href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
+      rel="icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phantogram Guest</title>
+
+  <style>
+    * {
+      --fg: #504945;
+      --bg: #fbf1c7;
+      --hl: #af3a03;
+    }
+  </style>
+  <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <div class="controls">
+      <label for="iterations">Iterations</label>
+      <input id="iterations" value="10000" />
+      <p id="status">waiting...</p>
+    </div>
+    <main>
+      <h2>inner app interface</h2>
+      <pre><code id="interface"></code></pre>
+    </main>
+    <script type="module">
+      import { phantogram } from "/@adobe/uix-core/esm";
+      import { instrument } from "/instruments.js"
+      let total;
+const { app: outerApp, getStats } = await instrument("inner", (print) =>
+phantogram({ remote: window.parent }, {
+  async start() {
+    total = Number(document.getElementById('iterations').value);
+    performance.mark('benchmark');
+    await outerApp.benchmark(total);
+  },
+  async lap(ms) {
+    const status = `outer app done in ${ms / 1000}s`
+    print(status);
+    console.log('inner perf', performance.measure('benchmark', 'benchmark'));
+    document.getElementById('status').innerText = 'connected!'
+  },
+  async runThisIncrementer(incrementer) {
+    try {
+     const num = await incrementer(function returnOne() { return 1; });
+     if (num % 500 === 0) {
+      print('reporting progress at count %s', num);
+      await outerApp.report(function progressReport() { return (100 - 100 * (num / total)).toFixed(2); });
+     }
+    } catch (e) {
+      print('and it failed!', e);
+    }
+  }
+}));
+  document.getElementById('status').innerText = 'connected!'
+    </script>
+  </body>
+</html>

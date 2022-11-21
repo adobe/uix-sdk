@@ -1,0 +1,50 @@
+html, body {
+  font-size: 14pt;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6rem;
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+label, input, button, p {
+  font-size: 14pt;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.4rem;
+  padding: 0.5rem;
+}
+
+main {
+  max-width: 50rem;
+  padding: 1rem;
+}
+
+pre {
+  color: var(--hl);
+}
+
+.controls {
+  float: right;
+  padding: 1rem;
+  font-size: 0.7rem;
+}
+
+#inner-app {
+  width: 90vw;
+  height: 45vh;
+}
+
+#start {
+  width: 15rem;
+  border-style: inset;
+  border-radius: 15px;
+  --pct: 0%;
+  background: linear-gradient(90deg, var(--hl) var(--pct), var(--fg) calc(var(--pct) + 1px));
+  color: var(--bg);
+  cursor: pointer;
+}
+
+#status {
+  float: right;
+}
+

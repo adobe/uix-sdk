@@ -1,14 +1,14 @@
 {
-  "name": "guest-nobuild-plain-hypatia",
+  "name": "host-phantogram",
   "private": "true",
   "version": "0.0.1",
-  "description": "Hypatia",
+  "description": "Phantogram Host",
   "scripts": {
     "example:development": "node ../../scripts/serve.mjs",
     "example:production": "node ../../scripts/serve.mjs --quiet"
   },
   "dependencies": {
-    "@adobe/uix-guest": "*"
+    "@adobe/uix-host": "*"
   },
   "license": "Apache-2.0"
 }
