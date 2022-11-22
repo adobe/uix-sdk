@@ -1,6 +1,9 @@
 {
   "name": "@adobe/uix-core",
   "version": "0.6.5-1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Internal utilities for the UIX SDK",
   "author": "Adobe, Inc,",
   "main": "dist/index.js",
