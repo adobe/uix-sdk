@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+if ! npm run lint; then
+  echo 'Cannot push branch until code is formatted. To reformat the previous commit, run:'
+  echo '  npm run format && git add . && git commit --amend --no-edit'
+  exit 1
+fi
