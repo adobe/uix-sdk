@@ -22,9 +22,12 @@ jobs:
           node-version: 16
       - name: Install project dependencies
         run: npm install
+      - name: Lint
+        run: npm run lint
       - name: Test
         run: npm run test
       - name: Publish SDK packages
         run: node scripts/release.mjs ${{ github.event.inputs.level }}
         env:
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
