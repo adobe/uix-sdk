@@ -1,6 +1,9 @@
 {
   "name": "@adobe/uix-host-react",
   "version": "0.6.5-1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Tools for embedding UI Extensions into React apps",
   "author": "Adobe, Inc,",
   "main": "dist/index.js",
