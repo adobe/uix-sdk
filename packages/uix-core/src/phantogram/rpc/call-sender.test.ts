@@ -1,11 +1,10 @@
-import { DataEmitter } from "../emitters/data-emitter";
 import { RemoteSubject } from "../remote-subject";
 import { makeCallSender } from "./call-sender";
 import { ObjectSimulator } from "../object-simulator";
 import { FakeFinalizationRegistry } from "../__mocks__/mock-finalization-registry";
 import { FakeWeakRef } from "../__mocks__/mock-weak-ref";
 import { wait } from "../promises/wait";
-import { EventEmitter } from "eventemitter3";
+import EventEmitter from "eventemitter3";
 
 describe("an proxy representing a function in the other realm", () => {
   const SOUND = "RIIIICOLAAAA";
@@ -18,7 +17,7 @@ describe("an proxy representing a function in the other realm", () => {
   let remoteAlpenhorn: ((...args: any[]) => Promise<unknown>) | (() => any);
   beforeEach(() => {
     alpenhorn.mockClear();
-    emitter = new DataEmitter(new EventEmitter());
+    emitter = new EventEmitter();
     simulator = ObjectSimulator.create(emitter, FakeFinalizationRegistry);
     subject = simulator.subject;
     remoteAlpenhorn = makeCallSender(
@@ -59,7 +58,7 @@ describe("an proxy representing a function in the other realm", () => {
   it("destroys itself on disconnect", async () => {
     subject.onCall({ fnId: alpenhornId }, async (callTicket) => {
       const { callId, fnId } = callTicket;
-      subject.disconnect({ reason: "lost track of frame!" });
+      subject.notifyDestroy();
       await wait(100);
       subject.respond({
         callId,
@@ -68,11 +67,7 @@ describe("an proxy representing a function in the other realm", () => {
         error: new Error("bonk"),
       });
     });
-    await expect(remoteAlpenhorn()).rejects.toThrowError(
-      "lost track of frame!"
-    );
-    await expect(remoteAlpenhorn()).rejects.toThrowError(
-      "lost track of frame!"
-    );
+    await expect(remoteAlpenhorn()).rejects.toThrowError("destroyed");
+    await expect(remoteAlpenhorn()).rejects.toThrowError("destroyed");
   });
 });

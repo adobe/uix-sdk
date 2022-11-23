@@ -36,6 +36,7 @@
     "@babel/preset-env": "^7.18.10",
     "@microsoft/api-documenter": "^7.19.24",
     "@microsoft/api-extractor": "^7.33.6",
+    "@testing-library/dom": "^8.19.0",
     "@types/jest": "^29.2.2",
     "@types/react": "^17.0.47",
     "@types/react-dom": "^17",

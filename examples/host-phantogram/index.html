@@ -39,9 +39,9 @@ governing permissions and limitations under the License.
     <pre><code id="interface"></code></pre>
   </main>
   <script type="module">
-    import { phantogram } from "/@adobe/uix-core/esm";
+    import { connectIframe } from "/@adobe/uix-core/esm";
     import { instrument } from "/instruments.js";
-    const extensions = await fetch('/example-registry')
+    const extensions = await fetch('/example-registry?keywords=phantogram')
       .then(extensionListResponse => extensionListResponse.json())
       .then(extensionList => extensionList.reduce(
         (byId, extension) => ({
@@ -59,7 +59,7 @@ governing permissions and limitations under the License.
     document.querySelector('main').appendChild(frame);
     const $btn = document.getElementById('start');
     const { app: innerApp, getStats } = await instrument("outer", (print) =>
-      phantogram({ remote: frame }, {
+      connectIframe(frame, { targetOrigin: '*' }, {
         async benchmark(count) {
           print('Will iterate %sx', count);
           const before = new Date().getTime();

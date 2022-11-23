@@ -4,9 +4,9 @@ import type { RemoteSubject } from "../remote-subject";
 type RejectionPool = Set<(e: Error) => unknown>;
 
 class DisconnectionError extends Error {
-  constructor(reason: string) {
+  constructor() {
     super(
-      `Function belongs to a simulated remote object which has been disconnected: ${reason}`
+      "Function belongs to a simulated remote object which has been disconnected! The tunnel may have been destroyed by page navigation or reload."
     );
   }
 }
@@ -53,17 +53,17 @@ export function makeCallSender(
       );
     });
   };
-  const destroy = ({ reason }: { reason: string }) => {
+  const destroy = () => {
     subjectRef = null;
     sender = () => {
-      throw new DisconnectionError(reason);
+      throw new DisconnectionError();
     };
     for (const reject of rejectionPool) {
-      reject(new DisconnectionError(reason));
+      reject(new DisconnectionError());
     }
     rejectionPool.clear();
   };
-  subjectRef.deref().onDisconnected(destroy);
+  subjectRef.deref().onDestroyed(destroy);
   const facade = async function (...args: unknown[]) {
     return sender(...args);
   };

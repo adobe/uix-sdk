@@ -28,11 +28,11 @@
       <pre><code id="interface"></code></pre>
     </main>
     <script type="module">
-      import { phantogram } from "/@adobe/uix-core/esm";
+      import { connectParentWindow } from "/@adobe/uix-core/esm";
       import { instrument } from "/instruments.js"
       let total;
 const { app: outerApp, getStats } = await instrument("inner", (print) =>
-phantogram({ remote: window.parent }, {
+connectParentWindow({ targetOrigin: '*' }, {
   async start() {
     total = Number(document.getElementById('iterations').value);
     performance.mark('benchmark');

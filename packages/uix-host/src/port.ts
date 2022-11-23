@@ -17,10 +17,11 @@ import type {
   NamedEvent,
   RemoteHostApis,
   GuestApis,
+  Phantogram,
   Unsubscriber,
   VirtualApi,
 } from "@adobe/uix-core";
-import { Emitter, phantogram } from "@adobe/uix-core";
+import { Emitter, connectIframe } from "@adobe/uix-core";
 
 /**
  * A specifier for methods to be expected on a remote interface.
@@ -150,12 +151,15 @@ export class Port<GuestApi>
   extends Emitter<PortEvents<GuestApi>>
   implements GuestConnection
 {
+  public get apis() {
+    return this.guestServer.getRemoteApi().apis;
+  }
+
   // #region Properties (13)
 
   private debug: boolean;
   private logger?: Console;
   private frame: HTMLIFrameElement;
-  private guest: GuestProxyWrapper;
   private hostApis: RemoteHostApis = {};
   private isLoaded = false;
   private runtimeContainer: HTMLElement;
@@ -172,7 +176,6 @@ export class Port<GuestApi>
    * them, not class instances, methods or callbacks.
    * @public
    */
-  public apis: RemoteHostApis;
   /**
    * If any errors occurred during the loading of guests, this property will
    * contain the error that was raised.
@@ -186,6 +189,7 @@ export class Port<GuestApi>
    * when it loads.
    */
   public url: URL;
+  private guestServer: Phantogram<GuestProxyWrapper>;
 
   // #endregion Properties (13)
 
@@ -223,7 +227,9 @@ export class Port<GuestApi>
           (event as CustomEvent).detail as unknown as Record<string, unknown>
         ).context as Record<string, unknown>;
         await this.connect();
-        await this.guest.emit("contextchange", { context: this.sharedContext });
+        await this.guestServer
+          .getRemoteApi()
+          .emit("contextchange", { context: this.sharedContext });
       })
     );
   }
@@ -282,8 +288,7 @@ export class Port<GuestApi>
       }
       return this.apis;
     } catch (e) {
-      this.apis = null;
-      this.guest = null;
+      this.guestServer = null;
       this.error = e instanceof Error ? e : new Error(String(e));
       throw e;
     }
@@ -328,23 +333,19 @@ export class Port<GuestApi>
     this.assert(this.isReady(), () => "Attempted to interact before loaded");
   }
 
-  private attachFrame(iframe: HTMLIFrameElement) {
-    return {
-      promise: phantogram<GuestProxyWrapper>(
-        {
-          key: this.id,
-          remote: iframe,
-          targetOrigin: "*",
-          timeout: this.timeout,
-        },
-        {
-          getSharedContext: () => this.sharedContext,
-          invokeHostMethod: (address: HostMethodAddress) =>
-            this.invokeHostMethod(address),
-        }
-      ) as Promise<GuestProxyWrapper>,
-      destroy() {},
-    };
+  private attachFrame<T = unknown>(iframe: HTMLIFrameElement) {
+    return connectIframe<T>(
+      iframe,
+      {
+        targetOrigin: "*",
+        timeout: this.timeout,
+      },
+      {
+        getSharedContext: () => this.sharedContext,
+        invokeHostMethod: (address: HostMethodAddress) =>
+          this.invokeHostMethod(address),
+      }
+    );
   }
 
   private async connect() {
@@ -358,9 +359,7 @@ export class Port<GuestApi>
         this
       );
     }
-    const { promise } = this.attachFrame(this.frame);
-    this.guest = await promise;
-    this.apis = this.guest.apis || {};
+    this.guestServer = await this.attachFrame<GuestProxyWrapper>(this.frame);
     this.isLoaded = true;
     if (this.logger) {
       this.logger.info(

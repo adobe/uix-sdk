@@ -1,6 +1,5 @@
 import { wait } from "../promises/wait";
-import { EventEmitter } from "eventemitter3";
-import { DataEmitter } from "../emitters/data-emitter";
+import EventEmitter from "eventemitter3";
 import { RemoteSubject } from "../remote-subject";
 import { receiveCalls } from "./call-receiver";
 import { FakeFinalizationRegistry } from "../__mocks__/mock-finalization-registry";
@@ -14,13 +13,13 @@ describe("a listener for remote calls to a local function", () => {
   const village = jest.fn().mockReturnValue(MURMURS);
   const villageId = "village_1";
   const villageTicket = { fnId: villageId };
-  let emitter: DataEmitter;
+  let emitter: EventEmitter;
   let subject: RemoteSubject;
   let simulator: ObjectSimulator;
   beforeEach(() => {
     village.mockClear();
     jest.spyOn(console, "error").mockImplementation(() => {});
-    emitter = new DataEmitter(new EventEmitter());
+    emitter = new EventEmitter();
     simulator = ObjectSimulator.create(emitter, FakeFinalizationRegistry);
     subject = simulator.subject;
     receiveCalls(village, villageTicket, new FakeWeakRef(subject));

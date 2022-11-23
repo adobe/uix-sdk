@@ -1,238 +1,292 @@
+import EventEmitter from "eventemitter3";
+import { isIframe, isTunnelSource } from "../value-assertions";
+import {
+  isHandshakeAccepting,
+  isHandshakeOffer,
+  makeAccepted,
+  makeOffered,
+} from "./tunnel-message";
+import { unwrap } from "../message-wrapper";
+
 /**
- * Create an independent, named tunnel to a remote Window or Worker object.
+ * Child iframe will send offer messages to parent at this frequency until one
+ * is accepted or the attempt times out.
+ * TODO: make configurable if ever necessary
  */
-import * as TunnelMessage from "./tunnel-message";
-import { timeoutPromise } from "../promises/timed";
-import { SYM_CLEANUP } from "../constants";
-import { unwrap, WrappedMessage } from "../message-wrapper";
-import { HandshakeOfferedTicket } from "../tickets";
-import { hasProp } from "../value-assertions";
-import { MessageTarget, MessageSource } from "../postables";
+const RETRY_MS = 100;
 
-/** @internal */
-interface SeparateRemotes {
-  postTo: MessageTarget;
-  receiveFrom: MessageSource;
-}
+/**
+ * Child iframe may unexpectedly close or detach from DOM. It emits no event
+ * when this happens, so we must poll it and destroy the tunnel when necessary.
+ * TODO: make configurable if ever necessary
+ */
+const STATUSCHECK_MS = 5000;
 
-/** @internal */
-type Remote = Window | SeparateRemotes;
+/**
+ * Semi-unique IDs allow multiple parallel connections to handshake on both parent
+ * and child iframe. This generates a semi-random 8-char base 36 string.
+ */
+const KEY_BASE = 36;
+const KEY_LENGTH = 8;
+const KEY_EXP = KEY_BASE ** KEY_LENGTH;
+const makeKey = () => Math.round(Math.random() * KEY_EXP).toString(KEY_BASE);
 
-/** @internal */
-type Remoteable = Remote | HTMLIFrameElement;
+/** @alpha */
+export interface TunnelConfig {
+  // #region Properties
 
-interface CleanableMessagePort extends MessagePort {
-  [SYM_CLEANUP](): void;
-}
-
-/** @internal */
-export interface TunnelOptions {
-  key: string;
+  /**
+   * To ensure secure communication, target origin must be specified, so the
+   * tunnel can't connect to an unauthorized domain. Can be '*' to disable
+   * origin checks, but this is discouraged!
+   */
   targetOrigin: string;
-  remote: Remoteable;
-  timeout?: number;
+  /**
+   * A Promise for a tunnel will reject if not connected within timeout (ms).
+   * @defaultValue 4000
+   */
+  timeout: number;
+
+  // #endregion Properties
 }
 
-/** @internal */
-export interface TunnelConfig extends TunnelOptions {
-  remote: SeparateRemotes;
+const badTimeout = "\n - timeout value must be a number of milliseconds";
+const badTargetOrigin =
+  "\n - targetOrigin must be a valid URL origin or '*' for any origin";
+
+function isFromOrigin(
+  event: MessageEvent,
+  source: WindowProxy,
+  targetOrigin: string
+) {
+  try {
+    return (
+      source === event.source &&
+      (targetOrigin === "*" || targetOrigin === new URL(event.origin).origin)
+    );
+  } catch (_) {
+    return false;
+  }
 }
 
-function extractRemotePair(remote: Remoteable): SeparateRemotes {
-  // common cases
-  if (remote instanceof HTMLIFrameElement) {
-    return {
-      postTo: remote.contentWindow,
-      receiveFrom: window,
-    };
+export class Tunnel extends EventEmitter {
+  // #region Properties
+
+  private _messagePort: MessagePort;
+
+  config: TunnelConfig;
+
+  // #endregion Properties
+
+  // #region Constructors
+
+  constructor(config: TunnelConfig) {
+    super();
+    this.config = config;
   }
-  if (remote === window.parent) {
-    return {
-      postTo: window.parent,
-      receiveFrom: window,
-    };
-  }
-  const hasPostTo = hasProp(remote, "postTo");
-  const hasReceiveFrom = hasProp(remote, "receiveFrom");
-  if (hasPostTo || hasReceiveFrom) {
-    if (!(hasPostTo && hasReceiveFrom)) {
+
+  // #endregion Constructors
+
+  // #region Public Static Methods
+
+  /**
+   * Create a Tunnel that connects to the page running in the provided iframe.
+   *
+   * @remarks
+   * Returns a Promise that resolves with a connected tunnel if the page in the
+   * provided iframe has called {@link toParent}. The tunnel may reconnect if
+   * the iframe reloads, in which case it will emit another "connected" event.
+   *
+   * @example
+   * ```ts
+   * const iframe = document.createElement('iframe');
+   *
+   * ```
+   *
+   * @alpha
+   */
+  static toIframe(
+    target: HTMLIFrameElement,
+    options: Partial<TunnelConfig>
+  ): Tunnel {
+    if (!isIframe(target)) {
       throw new Error(
-        `A configuration with separate remotes must have both a "postTo" and a "receiveFrom"`
+        `Provided tunnel target is not an iframe! ${Object.prototype.toString.call(
+          target
+        )}`
       );
     }
-    return remote as SeparateRemotes;
-  }
-  return { postTo: remote, receiveFrom: remote } as SeparateRemotes;
-}
-
-export async function createTunnel(
-  config: TunnelOptions
-): Promise<CleanableMessagePort> {
-  if (!config || typeof config !== "object") {
-    throw new Error(
-      "tunnel requires a config object with a key and a window/worker/postMessage object"
-    );
-  }
-  const { key, targetOrigin, remote, timeout = 4000 } = config;
-
-  const validationMessages = [];
-  if (!key || typeof key !== "string") {
-    validationMessages.push(
-      "tunnel requires a string key to match with the remote tunnel object"
-    );
-  }
-  if (typeof timeout !== "number") {
-    validationMessages.push("timeout value must be a number of milliseconds");
-  }
-  if (!targetOrigin || typeof targetOrigin !== "string") {
-    validationMessages.push(
-      'tunnel requires a URL string target origin. set targetOrigin to "*" to be deliberately unsafe and allow any origin'
-    );
-  } else if (targetOrigin !== "*") {
-    try {
-      if (new URL(targetOrigin).origin !== targetOrigin) {
-        validationMessages.push(
-          "target origin must be only a URL origin scheme://host:port with no other URL segments"
-        );
+    const source = target.contentWindow;
+    const config = Tunnel._normalizeConfig(options);
+    const tunnel = new Tunnel(config);
+    let frameStatusCheck: number;
+    let timeout: number;
+    const offerListener = (event: MessageEvent) => {
+      if (
+        isFromOrigin(event, source, config.targetOrigin) &&
+        isHandshakeOffer(event.data)
+      ) {
+        const accepted = makeAccepted(unwrap(event.data).offers);
+        const channel = new MessageChannel();
+        source.postMessage(accepted, config.targetOrigin, [channel.port1]);
+        tunnel.connect(channel.port2);
       }
-    } catch (e) {
-      validationMessages.push(
-        'target origin must either be a valid URL origin or a "*" to be deliberately unsafe and allow any origin'
+    };
+    const cleanup = () => {
+      clearTimeout(timeout);
+      clearInterval(frameStatusCheck);
+      window.removeEventListener("message", offerListener);
+    };
+    timeout = window.setTimeout(() => {
+      tunnel.emit(
+        "error",
+        new Error(
+          `Timed out awaiting initial message from iframe after ${config.timeout}ms`
+        )
       );
+      tunnel.destroy();
+    }, config.timeout);
+
+    tunnel.on("destroyed", cleanup);
+    tunnel.on("connected", () => clearTimeout(timeout));
+
+    /**
+     * Check if the iframe has been unexpectedly removed from the DOM (for
+     * example, by React). Unsubscribe event listeners and destroy tunnel.
+     */
+    frameStatusCheck = window.setInterval(() => {
+      if (!target.isConnected) {
+        tunnel.destroy();
+      }
+    }, STATUSCHECK_MS);
+
+    window.addEventListener("message", offerListener);
+
+    return tunnel;
+  }
+
+  static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel {
+    let retrying: number;
+    let timeout: number;
+    let timedOut = false;
+    const key = makeKey();
+    const config = Tunnel._normalizeConfig(opts);
+    const tunnel = new Tunnel(config);
+    const acceptListener = (event: MessageEvent) => {
+      if (
+        !timedOut &&
+        isFromOrigin(event, source, config.targetOrigin) &&
+        isHandshakeAccepting(event.data, key)
+      ) {
+        cleanup();
+        if (!event.ports || !event.ports.length) {
+          const portError = new Error(
+            "Received handshake accept message, but it did not include a MessagePort to establish tunnel"
+          );
+          tunnel.emit("error", portError);
+          return;
+        }
+        tunnel.connect(event.ports[0]);
+      }
+    };
+    const cleanup = () => {
+      clearInterval(retrying);
+      clearTimeout(timeout);
+      window.removeEventListener("message", acceptListener);
+    };
+
+    timeout = window.setTimeout(() => {
+      tunnel.emit(
+        "error",
+        new Error(
+          `Timed out waiting for initial response from parent after ${config.timeout}ms`
+        )
+      );
+      tunnel.destroy();
+    }, config.timeout);
+
+    window.addEventListener("message", acceptListener);
+    tunnel.on("destroyed", cleanup);
+    tunnel.on("connected", cleanup);
+
+    const sendOffer = () =>
+      source.postMessage(makeOffered(key), config.targetOrigin);
+    retrying = window.setInterval(sendOffer, RETRY_MS);
+    sendOffer();
+
+    return tunnel;
+  }
+
+  // #endregion Public Static Methods
+
+  // #region Public Methods
+
+  connect(remote: MessagePort) {
+    if (this._messagePort) {
+      this._messagePort.removeEventListener("message", this._emitFromMessage);
+      this._messagePort.close();
     }
-  }
-  const { postTo, receiveFrom } = extractRemotePair(remote);
-  if (!postTo || typeof postTo.postMessage !== "function") {
-    validationMessages.push("postTo object must have a postMessage method");
-  }
-  if (
-    !receiveFrom ||
-    typeof receiveFrom.addEventListener !== "function" ||
-    typeof receiveFrom.removeEventListener !== "function"
-  ) {
-    validationMessages.push("receiveFrom object must be an event listener");
+    this._messagePort = remote;
+    remote.addEventListener("message", this._emitFromMessage);
+    this.emitRemote("connected");
+    this._messagePort.start();
   }
 
-  if (validationMessages.length > 0) {
-    throw new Error(`invalid config:
- - ${validationMessages.join("\n - ")}`);
+  destroy(): void {
+    if (this._messagePort) {
+      this._messagePort.close();
+      this._messagePort = null;
+    }
+    this.emit("destroyed");
+    this.emitRemote("destroyed");
+    // this.removeAllListeners(); // TODO: maybe necessary for memory leaks
   }
 
-  /* istanbul ignore next */
-  const isFromTarget =
-    targetOrigin === "*"
-      ? () => true
-      : (event: MessageEvent) => {
-          return event.origin === targetOrigin;
-        };
+  emitRemote(type: string, payload?: unknown): boolean {
+    if (!this._messagePort) {
+      return false;
+    }
+    this._messagePort.postMessage({ type, payload });
+    return true;
+  }
 
-  function tryClose(...ports: MessagePort[]) {
-    /* istanbul ignore next */
-    ports.forEach((port) => {
+  // #endregion Public Methods
+
+  // #region Private Static Methods
+
+  private static _normalizeConfig(
+    options: Partial<TunnelConfig> = {}
+  ): TunnelConfig {
+    let errorMessage = "";
+    const config: Partial<TunnelConfig> = {
+      timeout: 4000,
+      ...options,
+    };
+
+    const timeoutMs = Number(config.timeout);
+    if (!Number.isSafeInteger(timeoutMs)) {
+      errorMessage += badTimeout;
+    }
+    if (config.targetOrigin !== "*") {
       try {
-        port.close();
+        new URL(config.targetOrigin);
       } catch (e) {
-        console.error("Failed to cleanup port", e);
+        errorMessage += badTargetOrigin;
       }
-    });
+    }
+    if (errorMessage) {
+      throw new Error(`Invalid tunnel configuration: ${errorMessage}`);
+    }
+    return config as TunnelConfig;
   }
 
-  let myChannel: MessageChannel;
-  let portChosen: MessagePort;
-  const cleanup = () => {
-    if (portChosen) {
-      tryClose(portChosen);
-    }
-    if (myChannel) {
-      tryClose(myChannel.port1, myChannel.port2);
-    }
+  // #endregion Private Static Methods
+
+  // #region Private Methods
+
+  private _emitFromMessage = ({ data: { type, payload } }: MessageEvent) => {
+    this.emit(type, payload);
   };
 
-  return timeoutPromise(
-    "MessageChannel handshake",
-    new Promise((resolve, reject) => {
-      const tunnelFail = (message: string) => {
-        cleanup();
-        reject(new Error(message));
-      };
-      const choosePort = (port: MessagePort) => {
-        portChosen = port;
-        Object.defineProperty(port, SYM_CLEANUP, {
-          value: cleanup,
-        });
-        resolve(port as CleanableMessagePort);
-      };
-      try {
-        myChannel = new MessageChannel();
-        const retractMyOffer = () => {
-          receiveFrom.removeEventListener("message", receiveHandshake);
-          tryClose(myChannel.port1, myChannel.port2);
-        };
-        const receiveHandshake = (event: Event) => {
-          const msgEvent = event as MessageEvent;
-          if (!(isFromTarget(msgEvent) && TunnelMessage.is(msgEvent.data))) {
-            return;
-          }
-          const msg = unwrap(
-            msgEvent.data as WrappedMessage<HandshakeOfferedTicket>
-          );
-          if (msg.type === "handshake_offered") {
-            try {
-              /* istanbul ignore if */
-              if (portChosen) {
-                retractMyOffer();
-                return;
-              }
-              if (msg.key !== key) {
-                return;
-              }
-              retractMyOffer();
-              const offeredPort = msgEvent.ports[0];
-              try {
-                postTo.postMessage(
-                  TunnelMessage.makeAccepted(key),
-                  targetOrigin
-                );
-              } catch (e) {
-                // if (!e.message.includes("origin")) {
-                throw e;
-                // }
-              }
-              choosePort(offeredPort);
-            } catch (e) {
-              tunnelFail(`Failed to handle handshake_offered event: ${e}`);
-            }
-          } else if (msg.type === "handshake_accepted") {
-            try {
-              if (msg.key !== key) {
-                return;
-              }
-              receiveFrom.removeEventListener("message", receiveHandshake);
-              choosePort(myChannel.port1);
-            } catch (e) {
-              tunnelFail(`Failed to handle handshake_accepted event: ${e}`);
-            }
-          }
-        };
-        receiveFrom.addEventListener("message", receiveHandshake);
-        try {
-          postTo.postMessage(TunnelMessage.makeOffered(key), targetOrigin, [
-            myChannel.port2,
-          ]);
-        } catch (e) {
-          // if (!e.message.includes("origin")) {
-          throw e;
-          // }
-        }
-      } catch (e) {
-        tunnelFail(`Failed to create tunnel: ${e}`);
-      }
-    }),
-    timeout,
-    cleanup
-  );
-}
-
-export function destroyTunnel(tunnelPort: CleanableMessagePort) {
-  tunnelPort[SYM_CLEANUP]();
+  // #endregion Private Methods
 }

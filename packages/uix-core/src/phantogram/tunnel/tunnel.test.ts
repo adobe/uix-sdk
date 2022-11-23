@@ -1,373 +1,196 @@
-import { jest } from "@jest/globals";
-import TunnelMessage from "./tunnel-message";
-import MockMessageDuplex from "../__mocks__/mock-messageduplex";
-import type { MessageDuplex, MessageSource } from "../postables";
-import {
-  destroyTunnel,
-  createTunnel,
-  TunnelOptions,
-  TunnelConfig,
-} from "./tunnel";
+import { fireEvent } from "@testing-library/dom";
 import { wait } from "../promises/wait";
-import { NS_ROOT } from "../constants";
-import type {
-  HandshakeAcceptedTicket,
-  HandshakeOfferedTicket,
-} from "../tickets";
-import { unwrap, wrap, WrappedMessage } from "../message-wrapper";
+import { Tunnel } from "./tunnel";
+import { makeAccepted, makeOffered } from "./tunnel-message";
 
-type HandshakeTicket =
-  | WrappedMessage<HandshakeAcceptedTicket>
-  | WrappedMessage<HandshakeOfferedTicket>;
-
-function mockPostable(): jest.Mocked<MessageDuplex> {
-  return jest.mocked(new MockMessageDuplex());
+const defaultTunnelConfig = {
+  targetOrigin: "*",
+  timeout: 4000,
+};
+type TunnelHarness = { tunnel: Tunnel; port: MessagePort };
+const openPorts: MessagePort[] = [];
+function tunnelHarness(
+  port: MessagePort,
+  config = defaultTunnelConfig
+): TunnelHarness {
+  const tunnel = new Tunnel(config);
+  tunnel.connect(port);
+  openPorts.push(port);
+  return {
+    tunnel,
+    port,
+  };
 }
 
-function emitMessageEvent(
-  postable: jest.Mocked<MessageDuplex>,
-  options: MessageEventInit
-) {
-  const events = Reflect.get(postable, "events");
-  events.dispatchEvent(new MessageEvent("message", options));
+async function testEventExchange(local: Tunnel, remote: Tunnel) {
+  const replyHandler = jest.fn();
+  remote.on("outgoing", replyHandler);
+  local.on("incoming", (data) => {
+    local.emitRemote("outgoing", {
+      reply: `${data.greeting} It is I!`,
+    });
+  });
+  remote.emitRemote("incoming", { greeting: "Who goes there?" });
+  await wait(10);
+  expect(replyHandler).toHaveBeenCalledTimes(1);
+  expect(replyHandler.mock.lastCall[0]).toMatchObject({
+    reply: "Who goes there? It is I!",
+  });
 }
 
-const validConfig = (overrides: TunnelOptions) => ({
-  postTo: mockPostable(),
-  receiveFrom: mockPostable(),
-  timeout: 150,
-  ...overrides,
-});
-
-const withConfig = (opts: Partial<TunnelOptions>) =>
-  createTunnel(validConfig(opts as TunnelOptions));
-
-describe("tunnel", () => {
+describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
+  let local: TunnelHarness;
+  let remote: TunnelHarness;
   beforeEach(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-    TunnelMessage.resetWarnings();
+    const channel = new MessageChannel();
+    local = tunnelHarness(channel.port1);
+    remote = tunnelHarness(channel.port2);
   });
-  describe("validates config object", () => {
-    it("requires an object argument", async () => {
-      await expect(
-        createTunnel(null as unknown as TunnelConfig)
-      ).rejects.toThrow("requires a config object");
-      await expect(createTunnel(7 as unknown as TunnelConfig)).rejects.toThrow(
-        "requires a config object"
-      );
+  afterEach(() => {
+    while (openPorts.length > 0) {
+      openPorts.pop().close();
+    }
+  });
+  it("receives MessageEvents and emits local events to listeners", async () => {
+    const test1Handler = jest.fn();
+    local.tunnel.on("test1", test1Handler);
+    remote.port.postMessage({
+      type: "test1",
+      payload: {
+        test1Payload: true,
+      },
     });
-    it("requires a string key", async () => {
-      await expect(
-        withConfig({
-          key: undefined,
-        })
-      ).rejects.toThrowError("requires a string key");
+    await wait(100);
+    expect(test1Handler).toHaveBeenCalled();
+    expect(test1Handler.mock.lastCall[0]).toMatchObject({ test1Payload: true });
+  });
+  it("exchanges connect events", async () => {
+    const localConnectHandler = jest.fn();
+    const remoteConnectHandler = jest.fn();
+    local.tunnel.on("connected", localConnectHandler);
+    remote.tunnel.on("connected", remoteConnectHandler);
+    await wait(100);
+    expect(localConnectHandler).toHaveBeenCalledTimes(1);
+    expect(remoteConnectHandler).toHaveBeenCalledTimes(1);
+  });
+  it("#emitRemote() sends remote events after connect", async () => {
+    const messageListener = jest.fn();
+    remote.port.addEventListener("message", messageListener);
+    local.tunnel.emitRemote("test2", { test2Payload: true });
+    local.tunnel.emitRemote("test3", { test3Payload: true });
+    await wait(10);
+    expect(messageListener).toHaveBeenCalledTimes(3);
+    const connectMessageEvent = messageListener.mock.calls[0][0];
+    expect(connectMessageEvent).toHaveProperty("data", {
+      type: "connected",
     });
-    it.skip("requires a timeout number", async () => {
-      await expect(
-        withConfig({
-          timeout: "blah" as unknown as number,
-        })
-      ).rejects.toThrowError("timeout value must be a number");
+    const test2MessageEvent = messageListener.mock.calls[1][0];
+    expect(test2MessageEvent).toHaveProperty("data", {
+      type: "test2",
+      payload: {
+        test2Payload: true,
+      },
     });
-    it("requires a target origin", async () => {
-      await expect(
-        withConfig({
-          targetOrigin: undefined,
-        })
-      ).rejects.toThrowError("tunnel requires a URL string target origin");
-      await expect(
-        withConfig({
-          targetOrigin: 12 as unknown as string,
-        })
-      ).rejects.toThrowError("tunnel requires a URL string target origin");
-      await expect(
-        withConfig({
-          targetOrigin: "akhbsdkjabhds",
-        })
-      ).rejects.toThrowError("target origin must either be a valid URL origin");
-      await expect(
-        withConfig({
-          targetOrigin: "https://example.com:1234/plus-path/?wuary",
-        })
-      ).rejects.toThrowError("target origin must be only a URL origin");
-    });
-    it("expects a postTo that has postMessage", async () => {
-      await expect(
-        withConfig({
-          remote: {
-            postTo: {
-              ...mockPostable(),
-              postMessage: undefined as unknown as MessageDuplex["postMessage"],
-            },
-            receiveFrom: mockPostable(),
-          },
-        })
-      ).rejects.toThrowError("postTo object must have a postMessage method");
-    });
-    it("expects a receiveFrom object that emits message events", async () => {
-      await expect(
-        withConfig({
-          remote: {
-            ...mockPostable(),
-            postTo: mockPostable(),
-            receiveFrom: {
-              addEventListener:
-                undefined as unknown as EventTarget["addEventListener"],
-            } as MessageSource,
-          },
-        })
-      ).rejects.toThrowError("receiveFrom object must be an event listener");
-      await expect(
-        withConfig({
-          remote: {
-            receiveFrom: {
-              ...mockPostable(),
-              removeEventListener:
-                undefined as unknown as EventTarget["addEventListener"],
-            },
-            postTo: mockPostable(),
-          },
-        })
-      ).rejects.toThrowError("receiveFrom object must be an event listener");
-    });
-    it("throws all config problems in a list", async () => {
-      await expect(
-        createTunnel({
-          key: "aint phantogram",
-          targetOrigin: "*",
-          remote: {
-            receiveFrom: false as unknown as MessageDuplex,
-            postTo: false as unknown as MessageDuplex,
-          },
-        })
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        "invalid config:
-         - postTo object must have a postMessage method
-         - receiveFrom object must be an event listener"
-      `);
+    const test3MessageEvent = messageListener.mock.calls[2][0];
+    expect(test3MessageEvent).toHaveProperty("data", {
+      type: "test3",
+      payload: {
+        test3Payload: true,
+      },
     });
   });
-  describe("handles errors constructing tunnel", () => {
-    it("ignores or logs busted messages", async () => {
-      const receiveFrom = mockPostable();
-      const tunnelPromise = createTunnel({
-        key: "test1",
-        remote: { postTo: mockPostable(), receiveFrom },
-        targetOrigin: "*",
-        timeout: 200,
-      });
-      await wait(100);
-      [
-        "",
-        {
-          wrong: "key",
-        },
-        {
-          too: "many",
-          keys: "dude",
-        },
-        {
-          [NS_ROOT]: 5,
-          keys: "dude",
-        },
-        {
-          [NS_ROOT]: 5,
-        },
-        {
-          [NS_ROOT]: {},
-        },
-        {
-          [NS_ROOT]: {
-            version: "-1.0.0",
-          },
-        },
-        {
-          [NS_ROOT]: {
-            version: "-1.0.0",
-            type: "test_type",
-          },
-        },
-        {
-          [NS_ROOT]: {
-            version: "-1.0.0",
-            type: "test_type",
-            payload: {},
-          },
-        },
-      ].forEach((data) => {
-        emitMessageEvent(receiveFrom, { data });
-      });
-      await expect(tunnelPromise).rejects.toThrowErrorMatchingInlineSnapshot(
-        `"MessageChannel handshake timed out after 200ms"`
-      );
-    });
+  it("exchanges events between two emitters sharing ports", async () => {
+    await testEventExchange(local.tunnel, remote.tunnel);
   });
-  describe("exchanges messageports", () => {
-    it("posts to the postTo with a message port", async () => {
-      const postTo = mockPostable();
-      const receiveFrom = mockPostable();
-      jest.useFakeTimers();
-      const tunnelPromise = createTunnel({
-        key: "test1",
-        remote: { postTo, receiveFrom },
-        targetOrigin: "*",
-        timeout: 1000,
+  it("#connect(port) accepts a new messageport", async () => {
+    const connectHandler = jest.fn();
+    local.tunnel.on("connected", connectHandler);
+    remote.tunnel.on("reconnect", connectHandler);
+    const confirmHandler = jest.fn();
+    local.tunnel.on("confirm", confirmHandler);
+    const dispelHandler = jest.fn();
+    remote.tunnel.on("dispel", dispelHandler);
+    local.tunnel.emitRemote("dispel", { dispelled: 1 });
+    remote.tunnel.emitRemote("confirm", { confirmed: 1 });
+    await wait(10);
+    expect(confirmHandler).toHaveBeenCalledTimes(1);
+    expect(dispelHandler).toHaveBeenCalledTimes(1);
+
+    const replacementChannel = new MessageChannel();
+    local.tunnel.connect(replacementChannel.port2);
+
+    // this event should wait until remote connects port1;
+    local.tunnel.emitRemote("dispel", { dispelled: 2 });
+
+    // this event fires on the dead port, since remote.tunnel still has it
+    remote.tunnel.emitRemote("confirm", { confirmed: 2 });
+    await wait(10);
+    // so neither is called
+    expect(confirmHandler).toHaveBeenCalledTimes(1);
+    expect(dispelHandler).toHaveBeenCalledTimes(1);
+
+    remote.tunnel.connect(replacementChannel.port1);
+    await wait(10);
+    // dispel handler fired when port1 was opened by #reconnect
+    expect(dispelHandler).toHaveBeenCalledTimes(2);
+
+    // this dispel event should work now
+    remote.tunnel.emitRemote("confirm", { confirmed: 3 });
+    await wait(10);
+
+    expect(confirmHandler).toHaveBeenCalledTimes(2);
+    expect(confirmHandler.mock.calls[1][0]).toMatchObject({ confirmed: 3 });
+
+    expect(connectHandler).toHaveBeenCalledTimes(2);
+    replacementChannel.port1.close();
+    replacementChannel.port2.close();
+  });
+});
+describe("static Tunnel.toIframe(iframe, options)", () => {
+  let localTunnel: Tunnel;
+  let remoteTunnel: Tunnel;
+  afterEach(() => {
+    localTunnel && localTunnel.destroy();
+    remoteTunnel && remoteTunnel.destroy();
+  });
+  /**
+   * skipped in unit tests because JSDOM's iframe and postMessage don't
+   * implement proper MessageEvents as of 2022/11/30. See
+   * https://github.com/jsdom/jsdom/blob/22f7c3c51829a6f14387f7a99e5cdf087f72e685/lib/jsdom/living/post-message.js#L31-L37
+   */
+  describe.skip("creates a Tunnel connected to an iframe", () => {
+    it.only("listens for handshakes from the frame window", async () => {
+      let remoteTunnel: Tunnel;
+      const connectMessageHandler = jest.fn();
+      const acceptListener = jest.fn();
+      const loadedFrame = document.createElement("iframe");
+      loadedFrame.src = "https://example.com:4001";
+      document.body.appendChild(loadedFrame);
+      loadedFrame.contentWindow.addEventListener("message", acceptListener);
+      const localTunnel = Tunnel.toIframe(loadedFrame, {
+        targetOrigin: "https://example.com:4001",
+        timeout: 9999,
       });
-      jest.advanceTimersByTime(500);
-      expect(postTo.postMessage).toHaveBeenCalledWith(
-        expect.objectContaining(TunnelMessage.makeOffered("test1")),
-        "*",
-        expect.arrayContaining([expect.any(MessagePort)])
-      );
-      jest.advanceTimersByTime(1000);
-      await expect(tunnelPromise).rejects.toThrowError("timed out");
-      jest.useRealTimers();
-    });
-    it("chooses its own messageport when received handshake_accepted before handshake_offered", async () => {
-      expect.assertions(5);
-      let destPort: MessagePort;
-      const postTo = mockPostable();
-      const receiveFrom = mockPostable();
-      const accepted = TunnelMessage.makeAccepted("test1");
-      const offered = TunnelMessage.makeOffered("test1");
-      postTo.addEventListener("message", (e: MessageEvent) => {
-        expect(e.data).toMatchObject(offered);
-        expect(e.ports[0]).toBeInstanceOf(MessagePort);
-        destPort = e.ports[0];
-        emitMessageEvent(receiveFrom, {
-          data: accepted,
-        });
-      });
-      const tunnelPromise = createTunnel({
-        key: "test1",
-        remote: { postTo, receiveFrom },
-        targetOrigin: "*",
-      });
-      receiveFrom.postMessage(TunnelMessage.makeOffered("test1"), "*");
-      await expect(tunnelPromise).resolves.toBeInstanceOf(MessagePort);
-      const tunnelPort = await tunnelPromise;
-      const testMessage1 = wrap({
-        highly: "irregular",
-      });
-      destPort!.addEventListener("message", (e) => {
-        expect(e.data).toMatchObject(testMessage1);
-      });
-      const testMessage2 = wrap({
-        medium: "rare",
-      });
-      tunnelPort!.addEventListener("message", (e) => {
-        expect(e.data).toMatchObject(testMessage2);
-      });
-      tunnelPort.start();
-      destPort!.start();
-      tunnelPort.postMessage(testMessage1);
-      destPort!.postMessage(testMessage2);
+      localTunnel.on("connected", connectMessageHandler);
       await wait(100);
-      destroyTunnel(tunnelPort);
-    });
-    describe("handles message irregularities", () => {
-      const postTo = new MockMessageDuplex();
-      const receiveFrom = new MockMessageDuplex();
-      beforeEach(() => {
-        postTo.mockReset();
-        receiveFrom.mockReset();
-      });
-      it("ignores messages from the wrong origin", async () => {});
-      it("ignores messages with the wrong key", async () => {
-        const offeredWrong = TunnelMessage.makeOffered("WRONG_KEY");
-        const accepted = TunnelMessage.makeAccepted("WRONG_KEY");
-        async function sendWrongKey(message: unknown) {
-          const shouldNotTrigger = jest.fn();
-          postTo.addEventListener("message", shouldNotTrigger);
-          const tunnelPromise = createTunnel({
-            timeout: 100,
-            key: "right-key",
-            remote: { postTo, receiveFrom },
-            targetOrigin: "*",
-          });
-          receiveFrom.postMessage(message);
-          await expect(tunnelPromise).rejects.toThrowError("timed out");
-          expect(shouldNotTrigger).not.toHaveBeenCalledWith(
-            expect.objectContaining({
-              data: accepted,
-            })
-          );
-        }
-        await sendWrongKey(offeredWrong);
-        await sendWrongKey(accepted);
-      });
-    });
-    it("chooses offered messageport when received handshake_offered before handshake_accepted", async () => {
-      expect.assertions(3);
-      const postTo = mockPostable();
-      const receiveFrom = mockPostable();
-      const accepted = TunnelMessage.makeAccepted("test1");
-      const offered = TunnelMessage.makeOffered("test1");
-      const postHandler =
-        jest.fn<(event: MessageEvent<HandshakeTicket>) => void>();
-      postTo.addEventListener("message", postHandler);
-      const tunnelPromise = createTunnel({
-        key: "test1",
-        remote: { postTo, receiveFrom },
-        targetOrigin: "*",
-      });
-      const toOffer = new MessageChannel();
-      emitMessageEvent(receiveFrom, { data: offered, ports: [toOffer.port2] });
-      emitMessageEvent(receiveFrom, { data: accepted }); // should do nothing!
-      await expect(tunnelPromise).resolves.toBe(toOffer.port2);
-      expect(postHandler.mock.calls.length).toBeGreaterThan(0);
-      const acceptedCall: [MessageEvent<HandshakeTicket>] | undefined =
-        postHandler.mock.calls.find(
-          (call) =>
-            TunnelMessage.is(call[0].data) &&
-            unwrap(call[0].data as WrappedMessage<HandshakeAcceptedTicket>)
-              .type === "handshake_accepted"
-        );
-      expect(acceptedCall && acceptedCall[0].data).toMatchObject(accepted);
-      destroyTunnel(await tunnelPromise);
-    });
-    it("joins with a second tunnel in a loving embrace", async () => {
-      const near = mockPostable();
-      const far = mockPostable();
-      const mySide = createTunnel({
-        timeout: 4000,
-        key: "test2",
-        remote: { postTo: far, receiveFrom: near },
-        targetOrigin: "*",
-      });
-      const yourSide = createTunnel({
-        timeout: 4000,
-        key: "test2",
-        remote: { postTo: near, receiveFrom: far },
-        targetOrigin: "*",
-      });
-      const mine = await mySide;
-      const yours = await yourSide;
-      expect(mine).toBeInstanceOf(MessagePort);
-      expect(yours).toBeInstanceOf(MessagePort);
-      const me = jest.fn();
-      const you = jest.fn();
-      mine.onmessage = me;
-      yours.onmessage = you;
-      mine.start();
-      yours.start();
-      mine.postMessage("haaaaay");
-      yours.postMessage("whaaaaat");
-      await wait(100);
-      expect(me).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: "whaaaaat",
+      fireEvent(
+        window,
+        new MessageEvent("message", {
+          data: makeOffered("iframe-test-1"),
+          origin: loadedFrame.src,
+          source: loadedFrame.contentWindow,
         })
       );
-      expect(you).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: "haaaaay",
-        })
-      );
-      destroyTunnel(mine);
-      destroyTunnel(yours);
+      await wait(100);
+      expect(acceptListener).toHaveBeenCalled();
+      const acceptEvent = acceptListener.mock.lastCall[0];
+      expect(acceptEvent).toHaveProperty("data", makeAccepted("iframe-test-1"));
+      expect(acceptEvent.ports).toHaveLength(1);
+      remoteTunnel = new Tunnel(defaultTunnelConfig);
+      remoteTunnel.connect(acceptEvent.ports[0]);
+      await wait(100);
+      expect(connectMessageHandler).toHaveBeenCalledTimes(1);
+      await testEventExchange(localTunnel, remoteTunnel);
     });
   });
 });

@@ -10,6 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import { Phantogram } from "./phantogram";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
@@ -172,11 +174,7 @@ export interface GuestConnection {
   attachUI(
     frame: HTMLIFrameElement,
     privateMethods?: RemoteHostApis
-  ): {
-    promise: Promise<unknown>;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    destroy: Function;
-  };
+  ): Promise<unknown>;
   load(): Promise<unknown>;
   error?: Error;
   hasCapabilities(capabilities: unknown): boolean;

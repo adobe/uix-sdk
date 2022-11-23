@@ -15,12 +15,13 @@ import type {
   RemoteHostApis,
   HostConnection,
   NamedEvent,
+  Phantogram,
   VirtualApi,
 } from "@adobe/uix-core";
 import {
   Emitter,
   makeNamespaceProxy,
-  phantogram,
+  connectParentWindow,
   timeoutPromise,
   quietConsole,
 } from "@adobe/uix-core";
@@ -184,7 +185,7 @@ export class Guest<
       try {
         const result = await timeoutPromise(
           10000,
-          this.hostConnection.invokeHostMethod(address)
+          this.hostConnection.getRemoteApi().invokeHostMethod(address)
         );
         return result;
       } catch (e) {
@@ -201,8 +202,8 @@ export class Guest<
     }
   );
   private timeout = 10000;
-  private hostConnectionPromise: Promise<RemoteHostApis<HostConnection>>;
-  private hostConnection!: RemoteHostApis<HostConnection>;
+  private hostConnectionPromise: Promise<Phantogram<HostConnection>>;
+  private hostConnection!: Phantogram<HostConnection>;
   /** @internal */
   protected getLocalMethods() {
     return {
@@ -232,16 +233,15 @@ export class Guest<
   async _connect() {
     this.emit("beforeconnect", { guest: this });
     try {
-      this.hostConnectionPromise = phantogram(
+      const hostConnectionPromise = connectParentWindow<HostConnection>(
         {
-          key: this.id,
           targetOrigin: "*",
           timeout: this.timeout,
-          remote: window.parent,
         },
         this.getLocalMethods()
-      ) as typeof this.hostConnectionPromise;
+      );
 
+      this.hostConnectionPromise = hostConnectionPromise;
       this.hostConnection = await this.hostConnectionPromise;
     } catch (e) {
       this.emit("error", { guest: this, error: e });
@@ -250,7 +250,7 @@ export class Guest<
     }
     try {
       this.sharedContext = new SharedContext(
-        await this.hostConnection.getSharedContext()
+        await this.hostConnection.getRemoteApi().getSharedContext()
       );
     } catch (e) {
       this.emit("error", { guest: this, error: e });

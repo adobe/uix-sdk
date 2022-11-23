@@ -1,17 +1,15 @@
 import { NS_ROOT } from "./constants";
-import { DataEmitter } from "./emitters/data-emitter";
 import { EventEmitter } from "eventemitter3";
 import { ObjectSimulator } from "./object-simulator";
 import { FakeFinalizationRegistry } from "./__mocks__/mock-finalization-registry";
 import { wait } from "./promises/wait";
-import { DefTicket } from "./tickets";
 import { DefMessage } from "./object-walker";
 
 describe("function simulator exchanges functions and tickets", () => {
   let objectSimulator: ObjectSimulator;
   beforeEach(() => {
     jest.spyOn(console, "error").mockImplementation(() => {});
-    const emitter = new DataEmitter(new EventEmitter());
+    const emitter = new EventEmitter();
     objectSimulator = ObjectSimulator.create(emitter, FakeFinalizationRegistry);
   });
   it("turns an object with functions into an object with tickets", async () => {

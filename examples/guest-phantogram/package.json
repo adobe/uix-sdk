@@ -10,5 +10,8 @@
   "dependencies": {
     "@adobe/uix-guest": "*"
   },
+  "keywords": [
+    "phantogram"
+  ],
   "license": "Apache-2.0"
 }

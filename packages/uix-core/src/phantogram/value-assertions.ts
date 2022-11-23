@@ -28,3 +28,21 @@ export function isFunction(value: unknown): value is CallableFunction {
 export function hasProp(value: unknown, prop: string) {
   return !isPrimitive(value) && Reflect.has(value as object, prop);
 }
+
+export function isTunnelSource(
+  value: unknown
+): value is Window | ServiceWorker {
+  return (
+    value instanceof Window ||
+    value instanceof ServiceWorker ||
+    hasProp(value, "onmessage")
+  );
+}
+
+export function isIframe(value: unknown): value is HTMLIFrameElement {
+  if (!value || isPrimitive(value)) {
+    return false;
+  }
+  const { nodeName } = value as HTMLIFrameElement;
+  return typeof nodeName === "string" && nodeName.toLowerCase() === "iframe";
+}

@@ -9,7 +9,10 @@ const jestConfig: JestConfigWithTsJest = {
     {
       displayName: "uix-core",
       testMatch: ["<rootDir>/packages/uix-core/src/**/*.test.ts"],
-      setupFiles: ["<rootDir>/packages/uix-core/src/phantogram/__helpers__/jest.messagechannel.cjs"],
+      modulePathIgnorePatterns: ["<rootDir>/dist"],
+      setupFiles: [
+        "<rootDir>/packages/uix-core/src/phantogram/__helpers__/jest.messagechannel.cjs",
+      ],
       testEnvironment: "jsdom",
       transform: {
         "^.+\\.tsx?$": [

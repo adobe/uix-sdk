@@ -87,7 +87,7 @@ export function GuestUIFrame({
         guest.provide(methods);
       }
       const connection = guest.attachUI(iframe);
-      connection.promise
+      connection
         .then(() => {
           if (onConnect) {
             onConnect();

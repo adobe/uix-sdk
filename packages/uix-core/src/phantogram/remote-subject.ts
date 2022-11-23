@@ -5,17 +5,18 @@ import type {
   RejectTicket,
   ResolveTicket,
   RespondTicket,
-  DisconnectionTicket,
   CleanupTicket,
 } from "./tickets";
 import type { Materialized, Simulated } from "./object-walker";
-import { DataEmitter } from "./emitters/data-emitter";
+import EventEmitter from "eventemitter3";
 
 type EvTypeDef = `${string}_f`;
 type EvTypeGC = `${string}_g`;
 type EvTypeCall = `${string}_c`;
 type EvTypeRespond = `${string}_r`;
-type EvTypeDisconnect = "disconnected";
+type EvTypeDestroyed = "destroyed";
+type EvTypeConnected = "connected";
+type EvTypeError = "error";
 
 type RemoteDefEvent = {
   type: EvTypeDef;
@@ -37,9 +38,17 @@ type RemoteCleanupEvent = {
   type: EvTypeGC;
   payload: CleanupTicket;
 };
-type RemoteDisconnectedEvent = {
-  type: EvTypeDisconnect;
-  payload: DisconnectionTicket;
+type RemoteReconnectedEvent = {
+  type: EvTypeConnected;
+  payload: void;
+};
+type RemoteDestroyedEvent = {
+  type: EvTypeDestroyed;
+  payload: void;
+};
+type RemoteErrorEvent = {
+  type: EvTypeError;
+  payload: Error;
 };
 
 export type RemoteEvents =
@@ -48,25 +57,99 @@ export type RemoteEvents =
   | RemoteResolveEvent
   | RemoteRejectEvent
   | RemoteCleanupEvent
-  | RemoteDisconnectedEvent;
+  | RemoteReconnectedEvent
+  | RemoteDestroyedEvent
+  | RemoteErrorEvent;
 
 type Simulates = <T>(localObject: T) => Simulated<T>;
 type Materializes = <T>(simulatedObject: T) => Materialized<T>;
 
 export interface Simulator {
-  simulate: Simulates;
+  // #region Properties
+
   materialize: Materializes;
+  simulate: Simulates;
+
+  // #endregion Properties
 }
 
 type Mapper = Simulates | Materializes;
 
 export class RemoteSubject {
-  private emitter: DataEmitter;
+  // #region Properties
+
+  private emitter: EventEmitter;
   private simulator: Simulator;
-  constructor(emitter: DataEmitter, simulator: Simulator) {
+
+  // #endregion Properties
+
+  // #region Constructors
+
+  constructor(emitter: EventEmitter, simulator: Simulator) {
     this.emitter = emitter;
     this.simulator = simulator;
   }
+
+  // #endregion Constructors
+
+  // #region Public Methods
+
+  notifyCleanup(ticket: DefTicket) {
+    return this.emitter.emit(`${ticket.fnId}_g`, {});
+  }
+
+  notifyConnect() {
+    return this.emitter.emit("connected");
+  }
+
+  notifyDestroy() {
+    return this.emitter.emit("destroyed");
+  }
+
+  onCall(ticket: DefTicket, handler: (ticket: CallArgsTicket) => void) {
+    return this.subscribe(`${ticket.fnId}_c`, (ticket: CallArgsTicket) =>
+      handler(this.processCallTicket(ticket, this.simulator.materialize))
+    );
+  }
+
+  onConnected(handler: () => void) {
+    return this.subscribe("connected", handler);
+  }
+
+  onDestroyed(handler: () => void) {
+    return this.subscribe("destroyed", handler);
+  }
+
+  onOutOfScope(ticket: DefTicket, handler: () => void) {
+    return this.subscribeOnce(`${ticket.fnId}_g`, handler);
+  }
+
+  onRespond(ticket: CallTicket, handler: (ticket: RespondTicket) => void) {
+    const fnAndCall = `${ticket.fnId}${ticket.callId}`;
+    return this.subscribeOnce(`${fnAndCall}_r`, (ticket: RespondTicket) =>
+      handler(this.processResponseTicket(ticket, this.simulator.materialize))
+    );
+  }
+
+  respond(ticket: RespondTicket) {
+    const fnAndCall = `${ticket.fnId}${ticket.callId}`;
+    return this.emitter.emit(
+      `${fnAndCall}_r`,
+      this.processResponseTicket(ticket, this.simulator.simulate)
+    );
+  }
+
+  send(ticket: CallArgsTicket) {
+    return this.emitter.emit(
+      `${ticket.fnId}_c`,
+      this.processCallTicket(ticket, this.simulator.simulate)
+    );
+  }
+
+  // #endregion Public Methods
+
+  // #region Private Methods
+
   private processCallTicket(
     { args, ...ticket }: CallArgsTicket,
     mapper: Mapper
@@ -76,49 +159,26 @@ export class RemoteSubject {
       args: args.map(mapper),
     };
   }
+
   private processResponseTicket(ticket: RespondTicket, mapper: Mapper) {
     return ticket.status === "resolve"
       ? { ...ticket, value: mapper(ticket.value) }
       : ticket;
   }
-  disconnect({ reason }: { reason: string }) {
-    return this.emitter.send("disconnected", { reason });
+
+  private subscribe(type: string, handler: (arg: unknown) => void) {
+    this.emitter.on(type, handler);
+    return () => {
+      this.emitter.off(type, handler);
+    };
   }
-  send(ticket: CallArgsTicket) {
-    return this.emitter.send(
-      `${ticket.fnId}_c`,
-      this.processCallTicket(ticket, this.simulator.simulate)
-    );
+
+  private subscribeOnce(type: string, handler: (arg: unknown) => void) {
+    this.emitter.once(type, handler);
+    return () => {
+      this.emitter.off(type, handler);
+    };
   }
-  onRespond(ticket: CallTicket, handler: (ticket: RespondTicket) => void) {
-    const fnAndCall = `${ticket.fnId}${ticket.callId}`;
-    return this.emitter.onReceiveOnce(
-      `${fnAndCall}_r`,
-      (ticket: RespondTicket) =>
-        handler(this.processResponseTicket(ticket, this.simulator.materialize))
-    );
-  }
-  onCall(ticket: DefTicket, handler: (ticket: CallArgsTicket) => void) {
-    return this.emitter.onReceive(
-      `${ticket.fnId}_c`,
-      (ticket: CallArgsTicket) =>
-        handler(this.processCallTicket(ticket, this.simulator.materialize))
-    );
-  }
-  respond(ticket: RespondTicket) {
-    const fnAndCall = `${ticket.fnId}${ticket.callId}`;
-    return this.emitter.send(
-      `${fnAndCall}_r`,
-      this.processResponseTicket(ticket, this.simulator.simulate)
-    );
-  }
-  onDisconnected(handler: (connection: DisconnectionTicket) => void) {
-    return this.emitter.onReceiveOnce("disconnected", handler);
-  }
-  onOutOfScope(ticket: DefTicket, handler: () => void) {
-    return this.emitter.onReceiveOnce(`${ticket.fnId}_g`, handler);
-  }
-  notifyCleanup(ticket: DefTicket) {
-    return this.emitter.send(`${ticket.fnId}_g`, {});
-  }
+
+  // #endregion Private Methods
 }
