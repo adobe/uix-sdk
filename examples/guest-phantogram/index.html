@@ -31,18 +31,22 @@
       import { connectParentWindow } from "/@adobe/uix-core/esm";
       import { instrument } from "/instruments.js"
       let total;
+      const $status = document.getElementById('status');
+      const $iterations = document.getElementById('iterations');
+      const setStatus = x => $status.innerText = x;
 const { app: outerApp, getStats } = await instrument("inner", (print) =>
 connectParentWindow({ targetOrigin: '*' }, {
   async start() {
-    total = Number(document.getElementById('iterations').value);
-    performance.mark('benchmark');
+    total = Number($iterations.value);
+    setStatus(`running ${total} iterations...`);
+    $iterations.disabled = true;
     await outerApp.benchmark(total);
+    $iterations.disabled = false;
   },
   async lap(ms) {
     const status = `outer app done in ${ms / 1000}s`
     print(status);
-    console.log('inner perf', performance.measure('benchmark', 'benchmark'));
-    document.getElementById('status').innerText = 'connected!'
+    setStatus(status);
   },
   async runThisIncrementer(incrementer) {
     try {
@@ -56,7 +60,7 @@ connectParentWindow({ targetOrigin: '*' }, {
     }
   }
 }));
-  document.getElementById('status').innerText = 'connected!'
+		setStatus('connected!')
     </script>
   </body>
 </html>

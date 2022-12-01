@@ -5,10 +5,7 @@ import {
   isPlainObject,
   isPrimitive,
   isIterable,
-  isFunction,
-  hasProp,
 } from "./value-assertions";
-import { unwrap, isWrapped } from "./message-wrapper";
 
 /**
  * Extract keys of T whose values are assignable to U.
@@ -60,26 +57,25 @@ export type Simulated<T> = {
     : Simulated<T[K]>;
 };
 
-function isDefMessage(value: unknown): value is DefMessage {
-  return isWrapped(value) && hasProp(unwrap(value), "fnId");
-}
+export const NOT_TRANSFORMED = Symbol.for("NOT_TRANSFORMED");
 
-export function simulateFuncsRecursive<T>(
-  onFunction: (fn: CallableFunction) => DefMessage,
+export function transformRecursive<To>(
+  transform: (source: unknown) => To | typeof NOT_TRANSFORMED,
   value: unknown
-): Simulated<T> {
+): To {
   if (isPrimitive(value)) {
-    return value as Simulated<T>;
+    return value as To;
   }
-  if (isFunction(value)) {
-    return onFunction(value) as Simulated<T>;
+  const transformed = transform(value);
+  if (transformed !== NOT_TRANSFORMED) {
+    return transformed;
   }
   if (isIterable(value)) {
     const outArray = [];
     for (const item of value) {
-      outArray.push(simulateFuncsRecursive(onFunction, item));
+      outArray.push(transformRecursive(transform, item));
     }
-    return outArray as Simulated<T>;
+    return outArray as To;
   }
   if (isPlainObject(value)) {
     const outObj = {};
@@ -87,42 +83,10 @@ export function simulateFuncsRecursive<T>(
       Reflect.set(
         outObj,
         key,
-        simulateFuncsRecursive(onFunction, Reflect.get(value, key))
+        transformRecursive(transform, Reflect.get(value, key))
       );
     }
-    return outObj as Simulated<T>;
+    return outObj as To;
   }
   throw new Error(`Bad value! ${Object.prototype.toString.call(value)}`);
-}
-
-export function materializeFuncsRecursive<T>(
-  onDefMessage: (msg: DefMessage) => CallableFunction,
-  value: unknown
-): Materialized<T> {
-  if (isPrimitive(value) || isFunction(value)) {
-    return value as Materialized<T>;
-  }
-  if (isDefMessage(value)) {
-    return onDefMessage(value) as Materialized<T>;
-  }
-  if (isIterable(value)) {
-    const outArray = [];
-    for (const item of value) {
-      outArray.push(materializeFuncsRecursive(onDefMessage, item));
-    }
-    return outArray as Materialized<T>;
-  }
-  if (isPlainObject(value)) {
-    const outObj = {};
-    for (const key of Reflect.ownKeys(value)) {
-      Reflect.set(
-        outObj,
-        key,
-        materializeFuncsRecursive(onDefMessage, Reflect.get(value, key))
-      );
-    }
-    return outObj as Materialized<T>;
-  }
-  /* istanbul ignore next: should never happen */
-  return value as Materialized<T>;
 }

@@ -47,6 +47,7 @@
     "chokidar": "^3.5.3",
     "cli-highlight": "^2.1.11",
     "concurrently": "^7.2.2",
+    "cors": "^2.8.5",
     "crlf": "^1.1.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.21.0",

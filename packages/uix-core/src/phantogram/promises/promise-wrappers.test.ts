@@ -1,6 +1,5 @@
 import { wait } from "./wait";
 import { timeoutPromise } from "./timed";
-import { defer } from "./deferred";
 
 describe("promise wrappers", () => {
   const DONE = {};
@@ -59,32 +58,6 @@ describe("promise wrappers", () => {
       jest.advanceTimersByTime(50);
       await expect(ngmi).rejects.toThrowError("loool");
       expect(cleanup).toHaveBeenCalled();
-    });
-  });
-  describe("defer() returns a {promise, resolve, reject} tuple", () => {
-    it("can be resolved externally", async () => {
-      const deferred = defer();
-      jest.advanceTimersByTime(50);
-      deferred.resolve(DONE);
-      await expect(deferred.promise).resolves.toBe(DONE);
-    });
-    it("can be rejected externally", async () => {
-      const deferred = defer();
-      jest.advanceTimersByTime(50);
-      deferred.reject(new Error("nope"));
-      await expect(deferred.promise).rejects.toThrowError("nope");
-    });
-    it("can be resolved synchronously", async () => {
-      jest.useRealTimers();
-      const deferred = defer();
-      deferred.resolve(DONE);
-      await expect(deferred.promise).resolves.toBe(DONE);
-    });
-    it("can be rejected synchronously", async () => {
-      jest.useRealTimers();
-      const deferred = defer();
-      deferred.reject(new Error("nope"));
-      await expect(deferred.promise).rejects.toThrowError("nope");
     });
   });
 });

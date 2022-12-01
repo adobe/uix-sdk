@@ -1,5 +1,5 @@
 html, body {
-  font-size: 14pt;
+  font-size: 12pt;
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6rem;
@@ -10,8 +10,8 @@ html, body {
 label, input, button, p {
   font-size: 14pt;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.4rem;
-  padding: 0.5rem;
+  line-height: 1.4em;
+  padding: 0.5em;
 }
 
 main {

@@ -9,9 +9,11 @@ Loads the extension. Returns a promise which resolves when the extension has loa
 <b>Signature:</b>
 
 ```typescript
-load(): Promise<RemoteHostApis<VirtualApi>>;
+load(): Promise<{
+        [x: string]: {};
+    }>;
 ```
 <b>Returns:</b>
 
-Promise&lt;RemoteHostApis&lt;VirtualApi&gt;&gt;
+Promise&lt;{ \[x: string\]: {}; }&gt;
 

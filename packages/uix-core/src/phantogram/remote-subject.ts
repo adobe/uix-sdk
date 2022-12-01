@@ -174,10 +174,11 @@ export class RemoteSubject {
   }
 
   private subscribeOnce(type: string, handler: (arg: unknown) => void) {
-    this.emitter.once(type, handler);
-    return () => {
-      this.emitter.off(type, handler);
+    const once = (arg: unknown) => {
+      this.emitter.off(type, once);
+      handler(arg);
     };
+    return this.subscribe(type, once);
   }
 
   // #endregion Private Methods

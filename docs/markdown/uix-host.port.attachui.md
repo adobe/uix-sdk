@@ -9,10 +9,7 @@ Connect an iframe element which is displaying another page in the extension with
 <b>Signature:</b>
 
 ```typescript
-attachUI(iframe: HTMLIFrameElement): {
-        promise: Promise<GuestProxyWrapper>;
-        destroy(): void;
-    };
+attachUI(iframe: HTMLIFrameElement): Promise<Phantogram<unknown>>;
 ```
 
 ## Parameters
@@ -23,5 +20,5 @@ attachUI(iframe: HTMLIFrameElement): {
 
 <b>Returns:</b>
 
-{ promise: Promise&lt;GuestProxyWrapper&gt;; destroy(): void; }
+Promise&lt;Phantogram&lt;unknown&gt;&gt;
 

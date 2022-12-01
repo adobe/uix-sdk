@@ -1,14 +1,16 @@
-import { unwrap, wrap } from "./message-wrapper";
+import { isWrapped, unwrap, wrap } from "./message-wrapper";
 import EventEmitter from "eventemitter3";
 import type { DefMessage, Materialized, Simulated } from "./object-walker";
-import {
-  simulateFuncsRecursive,
-  materializeFuncsRecursive,
-} from "./object-walker";
+import { NOT_TRANSFORMED, transformRecursive } from "./object-walker";
 import { makeCallSender, receiveCalls } from "./rpc";
 import type { Simulator } from "./remote-subject";
 import { RemoteSubject } from "./remote-subject";
 import type { DefTicket } from "./tickets";
+import { hasProp } from "./value-assertions";
+
+function isDefMessage(value: unknown): value is DefMessage {
+  return isWrapped(value) && hasProp(unwrap(value), "fnId");
+}
 
 const bindAll = <T>(inst: T, methods: (keyof T)[]) => {
   for (const methodName of methods) {
@@ -85,6 +87,9 @@ export class ObjectSimulator implements Simulator {
   // #region Public Methods
 
   makeReceiver(fn: CallableFunction) {
+    if (typeof fn !== "function") {
+      return NOT_TRANSFORMED;
+    }
     let fnTicket = this.receiverTicketCache.get(fn);
     if (!fnTicket) {
       fnTicket = {
@@ -97,7 +102,10 @@ export class ObjectSimulator implements Simulator {
     return wrap(fnTicket);
   }
 
-  makeSender(message: DefMessage) {
+  makeSender(message: unknown) {
+    if (!isDefMessage(message)) {
+      return NOT_TRANSFORMED;
+    }
     const ticket = unwrap(message);
     /* istanbul ignore else: preopt */
     if (!this.senderCache.has(ticket)) {
@@ -111,11 +119,17 @@ export class ObjectSimulator implements Simulator {
   }
 
   materialize<T>(simulated: T) {
-    return materializeFuncsRecursive<T>(this.makeSender, simulated);
+    return transformRecursive<CallableFunction>(
+      this.makeSender,
+      simulated
+    ) as Materialized<T>;
   }
 
   simulate<T>(localObject: T) {
-    return simulateFuncsRecursive<T>(this.makeReceiver, localObject);
+    return transformRecursive<DefMessage>(
+      this.makeReceiver,
+      localObject
+    ) as Simulated<T>;
   }
 
   // #endregion Public Methods

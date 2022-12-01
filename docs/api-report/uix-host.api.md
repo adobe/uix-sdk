@@ -11,8 +11,8 @@ import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
 import type { HostMethodAddress } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
+import type { Phantogram } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
-import type { VirtualApi } from '@adobe/uix-core';
 
 // @public
 export type CapabilitySpec<T extends GuestApis> = {
@@ -146,15 +146,17 @@ export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements Gue
         sharedContext: Record<string, unknown>;
         events: Emits;
     });
-    apis: RemoteHostApis;
-    attachUI(iframe: HTMLIFrameElement): {
-        promise: Promise<GuestProxyWrapper>;
-        destroy(): void;
+    // (undocumented)
+    get apis(): {
+        [x: string]: {};
     };
+    attachUI(iframe: HTMLIFrameElement): Promise<Phantogram<unknown>>;
     error?: Error;
     hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
-    load(): Promise<RemoteHostApis<VirtualApi>>;
+    load(): Promise<{
+        [x: string]: {};
+    }>;
     provide(apis: RemoteHostApis): void;
     unload(): Promise<void>;
     url: URL;
@@ -176,9 +178,5 @@ export type PortOptions = {
 
 // @public
 export type SharedContextValues = Record<string, unknown>;
-
-// Warnings were encountered during analysis:
-//
-// src/port.ts:240:14 - (ae-forgotten-export) The symbol "GuestProxyWrapper" needs to be exported by the entry point index.d.ts
 
 ```

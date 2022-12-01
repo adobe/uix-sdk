@@ -11,8 +11,34 @@ import { Tunnel } from "./tunnel";
 
 const INIT_MESSAGE: WrappedMessage<InitTicket> = wrap(INIT_TICKET);
 
+/**
+ * Representation of an object on the other side of an iframe/window divide
+ * between JS runtimes.
+ *
+ * @remarks
+ * At first, phantogram simply returned the proxy to the remote object and did
+ * not expose any of the underlying event handling. However, there was no way
+ * for a consumer to handle the case where the remote iframe reloaded, which
+ * would invalidate all of the simulated objects.
+ *
+ * This new manager object exposes the {@link Tunnel} object so that consumers
+ * can subscribe to the "api" event.
+ * @alpha
+ */
 export interface Phantogram<ExpectedApi> {
+  /**
+   * The event emitter that transmits RPC events between remotes. Can be used to
+   * listen to "api" events, which re-emit the initial remote API after an
+   * unexpected reload. Can also be used to manually destroy the phantogram.
+   * @internal
+   */
   tunnel: Tunnel;
+  /**
+   * Accessor for the simulated object. Putting the object behind an accessor is
+   * a way (we hope) to subtly discourage hanging on to a reference to the
+   * object, which will invalidate without the holder of the reference knowing.
+   * @internal
+   */
   getRemoteApi(): Asynced<ExpectedApi>;
 }
 
@@ -33,7 +59,7 @@ async function setupApiExchange<T>(
     new Promise((resolve, reject) => {
       const simulator = ObjectSimulator.create(tunnel, FinalizationRegistry);
 
-      const sendApi: Function = simulator.makeSender(INIT_MESSAGE);
+      const sendApi = simulator.makeSender(INIT_MESSAGE);
       const apiCallback = (api: Asynced<T>) => {
         remoteApi = api;
         if (!done) {
@@ -44,7 +70,7 @@ async function setupApiExchange<T>(
       tunnel.on("api", apiCallback);
 
       const unsubscribe = receiveCalls(
-        tunnel.emit.bind(tunnel, "api"),
+        (api: Asynced<T>) => tunnel.emitLocal("api", api),
         INIT_TICKET,
         new WeakRef(simulator.subject)
       );
@@ -56,13 +82,19 @@ async function setupApiExchange<T>(
         }
       };
       tunnel.on("destroyed", destroy);
-      sendApi(apiToSend).catch(destroy);
+      tunnel.on("connected", () =>
+        (sendApi as Function)(apiToSend).catch(destroy)
+      );
     }),
     tunnel.config.timeout,
     () => tunnel.destroy()
   );
 }
 
+/**
+ * Create a Phantogram in an iframe, simulating objects from the parent window.
+ * @alpha
+ */
 export async function connectParentWindow<Expected>(
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown
@@ -71,11 +103,15 @@ export async function connectParentWindow<Expected>(
   return setupApiExchange<Expected>(tunnel, apiToSend);
 }
 
+/**
+ * Create a Phantogram simulating objects from the provided iframe runtime.
+ * @alpha
+ */
 export async function connectIframe<Expected>(
   frame: HTMLIFrameElement,
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown
 ): Promise<Phantogram<Expected>> {
-  const tunnel = await Tunnel.toIframe(frame, tunnelOptions);
+  const tunnel = Tunnel.toIframe(frame, tunnelOptions);
   return setupApiExchange<Expected>(tunnel, apiToSend);
 }

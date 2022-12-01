@@ -152,7 +152,10 @@ export class Port<GuestApi>
   implements GuestConnection
 {
   public get apis() {
-    return this.guestServer.getRemoteApi().apis;
+    if (this.isReady() && this.guestServer) {
+      const server = this.guestServer.getRemoteApi();
+      return server && server.apis;
+    }
   }
 
   // #region Properties (13)
@@ -226,7 +229,7 @@ export class Port<GuestApi>
         this.sharedContext = (
           (event as CustomEvent).detail as unknown as Record<string, unknown>
         ).context as Record<string, unknown>;
-        await this.connect();
+        await this.load();
         await this.guestServer
           .getRemoteApi()
           .emit("contextchange", { context: this.sharedContext });

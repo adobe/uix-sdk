@@ -3,8 +3,14 @@
 import path from "path";
 import express from "express";
 import expressHttpProxy from "express-http-proxy";
+import cors from "cors";
 import { createServer } from "http";
-import { makeLogger, getExamples, getSdks, runWithArg } from "./script-runner.mjs";
+import {
+  makeLogger,
+  getExamples,
+  getSdks,
+  runWithArg,
+} from "./script-runner.mjs";
 
 const cwd = process.cwd();
 
@@ -22,6 +28,7 @@ async function serve({ url, quiet, registry }) {
   if (registry) {
     app.use("/example-registry", expressHttpProxy(registry));
   }
+  app.use(cors());
   app.use(express.static(path.join(me.cwd, "dist"), { cacheControl: false }));
   app.use(express.static(me.cwd, { cacheControl: false }));
   for (const sdk of sdks) {

@@ -45,7 +45,7 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     error: GuestEventError;
     // (undocumented)
     protected getLocalMethods(): {
-        emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
+        emit: (type: "error" | "contextchange" | "beforeconnect" | "connected", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
@@ -77,7 +77,7 @@ class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
     // (undocumented)
     protected getLocalMethods(): {
         apis: Outgoing;
-        emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
+        emit: (type: "error" | "contextchange" | "beforeconnect" | "connected", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
@@ -123,8 +123,8 @@ export function register<Outgoing extends GuestApis>(config: GuestConfigWithMeth
 
 // Warnings were encountered during analysis:
 //
-// src/guest.ts:39:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
-// src/guest.ts:52:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
+// src/guest.ts:40:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
+// src/guest.ts:53:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
 // src/index.ts:85:1 - (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "GuestConfig"
 
 ```

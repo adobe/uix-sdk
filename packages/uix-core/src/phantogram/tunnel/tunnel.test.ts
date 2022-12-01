@@ -26,11 +26,11 @@ async function testEventExchange(local: Tunnel, remote: Tunnel) {
   const replyHandler = jest.fn();
   remote.on("outgoing", replyHandler);
   local.on("incoming", (data) => {
-    local.emitRemote("outgoing", {
+    local.emit("outgoing", {
       reply: `${data.greeting} It is I!`,
     });
   });
-  remote.emitRemote("incoming", { greeting: "Who goes there?" });
+  remote.emit("incoming", { greeting: "Who goes there?" });
   await wait(10);
   expect(replyHandler).toHaveBeenCalledTimes(1);
   expect(replyHandler.mock.lastCall[0]).toMatchObject({
@@ -76,8 +76,8 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   it("#emitRemote() sends remote events after connect", async () => {
     const messageListener = jest.fn();
     remote.port.addEventListener("message", messageListener);
-    local.tunnel.emitRemote("test2", { test2Payload: true });
-    local.tunnel.emitRemote("test3", { test3Payload: true });
+    local.tunnel.emit("test2", { test2Payload: true });
+    local.tunnel.emit("test3", { test3Payload: true });
     await wait(10);
     expect(messageListener).toHaveBeenCalledTimes(3);
     const connectMessageEvent = messageListener.mock.calls[0][0];
@@ -110,8 +110,8 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     local.tunnel.on("confirm", confirmHandler);
     const dispelHandler = jest.fn();
     remote.tunnel.on("dispel", dispelHandler);
-    local.tunnel.emitRemote("dispel", { dispelled: 1 });
-    remote.tunnel.emitRemote("confirm", { confirmed: 1 });
+    local.tunnel.emit("dispel", { dispelled: 1 });
+    remote.tunnel.emit("confirm", { confirmed: 1 });
     await wait(10);
     expect(confirmHandler).toHaveBeenCalledTimes(1);
     expect(dispelHandler).toHaveBeenCalledTimes(1);
@@ -120,10 +120,10 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     local.tunnel.connect(replacementChannel.port2);
 
     // this event should wait until remote connects port1;
-    local.tunnel.emitRemote("dispel", { dispelled: 2 });
+    local.tunnel.emit("dispel", { dispelled: 2 });
 
     // this event fires on the dead port, since remote.tunnel still has it
-    remote.tunnel.emitRemote("confirm", { confirmed: 2 });
+    remote.tunnel.emit("confirm", { confirmed: 2 });
     await wait(10);
     // so neither is called
     expect(confirmHandler).toHaveBeenCalledTimes(1);
@@ -135,7 +135,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     expect(dispelHandler).toHaveBeenCalledTimes(2);
 
     // this dispel event should work now
-    remote.tunnel.emitRemote("confirm", { confirmed: 3 });
+    remote.tunnel.emit("confirm", { confirmed: 3 });
     await wait(10);
 
     expect(confirmHandler).toHaveBeenCalledTimes(2);

@@ -4,6 +4,21 @@
 
 ```ts
 
+import EventEmitter from 'eventemitter3';
+
+// Warning: (ae-forgotten-export) The symbol "ExtractKeys_2" needs to be exported by the entry point index.d.ts
+//
+// @internal
+export type Asynced<T> = T extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : {
+    [K in ExtractKeys_2<T, Function | object | any[] | [any, any]>]: T[K] extends (...args: any) => PromiseLike<any> ? T[K] : T[K] extends [infer U, infer V] ? [Asynced<U>, Asynced<V>] : T[K] extends (infer U)[] ? Asynced<U>[] : T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : Asynced<T[K]>;
+};
+
+// @alpha
+export function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<Phantogram<Expected>>;
+
+// @alpha
+export function connectParentWindow<Expected>(tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<Phantogram<Expected>>;
+
 // @internal
 export function _customConsole(theme: Theme, type: string, name: string): DebugLogger;
 
@@ -73,10 +88,7 @@ export interface GuestApis {
 // @internal (undocumented)
 export interface GuestConnection {
     // (undocumented)
-    attachUI(frame: HTMLIFrameElement, privateMethods?: RemoteHostApis): {
-        promise: Promise<unknown>;
-        destroy: Function;
-    };
+    attachUI(frame: HTMLIFrameElement, privateMethods?: RemoteHostApis): Promise<unknown>;
     // (undocumented)
     error?: Error;
     // (undocumented)
@@ -116,11 +128,13 @@ export type NamedEvent<Type extends string = string, Detail = Record<string, unk
     readonly type: Type;
 };
 
-// Warning: (ae-forgotten-export) The symbol "TunnelOptions" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "Materialized" needs to be exported by the entry point index.d.ts
-//
-// @internal (undocumented)
-export function phantogram<Expected>({ key, targetOrigin, remote, timeout, }: TunnelOptions, apiToSend: unknown): Promise<Materialized<Expected>>;
+// @alpha
+export interface Phantogram<ExpectedApi> {
+    // @internal
+    getRemoteApi(): Asynced<ExpectedApi>;
+    // @internal
+    tunnel: Tunnel;
+}
 
 // @internal (undocumented)
 export const quietConsole: Console;
@@ -154,6 +168,29 @@ export type Theme = ThemeSpec | ThemeTag;
 // @internal
 export function timeoutPromise<T>(timeoutMs: number, promise: Promise<T>): Promise<unknown>;
 
+// @alpha
+export class Tunnel extends EventEmitter {
+    constructor(config: TunnelConfig);
+    // (undocumented)
+    config: TunnelConfig;
+    // (undocumented)
+    connect(remote: MessagePort): void;
+    // (undocumented)
+    destroy(): void;
+    // (undocumented)
+    emit(type: string | symbol, payload?: unknown): boolean;
+    // (undocumented)
+    emitLocal: (type: string | symbol, payload?: unknown) => any;
+    static toIframe(target: HTMLIFrameElement, options: Partial<TunnelConfig>): Tunnel;
+    static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel;
+}
+
+// @alpha (undocumented)
+export interface TunnelConfig {
+    targetOrigin: string;
+    timeout: number;
+}
+
 // @internal
 export type Unsubscriber = () => void;
 
@@ -169,18 +206,5 @@ export type VirtualApi = Record<string, object | ((...args: unknown[]) => unknow
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
-// src/phantogram/message-wrapper.ts:5:56 - (ae-forgotten-export) The symbol "NS_ROOT" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:25:1 - (ae-forgotten-export) The symbol "ExtractKeys_2" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:43:1 - (ae-forgotten-export) The symbol "Primitive" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:43:1 - (ae-forgotten-export) The symbol "Simulated" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:43:1 - (ae-forgotten-export) The symbol "Asynced" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:52:1 - (ae-forgotten-export) The symbol "WrappedMessage" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:52:1 - (ae-forgotten-export) The symbol "DefTicket" needs to be exported by the entry point index.d.ts
-// src/phantogram/object-walker.ts:55:1 - (ae-forgotten-export) The symbol "DefMessage" needs to be exported by the entry point index.d.ts
-// src/phantogram/tunnel/tunnel.ts:14:3 - (ae-forgotten-export) The symbol "MessageTarget" needs to be exported by the entry point index.d.ts
-// src/phantogram/tunnel/tunnel.ts:15:3 - (ae-forgotten-export) The symbol "MessageSource" needs to be exported by the entry point index.d.ts
-// src/phantogram/tunnel/tunnel.ts:19:1 - (ae-forgotten-export) The symbol "SeparateRemotes" needs to be exported by the entry point index.d.ts
-// src/phantogram/tunnel/tunnel.ts:22:1 - (ae-forgotten-export) The symbol "Remote" needs to be exported by the entry point index.d.ts
-// src/phantogram/tunnel/tunnel.ts:32:3 - (ae-forgotten-export) The symbol "Remoteable" needs to be exported by the entry point index.d.ts
 
 ```

@@ -69,6 +69,13 @@ function isFromOrigin(
   }
 }
 
+const { emit: emitOn } = EventEmitter.prototype;
+
+/**
+ * An EventEmitter across two documents. It emits events on the remote document
+ * and takes subscribers from the local document.
+ * @alpha
+ */
 export class Tunnel extends EventEmitter {
   // #region Properties
 
@@ -93,15 +100,12 @@ export class Tunnel extends EventEmitter {
    * Create a Tunnel that connects to the page running in the provided iframe.
    *
    * @remarks
-   * Returns a Promise that resolves with a connected tunnel if the page in the
-   * provided iframe has called {@link toParent}. The tunnel may reconnect if
-   * the iframe reloads, in which case it will emit another "connected" event.
-   *
-   * @example
-   * ```ts
-   * const iframe = document.createElement('iframe');
-   *
-   * ```
+   * Returns a Tunnel that listens for connection requests from the page in the
+   * provided iframe, which it will send periodically until timeout if that page
+   * has called {@link Tunnel.toParent}. If it receives one, the Tunnel will accept the
+   * connection and send an exclusive MessagePort to the phantogram on the other
+   * end. The tunnel may reconnect if the iframe reloads, in which case it will
+   * emit another "connected" event.
    *
    * @alpha
    */
@@ -138,7 +142,7 @@ export class Tunnel extends EventEmitter {
       window.removeEventListener("message", offerListener);
     };
     timeout = window.setTimeout(() => {
-      tunnel.emit(
+      tunnel.emitLocal(
         "error",
         new Error(
           `Timed out awaiting initial message from iframe after ${config.timeout}ms`
@@ -165,6 +169,17 @@ export class Tunnel extends EventEmitter {
     return tunnel;
   }
 
+  /**
+   * Create a Tunnel that connects to the page running in the parent window.
+   *
+   * @remarks
+   * Returns a Tunnel that starts sending connection requests to the parent
+   * window, sending them periodically until the window responds with an accept
+   * message or the timeout passes. The parent window will accept the request if
+   * it calls {@link Tunnel.toIframe}.
+   *
+   * @alpha
+   */
   static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel {
     let retrying: number;
     let timeout: number;
@@ -183,7 +198,7 @@ export class Tunnel extends EventEmitter {
           const portError = new Error(
             "Received handshake accept message, but it did not include a MessagePort to establish tunnel"
           );
-          tunnel.emit("error", portError);
+          tunnel.emitLocal("error", portError);
           return;
         }
         tunnel.connect(event.ports[0]);
@@ -196,7 +211,7 @@ export class Tunnel extends EventEmitter {
     };
 
     timeout = window.setTimeout(() => {
-      tunnel.emit(
+      tunnel.emitLocal(
         "error",
         new Error(
           `Timed out waiting for initial response from parent after ${config.timeout}ms`
@@ -228,7 +243,7 @@ export class Tunnel extends EventEmitter {
     }
     this._messagePort = remote;
     remote.addEventListener("message", this._emitFromMessage);
-    this.emitRemote("connected");
+    this.emit("connected");
     this._messagePort.start();
   }
 
@@ -237,18 +252,22 @@ export class Tunnel extends EventEmitter {
       this._messagePort.close();
       this._messagePort = null;
     }
+    this.emitLocal("destroyed");
     this.emit("destroyed");
-    this.emitRemote("destroyed");
     // this.removeAllListeners(); // TODO: maybe necessary for memory leaks
   }
 
-  emitRemote(type: string, payload?: unknown): boolean {
+  emit(type: string | symbol, payload?: unknown): boolean {
     if (!this._messagePort) {
       return false;
     }
     this._messagePort.postMessage({ type, payload });
     return true;
   }
+
+  emitLocal = (type: string | symbol, payload?: unknown) => {
+    return emitOn.call(this, type, payload);
+  };
 
   // #endregion Public Methods
 
@@ -285,7 +304,7 @@ export class Tunnel extends EventEmitter {
   // #region Private Methods
 
   private _emitFromMessage = ({ data: { type, payload } }: MessageEvent) => {
-    this.emit(type, payload);
+    this.emitLocal(type, payload);
   };
 
   // #endregion Private Methods

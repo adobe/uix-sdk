@@ -1,2 +1,3 @@
 *.json  linguist-language=JSON-with-Comments
 *.jpg  -text
+package-lock.json -diff
