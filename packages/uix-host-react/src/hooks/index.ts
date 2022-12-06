@@ -11,3 +11,4 @@ governing permissions and limitations under the License.
 */
 
 export * from "./useExtensions.js";
+export * from "./useHost.js";

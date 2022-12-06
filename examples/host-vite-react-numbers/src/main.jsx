@@ -17,15 +17,20 @@ import App from "./App";
 import "./index.css";
 
 async function main() {
-  const extensionsProvider = () => fetch(REGISTRY_URL)
-      .then(extensionListResponse => extensionListResponse.json())
-      .then(extensionList => extensionList.reduce(
-        (byId, extension) => ({
-          ...byId,
-          [extension.id]: extension.url,
-        }),
-        {}
-      ));
+  const registryUrl = new URL(REGISTRY_URL, window.location);
+  registryUrl.searchParams.append("keywords", "numbers");
+  const extensionsProvider = () =>
+    fetch(registryUrl)
+      .then((extensionListResponse) => extensionListResponse.json())
+      .then((extensionList) =>
+        extensionList.reduce(
+          (byId, extension) => ({
+            ...byId,
+            [extension.id]: extension.url,
+          }),
+          {}
+        )
+      );
 
   ReactDOM.render(
     <React.StrictMode>

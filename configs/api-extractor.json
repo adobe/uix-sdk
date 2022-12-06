@@ -114,9 +114,15 @@
      *
      * DEFAULT VALUE: no overrideTsconfig section
      */
+     "tsconfigFilePath": "../tsconfig-docs.json",
     // "overrideTsconfig": {
-    //   . . .
-    // }
+    //   "exclude": [ "packages/**/*.test.*"],
+    //   "compilerOptions": {
+    //     "downlevelIteration": true,
+    //     "esModuleInterop": true,
+    //     "lib": ["ES2021", "DOM", "ES2021.WeakRef"]
+    //   }
+    // },
     /**
      * This option causes the compiler to be invoked with the --skipLibCheck option. This option is not recommended
      * and may cause API Extractor to produce incomplete or incorrect declarations, but it may be required when
@@ -125,7 +131,7 @@
      *
      * DEFAULT VALUE: false
      */
-    // "skipLibCheck": true,
+    // "skipLibCheck": true
   },
 
   /**
@@ -395,6 +401,10 @@
       },
       "ae-unresolved-inheritdoc-base": {
         "logLevel": "warning",
+        "addToApiReportFile": true
+      },
+      "ae-wrong-input-file-type" : {
+        "logLevel": "none",
         "addToApiReportFile": true
       }
     },

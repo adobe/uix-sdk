@@ -4,14 +4,14 @@
   "version": "0.0.1",
   "description": "Hypatia",
   "scripts": {
-    "clean": "del ./dist",
-    "example:build": "echo ''",
-    "example:development": "serve -p $MULTI_SERVER_PORT .",
-    "example:production": "npm run -s example:development",
-    "preexample:development": "del ./dist; ln -s ../../packages/uix-guest/dist/ ./dist"
+    "example:development": "node ../../scripts/serve.mjs",
+    "example:production": "node ../../scripts/serve.mjs --quiet"
   },
   "dependencies": {
     "@adobe/uix-guest": "*"
   },
+  "keywords": [
+    "numbers"
+  ],
   "license": "Apache-2.0"
 }

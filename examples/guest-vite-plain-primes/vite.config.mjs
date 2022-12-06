@@ -10,10 +10,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { defineConfig } from "vite";
-import commonExampleConfig from "../../configs/common-viteconfig";
+export { default } from "../../configs/common-viteconfig.js";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  ...commonExampleConfig(),
-});
+// import { defineConfig } from "vite";
+// import commonExampleConfig from "../../configs/common-viteconfig";
+
+// // https://vitejs.dev/config/
+// export default defineConfig(commonExampleConfig);

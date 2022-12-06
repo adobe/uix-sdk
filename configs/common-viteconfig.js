@@ -9,34 +9,29 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
+import { resolve } from "path";
+import { getSdks } from "../scripts/script-runner.mjs";
 
-const allSdks = [
-  "@adobe/uix-core",
-  "@adobe/uix-guest",
-  "@adobe/uix-host",
-  "@adobe/uix-host-react",
-];
-export default function commonExampleConfig() {
+export default async function commonExampleConfig() {
+  const sdks = await getSdks();
+  const sdkNames = sdks.map(({ pkg }) => pkg.name);
   /** @type {import('vite').UserConfig} */
   const commonConfig = {
     logLevel: "warn",
     clearScreen: false,
-    resolve: {
-      alias: {
-        "@adobe/uix-core": "@adobe/uix-core/dist/esm/index.js",
-        "@adobe/uix-guest": "@adobe/uix-guest/dist/esm/index.js",
-        "@adobe/uix-host": "@adobe/uix-host/dist/esm/index.js",
-        "@adobe/uix-host-react": "@adobe/uix-host-react/dist/esm/index.js",
-      }
-    },
     optimizeDeps: {
-      include: [...allSdks, "react"],
+      force: true,
+      include: [...sdkNames, "react"],
+      transformMixedEsModules: true,
     },
     build: {
+      sourcemap: "inline",
       commonjsOptions: {
-        exclude: ["react"],
+        exclude: [...sdkNames, "react"],
       },
+      ssr: false,
     },
+    ssr: false,
     server: {
       strictPort: true,
       port: process.env.MULTI_SERVER_PORT,
@@ -48,6 +43,15 @@ export default function commonExampleConfig() {
     define: {
       REGISTRY_URL: JSON.stringify(
         process.env.REGISTRY_URL || "http://localhost:3000/"
+      ),
+    },
+    resolve: {
+      alias: sdks.reduce(
+        (aliases, sdk) => ({
+          ...aliases,
+          [sdk.pkg.name]: resolve(sdk.cwd, "dist/esm"),
+        }),
+        {}
       ),
     },
   };

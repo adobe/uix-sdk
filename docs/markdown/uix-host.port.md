@@ -29,7 +29,7 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [apis](./uix-host.port.apis.md) |  | RemoteHostApis | Dictionary of namespaced methods that were registered by this guest at the time of connection, using [register()](./uix-guest.register.md)<!-- -->. |
+|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | { \[x: string\]: {}; } |  |
 |  [error?](./uix-host.port.error.md) |  | Error | <i>(Optional)</i> If any errors occurred during the loading of guests, this property will contain the error that was raised. |
 |  [url](./uix-host.port.url.md) |  | URL | The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads. |
 

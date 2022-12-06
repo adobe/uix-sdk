@@ -18,6 +18,8 @@ import figures from "figures";
 import { execFile, spawn } from "child_process";
 const execP = promisify(execFile);
 
+const repoRoot = new URL("../", import.meta.url).pathname;
+
 export const logVarHighlighter =
   (formatter) =>
   (parts, ...fields) => {
@@ -50,7 +52,8 @@ export const makeLogger = (tagTxt) =>
     const [symbol, color, highlightColor] = LogFormats[methodName];
     const tag = tagTxt ? chalk.dim(` (${tagTxt})`) : "";
     const prefix = color(symbol + tag);
-    const level = typeof console[methodName] === "function" ? methodName : "log";
+    const level =
+      typeof console[methodName] === "function" ? methodName : "log";
     const method = (first, ...rest) =>
       console[level](`${prefix} ${color(first)}`, ...rest);
     const outConsole = {
@@ -65,7 +68,8 @@ export const makeLogger = (tagTxt) =>
     const highlight = highlightColor
       ? logVarHighlighter(highlightColor)
       : highlightLogVars;
-    outConsole[methodName].hl = (...args) => outConsole[methodName](highlight(...args));
+    outConsole[methodName].hl = (...args) =>
+      outConsole[methodName](highlight(...args));
     return outConsole;
   }, {});
 
@@ -94,7 +98,11 @@ export function sh(cmd, args, opts = {}) {
         ...spawnOpts,
       });
       child.on("error", reject);
-      child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`"${cmd} ${args.join(' ')}" exited with errors.`))));
+      child.on("close", (code) =>
+        code === 0
+          ? resolve()
+          : reject(new Error(`"${cmd} ${args.join(" ")}" exited with errors.`))
+      );
     } catch (e) {
       reject(e);
     }
@@ -114,10 +122,10 @@ export async function shResult(cmd, args, opts = {}) {
 
 const IS_NOT_WORKSPACE = Symbol("IS_NOT_WORKSPACE");
 export async function getWorkspaces(category) {
-  const workspaceNames = await readdir(resolve(process.cwd(), category));
+  const workspaceNames = await readdir(resolve(repoRoot, category));
   const workspaces = await Promise.all(
     workspaceNames.map(async (name) => {
-      const workspaceDir = resolve(process.cwd(), category, name);
+      const workspaceDir = resolve(repoRoot, category, name);
       try {
         const hasPkg = (await readdir(workspaceDir)).some(
           (filename) => filename === "package.json"
@@ -227,7 +235,6 @@ export async function runWithArg(fn, validator = () => {}) {
   try {
     const gitRoot = await shResult("git", ["rev-parse", "--show-toplevel"]);
     if (gitRoot !== workingDir) {
-      logger.warn("Changing directory to %s", gitRoot);
       process.chdir(gitRoot);
       workingDir = gitRoot;
     }

@@ -7,12 +7,15 @@
     "clean": "del dist",
     "example:build": "parcel build src/index.html",
     "example:development": "parcel -p $MULTI_SERVER_PORT src/index.html",
-    "example:production": "serve -p $MULTI_SERVER_PORT dist"
+    "example:production": "node ../../scripts/serve.mjs --quiet"
   },
   "dependencies": {
     "@adobe/uix-guest": "*",
     "humanize-duration": "^3.27.2",
     "zalgo-js": "^1.0.0"
   },
+  "keywords": [
+    "numbers"
+  ],
   "license": "Apache-2.0"
 }

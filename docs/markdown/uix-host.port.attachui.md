@@ -9,7 +9,7 @@ Connect an iframe element which is displaying another page in the extension with
 <b>Signature:</b>
 
 ```typescript
-attachUI(iframe: HTMLIFrameElement): Connection<RemoteHostApis<GuestApi>>;
+attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ attachUI(iframe: HTMLIFrameElement): Connection<RemoteHostApis<GuestApi>>;
 
 <b>Returns:</b>
 
-Connection&lt;RemoteHostApis&lt;GuestApi&gt;&gt;
+Promise&lt;CrossRealmObject&lt;unknown&gt;&gt;
 

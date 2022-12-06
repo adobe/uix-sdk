@@ -1,0 +1,98 @@
+<!--
+Copyright 2022 Adobe. All rights reserved.
+This file is licensed to you under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License. You may obtain a copy
+of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+OF ANY KIND, either express or implied. See the License for the specific language
+governing permissions and limitations under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- blank favicon to avoid the 404 in console-->
+  <link
+    href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
+    rel="icon" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cross-Realm Object Host</title>
+
+  <style>
+    * {
+      --fg: #abb2bf;
+      --bg: #282c34;
+      --hl: #61aeee;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="controls">
+    <button id="start">Start</button>
+    <p id="status"></p>
+  </div>
+  <main>
+    <h2>outer app interface</h2>
+    <pre><code id="interface"></code></pre>
+  </main>
+  <script type="module">
+    import { connectIframe } from "/@adobe/uix-core/esm";
+    const guestUrl = await fetch('/example-registry?keywords=xrobject')
+      .then(res => res.json())
+      .then(list => list[0].url);
+    const guestRsrc = (path) => new URL(path, guestUrl).href;
+
+    const stylesheet = document.createElement('link');
+    stylesheet.setAttribute('rel', 'stylesheet');
+    stylesheet.setAttribute('href', guestRsrc('/main.css'));
+    document.head.appendChild(stylesheet);
+
+    const { instrument } = await import(guestRsrc('/instruments.js'));
+    const frame = document.createElement('iframe');
+    frame.addEventListener("load", e => {
+      console.log('iframe "load" event', e)
+    });
+    frame.setAttribute('id', 'inner-app');
+    frame.setAttribute('src', guestUrl);
+    document.querySelector('main').appendChild(frame);
+    const $btn = document.getElementById('start');
+    const $status = document.getElementById('status');
+    const { app: innerApp, getStats } = await instrument("outer", (print) =>
+      connectIframe(frame, { targetOrigin: '*' }, {
+        async benchmark(count) {
+          $status.innerText = 'running...'
+          performance.mark('benchmark');
+          print('Will iterate %sx', count);
+          const before = new Date().getTime();
+          while (count >= 0) {
+            const addend = count;
+            await innerApp.runThisIncrementer(
+              async function addThisMany(callback) {
+                return (await callback()) + addend;
+              }
+            );
+            count--;
+          }
+          await innerApp.lap(new Date().getTime() - before);
+          $btn.innerText = "Done!";
+          $btn.setAttribute('style', '--pct:100%');
+          $status.innerText = `took ${(performance.measure("benchmark", "benchmark").duration / 1000).toFixed(2)} seconds`;
+        },
+        async report(cb) {
+          const progressPct = `${(await cb())}%`;
+          $btn.innerText = progressPct;
+          $btn.setAttribute('style', `--pct:${progressPct}`);
+        }
+      }));
+    $btn.onclick = async () => {
+      $btn.setAttribute('readonly', true);
+      await innerApp.start();
+    }
+
+  </script>
+</body>
+
+</html>

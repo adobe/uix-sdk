@@ -4,15 +4,10 @@
 
 ## Port.apis property
 
-Dictionary of namespaced methods that were registered by this guest at the time of connection, using [register()](./uix-guest.register.md)<!-- -->.
-
 <b>Signature:</b>
 
 ```typescript
-apis: RemoteHostApis;
+get apis(): {
+        [x: string]: {};
+    };
 ```
-
-## Remarks
-
-These methods are proxy methods; you can only pass serializable objects to them, not class instances, methods or callbacks.
-

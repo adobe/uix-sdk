@@ -56,6 +56,8 @@ register({
       },
     },
   },
-}).catch((e) => {
+}).then((instance) => {
+  instance.logger.log('he arrive');
+},(e) => {
   console.error(e);
 });

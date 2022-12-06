@@ -91,7 +91,6 @@ async function runParallel(runSpecs, opts = {}) {
     const spec = runSpecs[i];
     const cmd = jobs.commands[i];
     const outColor = typeColors[spec.type];
-    const prefix = `[${chalk.dim(spec.type)} ${spec.name}] `;
     const outPrefix = outColor(`[${chalk.dim(spec.type)} ${spec.name}] `);
     const errPrefix = outColor.bold(`[${spec.type} ${spec.name}] `);
     const stdout = cmd.stdout.pipe(share());
@@ -221,7 +220,7 @@ async function serveExamples(mode) {
         ).map((sdkPackage) => ({
           cwd: sdkPackage.cwd,
           name: sdkPackage.pkg.name.split("-").pop(),
-          command: "npm run -s watch",
+          command: "npm run -s watch -- --format cjs,esm,iife",
           type: "sdk",
           env: {
             FORCE_COLOR: 2,

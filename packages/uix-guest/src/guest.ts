@@ -11,16 +11,17 @@ governing permissions and limitations under the License.
 */
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
-import { Connection, connectToParent } from "penpal";
 import type {
   RemoteHostApis,
   HostConnection,
   NamedEvent,
+  CrossRealmObject,
   VirtualApi,
 } from "@adobe/uix-core";
 import {
   Emitter,
   makeNamespaceProxy,
+  connectParentWindow,
   timeoutPromise,
   quietConsole,
 } from "@adobe/uix-core";
@@ -51,10 +52,7 @@ export type GuestEventContextChange = GuestEvent<
 /** @public */
 export type GuestEventBeforeConnect = GuestEvent<"beforeconnect">;
 /** @public */
-export type GuestEventConnected = GuestEvent<
-  "connected",
-  { connection: Connection }
->;
+export type GuestEventConnected = GuestEvent<"connected">;
 /** @public */
 export type GuestEventError = GuestEvent<"error", { error: Error }>;
 
@@ -155,7 +153,7 @@ export class Guest<
    * {@inheritdoc SharedContext}
    */
   sharedContext: SharedContext;
-  private debugLogger: Console = quietConsole;
+  logger: Console = quietConsole;
 
   /**
    * @param config - Initializer for guest object, including ID.
@@ -166,7 +164,7 @@ export class Guest<
       this.timeout = config.timeout;
     }
     if (config.debug) {
-      this.debugLogger = debugGuest(this);
+      this.logger = debugGuest(this);
     }
     this.addEventListener("contextchange", (event) => {
       this.sharedContext = new SharedContext(event.detail.context);
@@ -186,8 +184,12 @@ export class Guest<
       await this.hostConnectionPromise;
       try {
         const result = await timeoutPromise(
+          `Calling host method ${address.path.join(".")}${address.name}(...)`,
+          this.hostConnection.getRemoteApi().invokeHostMethod(address),
           10000,
-          this.hostConnection.invokeHostMethod(address)
+          (e) => {
+            this.logger.error(e);
+          }
         );
         return result;
       } catch (e) {
@@ -198,19 +200,19 @@ export class Guest<
             error.message
           }`
         );
-        this.debugLogger.error(methodError);
+        this.logger.error(methodError);
         throw methodError;
       }
     }
   );
   private timeout = 10000;
-  private hostConnectionPromise: Promise<RemoteHostApis<HostConnection>>;
-  private hostConnection!: RemoteHostApis<HostConnection>;
+  private hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
+  private hostConnection!: CrossRealmObject<HostConnection>;
   /** @internal */
   protected getLocalMethods() {
     return {
       emit: (...args: Parameters<typeof this.emit>) => {
-        this.debugLogger.log(`Event "${args[0]}" emitted from host`);
+        this.logger.log(`Event "${args[0]}" emitted from host`);
         this.emit(...args);
       },
     };
@@ -235,21 +237,28 @@ export class Guest<
   async _connect() {
     this.emit("beforeconnect", { guest: this });
     try {
-      const connection = connectToParent<HostConnection<Incoming>>({
-        timeout: this.timeout,
-        methods: this.getLocalMethods(),
-      });
-
-      this.hostConnectionPromise = connection.promise;
-      this.hostConnection = await this.hostConnectionPromise;
-      this.sharedContext = new SharedContext(
-        await this.hostConnection.getSharedContext()
+      const hostConnectionPromise = connectParentWindow<HostConnection>(
+        {
+          targetOrigin: "*",
+          timeout: this.timeout,
+        },
+        this.getLocalMethods()
       );
-      this.debugLogger.log("retrieved sharedContext", this.sharedContext);
-      this.emit("connected", { guest: this, connection });
+
+      this.hostConnectionPromise = hostConnectionPromise;
+      this.hostConnection = await this.hostConnectionPromise;
     } catch (e) {
       this.emit("error", { guest: this, error: e });
-      this.debugLogger.error("Connection failed!", e);
+      this.logger.error("Connection failed!", e);
+      return;
+    }
+    try {
+      this.sharedContext = new SharedContext(
+        await this.hostConnection.getRemoteApi().getSharedContext()
+      );
+    } catch (e) {
+      this.emit("error", { guest: this, error: e });
+      this.logger.error("getSharedContext failed!", e);
     }
   }
 }

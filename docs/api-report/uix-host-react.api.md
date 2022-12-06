@@ -52,6 +52,13 @@ export interface GuestUIProps extends FrameProps {
     width: FrameProps["width"];
 }
 
+// @public (undocumented)
+export class OutsideOfExtensionContextError extends Error {
+    constructor(msg: string);
+    // (undocumented)
+    outsideOfExtensionContext: boolean;
+}
+
 // @internal (undocumented)
 export interface TypedGuestConnection<T extends GuestApis> extends GuestConnection {
     // (undocumented)
@@ -77,6 +84,11 @@ export interface UseExtensionsResult<T extends GuestApis> {
     extensions: TypedGuestConnection<T>[];
     loading: boolean;
 }
+
+// Warning: (ae-forgotten-export) The symbol "UseHostResponse" needs to be exported by the entry point index.d.ts
+//
+// @beta
+export function useHost(): UseHostResponse;
 
 
 export * from "@adobe/uix-host";
