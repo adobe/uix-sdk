@@ -16,7 +16,7 @@ const INIT_MESSAGE: WrappedMessage<InitTicket> = wrap(INIT_TICKET);
  * between JS runtimes.
  *
  * @remarks
- * At first, phantogram simply returned the proxy to the remote object and did
+ * At first, xrobject simply returned the proxy to the remote object and did
  * not expose any of the underlying event handling. However, there was no way
  * for a consumer to handle the case where the remote iframe reloaded, which
  * would invalidate all of the simulated objects.
@@ -25,11 +25,11 @@ const INIT_MESSAGE: WrappedMessage<InitTicket> = wrap(INIT_TICKET);
  * can subscribe to the "api" event.
  * @alpha
  */
-export interface Phantogram<ExpectedApi> {
+export interface CrossRealmObject<ExpectedApi> {
   /**
    * The event emitter that transmits RPC events between remotes. Can be used to
    * listen to "api" events, which re-emit the initial remote API after an
-   * unexpected reload. Can also be used to manually destroy the phantogram.
+   * unexpected reload. Can also be used to manually destroy the xrobject.
    * @internal
    */
   tunnel: Tunnel;
@@ -45,10 +45,10 @@ export interface Phantogram<ExpectedApi> {
 async function setupApiExchange<T>(
   tunnel: Tunnel,
   apiToSend: unknown
-): Promise<Phantogram<T>> {
+): Promise<CrossRealmObject<T>> {
   let done = false;
   let remoteApi!: Asynced<T>;
-  const phantogram: Phantogram<T> = {
+  const xrObject: CrossRealmObject<T> = {
     tunnel,
     getRemoteApi(): Asynced<T> {
       return remoteApi;
@@ -64,7 +64,7 @@ async function setupApiExchange<T>(
         remoteApi = api;
         if (!done) {
           done = true;
-          resolve(phantogram);
+          resolve(xrObject);
         }
       };
       tunnel.on("api", apiCallback);
@@ -92,26 +92,26 @@ async function setupApiExchange<T>(
 }
 
 /**
- * Create a Phantogram in an iframe, simulating objects from the parent window.
+ * Create a CrossRealmObject in an iframe, simulating objects from the parent window.
  * @alpha
  */
 export async function connectParentWindow<Expected>(
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown
-): Promise<Phantogram<Expected>> {
+): Promise<CrossRealmObject<Expected>> {
   const tunnel = Tunnel.toParent(window.parent, tunnelOptions);
   return setupApiExchange<Expected>(tunnel, apiToSend);
 }
 
 /**
- * Create a Phantogram simulating objects from the provided iframe runtime.
+ * Create a CrossRealmObject simulating objects from the provided iframe runtime.
  * @alpha
  */
 export async function connectIframe<Expected>(
   frame: HTMLIFrameElement,
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown
-): Promise<Phantogram<Expected>> {
+): Promise<CrossRealmObject<Expected>> {
   const tunnel = Tunnel.toIframe(frame, tunnelOptions);
   return setupApiExchange<Expected>(tunnel, apiToSend);
 }

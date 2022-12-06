@@ -17,7 +17,7 @@ import type {
   NamedEvent,
   RemoteHostApis,
   GuestApis,
-  Phantogram,
+  CrossRealmObject,
   Unsubscriber,
   VirtualApi,
 } from "@adobe/uix-core";
@@ -192,7 +192,7 @@ export class Port<GuestApi>
    * when it loads.
    */
   public url: URL;
-  private guestServer: Phantogram<GuestProxyWrapper>;
+  private guestServer: CrossRealmObject<GuestProxyWrapper>;
 
   // #endregion Properties (13)
 

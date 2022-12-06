@@ -15,7 +15,7 @@ import type {
   RemoteHostApis,
   HostConnection,
   NamedEvent,
-  Phantogram,
+  CrossRealmObject,
   VirtualApi,
 } from "@adobe/uix-core";
 import {
@@ -184,8 +184,12 @@ export class Guest<
       await this.hostConnectionPromise;
       try {
         const result = await timeoutPromise(
+          `Calling host method ${address.path.join(".")}${address.name}(...)`,
+          this.hostConnection.getRemoteApi().invokeHostMethod(address),
           10000,
-          this.hostConnection.getRemoteApi().invokeHostMethod(address)
+          (e) => {
+            this.logger.error(e);
+          }
         );
         return result;
       } catch (e) {
@@ -202,8 +206,8 @@ export class Guest<
     }
   );
   private timeout = 10000;
-  private hostConnectionPromise: Promise<Phantogram<HostConnection>>;
-  private hostConnection!: Phantogram<HostConnection>;
+  private hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
+  private hostConnection!: CrossRealmObject<HostConnection>;
   /** @internal */
   protected getLocalMethods() {
     return {

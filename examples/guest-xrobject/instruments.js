@@ -12,9 +12,9 @@ export async function instrument(frame, fn) {
     print("window received message", JSON.stringify(m.data, null, 2));
   });
 
-  const phantogram = await fn(print);
+  const xrObject = await fn(print);
   return {
-    app: phantogram.getRemoteApi(),
+    app: xrObject.getRemoteApi(),
     print,
   };
 }

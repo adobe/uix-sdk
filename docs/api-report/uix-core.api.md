@@ -6,18 +6,26 @@
 
 import EventEmitter from 'eventemitter3';
 
-// Warning: (ae-forgotten-export) The symbol "ExtractKeys_2" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ExtractKeys" needs to be exported by the entry point index.d.ts
 //
 // @internal
 export type Asynced<T> = T extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : {
-    [K in ExtractKeys_2<T, Function | object | any[] | [any, any]>]: T[K] extends (...args: any) => PromiseLike<any> ? T[K] : T[K] extends [infer U, infer V] ? [Asynced<U>, Asynced<V>] : T[K] extends (infer U)[] ? Asynced<U>[] : T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : Asynced<T[K]>;
+    [K in ExtractKeys<T, Function | object | any[] | [any, any]>]: T[K] extends (...args: any) => PromiseLike<any> ? T[K] : T[K] extends [infer U, infer V] ? [Asynced<U>, Asynced<V>] : T[K] extends (infer U)[] ? Asynced<U>[] : T[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : Asynced<T[K]>;
 };
 
 // @alpha
-export function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<Phantogram<Expected>>;
+export function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<CrossRealmObject<Expected>>;
 
 // @alpha
-export function connectParentWindow<Expected>(tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<Phantogram<Expected>>;
+export function connectParentWindow<Expected>(tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<CrossRealmObject<Expected>>;
+
+// @alpha
+export interface CrossRealmObject<ExpectedApi> {
+    // @internal
+    getRemoteApi(): Asynced<ExpectedApi>;
+    // @internal
+    tunnel: Tunnel;
+}
 
 // @internal
 export function _customConsole(theme: Theme, type: string, name: string): DebugLogger;
@@ -128,32 +136,24 @@ export type NamedEvent<Type extends string = string, Detail = Record<string, unk
     readonly type: Type;
 };
 
-// @alpha
-export interface Phantogram<ExpectedApi> {
-    // @internal
-    getRemoteApi(): Asynced<ExpectedApi>;
-    // @internal
-    tunnel: Tunnel;
-}
-
 // @internal (undocumented)
 export const quietConsole: Console;
 
-// Warning: (ae-forgotten-export) The symbol "ExtractKeys" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ExtractKeys_2" needs to be exported by the entry point index.d.ts
 //
 // @internal (undocumented)
 export type RemoteGuestApiNS<G extends GuestApiNS = GuestApiNS> = {
-    [K in ExtractKeys<G, GuestApiMethod>]: (...args: Parameters<G[K]>) => Promise<ReturnType<G[K]>>;
+    [K in ExtractKeys_2<G, GuestApiMethod>]: (...args: Parameters<G[K]>) => Promise<ReturnType<G[K]>>;
 };
 
 // @internal (undocumented)
 export type RemoteGuestApis<G extends GuestApis = GuestApis> = {
-    [K in ExtractKeys<G, GuestApiNS>]: RemoteGuestApiNS<GuestApiNS>;
+    [K in ExtractKeys_2<G, GuestApiNS>]: RemoteGuestApiNS<GuestApiNS>;
 };
 
 // @internal (undocumented)
 export type RemoteHostApis<Api = VirtualApi> = {
-    [K in ExtractKeys<Api, CallableFunction | object>]: Api[K] extends (...args: unknown[]) => PromiseLike<any> ? Api[K] : Api[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : RemoteHostApis<Api[K]>;
+    [K in ExtractKeys_2<Api, CallableFunction | object>]: Api[K] extends (...args: unknown[]) => PromiseLike<any> ? Api[K] : Api[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : RemoteHostApis<Api[K]>;
 };
 
 // @internal
@@ -166,7 +166,7 @@ export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
 export type Theme = ThemeSpec | ThemeTag;
 
 // @internal
-export function timeoutPromise<T>(timeoutMs: number, promise: Promise<T>): Promise<unknown>;
+export function timeoutPromise<T>(description: string, promise: Promise<T>, ms: number, onReject: (e: Error) => void): Promise<T>;
 
 // @alpha
 export class Tunnel extends EventEmitter {
@@ -196,6 +196,9 @@ export type Unsubscriber = () => void;
 
 // @internal (undocumented)
 export type VirtualApi = Record<string, object | ((...args: unknown[]) => unknown)>;
+
+// @internal
+export function wait(ms: number): Promise<unknown>;
 
 // Warnings were encountered during analysis:
 //

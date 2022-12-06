@@ -45,7 +45,7 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     error: GuestEventError;
     // (undocumented)
     protected getLocalMethods(): {
-        emit: (type: "error" | "contextchange" | "beforeconnect" | "connected", detail: ({
+        emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;
@@ -77,7 +77,7 @@ class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
     // (undocumented)
     protected getLocalMethods(): {
         apis: Outgoing;
-        emit: (type: "error" | "contextchange" | "beforeconnect" | "connected", detail: ({
+        emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
             guest: Guest<VirtualApi>;

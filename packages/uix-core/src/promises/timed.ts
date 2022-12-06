@@ -6,19 +6,27 @@
  * @param description - Job description to be used in the timeout error
  * @param promise - Original promise to set a timeout for
  * @param timeoutMs - Time to wait (ms) before rejecting
- * @param cleanup - Run when promise times out to clean up handles
+ * @param onReject - Run when promise times out to clean up handles
  * @returns - Promise that rejects with informative error after X milliseconds have passed
+ *
+ * @internal
  */
 export function timeoutPromise<T>(
   description: string,
   promise: Promise<T>,
   ms: number,
-  cleanup: () => void
+  onReject: (e: Error) => void
 ): Promise<T> {
   return new Promise((resolve, reject) => {
+    const cleanupAndReject = async (e: Error) => {
+      try {
+        await onReject(e);
+      } finally {
+        reject(e);
+      }
+    };
     const timeout = setTimeout(() => {
-      cleanup();
-      reject(new Error(`${description} timed out after ${ms}ms`));
+      cleanupAndReject(new Error(`${description} timed out after ${ms}ms`));
     }, ms);
     promise
       .then((result) => {
@@ -27,8 +35,7 @@ export function timeoutPromise<T>(
       })
       .catch((e) => {
         clearTimeout(timeout);
-        cleanup();
-        reject(e);
+        cleanupAndReject(e);
       });
   });
 }

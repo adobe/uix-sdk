@@ -11,7 +11,7 @@ const jestConfig: JestConfigWithTsJest = {
       testMatch: ["<rootDir>/packages/uix-core/src/**/*.test.ts"],
       modulePathIgnorePatterns: ["<rootDir>/dist"],
       setupFiles: [
-        "<rootDir>/packages/uix-core/src/phantogram/__helpers__/jest.messagechannel.cjs",
+        "<rootDir>/packages/uix-core/src/__helpers__/jest.messagechannel.cjs",
       ],
       testEnvironment: "jsdom",
       transform: {

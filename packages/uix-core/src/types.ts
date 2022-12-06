@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { Phantogram } from "./phantogram";
+import { CrossRealmObject } from "./cross-realm-object";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

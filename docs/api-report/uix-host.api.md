@@ -4,6 +4,7 @@
 
 ```ts
 
+import type { CrossRealmObject } from '@adobe/uix-core';
 import type { Emits } from '@adobe/uix-core';
 import { Emitter } from '@adobe/uix-core';
 import type { Extension } from '@adobe/uix-core';
@@ -11,7 +12,6 @@ import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
 import type { HostMethodAddress } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
-import type { Phantogram } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
 
 // @public
@@ -150,7 +150,7 @@ export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements Gue
     get apis(): {
         [x: string]: {};
     };
-    attachUI(iframe: HTMLIFrameElement): Promise<Phantogram<unknown>>;
+    attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
     error?: Error;
     hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;

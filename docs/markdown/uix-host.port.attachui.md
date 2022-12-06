@@ -9,7 +9,7 @@ Connect an iframe element which is displaying another page in the extension with
 <b>Signature:</b>
 
 ```typescript
-attachUI(iframe: HTMLIFrameElement): Promise<Phantogram<unknown>>;
+attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
 ```
 
 ## Parameters
@@ -20,5 +20,5 @@ attachUI(iframe: HTMLIFrameElement): Promise<Phantogram<unknown>>;
 
 <b>Returns:</b>
 
-Promise&lt;Phantogram&lt;unknown&gt;&gt;
+Promise&lt;CrossRealmObject&lt;unknown&gt;&gt;
 

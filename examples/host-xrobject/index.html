@@ -18,7 +18,7 @@ governing permissions and limitations under the License.
     href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII="
     rel="icon" type="image/x-icon" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phantogram Host</title>
+  <title>Cross-Realm Object Host</title>
 
   <style>
     * {
@@ -40,7 +40,7 @@ governing permissions and limitations under the License.
   </main>
   <script type="module">
     import { connectIframe } from "/@adobe/uix-core/esm";
-    const guestUrl = await fetch('/example-registry?keywords=phantogram')
+    const guestUrl = await fetch('/example-registry?keywords=xrobject')
       .then(res => res.json())
       .then(list => list[0].url);
     const guestRsrc = (path) => new URL(path, guestUrl).href;

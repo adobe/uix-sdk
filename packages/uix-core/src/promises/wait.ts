@@ -1,9 +1,7 @@
 /**
  * Promise that resolves after a specific time
  *
- * @export
- * @param {number} ms
- * @return {Promise}
+ * @internal
  */
 export function wait(ms: number) {
   return new Promise((resolve) => {

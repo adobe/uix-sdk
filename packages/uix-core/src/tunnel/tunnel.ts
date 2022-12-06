@@ -103,7 +103,7 @@ export class Tunnel extends EventEmitter {
    * Returns a Tunnel that listens for connection requests from the page in the
    * provided iframe, which it will send periodically until timeout if that page
    * has called {@link Tunnel.toParent}. If it receives one, the Tunnel will accept the
-   * connection and send an exclusive MessagePort to the phantogram on the other
+   * connection and send an exclusive MessagePort to the xrobject on the other
    * end. The tunnel may reconnect if the iframe reloads, in which case it will
    * emit another "connected" event.
    *
