@@ -4,6 +4,12 @@
 
 ## uix-host-react package
 
+## Classes
+
+|  Class | Description |
+|  --- | --- |
+|  [OutsideOfExtensionContextError](./uix-host-react.outsideofextensioncontexterror.md) |  |
+
 ## Functions
 
 |  Function | Description |
@@ -11,6 +17,7 @@
 |  [Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, })](./uix-host-react.extensible.md) | Declares an extensible area in an app, and provides host and extension objects to all descendents. The [useExtensions()](./uix-host-react.useextensions.md) hook can only be called in a descendent of this component. |
 |  [GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, methods, ...customFrameProps })](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
 |  [useExtensions(configFactory, deps)](./uix-host-react.useextensions.md) | Fetch extensions which implement an API, provide them methods, and use them. |
+|  [useHost()](./uix-host-react.usehost.md) | <b><i>(BETA)</i></b> Retrieve the [Host](./uix-host.host.md) object hosting all extensions inside the current parent provider. |
 
 ## Interfaces
 
@@ -26,4 +33,5 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [FrameProps](./uix-host-react.frameprops.md) |  |
+|  [UseHostResponse](./uix-host-react.usehostresponse.md) |  |
 
