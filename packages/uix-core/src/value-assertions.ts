@@ -46,3 +46,13 @@ export function isIframe(value: unknown): value is HTMLIFrameElement {
   const { nodeName } = value as HTMLIFrameElement;
   return typeof nodeName === "string" && nodeName.toLowerCase() === "iframe";
 }
+
+export function isObjectWithPrototype<T>(
+  value: unknown
+): value is T & { [key: string | symbol]: unknown } {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const proto = Reflect.getPrototypeOf(value);
+  return proto !== Object.prototype;
+}
