@@ -9,5 +9,5 @@ Called when the frame disconnects and unmounts.
 <b>Signature:</b>
 
 ```typescript
-onDisconnect: () => unknown;
+onDisconnect?: () => unknown;
 ```

@@ -13,6 +13,7 @@ import { HostConfig } from '@adobe/uix-host';
 import type { IframeHTMLAttributes } from 'react';
 import type { PortOptions } from '@adobe/uix-host';
 import type { PropsWithChildren } from 'react';
+import { default as React_2 } from 'react';
 import type { RemoteGuestApis } from '@adobe/uix-core';
 import type { SharedContextValues } from '@adobe/uix-host';
 import type { VirtualApi } from '@adobe/uix-core';
@@ -35,7 +36,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 }
 
 // @public
-export function GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, methods, ...customFrameProps }: PropsWithChildren<GuestUIProps>): JSX.Element;
+export const GuestUIFrame: React_2.ForwardRefExoticComponent<GuestUIProps & React_2.RefAttributes<unknown>>;
 
 // Warning: (ae-forgotten-export) The symbol "FrameProps" needs to be exported by the entry point index.d.ts
 //
@@ -44,10 +45,10 @@ export interface GuestUIProps extends FrameProps {
     // (undocumented)
     guestId: string;
     methods?: VirtualApi;
-    onConnect: () => unknown;
+    onConnect?: () => unknown;
     onConnectionError?: (error: Error) => void;
-    onDisconnect: () => unknown;
-    src: string;
+    onDisconnect?: () => unknown;
+    src?: string;
     // (undocumented)
     width: FrameProps["width"];
 }

@@ -52,7 +52,7 @@ host.addEventListener('loadallguests', () => {
   }));
 })
 ```
-A React binding is currently available. See [Extensible()](./uix-host-react.extensible.md)<!-- -->, [useExtensions()](./uix-host-react.useextensions.md)<!-- -->, and [GuestUIFrame()](./uix-host-react.guestuiframe.md)<!-- -->.
+A React binding is currently available. See [Extensible()](./uix-host-react.extensible.md)<!-- -->, [useExtensions()](./uix-host-react.useextensions.md)<!-- -->, and [GuestUIFrame](./uix-host-react.guestuiframe.md)<!-- -->.
 
 ## Classes
 
