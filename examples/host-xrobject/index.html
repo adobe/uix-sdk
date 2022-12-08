@@ -90,6 +90,7 @@ governing permissions and limitations under the License.
     $btn.onclick = async () => {
       $btn.setAttribute('readonly', true);
       await innerApp.start();
+      $btn.setAttribute('readonly', false);
     }
 
   </script>

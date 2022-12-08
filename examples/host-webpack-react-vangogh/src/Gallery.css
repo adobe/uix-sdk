@@ -1,0 +1,11 @@
+.offcanvas.offcanvas-bottom.show {
+  --bs-offcanvas-height: 90vh;
+}
+.offcanvas.offcanvas-end.show {
+  --bs-offcanvas-width: 90vw;
+}
+
+.frame-wrapper {
+  height: 100%;
+  padding: 1rem;
+}

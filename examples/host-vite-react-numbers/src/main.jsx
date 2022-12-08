@@ -13,7 +13,7 @@ governing permissions and limitations under the License.
 import React from "react";
 import ReactDOM from "react-dom";
 import { Extensible } from "@adobe/uix-host-react";
-import App from "./App";
+import NumberDiscussion from "./NumberDiscussion";
 import "./index.css";
 
 async function main() {
@@ -39,7 +39,7 @@ async function main() {
         debug={process.env.NODE_ENV !== "production"}
         extensionsProvider={extensionsProvider}
       >
-        <App />
+        <NumberDiscussion />
       </Extensible>
     </React.StrictMode>,
     document.getElementById("root")

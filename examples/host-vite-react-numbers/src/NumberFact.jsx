@@ -11,7 +11,6 @@ governing permissions and limitations under the License.
 */
 
 import React from "react";
-import "./NumberFact.css";
 
 const WAITING = "...";
 const BUSTED = "(struggling, gasping)";

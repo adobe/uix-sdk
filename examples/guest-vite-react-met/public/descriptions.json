@@ -1,0 +1,55 @@
+[
+  {
+    "id": "cypresses",
+    "title": {
+      "text": "Wheat Field With Cypresses",
+      "lang": "en"
+    },
+    "image": "/cypresses_detail.jpg",
+    "date": "1889",
+    "blurbs": [
+      {
+        "text": "Cypresses gained ground in Van Gogh’s work by late June 1889 when he resolved to devote one of his first series in Saint-Rémy to the towering trees.",
+        "lang": "en"
+      }
+    ]
+  },
+  {
+    "id": "irises",
+    "title": {
+      "text": "Still Life: Vase with Irises",
+      "lang": "en"
+    },
+    "image": "/irises_detail.jpg",
+    "date": "1890",
+    "blurbs": [
+      {
+        "text": "In May 1890, just before he checked himself out of the asylum at Saint-Rémy, Van Gogh painted four exuberant bouquets of spring flowers, the only still lifes of any ambition he had undertaken during his yearlong stay: two of irises, two of roses, in contrasting color schemes and formats.",
+        "lang": "en"
+      }
+    ]
+  },
+  {
+    "id": "almond-blossoms",
+    "title": {
+      "text": "Almond Blossoms",
+      "lang": "en"
+    },
+    "date": "1890",
+    "blurbs": [
+      {
+        "text": "> Van Gogh has transformed the still life with the help of these values. He has imbued a form predicated on death to one focused on life and possibility.\n> His use of bright color reflects this.\n\n_Bruce Jones_",
+        "lang": "en"
+      }
+    ]
+  },
+  {
+    "id": "laakmolen",
+    "title": {
+      "text": "The 'Laakmolen' near The Hague",
+      "lang": "en"
+    },
+    "date": "1881",
+    "blurbs": []
+  }
+]
