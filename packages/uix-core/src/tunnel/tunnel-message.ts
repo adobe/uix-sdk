@@ -44,6 +44,9 @@ export function isHandshakeOffer(
 }
 export function isHandshake(message: unknown): message is HandshakeMessage {
   if (!isWrapped(message)) {
+    console.error(
+      `malformed tunnel message, must be an object with a "${NS_ROOT}" property`
+    );
     return false;
   }
   const tunnelData: Handshake = unwrap<Handshake>(message as HandshakeMessage);
@@ -53,7 +56,7 @@ export function isHandshake(message: unknown): message is HandshakeMessage {
     !(Reflect.has(tunnelData, "accepts") || Reflect.has(tunnelData, "offers"))
   ) {
     console.error(
-      `malformed tunnel message, message.${NS_ROOT} must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`
+      `malformed tunnel message, message["${NS_ROOT}"] must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`
     );
     return false;
   }

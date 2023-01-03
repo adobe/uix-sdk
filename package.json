@@ -28,7 +28,8 @@
     "report:size": "node scripts/bundler.mjs report",
     "test": "run-s lint test:unit test:subtests",
     "test:subtests": "npm run any test",
-    "test:unit": "jest"
+    "test:unit": "jest",
+    "test:unit:watch": "jest --watch"
   },
   "devDependencies": {
     "@adobe/react-spectrum": "^3.20.0",
