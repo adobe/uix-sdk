@@ -293,6 +293,26 @@ describe("function simulator exchanges functions and tickets", () => {
     await expect(unticketed.pb.getPa()).resolves.toBe(5);
   });
 
+  it("Supports objects with null prototypes", async () => {
+    const toBeTicketed = Object.create(null);
+    toBeTicketed["key1"] = "val1";
+    toBeTicketed["key2"] = "val2";
+    const ticketed = objectSimulator.simulate(toBeTicketed);
+    expect(ticketed).toMatchInlineSnapshot(`
+      {
+        "key1": "val1",
+        "key2": "val2",
+      }
+    `);
+    const unticketed = objectSimulator.materialize(ticketed);
+    expect(unticketed).toMatchInlineSnapshot(`
+      {
+        "key1": "val1",
+        "key2": "val2",
+      }
+    `);
+  });
+
   it("notifies remote when FinalizationRegistry calls cleanup handler", async () => {
     const willBeGCed = objectSimulator.simulate(() => {}) as DefMessage;
     objectSimulator.materialize(willBeGCed);
