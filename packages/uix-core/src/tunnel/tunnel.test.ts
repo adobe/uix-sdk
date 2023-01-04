@@ -1,11 +1,17 @@
 import { fireEvent } from "@testing-library/dom";
 import { wait } from "../promises/wait";
 import { Tunnel } from "./tunnel";
-import { makeAccepted, makeOffered } from "./tunnel-message";
+import { TunnelMessenger } from "./tunnel-message";
+
+const fakeConsole = {
+  error: jest.fn(),
+  warn: jest.fn(),
+} as unknown as jest.Mocked<Console>;
 
 const defaultTunnelConfig = {
   targetOrigin: "*",
   timeout: 4000,
+  logger: fakeConsole,
 };
 type TunnelHarness = { tunnel: Tunnel; port: MessagePort };
 const openPorts: MessagePort[] = [];
@@ -163,20 +169,26 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       let remoteTunnel: Tunnel;
       const connectMessageHandler = jest.fn();
       const acceptListener = jest.fn();
+      const targetOrigin = "https://example.com:4001";
       const loadedFrame = document.createElement("iframe");
-      loadedFrame.src = "https://example.com:4001";
+      loadedFrame.src = targetOrigin;
       document.body.appendChild(loadedFrame);
       loadedFrame.contentWindow.addEventListener("message", acceptListener);
       const localTunnel = Tunnel.toIframe(loadedFrame, {
-        targetOrigin: "https://example.com:4001",
+        targetOrigin,
         timeout: 9999,
+      });
+      const messenger = new TunnelMessenger({
+        myOrigin: "https://example.com",
+        targetOrigin,
+        logger: fakeConsole,
       });
       localTunnel.on("connected", connectMessageHandler);
       await wait(100);
       fireEvent(
         window,
         new MessageEvent("message", {
-          data: makeOffered("iframe-test-1"),
+          data: messenger.makeOffered("iframe-test-1"),
           origin: loadedFrame.src,
           source: loadedFrame.contentWindow,
         })
@@ -184,7 +196,10 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       await wait(100);
       expect(acceptListener).toHaveBeenCalled();
       const acceptEvent = acceptListener.mock.lastCall[0];
-      expect(acceptEvent).toHaveProperty("data", makeAccepted("iframe-test-1"));
+      expect(acceptEvent).toHaveProperty(
+        "data",
+        messenger.makeAccepted("iframe-test-1")
+      );
       expect(acceptEvent.ports).toHaveLength(1);
       remoteTunnel = new Tunnel(defaultTunnelConfig);
       remoteTunnel.connect(acceptEvent.ports[0]);
