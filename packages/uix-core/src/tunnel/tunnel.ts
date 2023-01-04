@@ -1,6 +1,6 @@
 import EventEmitter from "eventemitter3";
 import { isIframe } from "../value-assertions";
-import { TunnelMessenger } from "./tunnel-message";
+import { TunnelMessenger } from "./tunnel-messenger";
 import { unwrap } from "../message-wrapper";
 
 /**

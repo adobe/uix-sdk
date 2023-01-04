@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/dom";
 import { wait } from "../promises/wait";
 import { Tunnel } from "./tunnel";
-import { TunnelMessenger } from "./tunnel-message";
+import { TunnelMessenger } from "./tunnel-messenger";
 
 const fakeConsole = {
   error: jest.fn(),

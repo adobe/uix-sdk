@@ -12,7 +12,7 @@
     "clean": "del {dist,*.tsbuildinfo,docs/temp,.parcel-cache,node_modules/.cache} {packages,examples}/*/{dist,*.tsbuildinfo,node_modules/.cache,.parcel-cache,node_modules/.vite} packages/*/src/**/*.{d.ts,d.ts.map,js,js.map} && npm run -s any -- -s clean",
     "declarations:build": "tsc --build",
     "declarations:watch": "tsc --build tsconfig.json --watch",
-    "demo": "npm run build:production -- --silent --esm && npm run any example:build && node scripts/multi-server.mjs production",
+    "demo": "npm run build:production -- --esm && npm run any example:build && node scripts/multi-server.mjs production",
     "dev": "node scripts/multi-server.mjs development",
     "docs": "node scripts/generate-docs.mjs",
     "docs:watch": "node scripts/generate-docs.mjs --watch",

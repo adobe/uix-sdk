@@ -1,5 +1,5 @@
 import { NS_ROOT, VERSION } from "../constants";
-import { TunnelMessenger } from "./tunnel-message";
+import { TunnelMessenger } from "./tunnel-messenger";
 
 const fakeConsole = {
   error: jest.fn(),
