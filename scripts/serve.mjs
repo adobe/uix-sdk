@@ -7,6 +7,7 @@ import cors from "cors";
 import { createServer } from "http";
 import {
   makeLogger,
+  logger,
   getExamples,
   getSdks,
   runWithArg,
