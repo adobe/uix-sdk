@@ -225,14 +225,14 @@ describe("function simulator exchanges functions and tickets", () => {
             "fnId": "getPa_1",
           },
         },
-        "pa": undefined,
+        "pa": "[[Circular]]",
       }
     `);
     const unticketed = objectSimulator.materialize(ticketed);
     expect(unticketed).toMatchInlineSnapshot(`
       {
         "getPa": [Function],
-        "pa": undefined,
+        "pa": "[[Circular]]",
       }
     `);
     expect(

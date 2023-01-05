@@ -59,6 +59,7 @@ export type Simulated<T> = {
 };
 
 export const NOT_TRANSFORMED = Symbol.for("NOT_TRANSFORMED");
+export const CIRCULAR = "[[Circular]]";
 
 export function transformRecursive<To>(
   transform: (source: unknown, parent?: Object) => To | typeof NOT_TRANSFORMED,
@@ -82,7 +83,7 @@ export function transformRecursive<To>(
   }
   if (isPlainObject(value)) {
     if (_refs.has(value)) {
-      return;
+      return CIRCULAR as To;
     }
     _refs.add(value);
     const outObj = {};
@@ -97,7 +98,7 @@ export function transformRecursive<To>(
   }
   if (isObjectWithPrototype(value)) {
     if (_refs.has(value)) {
-      return;
+      return CIRCULAR as To;
     }
     _refs.add(value);
     const getObjectKeys = (obj: Object): (string | symbol)[] => {
