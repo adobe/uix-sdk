@@ -15,7 +15,13 @@ import { Writable } from "stream";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
-import { getExamples, getSdks, logger, runWithArg } from "./script-runner.mjs";
+import {
+  getExamples,
+  getSdks,
+  logger,
+  runWithArg,
+  shResult,
+} from "./script-runner.mjs";
 import { startRegistry } from "./mock-registry.mjs";
 import { SIGINT, SIGTERM } from "constants";
 import {
@@ -213,6 +219,14 @@ async function serveExamples(mode) {
   const allRunners = [];
 
   if (isDev) {
+    await shResult("npm", [
+      "run",
+      "-s",
+      "build:development",
+      "--",
+      "--esm",
+      "--no-declarations",
+    ]);
     allRunners.push(
       await runParallel(
         (
