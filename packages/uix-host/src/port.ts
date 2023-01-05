@@ -340,6 +340,7 @@ export class Port<GuestApi>
     return connectIframe<T>(
       iframe,
       {
+        logger: this.logger,
         targetOrigin: "*",
         timeout: this.timeout,
       },

@@ -241,6 +241,7 @@ export class Guest<
         {
           targetOrigin: "*",
           timeout: this.timeout,
+          logger: this.logger,
         },
         this.getLocalMethods()
       );

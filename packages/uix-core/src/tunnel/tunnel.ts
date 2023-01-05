@@ -1,11 +1,6 @@
 import EventEmitter from "eventemitter3";
-import { isIframe, isTunnelSource } from "../value-assertions";
-import {
-  isHandshakeAccepting,
-  isHandshakeOffer,
-  makeAccepted,
-  makeOffered,
-} from "./tunnel-message";
+import { isIframe } from "../value-assertions";
+import { TunnelMessenger } from "./tunnel-messenger";
 import { unwrap } from "../message-wrapper";
 
 /**
@@ -46,6 +41,10 @@ export interface TunnelConfig {
    * @defaultValue 4000
    */
   timeout: number;
+  /**
+   * Logger instance to use for debugging tunnel connection.
+   */
+  logger: Console;
 
   // #endregion Properties
 }
@@ -120,17 +119,23 @@ export class Tunnel extends EventEmitter {
         )}`
       );
     }
+
     const source = target.contentWindow;
     const config = Tunnel._normalizeConfig(options);
     const tunnel = new Tunnel(config);
+    const messenger = new TunnelMessenger({
+      myOrigin: window.location.origin,
+      targetOrigin: options.targetOrigin,
+      logger: options.logger || console,
+    });
     let frameStatusCheck: number;
     let timeout: number;
     const offerListener = (event: MessageEvent) => {
       if (
         isFromOrigin(event, source, config.targetOrigin) &&
-        isHandshakeOffer(event.data)
+        messenger.isHandshakeOffer(event.data)
       ) {
-        const accepted = makeAccepted(unwrap(event.data).offers);
+        const accepted = messenger.makeAccepted(unwrap(event.data).offers);
         const channel = new MessageChannel();
         source.postMessage(accepted, config.targetOrigin, [channel.port1]);
         tunnel.connect(channel.port2);
@@ -187,11 +192,16 @@ export class Tunnel extends EventEmitter {
     const key = makeKey();
     const config = Tunnel._normalizeConfig(opts);
     const tunnel = new Tunnel(config);
+    const messenger = new TunnelMessenger({
+      myOrigin: window.location.origin,
+      targetOrigin: config.targetOrigin,
+      logger: config.logger,
+    });
     const acceptListener = (event: MessageEvent) => {
       if (
         !timedOut &&
         isFromOrigin(event, source, config.targetOrigin) &&
-        isHandshakeAccepting(event.data, key)
+        messenger.isHandshakeAccepting(event.data, key)
       ) {
         cleanup();
         if (!event.ports || !event.ports.length) {
@@ -225,7 +235,7 @@ export class Tunnel extends EventEmitter {
     tunnel.on("connected", cleanup);
 
     const sendOffer = () =>
-      source.postMessage(makeOffered(key), config.targetOrigin);
+      source.postMessage(messenger.makeOffered(key), config.targetOrigin);
     retrying = window.setInterval(sendOffer, RETRY_MS);
     sendOffer();
 
@@ -279,6 +289,7 @@ export class Tunnel extends EventEmitter {
     let errorMessage = "";
     const config: Partial<TunnelConfig> = {
       timeout: 4000,
+      logger: console,
       ...options,
     };
 

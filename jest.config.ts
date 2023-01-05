@@ -22,6 +22,10 @@ const jestConfig: JestConfigWithTsJest = {
           },
         ],
       },
+      globals: {
+        UIX_SDK_VERSION: "0.0.1-test",
+        UIX_SDK_BUILDMODE: "test",
+      },
     },
   ],
 };
