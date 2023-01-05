@@ -86,7 +86,7 @@ export class ObjectSimulator implements Simulator {
 
   // #region Public Methods
 
-  makeReceiver(fn: CallableFunction) {
+  makeReceiver(fn: CallableFunction, parent?: Object) {
     if (typeof fn !== "function") {
       return NOT_TRANSFORMED;
     }
@@ -95,9 +95,18 @@ export class ObjectSimulator implements Simulator {
       fnTicket = {
         fnId: `${fn.name || "<anonymous>"}_${++this.fnCounter}`,
       };
-      const cleanup = receiveCalls(fn, fnTicket, new WeakRef(this.subject));
+      // Bind function to parent object if it exists
+      let boundFunction = fn;
+      if (parent) {
+        boundFunction = fn.bind(parent);
+      }
+      const cleanup = receiveCalls(
+        boundFunction,
+        fnTicket,
+        new WeakRef(this.subject)
+      );
       this.subject.onOutOfScope(fnTicket, cleanup);
-      this.receiverTicketCache.set(fn, fnTicket);
+      this.receiverTicketCache.set(boundFunction, fnTicket);
     }
     return wrap(fnTicket);
   }
