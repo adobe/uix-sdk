@@ -9,5 +9,5 @@ Receives the Penpal context when the frame is mounted.
 <b>Signature:</b>
 
 ```typescript
-onConnect: () => unknown;
+onConnect?: () => unknown;
 ```

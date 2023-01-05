@@ -19,7 +19,7 @@ This is the object returned when calling [attach()](./uix-guest.attach.md)<!-- -
 
 Unlike the [GuestServer](./uix-guest.guestserver.md)<!-- -->, it cannot register methods or update the , but it remains in sync with the GuestServer and can access the  of the control frame, as well as any of the published methods on the host.
 
-Extensible host apps using the React bindings will likely render GuestUI frames using the [GuestUIFrame()](./uix-host-react.guestuiframe.md) component.
+Extensible host apps using the React bindings will likely render GuestUI frames using the [GuestUIFrame](./uix-host-react.guestuiframe.md) component.
 
 ## Example
 

@@ -9,5 +9,5 @@ Optional custom URL or path.
 <b>Signature:</b>
 
 ```typescript
-src: string;
+src?: string;
 ```

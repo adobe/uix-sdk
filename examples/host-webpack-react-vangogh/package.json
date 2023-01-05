@@ -1,0 +1,16 @@
+{
+  "name": "host-webpack-react-vangogh",
+  "private": "true",
+  "version": "0.0.1",
+  "description": "Van Gogh",
+  "main": "index.js",
+  "scripts": {
+    "clean": "del dist",
+    "example:build": "webpack --mode production",
+    "example:development": "webpack serve --mode development",
+    "example:production": "node ../../scripts/serve.mjs --quiet"
+  },
+  "dependencies": {
+    "@adobe/uix-host-react": "*"
+  }
+}

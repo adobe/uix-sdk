@@ -18,9 +18,9 @@ export interface GuestUIProps extends FrameProps
 |  --- | --- | --- | --- |
 |  [guestId](./uix-host-react.guestuiprops.guestid.md) |  | string |  |
 |  [methods?](./uix-host-react.guestuiprops.methods.md) |  | VirtualApi | <i>(Optional)</i> Host methods to provide only to the guest inside this iframe. |
-|  [onConnect](./uix-host-react.guestuiprops.onconnect.md) |  | () =&gt; unknown | Receives the Penpal context when the frame is mounted. |
+|  [onConnect?](./uix-host-react.guestuiprops.onconnect.md) |  | () =&gt; unknown | <i>(Optional)</i> Receives the Penpal context when the frame is mounted. |
 |  [onConnectionError?](./uix-host-react.guestuiprops.onconnectionerror.md) |  | (error: Error) =&gt; void | <i>(Optional)</i> Called when the connection process throws an exception |
-|  [onDisconnect](./uix-host-react.guestuiprops.ondisconnect.md) |  | () =&gt; unknown | Called when the frame disconnects and unmounts. |
-|  [src](./uix-host-react.guestuiprops.src.md) |  | string | Optional custom URL or path. |
+|  [onDisconnect?](./uix-host-react.guestuiprops.ondisconnect.md) |  | () =&gt; unknown | <i>(Optional)</i> Called when the frame disconnects and unmounts. |
+|  [src?](./uix-host-react.guestuiprops.src.md) |  | string | <i>(Optional)</i> Optional custom URL or path. |
 |  [width](./uix-host-react.guestuiprops.width.md) |  | [FrameProps](./uix-host-react.frameprops.md)<!-- -->\["width"\] |  |
 

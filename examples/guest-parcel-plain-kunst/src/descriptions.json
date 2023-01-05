@@ -1,0 +1,49 @@
+[
+  {
+    "id": "almond-blossoms",
+    "title": {
+      "text": "Amandelbloesem",
+      "lang": "nl"
+    },
+    "blurbs": [
+      {
+        "text": "Hier schilderde Van Gogh een van zijn lievelingsonderwerpen: grote bloeiende takken tegen een blauwe lucht. Omdat de amandelboom al vroeg in het voorjaar bloeit, is het een symbool voor nieuw leven. Voor het onderwerp, de scherpe omlijningen en de plaatsing van de boom in het beeldvlak liet Van Gogh zich inspireren door de Japanse prentkunst.",
+        "lang": "nl"
+      },
+      {
+        "text": "Large blossom branches like this against a blue sky were one of Van Gogh’s favourite subjects. Almond trees flower early in the spring making them a symbol of new life. Van Gogh borrowed the subject, the bold outlines and the positioning of the tree in the picture plane from Japanese printmaking.",
+        "lang": "en"
+      }
+    ]
+  },
+  {
+    "id": "tree-roots",
+    "title": {
+      "text": "Boomwortels",
+      "lang": "nl"
+    },
+    "blurbs": [
+      {
+        "text": "Op het eerste gezicht lijkt dit schilderij een wirwar van bonte kleuren en grillige, abstracte vormen. Pas daarna zie je dat het een helling met boomstammen en -wortels voorstelt. Het zijn hakhoutbomen boven op een mergelafgraving, zoals die rond Auvers te vinden waren. Het werk is niet helemaal voltooid. Dat verklaart het onafgewerkte karakter.",
+        "lang": "nl"
+      },
+      {
+        "text": "This painting seems at first sight to consist of a <span style='text-shadow:2px 2px 6px blue'>jumble</span> of <span style='color:red'>bright</span> <span style='color:green'>colours</span> and fanciful abstract forms. Only after that do you realise that it shows a slope with tree trunks and roots. ",
+        "lang": "en"
+      }
+    ]
+  },
+  {
+    "id": "cypresses",
+    "title": {
+      "text": "Korenveld met cipressen",
+      "lang": "nl"
+    },
+    "blurbs": [
+      {
+        "text": "De pentekening en de beide andere versies in olieverf dateren van augustus of september 1889. De pentekening is waarschijnlijk de oudste. De beide schilderijen zijn vermoedelijk in het atelier geschilderd. Van Gogh maakte eerst een schets in houtskool en bracht toen de verf aan, in dunnere lagen dan bij de eerste versie. Het korenveld heeft de dikste verflaag. In de lucht schemert het canvas op enkele plaatsen door de verf heen, hetgeen een speciaal effect oplevert.",
+        "lang": "nl"
+      }
+    ]
+  }
+]

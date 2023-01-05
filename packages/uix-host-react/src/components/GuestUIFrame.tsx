@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import type { VirtualApi } from "@adobe/uix-core";
-import React, { useCallback } from "react";
+import React, { useEffect, useImperativeHandle, useRef } from "react";
 import type { PropsWithChildren, IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
 
@@ -26,11 +26,11 @@ export interface GuestUIProps extends FrameProps {
   /**
    * Receives the Penpal context when the frame is mounted.
    */
-  onConnect: () => unknown;
+  onConnect?: () => unknown;
   /**
    * Called when the frame disconnects and unmounts.
    */
-  onDisconnect: () => unknown;
+  onDisconnect?: () => unknown;
   /**
    * Called when the connection process throws an exception
    */
@@ -38,7 +38,7 @@ export interface GuestUIProps extends FrameProps {
   /**
    * Optional custom URL or path.
    */
-  src: string;
+  src?: string;
   /**
    * Host methods to provide only to the guest inside this iframe.
    */
@@ -65,28 +65,33 @@ const defaultFrameProps: FrameProps = {
  * delivered by the Extension server.
  * @public
  */
-export function GuestUIFrame({
-  guestId,
-  src = "",
-  onConnect,
-  onDisconnect,
-  onConnectionError,
-  methods,
-  ...customFrameProps
-}: PropsWithChildren<GuestUIProps>) {
+export const GuestUIFrame = React.forwardRef(function GuestUIFrame(
+  {
+    guestId,
+    src = "",
+    onConnect,
+    onDisconnect,
+    onConnectionError,
+    methods,
+    ...customFrameProps
+  }: PropsWithChildren<GuestUIProps>,
+  ref
+) {
   const { host } = useHost();
   if (!host) {
     return null;
   }
   const guest = host.guests.get(guestId);
   const frameUrl = new URL(src, guest.url.href);
+  const iframeRef = useRef<HTMLIFrameElement>();
+  useImperativeHandle(ref, () => iframeRef.current);
 
-  const ref = useCallback((iframe: HTMLIFrameElement) => {
-    if (iframe) {
+  useEffect(() => {
+    if (iframeRef.current) {
       if (methods) {
         guest.provide(methods);
       }
-      const connection = guest.attachUI(iframe);
+      const connection = guest.attachUI(iframeRef.current, methods);
       connection
         .then(() => {
           if (onConnect) {
@@ -97,10 +102,14 @@ export function GuestUIFrame({
           if (onConnectionError) onConnectionError(error);
           else throw error;
         });
-      return async () => {
+      return () => {
         if (onDisconnect) {
-          await onDisconnect();
-          return guest.unload();
+          try {
+            onDisconnect();
+          } catch (e) {
+            console.error(e);
+          }
+          guest.unload();
         }
       };
     }
@@ -110,12 +119,13 @@ export function GuestUIFrame({
 
   return (
     <iframe
-      ref={ref}
+      ref={iframeRef}
       src={frameUrl.href}
       name={`uix-guest-${guest.id}`}
       {...frameProps}
       sandbox="allow-scripts allow-downloads allow-same-origin allow-presentation"
     />
   );
-}
-export default GuestUIFrame;
+});
+
+GuestUIFrame.displayName = "GuestUIFrame";

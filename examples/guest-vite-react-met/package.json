@@ -1,8 +1,8 @@
 {
-  "name": "guest-vite-plain-primes",
+  "name": "guest-vite-react-met",
   "private": "true",
   "version": "0.0.1",
-  "description": "Primes Guy",
+  "description": "The Met",
   "scripts": {
     "clean": "del dist",
     "example:build": "vite build --force",
@@ -13,7 +13,6 @@
     "@adobe/uix-guest": "*"
   },
   "keywords": [
-    "numbers"
-  ],
-  "license": "Apache-2.0"
+    "van gogh"
+  ]
 }

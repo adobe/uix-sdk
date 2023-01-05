@@ -9,3 +9,13 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
+
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import commonExampleConfig from "../../configs/common-viteconfig.js";
+
+// https://vitejs.dev/config/
+export default defineConfig(async () => ({
+  plugins: [react()],
+  ...(await commonExampleConfig()),
+}));

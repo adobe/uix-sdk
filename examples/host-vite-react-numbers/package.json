@@ -5,8 +5,8 @@
   "description": "Number Discussion",
   "scripts": {
     "clean": "del dist",
-    "example:build": "vite build",
-    "example:development": "vite",
+    "example:build": "vite build --force",
+    "example:development": "vite --force",
     "example:production": "vite preview --mode production"
   },
   "dependencies": {
