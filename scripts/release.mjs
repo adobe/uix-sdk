@@ -24,15 +24,19 @@ import semver from "semver";
 
 const allowedReleaseTypes = ["major", "minor", "patch", "prerelease"];
 
-const artifactories = [
-  "https://registry.npmjs.org"
-];
+const artifactories = ["https://registry.npmjs.org"];
 const mainBranchName = "main";
+
+let isDryRun = false;
 
 const gitSays = async (...args) => shResult("git", args);
 const gitDoes = async (...argSets) => {
   for (const argSet of argSets) {
-    await sh("git", argSet);
+    if (isDryRun) {
+      logger.log.hl`git ${argSet.join(" ")}`;
+    } else {
+      await sh("git", argSet);
+    }
   }
 };
 
@@ -75,7 +79,9 @@ async function updatePackageJson(dir, updates) {
   for (const [prop, value] of Object.entries(updates)) {
     pkg[prop] = value;
   }
-  await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf-8");
+  if (!isDryRun) {
+    await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf-8");
+  }
 }
 
 async function updatePackageVersions(version, sdks, workingDir) {
@@ -121,7 +127,7 @@ async function gitTagAndPush(newVersion) {
   logger.done("Pushed version commit and tag to remote.");
 }
 
-async function publishAll(sdks, registry) {
+async function publishAll(sdks, registry, otherPublishArgs) {
   logger.log("Running npm publish on each package.");
   let registries = artifactories;
   if (registry) {
@@ -130,9 +136,13 @@ async function publishAll(sdks, registry) {
   }
   for (const sdk of sdks) {
     for (const registry of registries) {
-      await sh("npm", ["publish", `--@adobe:registry=${registry}`], {
-        cwd: sdk.cwd,
-      });
+      await sh(
+        "npm",
+        ["publish", `--@adobe:registry=${registry}`, ...otherPublishArgs],
+        {
+          cwd: sdk.cwd,
+        }
+      );
     }
   }
 }
@@ -142,6 +152,9 @@ async function release(releaseType, options) {
     throw new Error(
       "Don't update versions, don't write Git tag, don't publish? Those are the only three things I do. Pick something!"
     );
+  }
+  if (options.dryRun) {
+    isDryRun = true;
   }
 
   const currentBranch = await getCurrentBranch();
@@ -223,7 +236,9 @@ Continue the release manually.`);
   try {
     await sh("npm", ["run", "-s", "docs"]);
   } catch (e) {
-    throw new Error("Documentation update failed, cannot proceed with release.");
+    throw new Error(
+      "Documentation update failed, cannot proceed with release."
+    );
   }
 
   if (options.noVersion || options.noGit) {
@@ -235,7 +250,17 @@ Continue the release manually.`);
   if (options.noPublish) {
     logger.warn("Skipping publish.");
   } else {
-    await publishAll(sdks, options.registry);
+    const publishArgs = [];
+    if (isDryRun) {
+      publishArgs.push("--dry-run");
+    }
+    if (options.tag) {
+      publishArgs.push("--tag", options.tag);
+    }
+    await publishAll(sdks, options.registry, publishArgs);
+  }
+  if (isDryRun) {
+    logger.warn("This was a dry run. None of the above actually happened.");
   }
 }
 

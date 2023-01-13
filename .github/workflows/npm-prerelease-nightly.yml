@@ -1,0 +1,30 @@
+name: Publish to NPM
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * *'  # runs every night at 11pm
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up git user
+        uses: fregante/setup-git-user@v1
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install project dependencies
+        run: npm ci
+      - name: Run test suite
+        run: npm run test
+      - name: Publish to NPM
+        run: |
+          node scripts/release.mjs $( \
+            npm pkg get version | xargs npx semver -i \
+          )-nightly.$(date +%Y%m%d) --tag=nightly --no-git
+        env:
+          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}

@@ -1,4 +1,4 @@
-name: on-push-publish-to-npm
+name: npm-publish-manual
 on:
   workflow_dispatch:
     inputs:
