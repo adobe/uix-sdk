@@ -31,6 +31,15 @@ Host apps not built in React can use the underlying host library objects: `npm i
 
 Guest applications built in any framework should use the guest objects library: `npm install @adobe/uix-guest` / `yarn add @adobe/uix-guest`
 
+### Preview builds
+
+#### Nightly
+Nightly builds are released to NPM under the `nightly` tag. The version string will be different each day because it includes a datestamp, but you can always install the latest nightly using the tag: 
+```sh
+npm install @adobe/uix-host-react@nightly
+npm install @adobe/uix-guest@nightly
+```
+
 ## Usage
 
 ### Usage - React App Hosts
