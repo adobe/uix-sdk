@@ -1,4 +1,4 @@
-name: Publish to NPM
+name: Nightly NPM prerelease
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
         run: npm ci
       - name: Run test suite
         run: npm run test
-      - name: Publish to NPM
+      - name: Create nightly version string and publish
         run: |
           node scripts/release.mjs $( \
             npm pkg get version | xargs npx semver -i \
