@@ -1,0 +1,28 @@
+name: Pull request validation
+
+on:
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up git user
+        uses: fregante/setup-git-user@v1
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install project dependencies
+        run: npm ci
+      - name: Run test suite
+        run: npm run test
+      - name: Run docs script
+        run: npm run docs
+      - name: Check for API changes
+        uses: setare/git-changes-action@v0.1.2
+        with:
+          github_token: ${{ github.token }}
+          name: Docs up to date
