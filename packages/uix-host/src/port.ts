@@ -341,7 +341,7 @@ export class Port<GuestApi>
       iframe,
       {
         logger: this.logger,
-        targetOrigin: "*",
+        targetOrigin: this.url.origin,
         timeout: this.timeout,
       },
       {
