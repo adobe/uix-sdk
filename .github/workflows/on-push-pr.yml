@@ -1,28 +1,21 @@
-name: Pull request validation
+name: Docs and API check
 
 on:
   pull_request:
 
 jobs:
-  run-tests:
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yml
+  check-pkglock:
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up git user
-        uses: fregante/setup-git-user@v1
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Install project dependencies
-        run: npm ci
-      - name: Run test suite
-        run: npm run test
-      - name: Run docs script
-        run: npm run docs
-      - name: Check for API changes
-        uses: setare/git-changes-action@v0.1.2
-        with:
-          github_token: ${{ github.token }}
-          name: Docs up to date
+      - name: Run full npm install
+        run: npm install
+      - name: Check package-lock for diffs
+        id: diff_pkg_lock
+        run: git diff --exit-code --name-only package-lock.json
+      #   continue-on-error: true
+      # - if: ${{ steps.diff_pkg_lock.outcome == 'failure' }}
+
+
