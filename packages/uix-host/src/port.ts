@@ -162,7 +162,7 @@ export class Port<GuestApi>
 
   private debug: boolean;
   private logger?: Console;
-  private frame: HTMLIFrameElement;
+  private guestServerFrame: HTMLIFrameElement;
   private hostApis: RemoteHostApis = {};
   private isLoaded = false;
   private runtimeContainer: HTMLElement;
@@ -310,9 +310,9 @@ export class Port<GuestApi>
    * Disconnect from the extension.
    */
   public async unload(): Promise<void> {
-    if (this.frame && this.frame.parentElement) {
-      this.frame.parentElement.removeChild(this.frame);
-      this.frame = undefined;
+    if (this.guestServerFrame && this.guestServerFrame.parentElement) {
+      this.guestServerFrame.parentElement.removeChild(this.guestServerFrame);
+      this.guestServerFrame = undefined;
     }
     this.emit("unload", { guestPort: this });
   }
@@ -353,17 +353,19 @@ export class Port<GuestApi>
   }
 
   private async connect() {
-    this.frame = this.runtimeContainer.ownerDocument.createElement("iframe");
-    this.frame.setAttribute("src", this.url.href);
-    this.frame.setAttribute("data-uix-guest", "true");
-    this.runtimeContainer.appendChild(this.frame);
+    const serverFrame =
+      this.runtimeContainer.ownerDocument.createElement("iframe");
+    normalizeIframe(serverFrame);
+    serverFrame.setAttribute("src", this.url.href);
+    this.guestServerFrame = serverFrame;
+    this.runtimeContainer.appendChild(serverFrame);
     if (this.logger) {
       this.logger.info(
         `Guest ${this.id} attached iframe of ${this.url.href}`,
         this
       );
     }
-    this.guestServer = await this.attachFrame<GuestProxyWrapper>(this.frame);
+    this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
     this.isLoaded = true;
     if (this.logger) {
       this.logger.info(
