@@ -22,6 +22,7 @@ import type {
   VirtualApi,
 } from "@adobe/uix-core";
 import { Emitter, connectIframe } from "@adobe/uix-core";
+import { normalizeIframe } from "./dom-utils";
 
 /**
  * A specifier for methods to be expected on a remote interface.
@@ -337,6 +338,8 @@ export class Port<GuestApi>
   }
 
   private attachFrame<T = unknown>(iframe: HTMLIFrameElement) {
+    // at least this is necessary
+    normalizeIframe(iframe);
     return connectIframe<T>(
       iframe,
       {
