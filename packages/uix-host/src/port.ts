@@ -359,6 +359,7 @@ export class Port<GuestApi>
     const serverFrame =
       this.runtimeContainer.ownerDocument.createElement("iframe");
     normalizeIframe(serverFrame);
+    serverFrame.setAttribute("aria-hidden", "true");
     serverFrame.setAttribute("src", this.url.href);
     this.guestServerFrame = serverFrame;
     this.runtimeContainer.appendChild(serverFrame);

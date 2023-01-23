@@ -373,6 +373,7 @@ export class Host extends Emitter<HostEvents> {
     const container = document.createElement("div");
     container.setAttribute("data-uix-guest-container", this.hostName);
     container.setAttribute("role", "presentation");
+    container.setAttribute("aria-hidden", "true");
     Object.assign(container.style, Host.containerStyle);
     document.body.appendChild(container);
     return container;
