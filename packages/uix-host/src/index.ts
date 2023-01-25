@@ -74,3 +74,4 @@ governing permissions and limitations under the License.
 export * from "./host.js";
 export * from "./port.js";
 export * from "./extensions-provider/index.js";
+export * from "./dom-utils/index.js";

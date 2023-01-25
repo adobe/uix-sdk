@@ -14,11 +14,13 @@ import type { VirtualApi } from "@adobe/uix-core";
 import React, { useCallback } from "react";
 import type { PropsWithChildren, IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
+import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
+import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
 
 /**
  * @public
  */
-type FrameProps = IframeHTMLAttributes<HTMLIFrameElement>;
+type FrameProps = Omit<IframeHTMLAttributes<HTMLIFrameElement>, "sandbox">;
 
 /** @public */
 export interface GuestUIProps extends FrameProps {
@@ -35,6 +37,10 @@ export interface GuestUIProps extends FrameProps {
    * Called when the connection process throws an exception
    */
   onConnectionError?: (error: Error) => void;
+  /**
+   * Additional sandbox attributes GuestUIFrame might need.
+   */
+  sandbox: AttrTokens<SandboxToken>;
   /**
    * Optional custom URL or path.
    */
@@ -54,11 +60,12 @@ export interface GuestUIProps extends FrameProps {
 const defaultFrameProps: FrameProps = {
   width: "100%",
   height: "100%",
-  sandbox: "allow-scripts",
   style: {
     border: "none",
   },
 };
+
+const defaultSandbox = "allow-scripts";
 
 /**
  * An iframe that attaches to a running GuestServer, to display visible UI pages
@@ -72,6 +79,7 @@ export function GuestUIFrame({
   onDisconnect,
   onConnectionError,
   methods,
+  sandbox = "",
   ...customFrameProps
 }: PropsWithChildren<GuestUIProps>) {
   const { host } = useHost();
@@ -106,15 +114,23 @@ export function GuestUIFrame({
     }
   }, []);
 
-  const frameProps = { ...defaultFrameProps, ...customFrameProps };
+  const frameProps = {
+    ...defaultFrameProps,
+    ...customFrameProps,
+    ...requiredIframeProps,
+  };
 
   return (
     <iframe
       ref={ref}
       src={frameUrl.href}
       name={`uix-guest-${guest.id}`}
+      sandbox={
+        sandbox
+          ? makeSandboxAttrs(defaultSandbox, sandbox).join(" ")
+          : defaultSandbox
+      }
       {...frameProps}
-      sandbox="allow-scripts allow-downloads allow-same-origin allow-presentation"
     />
   );
 }
