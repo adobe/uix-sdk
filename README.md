@@ -312,7 +312,9 @@ node scripts/publish-local-to.mjs <../path/to/other-project-root>
 
 Export your local dev versions of SDK packages to another local project. Uses `yalc` to package and copy build artifacts to other projects, instead of the more bug-prone `npm link`.
 
-You'll need to re-run this script every time you make a new build; it doesn't refresh the exported packages on change like the dev server does, due to Node limitations with symlinks
+You'll need to re-run this script every time you make a new build; it doesn't refresh the exported packages on change like the dev server does, due to Node limitations with symlinks.
+
+Use the `--dry-run` option to see what commands would be run first; the script will show the commands but not execute them.
 
 ### Release Script
 
@@ -338,6 +340,7 @@ Adjust this functionality with command line arguments:
 - `--no-git` to skip Git commit, tag, and push
 - `--no-publish` to skip NPM publish
 - `--registry=<registry url>` to override the default NPM repositories. Multiple `--registry=` arguments will publish to multiple repositories.
+- `--dry-run` to see what commands would be run first; the script will show the commands but not execute them.
 
 :information: **Warning: Must be working in an office or on the VPN for the Git push and NPM publish to work.**
 
