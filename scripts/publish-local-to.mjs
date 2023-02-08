@@ -101,7 +101,8 @@ async function publishLocalTo({ dryRun }, dependents) {
   // now that they're all added, push again to ensure they're up to date
   // looks repetitive because of yalc quirks, but gets by all the weird errors
   for (const sdk of sdks) {
-    await sh(yalc, ["push", "--quiet", relative(workDir, sdk.cwd)], {
+    await sh(yalc, ["push", "--scripts", "--quiet"], {
+      cwd: sdk.cwd,
       silent: true,
     });
   }
