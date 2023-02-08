@@ -3,7 +3,7 @@
  * the original Promise, but if it doesn't resolve within the timeout interval,
  * it will reject with a timeout error.
  *
- * @param description - Job description to be used in the timeout error
+ * @param describe - Job description to be used in the timeout error
  * @param promise - Original promise to set a timeout for
  * @param timeoutMs - Time to wait (ms) before rejecting
  * @param onReject - Run when promise times out to clean up handles
@@ -12,7 +12,7 @@
  * @internal
  */
 export function timeoutPromise<T>(
-  description: string,
+  describe: string | (() => string),
   promise: Promise<T>,
   ms: number,
   onReject: (e: Error) => void
@@ -26,7 +26,13 @@ export function timeoutPromise<T>(
       }
     };
     const timeout = setTimeout(() => {
-      cleanupAndReject(new Error(`${description} timed out after ${ms}ms`));
+      cleanupAndReject(
+        new Error(
+          `${
+            typeof describe === "function" ? describe() : describe
+          } timed out after ${ms}ms`
+        )
+      );
     }, ms);
     promise
       .then((result) => {
