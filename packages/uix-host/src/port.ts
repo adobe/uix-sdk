@@ -21,7 +21,11 @@ import type {
   Unsubscriber,
   VirtualApi,
 } from "@adobe/uix-core";
-import { Emitter, connectIframe } from "@adobe/uix-core";
+import {
+  Emitter,
+  connectIframe,
+  formatHostMethodAddress,
+} from "@adobe/uix-core";
 import { normalizeIframe } from "./dom-utils";
 
 /**
@@ -384,8 +388,7 @@ export class Port<GuestApi>
     { name, path }: HostMethodAddress,
     methodSource: RemoteHostApis
   ): RemoteHostApis<VirtualApi> {
-    const dots = (level: number) =>
-      `uix.host.${path.slice(0, level).join(".")}`;
+    const dots = (level: number) => `host.${path.slice(0, level).join(".")}`;
     const methodCallee = path.reduce((current, prop, level) => {
       this.assert(
         Reflect.has(current, prop),
@@ -425,7 +428,10 @@ export class Port<GuestApi>
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
       } catch (e) {
-        this.logger.warn("Private method not found!", address);
+        this.logger.warn(
+          `Private method ${formatHostMethodAddress(address)} not found!`,
+          address
+        );
       }
     }
     if (!methodCallee) {

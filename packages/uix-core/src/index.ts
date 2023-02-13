@@ -21,6 +21,7 @@ export * from "./emitter";
 export * from "./namespace-proxy";
 export * from "./types";
 export * from "./cross-realm-object";
+export * from "./logging-formatters";
 export * from "./promises";
 export * from "./tunnel";
 export type { Asynced } from "./object-walker";

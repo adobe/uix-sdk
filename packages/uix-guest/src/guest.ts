@@ -20,6 +20,7 @@ import type {
 } from "@adobe/uix-core";
 import {
   Emitter,
+  formatHostMethodAddress,
   makeNamespaceProxy,
   connectParentWindow,
   timeoutPromise,
@@ -184,7 +185,7 @@ export class Guest<
       await this.hostConnectionPromise;
       try {
         const result = await timeoutPromise(
-          `Calling host method ${address.path.join(".")}${address.name}(...)`,
+          () => `Calling ${formatHostMethodAddress(address)}`,
           this.hostConnection.getRemoteApi().invokeHostMethod(address),
           10000,
           (e) => {
@@ -196,9 +197,7 @@ export class Guest<
         const error =
           e instanceof Error ? e : new Error(e as unknown as string);
         const methodError = new Error(
-          `Host method call host.${address.path.join(".")}() failed: ${
-            error.message
-          }`
+          `Call to ${formatHostMethodAddress(address)} failed: ${error.message}`
         );
         this.logger.error(methodError);
         throw methodError;
