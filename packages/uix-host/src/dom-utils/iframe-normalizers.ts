@@ -27,17 +27,27 @@ type SandboxPermission =
   | "scripts"
   | "storage-access-by-user-activation"
   | "top-navigation-by-user-activation";
+
+/**
+ * Character strings allowed in "sandbox=" attribute.
+ * @internal
+ */
 export type SandboxToken = `allow-${SandboxPermission}`;
 
 /**
- * Limit provided set of "sandbox" attributes to a list of legal ones.
+ * Merge lists of attrs together
  * @internal
  */
 export const makeSandboxAttrs = (...sandboxes: AttrTokens<SandboxToken>[]) =>
   mergeAttrValues<SandboxToken>(...sandboxes);
 
+/**
+ * Limit provided set of "sandbox" attributes to a list of legal ones.
+ * @internal
+ */
 export const requiredIframeProps = {
-  csp: "frame-ancestors 'self'",
+  // must not require this until app builder supports CSP
+  // csp: "frame-ancestors 'self'",
   "data-uix-guest": "true",
   role: "presentation",
   referrerPolicy: "strict-origin" as HTMLAttributeReferrerPolicy,
@@ -45,6 +55,10 @@ export const requiredIframeProps = {
 
 const requiredIframeAttrEntries = Object.entries(requiredIframeProps);
 
+/**
+ * Set and/or verify the required properties for use with uix-sdk on an iframe.
+ * @internal
+ */
 export const normalizeIframe = (iframe: HTMLIFrameElement) => {
   for (const [attr, value] of requiredIframeAttrEntries) {
     iframe.setAttribute(attr, value);

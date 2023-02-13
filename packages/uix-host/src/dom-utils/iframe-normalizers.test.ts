@@ -19,7 +19,6 @@ describe("normalizeIframe", () => {
     normalizeIframe(frame);
     expect(frame).toMatchInlineSnapshot(`
       <iframe
-        csp="frame-ancestors 'self'"
         data-uix-guest="true"
         referrerpolicy="strict-origin"
         role="presentation"
