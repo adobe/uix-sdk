@@ -33,30 +33,35 @@ const bullets = (iter) => ["", ...iter].join("\n • ");
 async function publishLocalTo({ dryRun }, dependents) {
   const sh = dryRun ? fakeSh : realSh;
 
-  const workDir = process.cwd();
   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
   try {
     await shResult(yalc, ["--version"]);
   } catch (e) {
-    throw new Error(`Could not find "yalc" in npm path: ${e.message}`);
+    throw new Error(
+      `Could not find "yalc" in npm path: ${e.message}. Install yalc globally with yarn or npm to proceed.
+(Sorry, 'npx yalc' doesn't work in this use case.`
+    );
   }
 
   const sdks = await getSdks();
-  const usedSdkPackages = new Set();
-  const unlinkedSdkPackages = new Set();
 
-  logger.log.hl`Publishing ${sdks.map(s => s.shortName).join(', ')}`
+  logger.log.hl`Publishing ${sdks.map((s) => s.shortName).join(", ")}`;
   for (const { cwd } of sdks) {
     await sh(yalc, ["publish", "--quiet", "--changed"], { cwd, silent: true });
   }
 
   for (const dependent of dependents) {
+    const usedSdkPackages = new Set();
+    const unlinkedSdkPackages = new Set();
     const yalcConfigDir = await shResult(yalc, ["dir"], {
       cwd: dependent.dir,
     });
-    const yalcInstallations = JSON.parse(
-      readFileSync(resolve(yalcConfigDir, "installations.json"))
-    );
+    let yalcInstallations = {};
+    try {
+      yalcInstallations = JSON.parse(
+        readFileSync(resolve(yalcConfigDir, "installations.json"))
+      );
+    } catch (e) {}
 
     const allDeps = new Set(
       Object.keys({
@@ -67,7 +72,9 @@ async function publishLocalTo({ dryRun }, dependents) {
       })
     );
 
-    for (const { pkg: { name } } of sdks) {
+    for (const {
+      pkg: { name },
+    } of sdks) {
       if (!allDeps.has(name)) {
         continue;
       }
