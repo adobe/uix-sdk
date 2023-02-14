@@ -15,12 +15,14 @@ export function timeoutPromise<T>(
   describe: string | (() => string),
   promise: Promise<T>,
   ms: number,
-  onReject: (e: Error) => void
+  onReject?: (e: Error) => void
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const cleanupAndReject = async (e: Error) => {
       try {
-        await onReject(e);
+        if (onReject) {
+          await onReject(e);
+        }
       } finally {
         reject(e);
       }

@@ -187,20 +187,14 @@ export class Guest<
         const result = await timeoutPromise(
           () => `Calling ${formatHostMethodAddress(address)}`,
           this.hostConnection.getRemoteApi().invokeHostMethod(address),
-          10000,
-          (e) => {
-            this.logger.error(e);
-          }
+          10000
         );
         return result;
       } catch (e) {
         const error =
           e instanceof Error ? e : new Error(e as unknown as string);
-        const methodError = new Error(
-          `Call to ${formatHostMethodAddress(address)} failed: ${error.message}`
-        );
-        this.logger.error(methodError);
-        throw methodError;
+        this.logger.error(error);
+        throw error;
       }
     }
   );
