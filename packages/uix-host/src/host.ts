@@ -405,9 +405,12 @@ export class Host extends Emitter<HostEvents> {
     try {
       await guest.load();
     } catch (e: unknown) {
-      const error = e instanceof Error ? e : new Error(String(e));
+      const error = new Error(
+        `Guest ${guest.id} failed to load: at ${guest.url}: ${
+          e instanceof Error ? e.stack : String(e)
+        }`
+      );
       this.emit("error", { host: this, guest, error });
-      console.warn("Failed to load extension at endpoint %s", guest.url);
       return guest;
     }
     // this new guest might have new capabilities, so the identities of the

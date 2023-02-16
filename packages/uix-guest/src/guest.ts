@@ -241,6 +241,7 @@ export class Guest<
 
       this.hostConnectionPromise = hostConnectionPromise;
       this.hostConnection = await this.hostConnectionPromise;
+      this.emit("connected", { guest: this });
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("Connection failed!", e);
