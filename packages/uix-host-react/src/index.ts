@@ -13,3 +13,4 @@ governing permissions and limitations under the License.
 export * from "@adobe/uix-host";
 export * from "./components/index.js";
 export * from "./hooks/index.js";
+export * from "./extension-context";
