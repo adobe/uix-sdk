@@ -13,8 +13,8 @@ governing permissions and limitations under the License.
 import type {
   Emits,
   GuestConnection,
+  GuestConnectionEvents,
   HostMethodAddress,
-  NamedEvent,
   RemoteHostApis,
   GuestApis,
   CrossRealmObject,
@@ -94,28 +94,6 @@ interface GuestProxyWrapper {
 }
 
 /** @public */
-type PortEvent<
-  GuestApi,
-  Type extends string = string,
-  Detail = Record<string, unknown>
-> = NamedEvent<
-  Type,
-  Detail &
-    Record<string, unknown> & {
-      guestPort: Port<GuestApi>;
-    }
->;
-
-/** @public */
-export type PortEvents<
-  GuestApi,
-  HostApi extends Record<string, unknown> = Record<string, unknown>
-> =
-  | PortEvent<GuestApi, "hostprovide">
-  | PortEvent<GuestApi, "unload">
-  | PortEvent<GuestApi, "beforecallhostmethod", HostMethodAddress<HostApi>>;
-
-/** @public */
 export type PortOptions = {
   /**
    * Time in milliseconds to wait for the guest to connect before throwing.
@@ -152,8 +130,8 @@ const defaultOptions = {
  * something we should review.
  * @public
  */
-export class Port<GuestApi>
-  extends Emitter<PortEvents<GuestApi>>
+export class Port<GuestApi = unknown>
+  extends Emitter<GuestConnectionEvents>
   implements GuestConnection
 {
   public get apis() {

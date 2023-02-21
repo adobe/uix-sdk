@@ -10,8 +10,6 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { CrossRealmObject } from "./cross-realm-object";
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
@@ -165,6 +163,36 @@ export interface HostConnection<T = unknown> {
 }
 
 /**
+ * Guest UIs
+ * @internal
+ */
+export interface UIHostMethods {
+  onIframeResize(dimensions: DOMRect): void;
+}
+
+export type UIHostConnection<T = unknown> = HostConnection<T> & UIHostMethods;
+
+/** @public */
+export type GuestConnectionEvent<
+  Type extends string = string,
+  Detail = Record<string, unknown>
+> = NamedEvent<
+  Type,
+  Detail &
+    Record<string, unknown> & {
+      guestPort: GuestConnection;
+    }
+>;
+
+/** @public */
+export type GuestConnectionEvents<
+  HostApi extends Record<string, unknown> = Record<string, unknown>
+> =
+  | GuestConnectionEvent<"hostprovide">
+  | GuestConnectionEvent<"unload">
+  | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>;
+
+/**
  * {@inheritDoc @adobe/uix-host#Port}
  * @internal
  */
@@ -182,6 +210,8 @@ export interface GuestConnection {
   provide(apis: unknown): void;
   unload(): Promise<unknown>;
 }
+
+export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
 /**
  * BEGIN EVENTS
@@ -219,4 +249,11 @@ export interface Emits<Events extends NamedEvent = NamedEvent>
     type: Type,
     listener: (ev: Extract<Events, { type: Type }>) => unknown
   ): () => void;
+  /**
+   * Same as EventTarget.removeEventListener but typed.
+   */
+  removeEventListener<Type extends Events["type"]>(
+    type: Type,
+    listener: (ev: Extract<Events, { type: Type }>) => unknown
+  ): void;
 }
