@@ -90,7 +90,7 @@ async function setupApiExchange<T>(
     }),
     tunnel.config.timeout,
     (e) => {
-      tunnel.destroy(e);
+      tunnel.abort(e);
     }
   );
 }

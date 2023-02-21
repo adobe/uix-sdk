@@ -225,6 +225,7 @@ export class Port<GuestApi>
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
     this.timeout = timeout;
     this.debug = debug;
+    this.logger = config.logger;
     this.id = config.id;
     this.url = config.url;
     this.runtimeContainer = config.runtimeContainer;

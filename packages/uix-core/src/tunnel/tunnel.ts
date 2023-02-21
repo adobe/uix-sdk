@@ -155,6 +155,7 @@ export class Tunnel extends EventEmitter {
     let timeout: number;
     const offerListener = (event: MessageEvent) => {
       if (
+        !tunnel.isConnected &&
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
@@ -188,11 +189,16 @@ export class Tunnel extends EventEmitter {
      */
     frameStatusCheck = window.setInterval(() => {
       if (!target.isConnected) {
-        const frameDisconnectError = new Error(
-          `Tunnel target iframe at ${tunnel.config.targetOrigin} disconnected!`
-        );
-        Object.assign(frameDisconnectError, { target });
-        tunnel.abort(frameDisconnectError);
+        cleanup();
+        if (tunnel.isConnected) {
+          const frameDisconnectError = new Error(
+            `Tunnel target iframe at ${tunnel.config.targetOrigin} was disconnected from the document!`
+          );
+          Object.assign(frameDisconnectError, { target });
+          tunnel.abort(frameDisconnectError);
+        } else {
+          tunnel.destroy();
+        }
       }
     }, STATUSCHECK_MS);
 
@@ -257,11 +263,14 @@ export class Tunnel extends EventEmitter {
     };
 
     timeout = window.setTimeout(() => {
-      tunnel.abort(
-        new Error(
-          `Timed out waiting for initial response from parent after ${config.timeout}ms`
-        )
-      );
+      if (!timedOut) {
+        timedOut = true;
+        tunnel.abort(
+          new Error(
+            `Timed out waiting for initial response from parent after ${config.timeout}ms`
+          )
+        );
+      }
     }, config.timeout);
 
     window.addEventListener("message", acceptListener);
@@ -298,6 +307,7 @@ export class Tunnel extends EventEmitter {
     remote.addEventListener("message", this._emitFromMessage);
     this.emitLocal("connected");
     this._messagePort.start();
+    this.isConnected = true;
   }
 
   abort(error: Error): void {
