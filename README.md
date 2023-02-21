@@ -206,6 +206,7 @@ async function start() {
     document.body.innerHTML ++ JSON.stringify(event.detail.context);
   })
 }
+```
 
 ## Development
 
