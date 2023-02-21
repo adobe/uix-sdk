@@ -190,7 +190,11 @@ export type GuestConnectionEvents<
 > =
   | GuestConnectionEvent<"hostprovide">
   | GuestConnectionEvent<"unload">
-  | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>;
+  | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>
+  | GuestConnectionEvent<
+      "iframeresize",
+      { dimensions: DOMRect; iframe: HTMLIFrameElement }
+    >;
 
 /**
  * {@inheritDoc @adobe/uix-host#Port}

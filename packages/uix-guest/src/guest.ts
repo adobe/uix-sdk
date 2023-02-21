@@ -199,8 +199,8 @@ export class Guest<
     }
   );
   private timeout = 10000;
-  private hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
-  private hostConnection!: CrossRealmObject<HostConnection>;
+  protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
+  protected hostConnection!: CrossRealmObject<HostConnection>;
   /** @internal */
   protected getLocalMethods() {
     return {
