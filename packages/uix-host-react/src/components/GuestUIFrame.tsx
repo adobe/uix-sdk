@@ -109,7 +109,6 @@ export const GuestUIFrame = ({
       let mounted = true;
       let connection: CrossRealmObject<VirtualApi>;
       const connectionFrame = ref.current;
-      console.log("GuestUIFrame connect effect", ref);
       if (methods) {
         guest.provide(methods);
       }
@@ -149,7 +148,6 @@ export const GuestUIFrame = ({
   }, []);
 
   useEffect(() => {
-    console.log("GuestUIFrame resizeListener effect", ref);
     if (ref.current) {
       const currentFrame = ref.current;
       return guest.addEventListener(
