@@ -10,108 +10,128 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { resolve, relative } from "path";
+import { resolve, relative, basename } from "path";
 import { readFileSync } from "fs";
 import {
   getSdks,
   highlightLogVars,
   logger,
+  repoRoot,
   runWithArg,
-  sh,
+  sh as realSh,
   shResult,
 } from "./script-runner.mjs";
 
-let absDependentDir;
-let dependentName;
+// for dry runs
+const fakeSh = (cmd, args, opts = {}) => {
+  const cwd = relative(repoRoot, opts.cwd || "") || "./";
+  logger.log.hl`would run ${cwd} > ${basename(cmd)} ${args.join(" ")}`;
+};
 
-async function publishLocalTo(dependent) {
-  const workDir = process.cwd();
+const bullets = (iter) => ["", ...iter].join("\n • ");
+
+async function publishLocalTo({ dryRun }, dependents) {
+  const sh = dryRun ? fakeSh : realSh;
+
   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
   try {
     await shResult(yalc, ["--version"]);
   } catch (e) {
-    throw new Error(`Could not find "yalc" in npm path: ${e.message}`);
+    throw new Error(
+      `Could not find "yalc" in npm path: ${e.message}. Install yalc globally with yarn or npm to proceed.
+(Sorry, 'npx yalc' doesn't work in this use case.`
+    );
   }
 
   const sdks = await getSdks();
-  const sdkPackages = new Set(sdks.map((sdkPart) => sdkPart.pkg.name));
-  const unlinkedSdkPackages = new Set();
 
-  if (dependent) {
-    const absDependentDir = resolve(workDir, dependent);
+  logger.log.hl`Publishing ${sdks.map((s) => s.shortName).join(", ")}`;
+  for (const { cwd } of sdks) {
+    await sh(yalc, ["publish", "--quiet", "--changed"], { cwd, silent: true });
+  }
+
+  for (const dependent of dependents) {
     const usedSdkPackages = new Set();
+    const unlinkedSdkPackages = new Set();
     const yalcConfigDir = await shResult(yalc, ["dir"], {
-      cwd: absDependentDir,
+      cwd: dependent.dir,
     });
-    const yalcInstallations = JSON.parse(
-      readFileSync(resolve(yalcConfigDir, "installations.json"))
-    );
-
-    logger.log(
-      "Checking if %s has already yalc-added SDK packages",
-      dependentName
-    );
+    let yalcInstallations = {};
     try {
-      const found = JSON.parse(
-        await shResult("npm", ["explain", "--json", ...sdkPackages], {
-          cwd: absDependentDir,
-        })
+      yalcInstallations = JSON.parse(
+        readFileSync(resolve(yalcConfigDir, "installations.json"))
       );
-      for (const entry of found) {
-        if (sdkPackages.has(entry.name)) {
-          usedSdkPackages.add(entry.name);
-          if (
-            !yalcInstallations[entry.name] ||
-            !yalcInstallations[entry.name].includes(absDependentDir)
-          ) {
-            unlinkedSdkPackages.add(entry.name);
-          }
-        }
-      }
-      if (usedSdkPackages.size) {
-        logger.log(`Used SDK packages: %s`, [...usedSdkPackages]);
-        if (unlinkedSdkPackages) {
-          logger.log(
-            `SDK packages were not linked and will be added with yalc: %s`,
-            [...unlinkedSdkPackages]
-          );
-        }
-      } else {
-        sdkPackages.forEach((sdkPkg) => unlinkedSdkPackages.add(sdkPkg));
-        logger.log(
-          `SDKs were not used and will be added: %s`,
-          unlinkedSdkPackages
-        );
-      }
     } catch (e) {}
+
+    const allDeps = new Set(
+      Object.keys({
+        ...(dependent.pkg.dependencies || {}),
+        ...(dependent.pkg.devDependencies || {}),
+        ...(dependent.pkg.peerDependencies || {}),
+        ...(dependent.pkg.optionalDependencies || {}),
+      })
+    );
+
+    for (const {
+      pkg: { name },
+    } of sdks) {
+      if (!allDeps.has(name)) {
+        continue;
+      }
+      usedSdkPackages.add(name);
+      if (
+        !yalcInstallations[name] ||
+        !yalcInstallations[name].includes(dependent.dir)
+      ) {
+        unlinkedSdkPackages.add(name);
+      }
+    }
+
+    if (usedSdkPackages.size) {
+      logger.log.hl`${dependent.pkg.name} uses SDK packages: ${bullets(
+        usedSdkPackages
+      )}`;
+      if (unlinkedSdkPackages.size) {
+        logger.log
+          .hl`These packages were not linked and will be added with yalc: ${bullets(
+          unlinkedSdkPackages
+        )}`;
+      }
+      for (const unlinked of unlinkedSdkPackages) {
+        await sh(yalc, ["add", "--no-pure", unlinked], {
+          cwd: dependent.dir,
+        });
+      }
+    }
   }
 
+  // now that they're all added, push again to ensure they're up to date
+  // looks repetitive because of yalc quirks, but gets by all the weird errors
   for (const sdk of sdks) {
-    if (dependent && unlinkedSdkPackages.has(sdk.pkg.name)) {
-      await sh(yalc, ["add", sdk.pkg.name], { cwd: absDependentDir });
-    }
-    await sh(yalc, ["push", relative(workDir, sdk.cwd)]);
+    await sh(yalc, ["push", "--scripts", "--quiet"], {
+      cwd: sdk.cwd,
+      silent: true,
+    });
   }
-  logger.done("All changes to all SDKs pushed.");
+
+  if (dependents.length > 0) {
+    await sh('yalc', ['installations', 'show']);
+  }
+
+  logger.done("All SDKs published to yalc and up-to-date.");
 }
 
 runWithArg(publishLocalTo, async (argv) => {
-  const dependent = argv._[0];
-  if (!dependent) {
-    return false;
-  }
-  absDependentDir = resolve(dependent);
-  try {
-    dependentName = await shResult("npm", ["pkg", "-s", "get", "name"], {
-      cwd: absDependentDir,
-    });
-  } catch (e) {
-    let problem = e.stdout;
+  const dependents = [];
+
+  for (const dependentArg of argv._) {
+    const dir = resolve(dependentArg);
     try {
-      const { error } = JSON.parse(problem);
-      problem = error.summary;
-    } catch (e) {}
-    return highlightLogVars`A valid NPM package could not be found in ${absDependentDir}, so we cannot continue. Error was:\n  ${problem}`;
+      const pkg = JSON.parse(readFileSync(resolve(dir, "package.json")));
+      dependents.push({ dir, pkg });
+    } catch (e) {
+      return highlightLogVars`A valid NPM package could not be found in ${dir}, so we cannot continue. Error was:\n  ${e.message}`;
+    }
   }
-  return dependent;
+  return [argv, dependents];
 });

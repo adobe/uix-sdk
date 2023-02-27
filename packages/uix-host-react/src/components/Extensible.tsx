@@ -113,10 +113,7 @@ export function Extensible({
     host
       .load(extensions, guestOptions)
       .catch(logError("Load of extensions failed!"));
-    return () => {
-      host.unload().catch(logError("Unload of extensions failed!"));
-    };
-  }, [debug, hostName, runtimeContainer, sharedContext, extensions]);
+  }, [debug, hostName, runtimeContainer, extensions]);
 
   // skip render before host is initialized
   if (!host) {

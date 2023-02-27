@@ -78,7 +78,9 @@ async function setupApiExchange<T>(
         unsubscribe();
         if (!done) {
           done = true;
-          reject(e);
+          if (e) {
+            reject(e);
+          }
         }
       };
       tunnel.on("destroyed", destroy);
@@ -87,7 +89,9 @@ async function setupApiExchange<T>(
       );
     }),
     tunnel.config.timeout,
-    () => tunnel.destroy()
+    (e) => {
+      tunnel.abort(e);
+    }
   );
 }
 

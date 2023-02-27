@@ -3,6 +3,22 @@ import { wait } from "../promises/wait";
 import { Tunnel } from "./tunnel";
 import { TunnelMessenger } from "./tunnel-messenger";
 
+class FakeIframe {
+  contentWindow: MessagePort;
+  isConnected: boolean;
+  src: string;
+  private channel = new MessageChannel();
+  nodeName = "IFRAME";
+  constructor() {
+    this.contentWindow = new MessageChannel().port1;
+  }
+  destroy() {
+    this.channel.port1.close();
+    this.channel.port2.close();
+    this.channel = null;
+  }
+}
+
 const fakeConsole = {
   error: jest.fn(),
   warn: jest.fn(),
@@ -20,7 +36,6 @@ function tunnelHarness(
   config = defaultTunnelConfig
 ): TunnelHarness {
   const tunnel = new Tunnel(config);
-  tunnel.connect(port);
   openPorts.push(port);
   return {
     tunnel,
@@ -52,6 +67,10 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     local = tunnelHarness(channel.port1);
     remote = tunnelHarness(channel.port2);
   });
+  const connectTunnels = () => {
+    local.tunnel.connect(local.port);
+    remote.tunnel.connect(remote.port);
+  };
   afterEach(() => {
     while (openPorts.length > 0) {
       openPorts.pop().close();
@@ -60,6 +79,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   it("receives MessageEvents and emits local events to listeners", async () => {
     const test1Handler = jest.fn();
     local.tunnel.on("test1", test1Handler);
+    connectTunnels();
     remote.port.postMessage({
       type: "test1",
       payload: {
@@ -75,6 +95,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     const remoteConnectHandler = jest.fn();
     local.tunnel.on("connected", localConnectHandler);
     remote.tunnel.on("connected", remoteConnectHandler);
+    connectTunnels();
     await wait(100);
     expect(localConnectHandler).toHaveBeenCalledTimes(1);
     expect(remoteConnectHandler).toHaveBeenCalledTimes(1);
@@ -82,22 +103,19 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   it("#emitRemote() sends remote events after connect", async () => {
     const messageListener = jest.fn();
     remote.port.addEventListener("message", messageListener);
+    connectTunnels();
     local.tunnel.emit("test2", { test2Payload: true });
     local.tunnel.emit("test3", { test3Payload: true });
     await wait(10);
-    expect(messageListener).toHaveBeenCalledTimes(3);
-    const connectMessageEvent = messageListener.mock.calls[0][0];
-    expect(connectMessageEvent).toHaveProperty("data", {
-      type: "connected",
-    });
-    const test2MessageEvent = messageListener.mock.calls[1][0];
+    expect(messageListener).toHaveBeenCalledTimes(2);
+    const test2MessageEvent = messageListener.mock.calls[0][0];
     expect(test2MessageEvent).toHaveProperty("data", {
       type: "test2",
       payload: {
         test2Payload: true,
       },
     });
-    const test3MessageEvent = messageListener.mock.calls[2][0];
+    const test3MessageEvent = messageListener.mock.calls[1][0];
     expect(test3MessageEvent).toHaveProperty("data", {
       type: "test3",
       payload: {
@@ -106,16 +124,17 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     });
   });
   it("exchanges events between two emitters sharing ports", async () => {
+    connectTunnels();
     await testEventExchange(local.tunnel, remote.tunnel);
   });
   it("#connect(port) accepts a new messageport", async () => {
     const connectHandler = jest.fn();
     local.tunnel.on("connected", connectHandler);
-    remote.tunnel.on("reconnect", connectHandler);
     const confirmHandler = jest.fn();
     local.tunnel.on("confirm", confirmHandler);
     const dispelHandler = jest.fn();
     remote.tunnel.on("dispel", dispelHandler);
+    connectTunnels();
     local.tunnel.emit("dispel", { dispelled: 1 });
     remote.tunnel.emit("confirm", { confirmed: 1 });
     await wait(10);
@@ -165,14 +184,13 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
    * https://github.com/jsdom/jsdom/blob/22f7c3c51829a6f14387f7a99e5cdf087f72e685/lib/jsdom/living/post-message.js#L31-L37
    */
   describe.skip("creates a Tunnel connected to an iframe", () => {
-    it.only("listens for handshakes from the frame window", async () => {
+    it("listens for handshakes from the frame window", async () => {
       let remoteTunnel: Tunnel;
       const connectMessageHandler = jest.fn();
       const acceptListener = jest.fn();
       const targetOrigin = "https://example.com:4001";
-      const loadedFrame = document.createElement("iframe");
+      const loadedFrame = new FakeIframe() as unknown as HTMLIFrameElement;
       loadedFrame.src = targetOrigin;
-      document.body.appendChild(loadedFrame);
       loadedFrame.contentWindow.addEventListener("message", acceptListener);
       const localTunnel = Tunnel.toIframe(loadedFrame, {
         targetOrigin,
@@ -185,14 +203,18 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       });
       localTunnel.on("connected", connectMessageHandler);
       await wait(100);
-      fireEvent(
-        window,
-        new MessageEvent("message", {
-          data: messenger.makeOffered("iframe-test-1"),
-          origin: loadedFrame.src,
-          source: loadedFrame.contentWindow,
-        })
+      window.postMessage(
+        messenger.makeOffered("iframe-test-1"),
+        loadedFrame.src
       );
+      // fireEvent(
+      //   window,
+      //   new MessageEvent("message", {
+      //     data: messenger.makeOffered("iframe-test-1"),
+      //     origin: loadedFrame.src,
+      //     source: loadedFrame.contentWindow,
+      //   })
+      // );
       await wait(100);
       expect(acceptListener).toHaveBeenCalled();
       const acceptEvent = acceptListener.mock.lastCall[0];

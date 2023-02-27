@@ -18,7 +18,7 @@ import figures from "figures";
 import { execFile, spawn } from "child_process";
 const execP = promisify(execFile);
 
-const repoRoot = new URL("../", import.meta.url).pathname;
+export const repoRoot = new URL("../", import.meta.url).pathname;
 
 export const logVarHighlighter =
   (formatter) =>

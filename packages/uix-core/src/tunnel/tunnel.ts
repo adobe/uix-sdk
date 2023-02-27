@@ -2,6 +2,7 @@ import EventEmitter from "eventemitter3";
 import { isIframe } from "../value-assertions";
 import { TunnelMessenger } from "./tunnel-messenger";
 import { unwrap } from "../message-wrapper";
+import { quietConsole } from "../debuglog";
 
 /**
  * Child iframe will send offer messages to parent at this frequency until one
@@ -81,6 +82,7 @@ export class Tunnel extends EventEmitter {
   private _messagePort: MessagePort;
 
   config: TunnelConfig;
+  isConnected: boolean;
 
   // #endregion Properties
 
@@ -120,24 +122,48 @@ export class Tunnel extends EventEmitter {
       );
     }
 
-    const source = target.contentWindow;
     const config = Tunnel._normalizeConfig(options);
     const tunnel = new Tunnel(config);
     const messenger = new TunnelMessenger({
       myOrigin: window.location.origin,
-      targetOrigin: options.targetOrigin,
-      logger: options.logger || console,
+      targetOrigin: config.targetOrigin,
+      logger: config.logger,
     });
+    tunnel.on("destroyed", () =>
+      config.logger.log(
+        `Tunnel to iframe at ${config.targetOrigin} destroyed!`,
+        tunnel,
+        target
+      )
+    );
+    tunnel.on("connected", () =>
+      config.logger.log(
+        `Tunnel to iframe at ${config.targetOrigin} connected!`,
+        tunnel,
+        target
+      )
+    );
+    tunnel.on("error", (e) =>
+      config.logger.log(
+        `Tunnel to iframe at ${config.targetOrigin} error!`,
+        tunnel,
+        target,
+        e
+      )
+    );
     let frameStatusCheck: number;
     let timeout: number;
     const offerListener = (event: MessageEvent) => {
       if (
-        isFromOrigin(event, source, config.targetOrigin) &&
+        !tunnel.isConnected &&
+        isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
         const accepted = messenger.makeAccepted(unwrap(event.data).offers);
         const channel = new MessageChannel();
-        source.postMessage(accepted, config.targetOrigin, [channel.port1]);
+        target.contentWindow.postMessage(accepted, config.targetOrigin, [
+          channel.port1,
+        ]);
         tunnel.connect(channel.port2);
       }
     };
@@ -147,13 +173,11 @@ export class Tunnel extends EventEmitter {
       window.removeEventListener("message", offerListener);
     };
     timeout = window.setTimeout(() => {
-      tunnel.emitLocal(
-        "error",
+      tunnel.abort(
         new Error(
-          `Timed out awaiting initial message from iframe after ${config.timeout}ms`
+          `Timed out awaiting initial message from target iframe after ${config.timeout}ms`
         )
       );
-      tunnel.destroy();
     }, config.timeout);
 
     tunnel.on("destroyed", cleanup);
@@ -165,7 +189,16 @@ export class Tunnel extends EventEmitter {
      */
     frameStatusCheck = window.setInterval(() => {
       if (!target.isConnected) {
-        tunnel.destroy();
+        cleanup();
+        if (tunnel.isConnected) {
+          const frameDisconnectError = new Error(
+            `Tunnel target iframe at ${tunnel.config.targetOrigin} was disconnected from the document!`
+          );
+          Object.assign(frameDisconnectError, { target });
+          tunnel.abort(frameDisconnectError);
+        } else {
+          tunnel.destroy();
+        }
       }
     }, STATUSCHECK_MS);
 
@@ -192,6 +225,15 @@ export class Tunnel extends EventEmitter {
     const key = makeKey();
     const config = Tunnel._normalizeConfig(opts);
     const tunnel = new Tunnel(config);
+    tunnel.on("destroyed", () =>
+      config.logger.log(`Tunnel ${key} to parent window destroyed!`, tunnel)
+    );
+    tunnel.on("connected", () =>
+      config.logger.log(`Tunnel ${key} to parent window connected!`, tunnel)
+    );
+    tunnel.on("error", (e) =>
+      config.logger.log(`Tunnel ${key} to parent window error!`, tunnel, e)
+    );
     const messenger = new TunnelMessenger({
       myOrigin: window.location.origin,
       targetOrigin: config.targetOrigin,
@@ -221,21 +263,31 @@ export class Tunnel extends EventEmitter {
     };
 
     timeout = window.setTimeout(() => {
-      tunnel.emitLocal(
-        "error",
-        new Error(
-          `Timed out waiting for initial response from parent after ${config.timeout}ms`
-        )
-      );
-      tunnel.destroy();
+      if (!timedOut) {
+        timedOut = true;
+        tunnel.abort(
+          new Error(
+            `Timed out waiting for initial response from parent after ${config.timeout}ms`
+          )
+        );
+      }
     }, config.timeout);
 
     window.addEventListener("message", acceptListener);
-    tunnel.on("destroyed", cleanup);
-    tunnel.on("connected", cleanup);
+    tunnel.on("destroyed", () => {
+      cleanup();
+    });
+    tunnel.on("connected", () => {
+      cleanup();
+    });
 
-    const sendOffer = () =>
-      source.postMessage(messenger.makeOffered(key), config.targetOrigin);
+    const sendOffer = () => {
+      if (tunnel.isConnected) {
+        clearInterval(retrying);
+      } else {
+        source.postMessage(messenger.makeOffered(key), config.targetOrigin);
+      }
+    };
     retrying = window.setInterval(sendOffer, RETRY_MS);
     sendOffer();
 
@@ -253,17 +305,26 @@ export class Tunnel extends EventEmitter {
     }
     this._messagePort = remote;
     remote.addEventListener("message", this._emitFromMessage);
-    this.emit("connected");
+    this.emitLocal("connected");
     this._messagePort.start();
+    this.isConnected = true;
   }
 
-  destroy(): void {
+  abort(error: Error): void {
+    this.emitLocal("error", error);
+    this.destroy(error);
+  }
+
+  destroy(e?: Error): void {
     if (this._messagePort) {
       this._messagePort.close();
       this._messagePort = null;
+      this.isConnected = false;
     }
-    this.emitLocal("destroyed");
-    this.emit("destroyed");
+    // don't add the argument to the logging if it doesn't exist; otherwise, on
+    // a normal destroy, it logs a confusing "undefined"
+    const context = e ? [e] : [];
+    this.emitLocal("destroyed", ...context);
     // this.removeAllListeners(); // TODO: maybe necessary for memory leaks
   }
 
@@ -289,8 +350,8 @@ export class Tunnel extends EventEmitter {
     let errorMessage = "";
     const config: Partial<TunnelConfig> = {
       timeout: 4000,
-      logger: console,
       ...options,
+      logger: options.logger || quietConsole,
     };
 
     const timeoutMs = Number(config.timeout);

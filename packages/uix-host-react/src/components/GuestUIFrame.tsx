@@ -40,7 +40,7 @@ export interface GuestUIProps extends FrameProps {
   /**
    * Additional sandbox attributes GuestUIFrame might need.
    */
-  sandbox: AttrTokens<SandboxToken>;
+  sandbox?: AttrTokens<SandboxToken>;
   /**
    * Optional custom URL or path.
    */
