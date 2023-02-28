@@ -71,9 +71,9 @@ export interface ExtensionRegistryConnection {
 /** @public */
 export interface ExtensionRegistryConfig
   extends ExtensionRegistryExtensionRegistration,
-  ExtensionRegistryConnection {
-    aemInstance?: string;
-    extBaseUrl?: string;
+    ExtensionRegistryConnection {
+  aemInstance?: string;
+  extBaseUrl?: string;
 }
 
 function buildEndpointPath(
@@ -98,11 +98,13 @@ function buildExtensionRegistryUrl(config: ExtensionRegistryConfig): string {
       orgId: config.imsOrg,
       extensionPoint: buildEndpointPath(config),
       aemInstance: config.aemInstance,
-      auth: 'true',
+      auth: "true",
     });
-    return ensureProtocolSpecified(config.extBaseUrl) +
-      '/api/v1/web/dx-excshell-1/listFilteredExtensions' +
-      `?${queryParams.toString()}`;
+    return (
+      ensureProtocolSpecified(config.extBaseUrl) +
+      "/api/v1/web/dx-excshell-1/listFilteredExtensions" +
+      `?${queryParams.toString()}`
+    );
   } else {
     return `${ensureProtocolSpecified(
       config.baseUrl || "appregistry.adobe.io"
@@ -115,16 +117,13 @@ function buildExtensionRegistryUrl(config: ExtensionRegistryConfig): string {
 async function fetchExtensionsFromRegistry(
   config: ExtensionRegistryConfig
 ): Promise<Array<ExtensionDefinition>> {
-  const resp = await fetch(
-    buildExtensionRegistryUrl(config),
-    {
-      headers: {
-        Accept: "application/json",
-        Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
-        "X-Api-Key": config.apiKey,
-      },
-    }
-  );
+  const resp = await fetch(buildExtensionRegistryUrl(config), {
+    headers: {
+      Accept: "application/json",
+      Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
+      "X-Api-Key": config.apiKey,
+    },
+  });
 
   if (resp.status != 200) {
     throw new Error(
