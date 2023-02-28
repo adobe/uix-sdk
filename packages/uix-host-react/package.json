@@ -19,7 +19,7 @@
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
     "@adobe/uix-core": "^0.7.0",
-    "@adobe/uix-host": "^0.7.0"
+    "@adobe/uix-host": "file:.yalc/@adobe/uix-host"
   },
   "files": [
     "README.md",

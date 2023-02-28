@@ -71,7 +71,10 @@ export interface ExtensionRegistryConnection {
 /** @public */
 export interface ExtensionRegistryConfig
   extends ExtensionRegistryExtensionRegistration,
-    ExtensionRegistryConnection {}
+  ExtensionRegistryConnection {
+    aemInstance?: string;
+    extBaseUrl?: string;
+}
 
 function buildEndpointPath(
   config: ExtensionRegistryEndpointRegistration
@@ -89,15 +92,31 @@ function ensureProtocolSpecified(url: string) {
   return `https://${url}`;
 }
 
+function buildExtensionRegistryUrl(config: ExtensionRegistryConfig): string {
+  if (config.aemInstance) {
+    const queryParams = new URLSearchParams({
+      orgId: config.imsOrg,
+      extensionPoint: buildEndpointPath(config),
+      aemInstance: config.aemInstance,
+      auth: 'true',
+    });
+    return ensureProtocolSpecified(config.extBaseUrl) +
+      '/api/v1/web/dx-excshell-1/listFilteredExtensions' +
+      `?${queryParams.toString()}`;
+  } else {
+    return `${ensureProtocolSpecified(
+      config.baseUrl || "appregistry.adobe.io"
+    )}/myxchng/v1/org/${encodeURIComponent(
+      config.imsOrg
+    )}/xtn/${buildEndpointPath(config)}?auth=true`;
+  }
+}
+
 async function fetchExtensionsFromRegistry(
   config: ExtensionRegistryConfig
 ): Promise<Array<ExtensionDefinition>> {
   const resp = await fetch(
-    `${ensureProtocolSpecified(
-      config.baseUrl || "appregistry.adobe.io"
-    )}/myxchng/v1/org/${encodeURIComponent(
-      config.imsOrg
-    )}/xtn/${buildEndpointPath(config)}?auth=true`,
+    buildExtensionRegistryUrl(config),
     {
       headers: {
         Accept: "application/json",
