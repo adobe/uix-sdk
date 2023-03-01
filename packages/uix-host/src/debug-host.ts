@@ -46,6 +46,9 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
         .listen("beforecallhostmethod", (log, event) => {
           log.info(event.detail);
         })
+        .listen("guestresize", (log, event) => {
+          log.info(event.detail);
+        })
         .listen("unload", (log, event) => {
           log.info(event.detail);
           log.detach();

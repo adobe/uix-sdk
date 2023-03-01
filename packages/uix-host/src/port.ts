@@ -235,7 +235,7 @@ export class Port<GuestApi = unknown>
   ): Promise<CrossRealmObject<T>> {
     return this.attachFrame(iframe, {
       onIframeResize: (dimensions: { height: number; width: number }) => {
-        this.emit("iframeresize", {
+        this.emit("guestresize", {
           dimensions,
           guestPort: this,
           iframe: iframe,

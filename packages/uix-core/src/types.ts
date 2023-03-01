@@ -192,7 +192,7 @@ export type GuestConnectionEvents<
   | GuestConnectionEvent<"unload">
   | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>
   | GuestConnectionEvent<
-      "iframeresize",
+      "guestresize",
       { dimensions: DOMRect; iframe: HTMLIFrameElement }
     >;
 

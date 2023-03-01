@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { asyncThrottle, CrossRealmObject, VirtualApi } from "@adobe/uix-core";
+import { CrossRealmObject, VirtualApi } from "@adobe/uix-core";
 import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
@@ -55,16 +55,6 @@ export interface GuestUIProps extends FrameProps {
    * Host methods to provide only to the guest inside this iframe.
    */
   methods?: VirtualApi;
-  /**
-   * Frame resizes automatically when inner document size changes.
-   * @default true
-   */
-  autoResize?: boolean;
-  /**
-   * Send resize events only every `autoResizeInterval` milliseconds.
-   * @default 200
-   */
-  autoResizeInterval?: number;
 }
 
 const defaultIFrameProps: FrameProps = {
@@ -91,8 +81,6 @@ export const GuestUIFrame = ({
   onResize,
   methods,
   sandbox = "",
-  autoResize,
-  autoResizeInterval = 250,
   style,
   ...customIFrameProps
 }: GuestUIProps) => {
@@ -148,29 +136,18 @@ export const GuestUIFrame = ({
   }, []);
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && onResize) {
       const currentFrame = ref.current;
       return guest.addEventListener(
-        "iframeresize",
-        asyncThrottle(({ detail: { guestPort, iframe, dimensions } }) => {
+        "guestresize",
+        ({ detail: { guestPort, iframe, dimensions } }) => {
           if (guestPort.id === guest.id && iframe === currentFrame) {
-            if (autoResize) {
-              currentFrame.style.height = String(
-                customIFrameProps.height || `${dimensions.height}px`
-              );
-              currentFrame.style.width = String(
-                customIFrameProps.width || `${dimensions.width}px`
-              );
-            }
-            // setDimensions(resizeEvent.dimensions);
-            if (onResize) {
-              onResize(dimensions);
-            }
+            onResize(dimensions);
           }
-        }, autoResizeInterval)
+        }
       );
     }
-  }, [ref.current, guest.id]);
+  }, [ref.current, guest.id, onResize]);
 
   return (
     <iframe
