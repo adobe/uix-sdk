@@ -19,6 +19,27 @@ import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
 
 type ReactIframeProps = IframeHTMLAttributes<HTMLIFrameElement>;
 
+type ResizeTiming = "every" | "after";
+type ResizeOpt = `${ResizeTiming} ${number}`;
+type ResizeOptHeight = `height ${ResizeOpt}`;
+type ResizeOptWidth = `width ${ResizeOpt}`;
+type ResizeOptString =
+  | ResizeOpt
+  | ResizeOptHeight
+  | ResizeOptWidth
+  | `${ResizeOptHeight}, ${ResizeOptWidth}`
+  | `${ResizeOptWidth}, ${ResizeOptHeight}`;
+
+type ResizeBehavior = { timing: ResizeTiming; interval: number };
+type ResizeBehaviors = {
+  height?: ResizeBehavior;
+  width?: ResizeBehavior;
+};
+
+function parseResizeOpt(optString: ResizeOptString): ResizeBehaviors {
+  const [first, second] = optString.split(",");
+}
+
 /**
  * @public
  */
@@ -56,13 +77,38 @@ export interface GuestUIProps extends FrameProps {
    */
   methods?: VirtualApi;
   /**
-   * Frame resizes automatically when inner document size changes.
-   * @default true
+   * Dimensions, timing and rate of automatic resize behavior.
+   *
+   * @remarks
+   * The guest document in an iframe will resize as its contents change, and a
+   * GuestUIFrame can automatically resize itself to those dimensions. Resize
+   * can happen once, to size to a document after its first load, or it can run
+   * repeatedly, as the document resizes itself. Resize events can be copious,
+   * so GuestUIFrame throttles them to only once within the provided interval.
+   *
+   * This is a space-separated string describing resize behavior. The format is
+   * `[dimension] <timing> <interval>`.
+   *
+   * - `<interval>` is a number of milliseconds.
+   * - `<timing>` must be either `after` or `every`. If `after`, the resize
+   *   happens once, at `<interval>` ms after the guest has loaded. If `every`,
+   *   the resize happens every time the guest resizes, at maximum once per
+   *   `<interval>` ms.
+   * - `[dimension]` is optional; it can apply the behavior to only height, or
+   *   only width.
+   *
+   * To specify different behaviors for height and width, list both behaviors,
+   * separated by a comma.
+   *
+   * @example `"every 500"`
+   * @example `"height after 250"`
+   * @example `"width after 500, height every 750"`
+   *
    */
-  autoResize?: boolean;
+  autoResize?: ResizeOptString;
   /**
    * Send resize events only every `autoResizeInterval` milliseconds.
-   * @default 200
+   * @default 250
    */
   autoResizeInterval?: number;
 }
@@ -148,19 +194,23 @@ export const GuestUIFrame = ({
   }, []);
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && (autoResize || onResize)) {
       const currentFrame = ref.current;
+      function resizeDimension(dimension: "height" | "width", rect: DOMRect) {
+        currentFrame.style[dimension] = String(
+          customIFrameProps[dimension] || `${rect[dimension]}px`
+        );
+      }
+
       return guest.addEventListener(
         "iframeresize",
         asyncThrottle(({ detail: { guestPort, iframe, dimensions } }) => {
           if (guestPort.id === guest.id && iframe === currentFrame) {
-            if (autoResize) {
-              currentFrame.style.height = String(
-                customIFrameProps.height || `${dimensions.height}px`
-              );
-              currentFrame.style.width = String(
-                customIFrameProps.width || `${dimensions.width}px`
-              );
+            if (autoResize === true) {
+              resizeDimension("height");
+              resizeDimension("width");
+            } else if (autoResize) {
+              resizeDimension(autoResize);
             }
             // setDimensions(resizeEvent.dimensions);
             if (onResize) {
@@ -170,7 +220,7 @@ export const GuestUIFrame = ({
         }, autoResizeInterval)
       );
     }
-  }, [ref.current, guest.id]);
+  }, [ref.current, autoResize, guest.id]);
 
   return (
     <iframe
