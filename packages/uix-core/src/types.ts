@@ -75,7 +75,28 @@ export type RemoteHostApis<Api = VirtualApi> = {
     ? (...args: A) => Promise<R>
     : RemoteHostApis<Api[K]>;
 };
+
 /**
+ * @internal
+ */
+export type PrependArgument<
+  Fn extends (...args: any) => any,
+  T
+> = Parameters<Fn>[0] extends T
+  ? Fn
+  : (source: T, ...rest: Parameters<Fn>) => ReturnType<Fn>;
+
+/**
+ * @internal
+ */
+export type LocalHostApiImpls<Api extends VirtualApi> = {
+  [K in ExtractKeys<Api, CallableFunction | object>]: Api[K] extends (
+    arg0: Extension,
+    ...rest: any[]
+  ) => any
+    ? PrependArgument<Api[K], Extension>
+    : RemoteHostApis<Api[K]>;
+};
 
 /**
  * An individual UI extension retrieved from the registry.
