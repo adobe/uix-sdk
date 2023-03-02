@@ -6,7 +6,7 @@
 
 Constructs a new instance of the `SharedContext` class
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 constructor(values: Record<string, unknown>);

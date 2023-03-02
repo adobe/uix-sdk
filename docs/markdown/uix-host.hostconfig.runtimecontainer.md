@@ -6,7 +6,7 @@
 
 A DOM element \_outside\_ of the React root. This is necessary to preserve the lifetime of the iframes which are running extension objects; if they live inside the React root, then React could unexpectedly re-render the iframe tags themselves at any time, causing a reload of the frame.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 runtimeContainer?: HTMLElement;

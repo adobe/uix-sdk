@@ -6,7 +6,7 @@
 
 Host methods to provide only to the guest inside this iframe.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 methods?: VirtualApi;

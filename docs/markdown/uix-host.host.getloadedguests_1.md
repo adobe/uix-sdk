@@ -6,10 +6,10 @@
 
 Return loaded guests which satisfy the passed test function.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-getLoadedGuests(filter: GuestFilter): GuestConnection[];
+getLoadedGuests<T = unknown>(filter: GuestFilter): Port<T>[];
 ```
 
 ## Parameters
@@ -18,7 +18,7 @@ getLoadedGuests(filter: GuestFilter): GuestConnection[];
 |  --- | --- | --- |
 |  filter | [GuestFilter](./uix-host.guestfilter.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
-GuestConnection\[\]
+[Port](./uix-host.port.md)<!-- -->&lt;T&gt;\[\]
 

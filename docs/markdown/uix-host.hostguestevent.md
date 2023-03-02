@@ -5,12 +5,12 @@
 ## HostGuestEvent type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 declare type HostGuestEvent<Type extends string> = HostEvent<`guest${Type}`, {
-    guest: GuestConnection;
+    guest: Port;
 }>;
 ```
-<b>References:</b> [HostEvent](./uix-host.hostevent.md)
+**References:** [HostEvent](./uix-host.hostevent.md)<!-- -->, [Port](./uix-host.port.md)
 

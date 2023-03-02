@@ -6,12 +6,12 @@
 
 Unload all extensions and remove their frames/workers. Use this to unmount a UI or when switching to a different extensible UI.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 unload(): Promise<void>;
 ```
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

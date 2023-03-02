@@ -6,7 +6,7 @@
 
 One guest has loaded.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestload: HostGuestEvent<"load">;

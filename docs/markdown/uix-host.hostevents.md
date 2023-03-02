@@ -5,10 +5,10 @@
 ## HostEvents type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
 ```
-<b>References:</b> [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->, [HostEvent](./uix-host.hostevent.md)<!-- -->, [HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md)<!-- -->, [HostEventContextChange](./uix-host.hosteventcontextchange.md)<!-- -->, [HostEventError](./uix-host.hosteventerror.md)
+**References:** [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->, [HostEvent](./uix-host.hostevent.md)<!-- -->, [HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md)<!-- -->, [HostEventContextChange](./uix-host.hosteventcontextchange.md)<!-- -->, [HostEventError](./uix-host.hosteventerror.md)
 

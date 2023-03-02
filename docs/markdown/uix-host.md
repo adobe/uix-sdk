@@ -52,7 +52,7 @@ host.addEventListener('loadallguests', () => {
   }));
 })
 ```
-A React binding is currently available. See [Extensible()](./uix-host-react.extensible.md)<!-- -->, [useExtensions()](./uix-host-react.useextensions.md)<!-- -->, and [GuestUIFrame()](./uix-host-react.guestuiframe.md)<!-- -->.
+A React binding is currently available. See [Extensible()](./uix-host-react.extensible.md)<!-- -->, [useExtensions()](./uix-host-react.useextensions.md)<!-- -->, and [GuestUIFrame](./uix-host-react.guestuiframe.md)<!-- -->.
 
 ## Classes
 
@@ -93,8 +93,6 @@ A React binding is currently available. See [Extensible()](./uix-host-react.exte
 |  [HostEvents](./uix-host.hostevents.md) |  |
 |  [HostGuestEvent](./uix-host.hostguestevent.md) |  |
 |  [InstalledExtensions](./uix-host.installedextensions.md) |  |
-|  [PortEvent](./uix-host.portevent.md) |  |
-|  [PortEvents](./uix-host.portevents.md) |  |
 |  [PortMap](./uix-host.portmap.md) | Dictionary of [Port](./uix-host.port.md) objects by extension ID. |
 |  [PortOptions](./uix-host.portoptions.md) |  |
 |  [SharedContextValues](./uix-host.sharedcontextvalues.md) | Values for shared context. Must be a plain object, serializable to JSON. |

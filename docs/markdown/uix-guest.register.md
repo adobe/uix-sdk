@@ -6,7 +6,7 @@
 
 Initiate a connection to the host app and its extension points.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function register<Outgoing extends GuestApis>(config: GuestConfigWithMethods<Outgoing>): Promise<GuestServer<GuestApis>>;
@@ -18,7 +18,7 @@ export declare function register<Outgoing extends GuestApis>(config: GuestConfig
 |  --- | --- | --- |
 |  config | [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)<!-- -->&lt;Outgoing&gt; |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;[GuestServer](./uix-guest.guestserver.md)<!-- -->&lt;GuestApis&gt;&gt;
 

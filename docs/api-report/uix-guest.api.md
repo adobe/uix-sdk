@@ -4,10 +4,13 @@
 
 ```ts
 
+import type { CrossRealmObject } from '@adobe/uix-core';
 import { Emitter } from '@adobe/uix-core';
 import { GuestApis } from '@adobe/uix-core';
+import type { HostConnection } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
+import type { UIHostConnection } from '@adobe/uix-core';
 import { VirtualApi } from '@adobe/uix-core';
 
 // Warning: (ae-forgotten-export) The symbol "GuestConfig" needs to be exported by the entry point index.d.ts
@@ -59,6 +62,10 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     };
     // @public
     host: RemoteHostApis<Incoming>;
+    // (undocumented)
+    protected hostConnection: CrossRealmObject<HostConnection>;
+    // (undocumented)
+    protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
     // (undocumented)
     logger: Console;
     // Warning: (ae-forgotten-export) The symbol "SharedContext" needs to be exported by the entry point index.d.ts
@@ -112,6 +119,8 @@ class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
     // @eventProperty
     error: GuestEventError;
     host: RemoteHostApis<IHost>;
+    // (undocumented)
+    protected hostConnection: CrossRealmObject<UIHostConnection>;
 }
 export { GuestUI }
 export { GuestUI as UIGuest }
@@ -123,8 +132,8 @@ export function register<Outgoing extends GuestApis>(config: GuestConfigWithMeth
 
 // Warnings were encountered during analysis:
 //
-// src/guest.ts:40:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
-// src/guest.ts:53:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
+// src/guest.ts:41:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
+// src/guest.ts:54:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
 // src/index.ts:85:1 - (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "GuestConfig"
 
 ```

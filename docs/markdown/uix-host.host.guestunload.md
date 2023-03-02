@@ -6,7 +6,7 @@
 
 Unloaded a guest and removed its [GuestServer](./uix-guest.guestserver.md) instance as well as all its [GuestUI](./uix-guest.guestui.md) instances.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestunload: HostGuestEvent<"unload">;

@@ -6,7 +6,7 @@
 
 Unique name for identifying this extensible app. May be used as metadata in extension registry in the future.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 appName?: string;

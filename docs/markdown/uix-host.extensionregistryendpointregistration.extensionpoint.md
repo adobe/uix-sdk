@@ -4,7 +4,7 @@
 
 ## ExtensionRegistryEndpointRegistration.extensionPoint property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 extensionPoint: string;

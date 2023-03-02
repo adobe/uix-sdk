@@ -6,12 +6,12 @@
 
 An error has occurred during loading or unloading of guests.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type HostEventError = HostEvent<"error", {
     error: Error;
 }>;
 ```
-<b>References:</b> [HostEvent](./uix-host.hostevent.md)
+**References:** [HostEvent](./uix-host.hostevent.md)
 

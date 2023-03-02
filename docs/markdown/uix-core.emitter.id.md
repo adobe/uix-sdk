@@ -6,7 +6,7 @@
 
 An arbitrary string to uniquely identify this emitter and its events.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 id: string;

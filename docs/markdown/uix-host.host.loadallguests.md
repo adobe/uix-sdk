@@ -6,7 +6,7 @@
 
 All guests requested by host have been loaded and connected.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 loadallguests: HostEventLoadAllGuests;

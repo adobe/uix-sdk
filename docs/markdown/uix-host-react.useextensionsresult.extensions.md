@@ -6,7 +6,7 @@
 
 A list of loaded guests which implement the methods specified in `requires`<!-- -->, represented as [Port](./uix-host.port.md) objects which present methods to be called.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 extensions: TypedGuestConnection<T>[];

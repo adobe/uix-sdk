@@ -6,7 +6,7 @@
 
 Host connection has been established.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 connected: GuestEventConnected;

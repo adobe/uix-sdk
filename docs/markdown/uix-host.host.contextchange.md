@@ -6,7 +6,7 @@
 
 Shared context has been set or updated; all guests receive this event too.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 contextchange: HostEventContextChange;

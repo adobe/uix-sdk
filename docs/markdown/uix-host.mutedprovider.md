@@ -6,7 +6,7 @@
 
 Mute any errors produced by provider. This function would execute given provider and return its results as is, if any error occurs this provider will log it any return an empty array of extensions.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function mutedProvider(provider: ExtensionsProvider): ExtensionsProvider;
@@ -18,7 +18,7 @@ export declare function mutedProvider(provider: ExtensionsProvider): ExtensionsP
 |  --- | --- | --- |
 |  provider | [ExtensionsProvider](./uix-host.extensionsprovider.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 [ExtensionsProvider](./uix-host.extensionsprovider.md)
 

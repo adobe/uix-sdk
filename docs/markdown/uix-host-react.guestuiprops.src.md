@@ -6,7 +6,7 @@
 
 Optional custom URL or path.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 src: string;

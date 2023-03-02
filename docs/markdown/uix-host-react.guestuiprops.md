@@ -5,22 +5,23 @@
 ## GuestUIProps interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface GuestUIProps extends FrameProps 
 ```
-<b>Extends:</b> [FrameProps](./uix-host-react.frameprops.md)
+**Extends:** [FrameProps](./uix-host-react.frameprops.md)
 
 ## Properties
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [guestId](./uix-host-react.guestuiprops.guestid.md) |  | string |  |
-|  [methods?](./uix-host-react.guestuiprops.methods.md) |  | VirtualApi | <i>(Optional)</i> Host methods to provide only to the guest inside this iframe. |
-|  [onConnect](./uix-host-react.guestuiprops.onconnect.md) |  | () =&gt; unknown | Receives the Penpal context when the frame is mounted. |
-|  [onConnectionError?](./uix-host-react.guestuiprops.onconnectionerror.md) |  | (error: Error) =&gt; void | <i>(Optional)</i> Called when the connection process throws an exception |
-|  [onDisconnect](./uix-host-react.guestuiprops.ondisconnect.md) |  | () =&gt; unknown | Called when the frame disconnects and unmounts. |
+|  [methods?](./uix-host-react.guestuiprops.methods.md) |  | VirtualApi | _(Optional)_ Host methods to provide only to the guest inside this iframe. |
+|  [onConnect?](./uix-host-react.guestuiprops.onconnect.md) |  | () =&gt; void | _(Optional)_ Receives the Penpal context when the frame is mounted. |
+|  [onConnectionError?](./uix-host-react.guestuiprops.onconnectionerror.md) |  | (error: Error) =&gt; void | _(Optional)_ Called when the connection process throws an exception |
+|  [onDisconnect?](./uix-host-react.guestuiprops.ondisconnect.md) |  | () =&gt; void | _(Optional)_ Called when the frame disconnects and unmounts. |
+|  [onResize?](./uix-host-react.guestuiprops.onresize.md) |  | (dimensions: UIFrameRect) =&gt; void | _(Optional)_ Called when the document in the iframe changes size. |
+|  [sandbox?](./uix-host-react.guestuiprops.sandbox.md) |  | AttrTokens&lt;SandboxToken&gt; | _(Optional)_ Additional sandbox attributes GuestUIFrame might need. |
 |  [src](./uix-host-react.guestuiprops.src.md) |  | string | Optional custom URL or path. |
-|  [width](./uix-host-react.guestuiprops.width.md) |  | [FrameProps](./uix-host-react.frameprops.md)<!-- -->\["width"\] |  |
 

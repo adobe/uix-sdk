@@ -6,7 +6,7 @@
 
 A `Map` representing the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class SharedContext 

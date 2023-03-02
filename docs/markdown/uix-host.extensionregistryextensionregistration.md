@@ -5,12 +5,12 @@
 ## ExtensionRegistryExtensionRegistration interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistryEndpointRegistration 
 ```
-<b>Extends:</b> [ExtensionRegistryEndpointRegistration](./uix-host.extensionregistryendpointregistration.md)
+**Extends:** [ExtensionRegistryEndpointRegistration](./uix-host.extensionregistryendpointregistration.md)
 
 ## Properties
 

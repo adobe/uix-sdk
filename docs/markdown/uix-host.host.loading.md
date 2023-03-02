@@ -6,7 +6,7 @@
 
 `true` if any extension in [Host.guests](./uix-host.host.guests.md) has created a [GuestServer](./uix-guest.guestserver.md)<!-- -->, but the Guest has not yet loaded.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 loading: boolean;

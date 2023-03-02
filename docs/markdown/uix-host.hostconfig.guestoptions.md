@@ -8,7 +8,7 @@ Default options to use for every guest Port.
 
 If `config.debug` is true, then the guest options will have `debug: true` unless `debug: false` is explicitly passed in `guestOptions`<!-- -->.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestOptions?: PortOptions;

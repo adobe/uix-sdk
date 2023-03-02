@@ -4,7 +4,7 @@
 
 ## Port.apis property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 get apis(): {

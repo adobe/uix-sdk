@@ -2,23 +2,12 @@
 
 [Home](./index.md) &gt; [@adobe/uix-host-react](./uix-host-react.md) &gt; [GuestUIFrame](./uix-host-react.guestuiframe.md)
 
-## GuestUIFrame() function
+## GuestUIFrame variable
 
 An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-export declare function GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, methods, ...customFrameProps }: PropsWithChildren<GuestUIProps>): JSX.Element;
+GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, sandbox, style, ...customIFrameProps }: GuestUIProps) => JSX.Element
 ```
-
-## Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  { guestId, src, onConnect, onDisconnect, onConnectionError, methods, ...customFrameProps } | PropsWithChildren&lt;[GuestUIProps](./uix-host-react.guestuiprops.md)<!-- -->&gt; |  |
-
-<b>Returns:</b>
-
-JSX.Element
-

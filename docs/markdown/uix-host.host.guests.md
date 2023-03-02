@@ -6,7 +6,7 @@
 
 A Map of of the loaded guests.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guests: PortMap;

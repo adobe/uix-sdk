@@ -6,7 +6,7 @@
 
 Set debug flags on all libraries that have them, and add loggers to SDK objects. Log a lot to the console.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 debug?: boolean;

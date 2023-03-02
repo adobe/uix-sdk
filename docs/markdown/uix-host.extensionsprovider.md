@@ -5,10 +5,10 @@
 ## ExtensionsProvider type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type ExtensionsProvider = () => Promise<InstalledExtensions>;
 ```
-<b>References:</b> [InstalledExtensions](./uix-host.installedextensions.md)
+**References:** [InstalledExtensions](./uix-host.installedextensions.md)
 

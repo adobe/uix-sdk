@@ -5,12 +5,12 @@
 ## HostEvent type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type HostEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {
     host: Host;
 }>;
 ```
-<b>References:</b> [Host](./uix-host.host.md)
+**References:** [Host](./uix-host.host.md)
 

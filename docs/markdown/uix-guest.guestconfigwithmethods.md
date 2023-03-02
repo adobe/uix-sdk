@@ -5,12 +5,12 @@
 ## GuestConfigWithMethods type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 declare type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
     methods: Outgoing;
 };
 ```
-<b>References:</b> [GuestConfig](./uix-guest.guestconfig.md)
+**References:** [GuestConfig](./uix-guest.guestconfig.md)
 

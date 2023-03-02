@@ -6,7 +6,7 @@
 
 Create a callback that fetches extensions from the registry.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function createExtensionRegistryProvider(config: ExtensionRegistryConfig): ExtensionsProvider;
@@ -18,7 +18,7 @@ export declare function createExtensionRegistryProvider(config: ExtensionRegistr
 |  --- | --- | --- |
 |  config | [ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 [ExtensionsProvider](./uix-host.extensionsprovider.md)
 

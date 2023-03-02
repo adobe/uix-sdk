@@ -5,10 +5,10 @@
 ## GuestEvents type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type GuestEvents = GuestEventContextChange | GuestEventBeforeConnect | GuestEventConnected | GuestEventError;
 ```
-<b>References:</b> [GuestEventContextChange](./uix-guest.guesteventcontextchange.md)<!-- -->, [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md)<!-- -->, [GuestEventConnected](./uix-guest.guesteventconnected.md)<!-- -->, [GuestEventError](./uix-guest.guesteventerror.md)
+**References:** [GuestEventContextChange](./uix-guest.guesteventcontextchange.md)<!-- -->, [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md)<!-- -->, [GuestEventConnected](./uix-guest.guesteventconnected.md)<!-- -->, [GuestEventError](./uix-guest.guesteventerror.md)
 

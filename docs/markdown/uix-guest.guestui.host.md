@@ -6,7 +6,7 @@
 
 Proxy object for calling methods on the host.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 host: RemoteHostApis<IHost>;

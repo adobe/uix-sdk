@@ -6,7 +6,7 @@
 
 A read-only dictionary of values that the host will supply to all the guests.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 sharedContext?: SharedContextValues;

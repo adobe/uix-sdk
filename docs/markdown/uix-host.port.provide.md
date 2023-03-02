@@ -4,9 +4,9 @@
 
 ## Port.provide() method
 
-The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies.
+The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. Merges at the first level, the API level. Overwrites a deeper levels.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 provide(apis: RemoteHostApis): void;
@@ -18,7 +18,7 @@ provide(apis: RemoteHostApis): void;
 |  --- | --- | --- |
 |  apis | RemoteHostApis |  |
 
-<b>Returns:</b>
+**Returns:**
 
 void
 

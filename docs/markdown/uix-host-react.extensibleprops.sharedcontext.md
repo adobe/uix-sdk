@@ -5,7 +5,7 @@
 ## ExtensibleProps.sharedContext property
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 sharedContext?: SharedContextValues;

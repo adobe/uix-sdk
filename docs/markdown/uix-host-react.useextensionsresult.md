@@ -5,7 +5,7 @@
 ## UseExtensionsResult interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface UseExtensionsResult<T extends GuestApis> 
@@ -15,7 +15,7 @@ export interface UseExtensionsResult<T extends GuestApis>
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [error?](./uix-host-react.useextensionsresult.error.md) |  | Error | <i>(Optional)</i> Populated with an Error if there were any problems during the load process. |
+|  [error?](./uix-host-react.useextensionsresult.error.md) |  | Error | _(Optional)_ Populated with an Error if there were any problems during the load process. |
 |  [extensions](./uix-host-react.useextensionsresult.extensions.md) |  | TypedGuestConnection&lt;T&gt;\[\] | A list of loaded guests which implement the methods specified in <code>requires</code>, represented as [Port](./uix-host.port.md) objects which present methods to be called. |
 |  [loading](./uix-host-react.useextensionsresult.loading.md) |  | boolean | This is <code>true</code> until all extensions are loaded. Use for rendering spinners or other intermediate UI. |
 

@@ -5,7 +5,7 @@
 ## ExtensibleProps.guestOptions property
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestOptions?: PortOptions;

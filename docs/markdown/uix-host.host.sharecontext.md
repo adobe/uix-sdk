@@ -6,7 +6,7 @@
 
 Set the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This overwrites any previous object.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 shareContext(context: SharedContextValues): void;
@@ -18,7 +18,7 @@ shareContext(context: SharedContextValues): void;
 |  --- | --- | --- |
 |  context | [SharedContextValues](./uix-host.sharedcontextvalues.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 void
 

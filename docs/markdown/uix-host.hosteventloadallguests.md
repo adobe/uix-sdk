@@ -6,13 +6,13 @@
 
 All guests requested by host have been loaded and connected.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type HostEventLoadAllGuests = HostEvent<"loadallguests", {
-    failed: GuestConnection[];
-    loaded: GuestConnection[];
+    failed: Port[];
+    loaded: Port[];
 }>;
 ```
-<b>References:</b> [HostEvent](./uix-host.hostevent.md)
+**References:** [HostEvent](./uix-host.hostevent.md)<!-- -->, [Port](./uix-host.port.md)
 

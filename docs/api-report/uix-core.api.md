@@ -52,6 +52,9 @@ export interface Emits<Events extends NamedEvent = NamedEvent> extends EventTarg
     }>) => unknown): () => void;
     // (undocumented)
     id: string;
+    removeEventListener<Type extends Events["type"]>(type: Type, listener: (ev: Extract<Events, {
+        type: Type;
+    }>) => unknown): void;
 }
 
 // Warning: (ae-incompatible-release-tags) The symbol "Emitter" is marked as @public, but its signature references "NamedEvent" which is marked as @internal
@@ -78,6 +81,12 @@ export interface Extension {
     id: string;
     url: string;
 }
+
+// @internal
+export function formatHostMethodAddress(address: HostMethodAddress): string;
+
+// @internal
+export function formatHostMethodArgument(argument: unknown): string;
 
 // @internal (undocumented)
 export interface GuestApiNS {
@@ -114,6 +123,24 @@ export interface GuestConnection {
     // (undocumented)
     url: URL;
 }
+
+// Warning: (ae-incompatible-release-tags) The symbol "GuestConnectionEvent" is marked as @public, but its signature references "NamedEvent" which is marked as @internal
+//
+// @public (undocumented)
+export type GuestConnectionEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {
+    guestPort: GuestConnection;
+}>;
+
+// Warning: (ae-incompatible-release-tags) The symbol "GuestConnectionEvents" is marked as @public, but its signature references "HostMethodAddress" which is marked as @internal
+//
+// @public (undocumented)
+export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"guestresize", {
+    dimensions: UIFrameRect;
+    iframe: HTMLIFrameElement;
+}>;
+
+// @internal (undocumented)
+export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
 // @internal
 export interface HostConnection<T = unknown> {
@@ -166,29 +193,51 @@ export type RemoteMethodInvoker<T> = (address: HostMethodAddress) => Promise<T>;
 export type Theme = ThemeSpec | ThemeTag;
 
 // @internal
-export function timeoutPromise<T>(description: string, promise: Promise<T>, ms: number, onReject: (e: Error) => void): Promise<T>;
+export function timeoutPromise<T>(describe: string | (() => string), promise: Promise<T>, ms: number, onReject?: (e: Error) => void): Promise<T>;
 
 // @alpha
 export class Tunnel extends EventEmitter {
     constructor(config: TunnelConfig);
     // (undocumented)
+    abort(error: Error): void;
+    // (undocumented)
     config: TunnelConfig;
     // (undocumented)
     connect(remote: MessagePort): void;
     // (undocumented)
-    destroy(): void;
+    destroy(e?: Error): void;
     // (undocumented)
     emit(type: string | symbol, payload?: unknown): boolean;
     // (undocumented)
     emitLocal: (type: string | symbol, payload?: unknown) => any;
+    // (undocumented)
+    isConnected: boolean;
     static toIframe(target: HTMLIFrameElement, options: Partial<TunnelConfig>): Tunnel;
     static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel;
 }
 
 // @alpha (undocumented)
 export interface TunnelConfig {
+    logger: Console;
     targetOrigin: string;
     timeout: number;
+}
+
+// @internal (undocumented)
+export interface UIFrameRect {
+    // (undocumented)
+    height: number;
+    // (undocumented)
+    width: number;
+}
+
+// @internal (undocumented)
+export type UIHostConnection<T = unknown> = HostConnection<T> & UIHostMethods;
+
+// @internal
+export interface UIHostMethods {
+    // (undocumented)
+    onIframeResize(dimensions: UIFrameRect): void;
 }
 
 // @internal
@@ -209,5 +258,7 @@ export function wait(ms: number): Promise<unknown>;
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
+// src/types.ts:194:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
+// src/types.ts:207:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
 
 ```

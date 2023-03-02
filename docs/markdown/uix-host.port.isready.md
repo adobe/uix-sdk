@@ -6,12 +6,12 @@
 
 True when al extensions have loaded.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 isReady(): boolean;
 ```
-<b>Returns:</b>
+**Returns:**
 
 boolean
 

@@ -5,10 +5,10 @@
 ## InstalledExtensions type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 ```
-<b>References:</b> [Extension](./uix-core.extension.md)
+**References:** [Extension](./uix-core.extension.md)
 

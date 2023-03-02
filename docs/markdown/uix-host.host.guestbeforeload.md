@@ -6,7 +6,7 @@
 
 About to attempt to load and connect to a Guest.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestbeforeload: HostGuestEvent<"beforeload">;

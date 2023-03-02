@@ -6,7 +6,7 @@
 
 Copiously log lifecycle events.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 debug?: boolean;

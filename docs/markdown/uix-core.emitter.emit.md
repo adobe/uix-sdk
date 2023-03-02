@@ -6,7 +6,7 @@
 
 Convenience method to construct and dispatch custom events.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 protected emit<Event extends Events>(type: Event["type"], detail: Event["detail"]): void;
@@ -19,7 +19,7 @@ protected emit<Event extends Events>(type: Event["type"], detail: Event["detail"
 |  type | Event\["type"\] | Name of one of the allowed events this can emit |
 |  detail | Event\["detail"\] | Object to expose in the [CustomEvent\#detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) property. |
 
-<b>Returns:</b>
+**Returns:**
 
 void
 

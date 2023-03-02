@@ -5,8 +5,8 @@
 ## FrameProps type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-declare type FrameProps = IframeHTMLAttributes<HTMLIFrameElement>;
+declare type FrameProps = Omit<ReactIframeProps, "sandbox">;
 ```

@@ -6,7 +6,7 @@
 
 Unique ID of the extension. Must be unique across entire app
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 id: string;

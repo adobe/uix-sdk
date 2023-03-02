@@ -6,7 +6,7 @@
 
 String slug identifying extension. This may need to use IDs from an external system in the future.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 id: string;

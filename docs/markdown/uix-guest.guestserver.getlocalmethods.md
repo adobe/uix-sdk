@@ -4,7 +4,7 @@
 
 ## GuestServer.getLocalMethods() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 protected getLocalMethods(): {
@@ -22,7 +22,7 @@ protected getLocalMethods(): {
         })) => void;
     };
 ```
-<b>Returns:</b>
+**Returns:**
 
 { apis: Outgoing; emit: (type: "contextchange" \| "beforeconnect" \| "connected" \| "error", detail: ({ context: Record&lt;string, unknown&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| (Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| ({ error: Error; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; })) =&gt; void; }
 

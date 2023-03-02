@@ -5,12 +5,12 @@
 ## OutsideOfExtensionContextError class
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class OutsideOfExtensionContextError extends Error 
 ```
-<b>Extends:</b> Error
+**Extends:** Error
 
 ## Constructors
 

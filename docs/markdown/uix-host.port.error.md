@@ -6,7 +6,7 @@
 
 If any errors occurred during the loading of guests, this property will contain the error that was raised.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 error?: Error;

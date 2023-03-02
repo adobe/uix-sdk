@@ -5,7 +5,7 @@
 ## ExtensionRegistryConnection interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface ExtensionRegistryConnection 
@@ -17,5 +17,5 @@ export interface ExtensionRegistryConnection
 |  --- | --- | --- | --- |
 |  [apiKey](./uix-host.extensionregistryconnection.apikey.md) |  | string |  |
 |  [auth](./uix-host.extensionregistryconnection.auth.md) |  | { schema: "Basic" \| "Bearer"; imsToken: string; } |  |
-|  [baseUrl?](./uix-host.extensionregistryconnection.baseurl.md) |  | string | <i>(Optional)</i> |
+|  [baseUrl?](./uix-host.extensionregistryconnection.baseurl.md) |  | string | _(Optional)_ |
 

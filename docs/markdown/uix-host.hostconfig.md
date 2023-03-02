@@ -5,7 +5,7 @@
 ## HostConfig interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface HostConfig 
@@ -15,9 +15,9 @@ export interface HostConfig
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [debug?](./uix-host.hostconfig.debug.md) |  | boolean | <i>(Optional)</i> Copiously log lifecycle events. |
-|  [guestOptions?](./uix-host.hostconfig.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | <p><i>(Optional)</i> Default options to use for every guest Port.</p><p>If <code>config.debug</code> is true, then the guest options will have <code>debug: true</code> unless <code>debug: false</code> is explicitly passed in <code>guestOptions</code>.</p> |
+|  [debug?](./uix-host.hostconfig.debug.md) |  | boolean | _(Optional)_ Copiously log lifecycle events. |
+|  [guestOptions?](./uix-host.hostconfig.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | <p>_(Optional)_ Default options to use for every guest Port.</p><p>If <code>config.debug</code> is true, then the guest options will have <code>debug: true</code> unless <code>debug: false</code> is explicitly passed in <code>guestOptions</code>.</p> |
 |  [hostName](./uix-host.hostconfig.hostname.md) |  | string | Human-readable "slug" name of the extensible area--often an entire app. This string serves as a namespace for extension points within the area. |
-|  [runtimeContainer?](./uix-host.hostconfig.runtimecontainer.md) |  | HTMLElement | <i>(Optional)</i> A DOM element \_outside\_ of the React root. This is necessary to preserve the lifetime of the iframes which are running extension objects; if they live inside the React root, then React could unexpectedly re-render the iframe tags themselves at any time, causing a reload of the frame. |
-|  [sharedContext?](./uix-host.hostconfig.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | <i>(Optional)</i> A read-only dictionary of values that the host will supply to all the guests. |
+|  [runtimeContainer?](./uix-host.hostconfig.runtimecontainer.md) |  | HTMLElement | _(Optional)_ A DOM element \_outside\_ of the React root. This is necessary to preserve the lifetime of the iframes which are running extension objects; if they live inside the React root, then React could unexpectedly re-render the iframe tags themselves at any time, causing a reload of the frame. |
+|  [sharedContext?](./uix-host.hostconfig.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | _(Optional)_ A read-only dictionary of values that the host will supply to all the guests. |
 

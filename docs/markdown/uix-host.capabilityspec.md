@@ -6,7 +6,7 @@
 
 A specifier for methods to be expected on a remote interface.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type CapabilitySpec<T extends GuestApis> = {

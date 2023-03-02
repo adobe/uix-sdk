@@ -4,7 +4,7 @@
 
 ## ExtensionRegistryConnection.apiKey property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 apiKey: string;

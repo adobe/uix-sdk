@@ -5,10 +5,10 @@
 ## GuestEventConnected type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type GuestEventConnected = GuestEvent<"connected">;
 ```
-<b>References:</b> [GuestEvent](./uix-guest.guestevent.md)
+**References:** [GuestEvent](./uix-guest.guestevent.md)
 
