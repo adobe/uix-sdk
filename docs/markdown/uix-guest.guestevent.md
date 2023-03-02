@@ -5,7 +5,7 @@
 ## GuestEvent type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type GuestEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {

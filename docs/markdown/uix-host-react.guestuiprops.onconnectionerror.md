@@ -6,7 +6,7 @@
 
 Called when the connection process throws an exception
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 onConnectionError?: (error: Error) => void;

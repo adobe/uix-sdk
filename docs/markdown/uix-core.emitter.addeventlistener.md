@@ -6,7 +6,7 @@
 
 Subscribe to an event and receive an unsubscribe callback.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 addEventListener<Type extends Events["type"], Event extends Extract<Events, {
@@ -21,7 +21,7 @@ addEventListener<Type extends Events["type"], Event extends Extract<Events, {
 |  type | Type | Event type |
 |  listener | (ev: Event) =&gt; unknown | Event handler |
 
-<b>Returns:</b>
+**Returns:**
 
 Unsubscriber
 

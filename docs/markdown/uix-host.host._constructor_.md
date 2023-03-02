@@ -6,7 +6,7 @@
 
 Constructs a new instance of the `Host` class
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 constructor(config: HostConfig);

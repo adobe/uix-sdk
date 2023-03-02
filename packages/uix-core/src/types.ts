@@ -178,6 +178,9 @@ export interface UIHostMethods {
   onIframeResize(dimensions: UIFrameRect): void;
 }
 
+/**
+ * @internal
+ */
 export type UIHostConnection<T = unknown> = HostConnection<T> & UIHostMethods;
 
 /** @public */
@@ -223,6 +226,9 @@ export interface GuestConnection {
   unload(): Promise<unknown>;
 }
 
+/**
+ * @internal
+ */
 export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
 /**

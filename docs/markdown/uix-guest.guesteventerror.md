@@ -5,12 +5,12 @@
 ## GuestEventError type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type GuestEventError = GuestEvent<"error", {
     error: Error;
 }>;
 ```
-<b>References:</b> [GuestEvent](./uix-guest.guestevent.md)
+**References:** [GuestEvent](./uix-guest.guestevent.md)
 

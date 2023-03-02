@@ -6,7 +6,7 @@
 
 Values for shared context. Must be a plain object, serializable to JSON.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type SharedContextValues = Record<string, unknown>;

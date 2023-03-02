@@ -6,12 +6,12 @@
 
 Manager object for connecting to [GuestServers](./uix-guest.guestserver.md) and [GuestUIs](./uix-guest.guestui.md)<!-- -->, providing and receiving their APIs, and providing them to the app for interacting with UI.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class Host extends Emitter<HostEvents> 
 ```
-<b>Extends:</b> [Emitter](./uix-core.emitter.md)<!-- -->&lt;[HostEvents](./uix-host.hostevents.md)<!-- -->&gt;
+**Extends:** [Emitter](./uix-core.emitter.md)<!-- -->&lt;[HostEvents](./uix-host.hostevents.md)<!-- -->&gt;
 
 ## Remarks
 

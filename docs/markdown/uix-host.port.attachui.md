@@ -6,10 +6,10 @@
 
 Connect an iframe element which is displaying another page in the extension with the extension's bootstrap frame, so they can share context and events.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
+attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
 ```
 
 ## Parameters
@@ -18,7 +18,7 @@ attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
 |  --- | --- | --- |
 |  iframe | HTMLIFrameElement |  |
 
-<b>Returns:</b>
+**Returns:**
 
-Promise&lt;CrossRealmObject&lt;unknown&gt;&gt;
+Promise&lt;CrossRealmObject&lt;T&gt;&gt;
 

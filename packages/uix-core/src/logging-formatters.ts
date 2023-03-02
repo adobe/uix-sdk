@@ -41,7 +41,7 @@ export function formatHostMethodArgument(argument: unknown): string {
  * @privateRemarks
  * **WARNING**: This is an expensive operation due to the JSON.stringify, and
  * should only be done when debugging or in error conditions.  This Functions
- * like {@link @adobe/uix-core/#timedPromise} which take logging strings also
+ * like {@link @adobe/uix-core#timedPromise} which take logging strings also
  * take callbacks for lazy evaluation of debugging messages. Use this only in
  * such callbacks.
  * @internal

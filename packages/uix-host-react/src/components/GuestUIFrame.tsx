@@ -17,6 +17,9 @@ import { useHost } from "../hooks/useHost.js";
 import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
 import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
 
+/**
+ * @internal
+ */
 type ReactIframeProps = IframeHTMLAttributes<HTMLIFrameElement>;
 
 /**

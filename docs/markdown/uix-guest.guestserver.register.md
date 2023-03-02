@@ -6,7 +6,7 @@
 
 Pass an interface of methods which Host may call as callbacks.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 register(implementedMethods: Outgoing): Promise<void>;
@@ -18,7 +18,7 @@ register(implementedMethods: Outgoing): Promise<void>;
 |  --- | --- | --- |
 |  implementedMethods | Outgoing |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

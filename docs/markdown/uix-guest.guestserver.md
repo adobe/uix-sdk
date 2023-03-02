@@ -6,12 +6,12 @@
 
 A Guest to be used in the "main" or primary frame of an extension, the frame the Host loads first.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> 
 ```
-<b>Extends:</b> Guest&lt;Outgoing&gt;
+**Extends:** Guest&lt;Outgoing&gt;
 
 ## Remarks
 

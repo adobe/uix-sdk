@@ -6,7 +6,7 @@
 
 Host connection has failed.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 error: GuestEventError;

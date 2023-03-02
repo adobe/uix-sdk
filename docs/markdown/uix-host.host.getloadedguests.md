@@ -6,12 +6,12 @@
 
 Return all loaded guests.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-getLoadedGuests(): GuestConnection[];
+getLoadedGuests<T = unknown>(): Port<T>[];
 ```
-<b>Returns:</b>
+**Returns:**
 
-GuestConnection\[\]
+[Port](./uix-host.port.md)<!-- -->&lt;T&gt;\[\]
 

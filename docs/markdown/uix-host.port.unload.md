@@ -6,12 +6,12 @@
 
 Disconnect from the extension.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 unload(): Promise<void>;
 ```
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

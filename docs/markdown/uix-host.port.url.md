@@ -6,7 +6,7 @@
 
 The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 url: URL;

@@ -5,7 +5,7 @@
 ## UseHostResponse type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 declare type UseHostResponse = {
@@ -16,5 +16,5 @@ declare type UseHostResponse = {
     error: undefined;
 };
 ```
-<b>References:</b> [Host](./uix-host.host.md)
+**References:** [Host](./uix-host.host.md)
 

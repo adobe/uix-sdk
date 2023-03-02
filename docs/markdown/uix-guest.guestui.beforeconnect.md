@@ -6,7 +6,7 @@
 
 About to attempt connection to the host.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 beforeconnect: GuestEventBeforeConnect;

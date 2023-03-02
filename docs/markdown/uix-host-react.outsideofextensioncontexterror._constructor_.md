@@ -6,7 +6,7 @@
 
 Constructs a new instance of the `OutsideOfExtensionContextError` class
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 constructor(msg: string);

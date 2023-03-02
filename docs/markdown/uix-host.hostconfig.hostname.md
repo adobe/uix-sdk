@@ -6,7 +6,7 @@
 
 Human-readable "slug" name of the extensible area--often an entire app. This string serves as a namespace for extension points within the area.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hostName: string;

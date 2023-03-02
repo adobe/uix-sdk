@@ -6,7 +6,7 @@
 
 Connect to a running [GuestServer](./uix-guest.guestserver.md) to share its context and render UI.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function attach(config: GuestConfig): Promise<GuestUI<import("@adobe/uix-core").VirtualApi>>;
@@ -18,7 +18,7 @@ export declare function attach(config: GuestConfig): Promise<GuestUI<import("@ad
 |  --- | --- | --- |
 |  config | [GuestConfig](./uix-guest.guestconfig.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;[GuestUI](./uix-guest.guestui.md)<!-- -->&lt;import("@adobe/uix-core").VirtualApi&gt;&gt;
 

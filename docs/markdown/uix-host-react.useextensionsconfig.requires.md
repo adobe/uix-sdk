@@ -6,7 +6,7 @@
 
 A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced methods extensions must implement to be used by this component.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 requires?: CapabilitySpec<Incoming>;

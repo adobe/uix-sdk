@@ -4,7 +4,7 @@
 
 ## ExtensionRegistryExtensionRegistration.imsOrg property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 imsOrg: string;

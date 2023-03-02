@@ -6,14 +6,14 @@
 
 Loads the extension. Returns a promise which resolves when the extension has loaded. The Host calls this method after retrieving extensions.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 load(): Promise<{
         [x: string]: {};
     }>;
 ```
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;{ \[x: string\]: {}; }&gt;
 

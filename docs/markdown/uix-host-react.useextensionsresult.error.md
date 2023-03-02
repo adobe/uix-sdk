@@ -6,7 +6,7 @@
 
 Populated with an Error if there were any problems during the load process.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 error?: Error;

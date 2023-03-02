@@ -6,8 +6,8 @@
 
 Called when the frame disconnects and unmounts.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-onDisconnect: () => unknown;
+onDisconnect?: () => void;
 ```

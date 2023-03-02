@@ -10,9 +10,14 @@ import { Emitter } from '@adobe/uix-core';
 import type { Extension } from '@adobe/uix-core';
 import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
-import type { HostMethodAddress } from '@adobe/uix-core';
+import type { GuestConnectionEvents } from '@adobe/uix-core';
+import type { GuestEmitter } from '@adobe/uix-core';
+import { HTMLAttributeReferrerPolicy } from 'react';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
+
+// @internal
+export type AttrTokens<T> = string | T[];
 
 // @public
 export type CapabilitySpec<T extends GuestApis> = {
@@ -68,10 +73,10 @@ export class Host extends Emitter<HostEvents> {
     contextchange: HostEventContextChange;
     // @eventProperty
     error: HostEventError;
-    getLoadedGuests(): GuestConnection[];
+    getLoadedGuests<T = unknown>(): Port<T>[];
     // Warning: (ae-forgotten-export) The symbol "GuestFilter" needs to be exported by the entry point index.d.ts
-    getLoadedGuests(filter: GuestFilter): GuestConnection[];
-    getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): GuestConnection[];
+    getLoadedGuests<T = unknown>(filter: GuestFilter): Port<T>[];
+    getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): Port<GuestApis>[];
     // @eventProperty
     guestbeforeload: HostGuestEvent<"beforeload">;
     // @eventProperty
@@ -121,8 +126,8 @@ export type HostEventError = HostEvent<"error", {
 
 // @public
 export type HostEventLoadAllGuests = HostEvent<"loadallguests", {
-    failed: GuestConnection[];
-    loaded: GuestConnection[];
+    failed: Port[];
+    loaded: Port[];
 }>;
 
 // @public (undocumented)
@@ -131,11 +136,20 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 // @public (undocumented)
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 
+// @internal
+export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
+
+// @internal
+export const mergeAttrValues: <T>(...tokenLists: AttrTokens<T>[]) => T[];
+
 // @public
 export function mutedProvider(provider: ExtensionsProvider): ExtensionsProvider;
 
+// @internal
+export const normalizeIframe: (iframe: HTMLIFrameElement) => void;
+
 // @public
-export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements GuestConnection {
+export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> implements GuestConnection {
     constructor(config: {
         owner: string;
         id: string;
@@ -150,7 +164,7 @@ export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements Gue
     get apis(): {
         [x: string]: {};
     };
-    attachUI(iframe: HTMLIFrameElement): Promise<CrossRealmObject<unknown>>;
+    attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
     error?: Error;
     hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
@@ -162,13 +176,8 @@ export class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements Gue
     url: URL;
 }
 
-// Warning: (ae-forgotten-export) The symbol "PortEvent" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export type PortEvents<GuestApi, HostApi extends Record<string, unknown> = Record<string, unknown>> = PortEvent<GuestApi, "hostprovide"> | PortEvent<GuestApi, "unload"> | PortEvent<GuestApi, "beforecallhostmethod", HostMethodAddress<HostApi>>;
-
 // @public
-export type PortMap = Map<string, GuestConnection>;
+export type PortMap = Map<string, Port>;
 
 // @public (undocumented)
 export type PortOptions = {
@@ -176,7 +185,22 @@ export type PortOptions = {
     debug?: boolean;
 };
 
+// @internal
+export const requiredIframeProps: {
+    "data-uix-guest": string;
+    role: string;
+    referrerPolicy: HTMLAttributeReferrerPolicy;
+};
+
+// Warning: (ae-forgotten-export) The symbol "SandboxPermission" needs to be exported by the entry point index.d.ts
+//
+// @internal
+export type SandboxToken = `allow-${SandboxPermission}`;
+
 // @public
 export type SharedContextValues = Record<string, unknown>;
+
+// @internal
+export const tokenizeAttrValues: <T>(tokens: AttrTokens<T>) => T[];
 
 ```

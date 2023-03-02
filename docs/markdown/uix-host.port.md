@@ -6,14 +6,14 @@
 
 A Port is the Host-maintained object representing an extension running as a guest. It exposes methods registered by the Guest, and can provide Host methods back to the guest.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-export declare class Port<GuestApi> extends Emitter<PortEvents<GuestApi>> implements GuestConnection 
+export declare class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> implements GuestConnection 
 ```
-<b>Extends:</b> [Emitter](./uix-core.emitter.md)<!-- -->&lt;[PortEvents](./uix-host.portevents.md)<!-- -->&lt;GuestApi&gt;&gt;
+**Extends:** [Emitter](./uix-core.emitter.md)<!-- -->&lt;[GuestConnectionEvents](./uix-core.guestconnectionevents.md)<!-- -->&gt;
 
-<b>Implements:</b> GuestConnection
+**Implements:** GuestConnection
 
 ## Remarks
 
@@ -30,7 +30,7 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [apis](./uix-host.port.apis.md) | <code>readonly</code> | { \[x: string\]: {}; } |  |
-|  [error?](./uix-host.port.error.md) |  | Error | <i>(Optional)</i> If any errors occurred during the loading of guests, this property will contain the error that was raised. |
+|  [error?](./uix-host.port.error.md) |  | Error | _(Optional)_ If any errors occurred during the loading of guests, this property will contain the error that was raised. |
 |  [url](./uix-host.port.url.md) |  | URL | The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads. |
 
 ## Methods
@@ -41,6 +41,6 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 |  [hasCapabilities(requiredMethods)](./uix-host.port.hascapabilities.md) |  | Returns true if the guest has registered methods matching the provided capability spec. A capability spec is simply an object whose properties are declared in an array of keys, description the names of the functions and methods that the Port will expose. |
 |  [isReady()](./uix-host.port.isready.md) |  | True when al extensions have loaded. |
 |  [load()](./uix-host.port.load.md) |  | Loads the extension. Returns a promise which resolves when the extension has loaded. The Host calls this method after retrieving extensions. |
-|  [provide(apis)](./uix-host.port.provide.md) |  | The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. |
+|  [provide(apis)](./uix-host.port.provide.md) |  | The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. Merges at the first level, the API level. Overwrites a deeper levels. |
 |  [unload()](./uix-host.port.unload.md) |  | Disconnect from the extension. |
 

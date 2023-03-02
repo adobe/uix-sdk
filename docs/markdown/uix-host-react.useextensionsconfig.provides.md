@@ -6,7 +6,7 @@
 
 A namespaced object of methods which extensions will be able to call.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 provides?: Outgoing;

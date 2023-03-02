@@ -6,12 +6,12 @@
 
 Shared context has been set or updated; all guests receive this event too.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type HostEventContextChange = HostEvent<"contextchange", {
     context: SharedContextValues;
 }>;
 ```
-<b>References:</b> [HostEvent](./uix-host.hostevent.md)<!-- -->, [SharedContextValues](./uix-host.sharedcontextvalues.md)
+**References:** [HostEvent](./uix-host.hostevent.md)<!-- -->, [SharedContextValues](./uix-host.sharedcontextvalues.md)
 

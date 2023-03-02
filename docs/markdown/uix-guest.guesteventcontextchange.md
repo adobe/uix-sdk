@@ -5,12 +5,12 @@
 ## GuestEventContextChange type
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare type GuestEventContextChange = GuestEvent<"contextchange", {
     context: Record<string, unknown>;
 }>;
 ```
-<b>References:</b> [GuestEvent](./uix-guest.guestevent.md)
+**References:** [GuestEvent](./uix-guest.guestevent.md)
 

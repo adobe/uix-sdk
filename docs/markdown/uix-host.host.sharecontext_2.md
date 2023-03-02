@@ -4,7 +4,7 @@
 
 ## Host.shareContext() method
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 shareContext(setter: (context: SharedContextValues) => SharedContextValues): void;
@@ -16,7 +16,7 @@ shareContext(setter: (context: SharedContextValues) => SharedContextValues): voi
 |  --- | --- | --- |
 |  setter | (context: [SharedContextValues](./uix-host.sharedcontextvalues.md)<!-- -->) =&gt; [SharedContextValues](./uix-host.sharedcontextvalues.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 void
 

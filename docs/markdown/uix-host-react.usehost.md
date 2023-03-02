@@ -9,12 +9,12 @@
 
 Retrieve the [Host](./uix-host.host.md) object hosting all extensions inside the current parent provider.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function useHost(): UseHostResponse;
 ```
-<b>Returns:</b>
+**Returns:**
 
 [UseHostResponse](./uix-host-react.usehostresponse.md)
 

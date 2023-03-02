@@ -6,7 +6,7 @@
 
 Combine multiple [ExtensionsProvider](./uix-host.extensionsprovider.md) callbacks into a single callback, which aggregates and dedupes all extensions from all providers into one namespaced object.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function combineExtensionsFromProviders(...providers: Array<ExtensionsProvider>): ExtensionsProvider;
@@ -18,7 +18,7 @@ export declare function combineExtensionsFromProviders(...providers: Array<Exten
 |  --- | --- | --- |
 |  providers | Array&lt;[ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->&gt; |  |
 
-<b>Returns:</b>
+**Returns:**
 
 [ExtensionsProvider](./uix-host.extensionsprovider.md)
 

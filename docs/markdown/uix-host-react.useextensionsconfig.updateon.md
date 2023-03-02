@@ -6,7 +6,7 @@
 
 Sets when re-render is triggered on extension load.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 updateOn?: "each" | "all";

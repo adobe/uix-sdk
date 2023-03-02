@@ -6,8 +6,8 @@
 
 Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-host.host.getloadedguests_1.md)
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-declare type GuestFilter = (item: GuestConnection) => boolean;
+declare type GuestFilter = (item: GuestEmitter) => boolean;
 ```

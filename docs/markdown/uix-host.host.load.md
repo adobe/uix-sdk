@@ -6,7 +6,7 @@
 
 Load extension into host application from provided extension description. Returned promise resolves when all extensions are loaded and registered.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 load(extensions: InstalledExtensions, options?: PortOptions): Promise<void>;
@@ -17,9 +17,9 @@ load(extensions: InstalledExtensions, options?: PortOptions): Promise<void>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  extensions | [InstalledExtensions](./uix-host.installedextensions.md) | List of extension descriptors. Normally, the Host should receive this value from an [ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->. |
-|  options | [PortOptions](./uix-host.portoptions.md) | <i>(Optional)</i> Custom options to be used as defaults for each [Port](./uix-host.port.md) object created for each guest. |
+|  options | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ Custom options to be used as defaults for each [Port](./uix-host.port.md) object created for each guest. |
 
-<b>Returns:</b>
+**Returns:**
 
 Promise&lt;void&gt;
 

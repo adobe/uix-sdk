@@ -6,7 +6,7 @@
 
 Time out and stop trying to reach the host after this many milliseconds
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 timeout?: number;

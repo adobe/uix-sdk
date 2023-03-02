@@ -8,14 +8,14 @@ Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/Ev
 
 Also provides typed events via generics. You can create or extend this class to define custom emitters with known event names and signatures.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare class Emitter<Events extends NamedEvent> extends EventTarget implements Emits<Events> 
 ```
-<b>Extends:</b> EventTarget
+**Extends:** EventTarget
 
-<b>Implements:</b> Emits&lt;Events&gt;
+**Implements:** Emits&lt;Events&gt;
 
 ## Example
 

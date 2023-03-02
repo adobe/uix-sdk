@@ -4,7 +4,7 @@
 
 ## GuestUIProps.guestId property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 guestId: string;

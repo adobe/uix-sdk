@@ -6,7 +6,7 @@
 
 This is `true` until all extensions are loaded. Use for rendering spinners or other intermediate UI.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 loading: boolean;

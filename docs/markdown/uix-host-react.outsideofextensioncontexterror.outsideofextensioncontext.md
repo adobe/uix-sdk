@@ -4,7 +4,7 @@
 
 ## OutsideOfExtensionContextError.outsideOfExtensionContext property
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 outsideOfExtensionContext: boolean;

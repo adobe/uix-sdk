@@ -6,7 +6,7 @@
 
 Location of the document to load for the [GuestServer](./uix-guest.guestserver.md)
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 url: string;

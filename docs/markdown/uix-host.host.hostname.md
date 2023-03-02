@@ -6,7 +6,7 @@
 
 Unique string identifying the Host object.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 hostName: string;

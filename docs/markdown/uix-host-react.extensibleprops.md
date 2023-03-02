@@ -5,19 +5,19 @@
 ## ExtensibleProps interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> 
 ```
-<b>Extends:</b> Omit&lt;[HostConfig](./uix-host.hostconfig.md)<!-- -->, "hostName"&gt;
+**Extends:** Omit&lt;[HostConfig](./uix-host.hostconfig.md)<!-- -->, "hostName"&gt;
 
 ## Properties
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [appName?](./uix-host-react.extensibleprops.appname.md) |  | string | <i>(Optional)</i> Unique name for identifying this extensible app. May be used as metadata in extension registry in the future. |
+|  [appName?](./uix-host-react.extensibleprops.appname.md) |  | string | _(Optional)_ Unique name for identifying this extensible app. May be used as metadata in extension registry in the future. |
 |  [extensionsProvider](./uix-host-react.extensibleprops.extensionsprovider.md) |  | [ExtensionsProvider](./uix-host.extensionsprovider.md) | Function which returns a promise for the full list of extensions. |
-|  [guestOptions?](./uix-host-react.extensibleprops.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | <i>(Optional)</i> |
-|  [sharedContext?](./uix-host-react.extensibleprops.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | <i>(Optional)</i> |
+|  [guestOptions?](./uix-host-react.extensibleprops.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ |
+|  [sharedContext?](./uix-host-react.extensibleprops.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | _(Optional)_ |
 

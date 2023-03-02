@@ -5,10 +5,10 @@
 ## ExtensionRegistryConfig interface
 
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface ExtensionRegistryConfig extends ExtensionRegistryExtensionRegistration, ExtensionRegistryConnection 
 ```
-<b>Extends:</b> [ExtensionRegistryExtensionRegistration](./uix-host.extensionregistryextensionregistration.md)<!-- -->, [ExtensionRegistryConnection](./uix-host.extensionregistryconnection.md)
+**Extends:** [ExtensionRegistryExtensionRegistration](./uix-host.extensionregistryextensionregistration.md)<!-- -->, [ExtensionRegistryConnection](./uix-host.extensionregistryconnection.md)
 

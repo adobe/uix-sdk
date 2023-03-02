@@ -16,4 +16,7 @@ governing permissions and limitations under the License.
 import { createContext } from "react";
 import { Host } from "@adobe/uix-host";
 
+/**
+ * @internal
+ */
 export const ExtensionContext = createContext<Host>({} as unknown as Host);

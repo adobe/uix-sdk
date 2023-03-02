@@ -6,10 +6,10 @@
 
 Return loaded guests which expose the provided [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): GuestConnection[];
+getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): Port<GuestApis>[];
 ```
 
 ## Parameters
@@ -18,7 +18,7 @@ getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): Gue
 |  --- | --- | --- |
 |  capabilities | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Apis&gt; |  |
 
-<b>Returns:</b>
+**Returns:**
 
-GuestConnection\[\]
+[Port](./uix-host.port.md)<!-- -->&lt;GuestApis&gt;\[\]
 

@@ -6,8 +6,10 @@
 
 Dictionary of [Port](./uix-host.port.md) objects by extension ID.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
-export declare type PortMap = Map<string, GuestConnection>;
+export declare type PortMap = Map<string, Port>;
 ```
+**References:** [Port](./uix-host.port.md)
+

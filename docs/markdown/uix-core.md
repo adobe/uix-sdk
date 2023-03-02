@@ -18,3 +18,10 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 |  --- | --- |
 |  [Extension](./uix-core.extension.md) | /\*\* An individual UI extension retrieved from the registry. |
 
+## Type Aliases
+
+|  Type Alias | Description |
+|  --- | --- |
+|  [GuestConnectionEvent](./uix-core.guestconnectionevent.md) |  |
+|  [GuestConnectionEvents](./uix-core.guestconnectionevents.md) |  |
+

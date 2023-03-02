@@ -6,7 +6,7 @@
 
 Function which returns a promise for the full list of extensions.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 extensionsProvider: ExtensionsProvider;

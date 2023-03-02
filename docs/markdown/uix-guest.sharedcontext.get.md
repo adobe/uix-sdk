@@ -6,7 +6,7 @@
 
 Retrieve a copy of a value from the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object. \*Note that this is not a reference to any actual objects from the parent. If the parent updates an "inner object" inside the SharedContext, that change will not be reflected in the Guest!\*
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 get(key: string): unknown;
@@ -18,7 +18,7 @@ get(key: string): unknown;
 |  --- | --- | --- |
 |  key | string |  |
 
-<b>Returns:</b>
+**Returns:**
 
 unknown
 

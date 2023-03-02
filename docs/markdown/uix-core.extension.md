@@ -6,7 +6,7 @@
 
 /\*\* An individual UI extension retrieved from the registry.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export interface Extension 

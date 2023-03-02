@@ -6,7 +6,7 @@
 
 Declares an extensible area in an app, and provides host and extension objects to all descendents. The [useExtensions()](./uix-host-react.useextensions.md) hook can only be called in a descendent of this component.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): JSX.Element;
@@ -18,7 +18,7 @@ export declare function Extensible({ appName, children, extensionsProvider, gues
 |  --- | --- | --- |
 |  { appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, } | PropsWithChildren&lt;[ExtensibleProps](./uix-host-react.extensibleprops.md)<!-- -->&gt; |  |
 
-<b>Returns:</b>
+**Returns:**
 
 JSX.Element
 

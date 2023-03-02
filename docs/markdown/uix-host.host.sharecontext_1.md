@@ -6,7 +6,7 @@
 
 Update the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This method takes a callback which receives the previous context and may return an entirely new context, or new values merged with the old context.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 shareContext(setter: (context: SharedContextValues) => SharedContextValues): void;
@@ -18,7 +18,7 @@ shareContext(setter: (context: SharedContextValues) => SharedContextValues): voi
 |  --- | --- | --- |
 |  setter | (context: [SharedContextValues](./uix-host.sharedcontextvalues.md)<!-- -->) =&gt; [SharedContextValues](./uix-host.sharedcontextvalues.md) |  |
 
-<b>Returns:</b>
+**Returns:**
 
 void
 

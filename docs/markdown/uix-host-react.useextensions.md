@@ -6,7 +6,7 @@
 
 Fetch extensions which implement an API, provide them methods, and use them.
 
-<b>Signature:</b>
+**Signature:**
 
 ```typescript
 export declare function useExtensions<Incoming extends GuestApis, Outgoing extends VirtualApi>(configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>, deps?: unknown[]): UseExtensionsResult<Incoming>;
@@ -17,9 +17,9 @@ export declare function useExtensions<Incoming extends GuestApis, Outgoing exten
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configFactory | (host: [Host](./uix-host.host.md)<!-- -->) =&gt; [UseExtensionsConfig](./uix-host-react.useextensionsconfig.md)<!-- -->&lt;Incoming, Outgoing&gt; |  |
-|  deps | unknown\[\] | <i>(Optional)</i> |
+|  deps | unknown\[\] | _(Optional)_ |
 
-<b>Returns:</b>
+**Returns:**
 
 [UseExtensionsResult](./uix-host-react.useextensionsresult.md)<!-- -->&lt;Incoming&gt;
 
