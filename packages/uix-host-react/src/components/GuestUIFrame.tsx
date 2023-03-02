@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { CrossRealmObject, VirtualApi } from "@adobe/uix-core";
+import { CrossRealmObject, UIFrameRect, VirtualApi } from "@adobe/uix-core";
 import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
@@ -42,7 +42,7 @@ export interface GuestUIProps extends FrameProps {
   /**
    * Called when the document in the iframe changes size.
    */
-  onResize?: (dimensions: DOMRect) => void;
+  onResize?: (dimensions: UIFrameRect) => void;
   /**
    * Additional sandbox attributes GuestUIFrame might need.
    */

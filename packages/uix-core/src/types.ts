@@ -163,11 +163,19 @@ export interface HostConnection<T = unknown> {
 }
 
 /**
+ * @internal
+ */
+export interface UIFrameRect {
+  height: number;
+  width: number;
+}
+
+/**
  * Guest UIs
  * @internal
  */
 export interface UIHostMethods {
-  onIframeResize(dimensions: DOMRect): void;
+  onIframeResize(dimensions: UIFrameRect): void;
 }
 
 export type UIHostConnection<T = unknown> = HostConnection<T> & UIHostMethods;
@@ -193,7 +201,7 @@ export type GuestConnectionEvents<
   | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>
   | GuestConnectionEvent<
       "guestresize",
-      { dimensions: DOMRect; iframe: HTMLIFrameElement }
+      { dimensions: UIFrameRect; iframe: HTMLIFrameElement }
     >;
 
 /**

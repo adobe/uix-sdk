@@ -16,7 +16,6 @@ import type {
   UIHostConnection,
   VirtualApi,
 } from "@adobe/uix-core";
-import { asyncThrottle } from "@adobe/uix-core";
 import {
   Guest,
   GuestConfig,
@@ -96,26 +95,23 @@ import {
  * @public
  */
 export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
-  static RESIZE_EVENT_INTERVAL = 500;
   /**
    * {@inheritDoc Guest."constructor"}
    */
   constructor(config: GuestConfig) {
     super(config);
     this.addEventListener("connected", () => {
-      const emitResize = asyncThrottle(async (rect: DOMRect) => {
-        await this.hostConnection.getRemoteApi().onIframeResize(rect);
-      }, GuestUI.RESIZE_EVENT_INTERVAL);
-
-      this.logger.log("Adding resize observer", document.documentElement);
-
       const resizeObserver = new ResizeObserver((entries) => {
-        const doc = entries.find(
-          (entry) => entry.target === document.documentElement
-        );
-        emitResize(doc.contentRect);
+        const doc = entries.find((entry) => entry.target === document.body);
+        const borderBoxSize = doc.borderBoxSize.length
+          ? doc.borderBoxSize[0]
+          : (doc.borderBoxSize as unknown as ResizeObserverSize);
+        this.hostConnection.getRemoteApi().onIframeResize({
+          height: borderBoxSize.blockSize,
+          width: borderBoxSize.inlineSize,
+        });
       });
-      resizeObserver.observe(document.documentElement);
+      resizeObserver.observe(document.body);
     });
 
     this.logger.log("Will add resize observer on connect");
