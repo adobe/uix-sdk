@@ -12,7 +12,7 @@ governing permissions and limitations under the License.
 
 import type {
   Extension,
-  GuestConnection,
+  GuestEmitter,
   NamedEvent,
   Emits,
   GuestApis,
@@ -26,7 +26,7 @@ import { debugHost } from "./debug-host.js";
  * Dictionary of {@link Port} objects by extension ID.
  * @public
  */
-export type PortMap = Map<string, GuestConnection>;
+export type PortMap = Map<string, Port>;
 
 /** @public */
 export type HostEvent<
@@ -36,7 +36,7 @@ export type HostEvent<
 /** @public */
 type HostGuestEvent<Type extends string> = HostEvent<
   `guest${Type}`,
-  { guest: GuestConnection }
+  { guest: Port }
 >;
 
 /**
@@ -45,7 +45,7 @@ type HostGuestEvent<Type extends string> = HostEvent<
  */
 export type HostEventLoadAllGuests = HostEvent<
   "loadallguests",
-  { failed: GuestConnection[]; loaded: GuestConnection[] }
+  { failed: Port[]; loaded: Port[] }
 >;
 
 /**
@@ -121,7 +121,7 @@ export interface HostConfig {
  * Callback to use to filter the list returned from {@link Host.(getLoadedGuests:2)}
  * @public
  */
-type GuestFilter = (item: GuestConnection) => boolean;
+type GuestFilter = (item: GuestEmitter) => boolean;
 
 const passAllGuests = () => true;
 
@@ -216,8 +216,7 @@ export class Host extends Emitter<HostEvents> {
    * A Map of of the loaded guests.
    */
   guests: PortMap = new Map();
-  private cachedCapabilityLists: WeakMap<object, GuestConnection[]> =
-    new WeakMap();
+  private cachedCapabilityLists: WeakMap<object, Port[]> = new WeakMap();
   private runtimeContainer: HTMLElement;
   private guestOptions: PortOptions;
   private logger: Console = quietConsole;
@@ -239,20 +238,20 @@ export class Host extends Emitter<HostEvents> {
   /**
    * Return all loaded guests.
    */
-  getLoadedGuests(): GuestConnection[];
+  getLoadedGuests<T = unknown>(): Port<T>[];
   /**
    * Return loaded guests which satisfy the passed test function.
    */
-  getLoadedGuests(filter: GuestFilter): GuestConnection[];
+  getLoadedGuests<T = unknown>(filter: GuestFilter): Port<T>[];
   /**
    * Return loaded guests which expose the provided {@link CapabilitySpec}.
    */
   getLoadedGuests<Apis extends GuestApis>(
     capabilities: CapabilitySpec<Apis>
-  ): GuestConnection[];
+  ): Port<GuestApis>[];
   getLoadedGuests<Apis extends GuestApis = never>(
     filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter
-  ): GuestConnection[] {
+  ): Port<GuestApis>[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
@@ -260,7 +259,7 @@ export class Host extends Emitter<HostEvents> {
     const result = [];
     for (const guest of this.guests.values()) {
       if (guest.isReady() && filter(guest)) {
-        result.push(guest);
+        result.push(guest as Port<GuestApis>);
       }
     }
     return result;
@@ -345,8 +344,8 @@ export class Host extends Emitter<HostEvents> {
   ): Promise<void> {
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
-    const failed: GuestConnection[] = [];
-    const loaded: GuestConnection[] = [];
+    const failed: Port[] = [];
+    const loaded: Port[] = [];
     this.loading = true;
     await Promise.all(
       Object.entries(extensions).map(async ([id, url]) => {
@@ -378,11 +377,11 @@ export class Host extends Emitter<HostEvents> {
     document.body.appendChild(container);
     return container;
   }
-  private async loadOneGuest(
+  private async loadOneGuest<T = unknown>(
     id: string,
     urlString: string,
     options: PortOptions = {}
-  ): Promise<GuestConnection> {
+  ): Promise<Port<T>> {
     let guest = this.guests.get(id);
     if (!guest) {
       const url = new URL(urlString);

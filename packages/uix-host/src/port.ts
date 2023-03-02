@@ -13,13 +13,14 @@ governing permissions and limitations under the License.
 import type {
   Emits,
   GuestConnection,
+  GuestConnectionEvents,
   HostMethodAddress,
-  NamedEvent,
   RemoteHostApis,
   GuestApis,
   CrossRealmObject,
   Unsubscriber,
   VirtualApi,
+  UIHostMethods,
 } from "@adobe/uix-core";
 import {
   Emitter,
@@ -94,28 +95,6 @@ interface GuestProxyWrapper {
 }
 
 /** @public */
-type PortEvent<
-  GuestApi,
-  Type extends string = string,
-  Detail = Record<string, unknown>
-> = NamedEvent<
-  Type,
-  Detail &
-    Record<string, unknown> & {
-      guestPort: Port<GuestApi>;
-    }
->;
-
-/** @public */
-export type PortEvents<
-  GuestApi,
-  HostApi extends Record<string, unknown> = Record<string, unknown>
-> =
-  | PortEvent<GuestApi, "hostprovide">
-  | PortEvent<GuestApi, "unload">
-  | PortEvent<GuestApi, "beforecallhostmethod", HostMethodAddress<HostApi>>;
-
-/** @public */
 export type PortOptions = {
   /**
    * Time in milliseconds to wait for the guest to connect before throwing.
@@ -152,8 +131,8 @@ const defaultOptions = {
  * something we should review.
  * @public
  */
-export class Port<GuestApi>
-  extends Emitter<PortEvents<GuestApi>>
+export class Port<GuestApi = unknown>
+  extends Emitter<GuestConnectionEvents>
   implements GuestConnection
 {
   public get apis() {
@@ -251,8 +230,18 @@ export class Port<GuestApi>
    * Connect an iframe element which is displaying another page in the extension
    * with the extension's bootstrap frame, so they can share context and events.
    */
-  public attachUI(iframe: HTMLIFrameElement) {
-    return this.attachFrame(iframe);
+  public attachUI<T = unknown>(
+    iframe: HTMLIFrameElement
+  ): Promise<CrossRealmObject<T>> {
+    return this.attachFrame(iframe, {
+      onIframeResize: (dimensions: { height: number; width: number }) => {
+        this.emit("guestresize", {
+          dimensions,
+          guestPort: this,
+          iframe: iframe,
+        });
+      },
+    } as UIHostMethods);
   }
 
   /**
@@ -306,9 +295,13 @@ export class Port<GuestApi>
   /**
    * The host-side equivalent of {@link @adobe/uix-guest#register}. Pass a set
    * of methods down to the guest as proxies.
+   * Merges at the first level, the API level. Overwrites a deeper levels.
    */
   public provide(apis: RemoteHostApis) {
-    Object.assign(this.hostApis, apis);
+    for (const [apiNamespace, methods] of Object.entries(apis)) {
+      this.hostApis[apiNamespace] = this.hostApis[apiNamespace] || {};
+      Object.assign(this.hostApis[apiNamespace], methods);
+    }
     this.emit("hostprovide", { guestPort: this, apis });
   }
 
@@ -342,9 +335,13 @@ export class Port<GuestApi>
     this.assert(this.isReady(), () => "Attempted to interact before loaded");
   }
 
-  private attachFrame<T = unknown>(iframe: HTMLIFrameElement) {
+  private attachFrame<T = unknown>(
+    iframe: HTMLIFrameElement,
+    addedMethods: object = {}
+  ) {
     // at least this is necessary
     normalizeIframe(iframe);
+    this.logger.log("attachFrame", iframe);
     return connectIframe<T>(
       iframe,
       {
@@ -356,6 +353,7 @@ export class Port<GuestApi>
         getSharedContext: () => this.sharedContext,
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address),
+        ...addedMethods,
       }
     );
   }

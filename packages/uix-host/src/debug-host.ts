@@ -20,14 +20,9 @@ import {
   debugEmitter,
   EmitterDebugLogger,
   Emits,
-  GuestConnection,
+  GuestEmitter,
 } from "@adobe/uix-core";
-import type { PortEvents } from "./port.js";
 import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
-
-type GenericPortEvents = PortEvents<Record<string, unknown>>;
-
-type Portlike = GuestConnection & Emits<GenericPortEvents>;
 
 export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
   const hostLogger = debugEmitter(host, {
@@ -37,7 +32,7 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
   hostLogger
     .listen("guestbeforeload", (log, event) => {
       const { detail } = event;
-      const guest = detail.guest as Portlike;
+      const guest = detail.guest as GuestEmitter;
       log.info(event, `Guest ID ${guest.id}`);
       const portLogger = debugEmitter(guest, {
         theme: "green medium",
@@ -49,6 +44,9 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
           log.info("received APIs", event.detail.apis);
         })
         .listen("beforecallhostmethod", (log, event) => {
+          log.info(event.detail);
+        })
+        .listen("guestresize", (log, event) => {
           log.info(event.detail);
         })
         .listen("unload", (log, event) => {

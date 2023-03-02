@@ -10,7 +10,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { RemoteHostApis, VirtualApi } from "@adobe/uix-core";
+import type {
+  CrossRealmObject,
+  RemoteHostApis,
+  UIHostConnection,
+  VirtualApi,
+} from "@adobe/uix-core";
 import {
   Guest,
   GuestConfig,
@@ -95,6 +100,21 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
    */
   constructor(config: GuestConfig) {
     super(config);
+    this.addEventListener("connected", () => {
+      const resizeObserver = new ResizeObserver((entries) => {
+        const doc = entries.find((entry) => entry.target === document.body);
+        const borderBoxSize = doc.borderBoxSize.length
+          ? doc.borderBoxSize[0]
+          : (doc.borderBoxSize as unknown as ResizeObserverSize);
+        this.hostConnection.getRemoteApi().onIframeResize({
+          height: borderBoxSize.blockSize,
+          width: borderBoxSize.inlineSize,
+        });
+      });
+      resizeObserver.observe(document.body);
+    });
+
+    this.logger.log("Will add resize observer on connect");
   }
   /**
    * {@inheritDoc Guest.contextchange}
@@ -120,4 +140,5 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
    * {@inheritDoc Guest.host}
    */
   host: RemoteHostApis<IHost>;
+  protected hostConnection!: CrossRealmObject<UIHostConnection>;
 }
