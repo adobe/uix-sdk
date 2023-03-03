@@ -41,23 +41,28 @@ document.querySelector("#app").innerHTML = `
    <ul>${exampleResults.join("")}</ul>
  `;
 
-register({
-  id: "Zalgo",
-  debug: process.env.NODE_ENV !== "production",
-  methods: {
-    interestingNumbers: {
-      commentOn(n) {
-        // should we say anything?
-        if (Math.random() > 0.7) {
-          return getComments(n);
-        } else {
-          return [];
-        }
-      },
-    },
-  },
-}).then((instance) => {
-  instance.logger.log('he arrive');
-},(e) => {
-  console.error(e);
-});
+ setTimeout(() => {
+   register({
+     id: "Zalgo",
+     debug: process.env.NODE_ENV !== "production",
+     methods: {
+       interestingNumbers: {
+         commentOn(n) {
+           // should we say anything?
+           if (Math.random() > 0.7) {
+             return getComments(n);
+           } else {
+             return [];
+           }
+         },
+       },
+     },
+   }).then(
+     (instance) => {
+       instance.logger.log("he arrive");
+     },
+     (e) => {
+       console.error(e);
+     }
+   );
+ }, 4000);

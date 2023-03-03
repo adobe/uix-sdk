@@ -10,7 +10,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { CrossRealmObject, UIFrameRect, VirtualApi } from "@adobe/uix-core";
+import {
+  CrossRealmObject,
+  GuestConnectionOptions,
+  UIFrameRect,
+  VirtualApi,
+} from "@adobe/uix-core";
 import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
@@ -29,6 +34,7 @@ type FrameProps = Omit<ReactIframeProps, "sandbox">;
 
 /** @public */
 export interface GuestUIProps extends FrameProps {
+  connectOptions: GuestConnectionOptions;
   guestId: string;
   /**
    * Receives the Penpal context when the frame is mounted.
@@ -78,6 +84,7 @@ const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
 export const GuestUIFrame = ({
   guestId,
   src = "",
+  connectOptions,
   onConnect,
   onDisconnect,
   onConnectionError,
@@ -103,7 +110,7 @@ export const GuestUIFrame = ({
       if (methods) {
         guest.provide(methods);
       }
-      const connecting = guest.attachUI(connectionFrame);
+      const connecting = guest.attachUI(connectionFrame, connectOptions);
       connecting
         .then((c) => {
           connection = c;

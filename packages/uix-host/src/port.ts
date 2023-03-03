@@ -21,6 +21,7 @@ import type {
   Unsubscriber,
   VirtualApi,
   UIHostMethods,
+  GuestConnectionOptions,
 } from "@adobe/uix-core";
 import {
   Emitter,
@@ -95,11 +96,7 @@ interface GuestProxyWrapper {
 }
 
 /** @public */
-export type PortOptions = {
-  /**
-   * Time in milliseconds to wait for the guest to connect before throwing.
-   */
-  timeout?: number;
+export type PortOptions = GuestConnectionOptions & {
   /**
    * Set true to log copiously in the console.
    */
@@ -231,9 +228,10 @@ export class Port<GuestApi = unknown>
    * with the extension's bootstrap frame, so they can share context and events.
    */
   public attachUI<T = unknown>(
-    iframe: HTMLIFrameElement
+    iframe: HTMLIFrameElement,
+    connectOptions: GuestConnectionOptions = {}
   ): Promise<CrossRealmObject<T>> {
-    return this.attachFrame(iframe, {
+    return this.attachFrame(iframe, connectOptions, {
       onIframeResize: (dimensions: { height: number; width: number }) => {
         this.emit("guestresize", {
           dimensions,
@@ -337,7 +335,8 @@ export class Port<GuestApi = unknown>
 
   private attachFrame<T = unknown>(
     iframe: HTMLIFrameElement,
-    addedMethods: object = {}
+    connectOptions: PortOptions = {},
+    addedMethods: RemoteHostApis = {}
   ) {
     // at least this is necessary
     normalizeIframe(iframe);
@@ -348,6 +347,7 @@ export class Port<GuestApi = unknown>
         logger: this.logger,
         targetOrigin: this.url.origin,
         timeout: this.timeout,
+        ...connectOptions,
       },
       {
         getSharedContext: () => this.sharedContext,

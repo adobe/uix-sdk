@@ -171,12 +171,19 @@ export interface UIFrameRect {
 }
 
 /**
+ * @internal
+ */
+export interface GuestConnectionOptions {
+  timeout?: number;
+}
+
+/**
  * Guest UIs
  * @internal
  */
-export interface UIHostMethods {
+export type UIHostMethods = RemoteHostApis<{
   onIframeResize(dimensions: UIFrameRect): void;
-}
+}>;
 
 /**
  * @internal
