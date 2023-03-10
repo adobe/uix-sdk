@@ -37,20 +37,20 @@ const base = {
   tsconfig: "./tsconfig.json", // see above
   format: ["cjs"],
   platform: "browser",
-  target: "ES2020", // TODO: this is cool, right?
   replaceNodeEnv: true,
   legacyOutput: true,
   treeshake: "recommended",
 };
 
-
 const configs = {
+  /** @type {import("tsup").Options} */
   development: {
     ...base,
     sourcemap: true,
     declarationMap: false,
     splitting: false,
   },
+  /** @type {import("tsup").Options} */
   production: {
     ...base,
     clean: true,
