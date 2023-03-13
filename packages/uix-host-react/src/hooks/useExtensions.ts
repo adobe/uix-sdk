@@ -166,5 +166,5 @@ export function useExtensions<
     baseDeps
   );
 
-  return { extensions, loading: !host.loading, error: hostError };
+  return { extensions, loading: host.loading, error: hostError };
 }
