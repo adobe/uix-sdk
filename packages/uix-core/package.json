@@ -22,13 +22,21 @@
     "README.md",
     "dist",
     "src",
+    "bin",
     "tsconfig.json"
   ],
+  "bin": {
+    "notify-uix-sdk-updates": "./bin/notify-uix-sdk-updates.mjs"
+  },
   "homepage": "https://github.com/adobe/uix-sdk",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/adobe/uix-sdk.git"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "update-notifier": "^6.0.2"
   },
   "sideEffects": false
 }
