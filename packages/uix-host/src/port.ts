@@ -250,24 +250,13 @@ export class Port<GuestApi = unknown>
    * declared in an array of keys, description the names of the functions and
    * methods that the Port will expose.
    */
-  public hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>) {
+  public hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>) {
     this.assertReady();
     return (
       this.apis &&
-      Object.keys(requiredMethods).every((key) => {
-        if (!Reflect.has(this.apis, key)) {
-          return false;
-        }
-        const api = this.apis[key];
-        const methodList = requiredMethods[
-          key as keyof typeof requiredMethods
-        ] as string[];
-        return methodList.every(
-          (methodName: string) =>
-            Reflect.has(api, methodName) &&
-            typeof api[methodName as keyof typeof api] === "function"
-        );
-      })
+      Object.entries(requiredCapabilities).every(([apiName, methodNames]) =>
+        this.hasCapability(apiName, methodNames as string[])
+      )
     );
   }
 
@@ -321,6 +310,17 @@ export class Port<GuestApi = unknown>
   // #endregion Public Methods (6)
 
   // #region Private Methods (6)
+
+  private hasCapability(apiName: string, methodNames: string[]) {
+    const api = this.apis[apiName];
+    return (
+      api &&
+      methodNames.every(
+        (methodName: keyof typeof api) =>
+          Reflect.has(api, methodName) && typeof api[methodName] === "function"
+      )
+    );
+  }
 
   private assert(
     condition: boolean,
