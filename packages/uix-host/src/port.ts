@@ -252,20 +252,23 @@ export class Port<GuestApi = unknown>
    */
   public hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>) {
     this.assertReady();
-    return Object.keys(requiredMethods).every((key) => {
-      if (!Reflect.has(this.apis, key)) {
-        return false;
-      }
-      const api = this.apis[key];
-      const methodList = requiredMethods[
-        key as keyof typeof requiredMethods
-      ] as string[];
-      return methodList.every(
-        (methodName: string) =>
-          Reflect.has(api, methodName) &&
-          typeof api[methodName as keyof typeof api] === "function"
-      );
-    });
+    return (
+      this.apis &&
+      Object.keys(requiredMethods).every((key) => {
+        if (!Reflect.has(this.apis, key)) {
+          return false;
+        }
+        const api = this.apis[key];
+        const methodList = requiredMethods[
+          key as keyof typeof requiredMethods
+        ] as string[];
+        return methodList.every(
+          (methodName: string) =>
+            Reflect.has(api, methodName) &&
+            typeof api[methodName as keyof typeof api] === "function"
+        );
+      })
+    );
   }
 
   /**
@@ -281,10 +284,9 @@ export class Port<GuestApi = unknown>
    */
   public async load() {
     try {
-      if (!this.apis) {
+      if (!this.isLoaded) {
         await this.connect();
       }
-      return this.apis;
     } catch (e) {
       this.guestServer = null;
       this.error = e instanceof Error ? e : new Error(String(e));
