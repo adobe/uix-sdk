@@ -245,7 +245,7 @@ export class Guest<
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("Connection failed!", e);
-      return;
+      throw e;
     }
     try {
       this.sharedContext = new SharedContext(
@@ -254,6 +254,7 @@ export class Guest<
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getSharedContext failed!", e);
+      throw e;
     }
   }
 }
