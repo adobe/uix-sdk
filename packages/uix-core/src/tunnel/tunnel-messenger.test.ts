@@ -152,17 +152,34 @@ describe("tunnel negotiation message factory", () => {
       },
     });
     it("warns in console, once for each version", () => {
+      expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
+      expect(messenger.isHandshake(withVersion("999.999.999"))).toBeTruthy();
+      expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("bad-version"))).toBeTruthy();
-      expect(messenger.isHandshake(withVersion("worse-version"))).toBeTruthy();
-      expect(messenger.isHandshake(withVersion("bad-version"))).toBeTruthy();
-      expect(fakeConsole.warn).toHaveBeenCalledTimes(2);
+      expect(fakeConsole.warn).toHaveBeenCalledTimes(3);
       expect(fakeConsole.warn.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
-          "SDK version mismatch. https://me is using v0.0.1-test, but received message from https://you using SDK vbad-version. Extensions may be broken or unresponsive.",
-          "SDK version mismatch. https://me is using v0.0.1-test, but received message from https://you using SDK vworse-version. Extensions may be broken or unresponsive.",
+          "SDK version mismatch. https://me is using v0.0.999, but received message from https://you using SDK vabc.def.ccc. Extensions may be broken or unresponsive.",
+          "SDK version mismatch. https://me is using v0.0.999, but received message from https://you using SDK v999.999.999. Extensions may be broken or unresponsive.",
+          "SDK version mismatch. https://me is using v0.0.999, but received message from https://you using SDK vbad-version. Extensions may be broken or unresponsive.",
         ]
       `);
+    });
+    it("does not warn for only patch version changes", () => {
+      const [major, minor, patch] = VERSION.split(".");
+      expect(
+        messenger.isHandshake(
+          withVersion(`${major}.${minor}.${Number(patch) + 1}`)
+        )
+      ).toBeTruthy();
+      expect(fakeConsole.warn).not.toHaveBeenCalled();
+      expect(
+        messenger.isHandshake(
+          withVersion(`${major}.${Number(minor) + 1}.${patch}`)
+        )
+      ).toBeTruthy();
+      expect(fakeConsole.warn).toHaveBeenCalled();
     });
     it("resetWarnings() resets seen version warnings so they'll log again", () => {
       messenger.resetWarnings();
