@@ -76,8 +76,6 @@ export class TunnelMessenger {
       version.prerelease === thisVersion.prerelease
     );
   }
-  isSamePrerelease(version: ParsedVersion) {}
-  isSameMinorVersion(version: ParsedVersion) {}
   isHandshake(message: unknown): message is HandshakeMessage {
     if (!isWrapped(message)) {
       this.logMalformed(message);
