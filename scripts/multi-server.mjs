@@ -11,32 +11,17 @@ governing permissions and limitations under the License.
 */
 
 import { inspect } from "util";
-import { Writable } from "stream";
 import concurrently from "concurrently";
 import chalk from "chalk";
 import figures from "figures";
 import {
   getExamples,
   getSdks,
-  logger,
   runWithArg,
   shResult,
 } from "./script-runner.mjs";
 import { startRegistry } from "./mock-registry.mjs";
 import { SIGINT, SIGTERM } from "constants";
-import {
-  combineLatest,
-  filter,
-  debounceTime,
-  merge,
-  share,
-  firstValueFrom,
-  map,
-  timer,
-  skipUntil,
-  of,
-  distinctUntilChanged,
-} from "rxjs";
 
 const basePorts = {
   host: process.env.PORT_HOSTS || 4001,
@@ -56,89 +41,11 @@ const host = "localhost";
 
 const registryUrl = `http://${host}:${ports.registry}/`;
 
-const typeColors = {
-  sdk: chalk.ansi256(1),
-  guest: chalk.ansi256(4),
-  host: chalk.ansi256(6),
-};
-
-const blackHole = new Writable({ write() {} });
-
-const runParallelDefaults = {
-  ignore: [],
-  overrides: {},
-  awaitAll: false,
-};
-
-const formatLine = (prefix, line) =>
-  prefix +
-  line
-    .toString("utf8")
-    .replace(/^\s*\n*/g, "") // remove newlines
-    .replace(/\s*\d\d?:\d\d:\d\d [PA]M?\s*/i, ""); // remove timestamps
-const lineProcessors = (prefix, ignore) => [
-  map((buf) => buf.toString("utf-8")),
-  filter((line) => line.trim() && ignore.every((re) => !re.test(line))),
-  map((line) => formatLine(prefix, line)),
-  distinctUntilChanged(),
-];
-async function runParallel(runSpecs, opts = {}) {
-  const { ignore, overrides, awaitAll } = { ...runParallelDefaults, ...opts };
+async function runParallel(runSpecs) {
   const concurrentlyOptions = {
-    outputStream: blackHole,
     killOthers: ["success", "failure"],
-    ...overrides,
   };
-  const noisyLoggers = [];
-  const connectStdouts = [];
-  const connectStderrs = [];
-  const jobs = concurrently(runSpecs, concurrentlyOptions);
-  for (let i = 0; i < runSpecs.length; i++) {
-    const spec = runSpecs[i];
-    const cmd = jobs.commands[i];
-    const outColor = typeColors[spec.type];
-    const outPrefix = outColor(`[${chalk.dim(spec.type)} ${spec.name}] `);
-    const errPrefix = outColor.bold(`[${spec.type} ${spec.name}] `);
-    const stdout = cmd.stdout.pipe(share());
-    const stderr = cmd.stderr.pipe(share());
-    noisyLoggers.push(merge(stdout, stderr));
-    connectStdouts.push((start) =>
-      stdout.pipe(skipUntil(start), ...lineProcessors(outPrefix, ignore))
-    );
-    connectStderrs.push((start) =>
-      stderr.pipe(skipUntil(start), ...lineProcessors(errPrefix, ignore))
-    );
-  }
-  if (process.env.DEBUG && process.env.DEBUG.includes("multi-server")) {
-    const goNow = of(true).pipe(share());
-    connectStdouts.map((toPipe) =>
-      toPipe(goNow).subscribe((line) => process.stdout.write(line))
-    );
-    connectStderrs.map((toPipe) =>
-      toPipe(goNow).subscribe((line) => process.stderr.write(line))
-    );
-    return {
-      ...jobs,
-      startLog() {},
-    };
-  }
-  const operator = awaitAll ? combineLatest : merge;
-  const noiseDone = merge(
-    operator(noisyLoggers).pipe(debounceTime(2000)),
-    timer(5000)
-  );
-  await firstValueFrom(noiseDone);
-  return {
-    ...jobs,
-    startLog() {
-      connectStdouts.map((toPipe) =>
-        toPipe(noiseDone).subscribe((line) => process.stdout.write(line))
-      );
-      connectStderrs.map((toPipe) =>
-        toPipe(noiseDone).subscribe((line) => process.stderr.write(line))
-      );
-    },
-  };
+  return concurrently(runSpecs, concurrentlyOptions);
 }
 
 /**
@@ -253,33 +160,14 @@ async function serveExamples(mode) {
     );
   }
 
-  const runnerOpts = {
-    ignore: isDev
-      ? [
-          /Accepting connections/,
-          /Gracefully shutting down/,
-          /http:\/\/(127|0|localhost)/,
-          // /(Local|Network):/m,
-          /use .+ to expose/m,
-          /(Built|ready) in .+ms/,
-          /Server running at/,
-          /Building.../,
-          /Bundling.../,
-          /Packaging & Optimizing.../,
-        ]
-      : [],
-  };
-
   let [guestRunners, hostRunners] = await Promise.all([
-    runParallel(guests, runnerOpts),
-    runParallel(hosts, runnerOpts),
+    runParallel(guests),
+    runParallel(hosts),
   ]);
 
   allRunners.push(guestRunners, hostRunners);
 
   showExampleLinks(hosts, guests);
-
-  allRunners.forEach((runner) => runner.startLog());
 
   process.once("SIGINT", () => {
     console.log("Stopping all servers..");
