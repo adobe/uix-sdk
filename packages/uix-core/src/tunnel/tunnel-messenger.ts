@@ -28,7 +28,7 @@ function getVersionParts(version: string): ParsedVersion {
   const realVersion = VERSION_CORRECTED.hasOwnProperty(version)
     ? VERSION_CORRECTED[version as keyof typeof VERSION_CORRECTED]
     : version;
-  const [major, minor, suffix] = realVersion.split(".");
+  const [major, minor = "UNKNOWN", suffix = "UNKNOWN"] = realVersion.split(".");
   const [patch, prerelease = ""] = suffix.split("-");
   return { major, minor, patch, prerelease };
 }

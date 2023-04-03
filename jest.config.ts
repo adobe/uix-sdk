@@ -14,7 +14,7 @@ const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
     ],
   },
   globals: {
-    UIX_SDK_VERSION: "0.0.1-test",
+    UIX_SDK_VERSION: "0.0.999",
     UIX_SDK_BUILDMODE: "test",
   },
   ...overrides,
