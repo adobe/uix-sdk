@@ -21,6 +21,7 @@ import type {
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
 import { useHost } from "./useHost.js";
+import { createReactLogger } from "../host-react-logger.js";
 
 /**
  * @internal
@@ -127,6 +128,11 @@ export function useExtensions<
     updateOn = "each",
   } = useMemo(() => configFactory(host), baseDeps);
 
+  const logger = useMemo(
+    () => createReactLogger(host.isDebugMode, "useExtensions()"),
+    [host.isDebugMode]
+  );
+
   const getExtensions = useCallback(() => {
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
@@ -136,6 +142,7 @@ export function useExtensions<
       }
       newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
     }
+    logger.log(`found ${newExtensions.length} extensions`, newExtensions);
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
   }, [...baseDeps, requires]);
 
@@ -143,7 +150,10 @@ export function useExtensions<
     (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
-      return () => host.removeEventListener(eventName, handler);
+      return () => {
+        logger.log("unmounting");
+        host.removeEventListener(eventName, handler);
+      };
     },
     [...baseDeps, updateOn]
   );
@@ -160,8 +170,10 @@ export function useExtensions<
     () =>
       host.addEventListener(
         "error",
-        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error)
+        (event: Extract<HostEvents, { detail: { error: Error } }>) => {
+          setHostError(event.detail.error);
+          logger.error(event.detail.error);
+        }
       ),
     baseDeps
   );

@@ -221,6 +221,7 @@ export class Host extends Emitter<HostEvents> {
   private guestOptions: PortOptions;
   private logger: Console = quietConsole;
   private sharedContext: SharedContextValues;
+  isDebugMode: boolean;
   constructor(config: HostConfig) {
     super(config.hostName);
     const { guestOptions = {} } = config;
@@ -233,6 +234,7 @@ export class Host extends Emitter<HostEvents> {
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
       this.logger = debugHost(this);
+      this.isDebugMode = true;
     }
   }
   /**

@@ -16,27 +16,12 @@ import {
   VirtualApi,
   _customConsole,
 } from "@adobe/uix-core";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
+import { createReactLogger } from "../host-react-logger.js";
 import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
 import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
-
-const logger = _customConsole(
-  {
-    padX: 5,
-    padY: 3,
-    rounded: 4,
-    fontSize: 100,
-    emphasis: "font-weight: bold;",
-    text: "#212121",
-    bg: "#FFFFFF",
-    hilight: "#0080A1",
-    shadow: "#0080A1",
-  },
-  "GuestUIFrame",
-  "⚛"
-);
 
 /**
  * @internal
@@ -79,6 +64,10 @@ export interface GuestUIProps extends FrameProps {
    * Host methods to provide only to the guest inside this iframe.
    */
   methods?: VirtualApi;
+  /**
+   * Verbose logging.
+   */
+  debug?: boolean;
 }
 
 const defaultIFrameProps: FrameProps = {
@@ -98,6 +87,7 @@ const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
  */
 export const GuestUIFrame = ({
   guestId,
+  debug,
   src = "",
   onConnect,
   onDisconnect,
@@ -115,6 +105,11 @@ export const GuestUIFrame = ({
   }
   const guest = host.guests.get(guestId);
   const frameUrl = new URL(src, guest.url.href);
+
+  const logger = useMemo(
+    () => createReactLogger(debug, `<GuestUIFrame guestId="${guestId}" />`),
+    [debug, guestId]
+  );
 
   useEffect(() => {
     if (ref.current) {

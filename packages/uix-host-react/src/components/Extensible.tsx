@@ -21,6 +21,7 @@ import type {
 } from "@adobe/uix-host";
 import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
+import { createReactLogger } from "../host-react-logger.js";
 
 /** @public */
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
@@ -81,16 +82,22 @@ export function Extensible({
 }: PropsWithChildren<ExtensibleProps>) {
   const hostName = appName || window.location.host || "mainframe";
 
+  const logger = useMemo(
+    () => createReactLogger(debug, `<Extensible appName="${appName}" />`),
+    [debug, appName]
+  );
+
   const [extensions, setExtensions] = useState({});
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
+        logger.log(`Loaded ${loaded.length} extensions`);
         setExtensions((prev) =>
           areExtensionsDifferent(prev, loaded) ? loaded : prev
         );
       })
       .catch((e: Error | unknown) => {
-        console.error("Fetching list of extensions failed!", e);
+        logger.error("Fetching list of extensions failed!", e);
       });
   }, [extensionsProvider]);
 
@@ -99,7 +106,7 @@ export function Extensible({
     function logError(msg: string) {
       return (e: Error | unknown) => {
         const error = e instanceof Error ? e : new Error(String(e));
-        console.error(msg, error, extensions, guestOptions);
+        logger.error(msg, error, extensions, guestOptions);
       };
     }
 
