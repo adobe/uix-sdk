@@ -10,12 +10,33 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { CrossRealmObject, UIFrameRect, VirtualApi } from "@adobe/uix-core";
+import {
+  CrossRealmObject,
+  UIFrameRect,
+  VirtualApi,
+  _customConsole,
+} from "@adobe/uix-core";
 import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
 import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
 import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
+
+const logger = _customConsole(
+  {
+    padX: 5,
+    padY: 3,
+    rounded: 4,
+    fontSize: 100,
+    emphasis: "font-weight: bold;",
+    text: "#212121",
+    bg: "#FFFFFF",
+    hilight: "#0080A1",
+    shadow: "#0080A1",
+  },
+  "GuestUIFrame",
+  "⚛"
+);
 
 /**
  * @internal
@@ -108,6 +129,9 @@ export const GuestUIFrame = ({
         .then((c) => {
           connection = c;
           if (!mounted) {
+            logger.warn(
+              `Connected to guest at ${frameUrl}, but iframe has already been destroyed!`
+            );
             c.tunnel.destroy();
           } else if (onConnect) {
             onConnect();
@@ -115,23 +139,26 @@ export const GuestUIFrame = ({
         })
         .catch((error: Error) => {
           if (mounted && !connection && connectionFrame === ref.current) {
-            const frameError = new Error(
-              `GuestUIFrame connection failed: ${
-                (error && error.stack) || error
-              }`
-            );
-            Object.assign(frameError, {
+            const errorContext = {
               original: error,
               ref,
               guest,
               host,
-            });
+            };
+            const errorMessage = `GuestUIFrame connection failed: ${
+              (error && error.stack) || error
+            }`;
+            const frameError = new Error(errorMessage);
+            Object.assign(frameError, errorContext);
             if (onConnectionError) onConnectionError(frameError);
+            logger.error(errorMessage, errorContext);
           }
         });
       return () => {
+        logger.log(`useEffect cleanup called, unmounting ${frameUrl}`);
         mounted = false;
         if (connection) {
+          logger.log(`unmounted, ${frameUrl}, destroying tunnel`);
           connection.tunnel.destroy();
         }
       };
