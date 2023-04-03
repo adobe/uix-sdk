@@ -15,13 +15,24 @@ type ParsedVersion = {
   prerelease: string;
 };
 
+/**
+ * Due to a bug in release for 0.8.0 and 0.8.11, those versions have the
+ * wrong (previous) version number embedded.
+ */
+const VERSION_CORRECTED = {
+  "0.7.0": "0.8.0",
+  "0.8.0": "0.8.1",
+};
+
 function getVersionParts(version: string): ParsedVersion {
-  const [major, minor, suffix] = version.split(".");
+  const realVersion = VERSION_CORRECTED.hasOwnProperty(version)
+    ? VERSION_CORRECTED[version as keyof typeof VERSION_CORRECTED]
+    : version;
+  const [major, minor, suffix] = realVersion.split(".");
   const [patch, prerelease = ""] = suffix.split("-");
   return { major, minor, patch, prerelease };
 }
 const thisVersion = getVersionParts(VERSION);
-
 export class TunnelMessenger {
   private myOrigin: string;
   private remoteOrigin: string;
