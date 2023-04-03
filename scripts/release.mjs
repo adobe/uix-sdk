@@ -202,20 +202,6 @@ This may have been intentional, but this script is only designed for lockstep re
 Continue the release manually.`);
   }
 
-  logger.log("Running lint and build before publish.");
-  try {
-    await sh("npm", ["run", "-s", "lint"]);
-  } catch (e) {
-    throw new Error(
-      `Lint failed, cannot proceed with release. Run "npm run format" to correct autocorrectable issues and then try again.`
-    );
-  }
-  try {
-    await sh("npm", ["run", "-s", "build:production"]);
-  } catch (e) {
-    throw new Error("Build failed, cannot proceed with release.");
-  }
-
   if (options.noVersion) {
     logger.warn("Skipping version update.");
   } else {
@@ -233,8 +219,28 @@ Continue the release manually.`);
     await updatePackageVersions(version, sdks, workingDir);
   }
 
+  logger.log("Running lint and build before publish.");
   try {
-    await sh("npm", ["run", "-s", "docs"]);
+    await sh("npm", ["run", "-s", "lint"]);
+  } catch (e) {
+    throw new Error(
+      `Lint failed, cannot proceed with release. Run "npm run format" to correct autocorrectable issues and then try again.`
+    );
+  }
+  const buildEnv = {
+    ...process.env,
+    UIX_SDK_BUILDMODE: version,
+  };
+  try {
+    await sh("npm", ["run", "-s", "build:production"], {
+      env: buildEnv,
+    });
+  } catch (e) {
+    throw new Error("Build failed, cannot proceed with release.");
+  }
+
+  try {
+    await sh("npm", ["run", "-s", "docs"], { env: buildEnv });
   } catch (e) {
     throw new Error(
       "Documentation update failed, cannot proceed with release."
