@@ -9,14 +9,14 @@ Returns true if the guest has registered methods matching the provided capabilit
 **Signature:**
 
 ```typescript
-hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
+hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  requiredMethods | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;GuestApis&gt; |  |
+|  requiredCapabilities | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;GuestApis&gt; |  |
 
 **Returns:**
 

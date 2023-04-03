@@ -166,11 +166,9 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     };
     attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
     error?: Error;
-    hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
+    hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
-    load(): Promise<{
-        [x: string]: {};
-    }>;
+    load(): Promise<void>;
     provide(apis: RemoteHostApis): void;
     unload(): Promise<void>;
     url: URL;
