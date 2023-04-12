@@ -1,0 +1,33 @@
+{
+  "name": "@adobe/uix-sdk-updater",
+  "version": "0.8.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "CLI for checking, notifying and managing updates to UIX SDK",
+  "author": "Adobe, Inc,",
+  "main": "lib/cli.js",
+  "scripts": {
+    "test": "node lib/__tests__/cli.test.js"
+  },
+  "bugs": "https://github.com/adobe/uix-sdk/issues",
+  "files": [
+    "README.md",
+    "lib",
+    "bin"
+  ],
+  "bin": {
+    "uix-sdk-updater": "./bin/cli"
+  },
+  "homepage": "https://github.com/adobe/uix-sdk",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adobe/uix-sdk.git"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "update-notifier": "^6.0.2"
+  },
+  "sideEffects": false
+}
