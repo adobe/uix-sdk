@@ -38,7 +38,7 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [attachUI(iframe)](./uix-host.port.attachui.md) |  | Connect an iframe element which is displaying another page in the extension with the extension's bootstrap frame, so they can share context and events. |
-|  [hasCapabilities(requiredMethods)](./uix-host.port.hascapabilities.md) |  | Returns true if the guest has registered methods matching the provided capability spec. A capability spec is simply an object whose properties are declared in an array of keys, description the names of the functions and methods that the Port will expose. |
+|  [hasCapabilities(requiredCapabilities)](./uix-host.port.hascapabilities.md) |  | Returns true if the guest has registered methods matching the provided capability spec. A capability spec is simply an object whose properties are declared in an array of keys, description the names of the functions and methods that the Port will expose. |
 |  [isReady()](./uix-host.port.isready.md) |  | True when al extensions have loaded. |
 |  [load()](./uix-host.port.load.md) |  | Loads the extension. Returns a promise which resolves when the extension has loaded. The Host calls this method after retrieving extensions. |
 |  [provide(apis)](./uix-host.port.provide.md) |  | The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. Merges at the first level, the API level. Overwrites a deeper levels. |

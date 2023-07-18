@@ -10,25 +10,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/**
- * @hidden
- */
-import { createContext } from "react";
-import { Host } from "@adobe/uix-host";
+import { useContext } from "react";
+import {
+  ExtensionContext,
+  ExtensibilityContext,
+} from "../extension-context.js";
 
 /**
- * Context container with Host object and extensions load status.
+ * Indicates if external extensions provider was processed. Returns true after passing extension list to the Host.
  *
- * @public
+ * @beta
  */
-export type ExtensibilityContext = {
-  host: Host;
-  extensionListFetched: boolean;
-};
+export function useExtensionListFetched(): boolean {
+  const extensionsInfo = useContext<ExtensibilityContext>(ExtensionContext);
 
-/**
- * @internal
- */
-export const ExtensionContext = createContext<ExtensibilityContext>(
-  {} as unknown as ExtensibilityContext
-);
+  return extensionsInfo.extensionListFetched;
+}

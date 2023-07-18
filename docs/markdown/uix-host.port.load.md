@@ -9,11 +9,9 @@ Loads the extension. Returns a promise which resolves when the extension has loa
 **Signature:**
 
 ```typescript
-load(): Promise<{
-        [x: string]: {};
-    }>;
+load(): Promise<void>;
 ```
 **Returns:**
 
-Promise&lt;{ \[x: string\]: {}; }&gt;
+Promise&lt;void&gt;
 

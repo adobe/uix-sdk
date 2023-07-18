@@ -82,6 +82,8 @@ export function Extensible({
   const hostName = appName || window.location.host || "mainframe";
 
   const [extensions, setExtensions] = useState({});
+  const [extensionListFetched, setExtensionListFetched] =
+    useState<boolean>(false);
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
@@ -91,6 +93,9 @@ export function Extensible({
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);
+      })
+      .finally(() => {
+        setExtensionListFetched(true);
       });
   }, [extensionsProvider]);
 
@@ -121,7 +126,12 @@ export function Extensible({
   }
 
   return (
-    <ExtensionContext.Provider value={host}>
+    <ExtensionContext.Provider
+      value={{
+        host: host,
+        extensionListFetched: extensionListFetched,
+      }}
+    >
       {children}
     </ExtensionContext.Provider>
   );

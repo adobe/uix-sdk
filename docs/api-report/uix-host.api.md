@@ -137,7 +137,7 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
 
 // @internal
-export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
+export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-same-origin" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
 
 // @internal
 export const mergeAttrValues: <T>(...tokenLists: AttrTokens<T>[]) => T[];
@@ -166,11 +166,9 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     };
     attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
     error?: Error;
-    hasCapabilities(requiredMethods: CapabilitySpec<GuestApis>): boolean;
+    hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
-    load(): Promise<{
-        [x: string]: {};
-    }>;
+    load(): Promise<void>;
     provide(apis: RemoteHostApis): void;
     unload(): Promise<void>;
     url: URL;
