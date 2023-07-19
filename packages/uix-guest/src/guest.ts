@@ -154,6 +154,10 @@ export class Guest<
    * {@inheritdoc SharedContext}
    */
   sharedContext: SharedContext;
+  /**
+   * A guest (extension) configuration
+   */
+  configuration?: Record<string, unknown>;
   logger: Console = quietConsole;
 
   /**
@@ -254,6 +258,15 @@ export class Guest<
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getSharedContext failed!", e);
+      throw e;
+    }
+    try {
+      this.configuration = await this.hostConnection
+        .getRemoteApi()
+        .getConfiguration();
+    } catch (e) {
+      this.emit("error", { guest: this, error: e });
+      this.logger.error("getConfiguration failed!", e);
       throw e;
     }
   }

@@ -151,18 +151,10 @@ export class Port<GuestApi = unknown>
   private isLoaded = false;
   private runtimeContainer: HTMLElement;
   private sharedContext: Record<string, unknown>;
+  private configuration?: Record<string, unknown>;
   private subscriptions: Unsubscriber[] = [];
   private timeout: number;
 
-  /**
-   * Dictionary of namespaced methods that were registered by this guest at the
-   * time of connection, using {@link @adobe/uix-guest#register}.
-   *
-   * @remarks
-   * These methods are proxy methods; you can only pass serializable objects to
-   * them, not class instances, methods or callbacks.
-   * @public
-   */
   /**
    * If any errors occurred during the loading of guests, this property will
    * contain the error that was raised.
@@ -198,6 +190,10 @@ export class Port<GuestApi = unknown>
      * connects, it will be able to access these properties.
      */
     sharedContext: Record<string, unknown>;
+    /**
+     * A guest (extension) configuration
+     */
+    configuration?: Record<string, unknown>;
     events: Emits;
   }) {
     super(config.id);
@@ -209,6 +205,7 @@ export class Port<GuestApi = unknown>
     this.url = config.url;
     this.runtimeContainer = config.runtimeContainer;
     this.sharedContext = config.sharedContext;
+    this.configuration = config.configuration;
     this.subscriptions.push(
       config.events.addEventListener("contextchange", async (event) => {
         this.sharedContext = (
@@ -353,6 +350,7 @@ export class Port<GuestApi = unknown>
       },
       {
         getSharedContext: () => this.sharedContext,
+        getConfiguration: () => this.configuration,
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address),
         ...addedMethods,
