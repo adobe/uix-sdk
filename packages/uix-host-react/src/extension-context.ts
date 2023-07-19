@@ -19,7 +19,7 @@ import { Host } from "@adobe/uix-host";
 /**
  * Context container with Host object and extensions load status.
  *
- * @public
+ * @internal
  */
 export type ExtensibilityContext = {
   host: Host;

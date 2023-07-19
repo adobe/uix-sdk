@@ -23,7 +23,7 @@ import type { SharedContextValues } from '@adobe/uix-host';
 import { UIFrameRect } from '@adobe/uix-core';
 import { VirtualApi } from '@adobe/uix-core';
 
-// @public
+// @internal
 export type ExtensibilityContext = {
     host: Host;
     extensionListFetched: boolean;

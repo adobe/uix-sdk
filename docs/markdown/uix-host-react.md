@@ -38,7 +38,6 @@
 
 |  Type Alias | Description |
 |  --- | --- |
-|  [ExtensibilityContext](./uix-host-react.extensibilitycontext.md) | Context container with Host object and extensions load status. |
 |  [FrameProps](./uix-host-react.frameprops.md) |  |
 |  [UseHostResponse](./uix-host-react.usehostresponse.md) |  |
 
