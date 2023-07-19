@@ -392,7 +392,9 @@ export class Host extends Emitter<HostEvents> {
       };
 
       const extensionUrl = isExtension(extension) ? extension.url : extension;
-      const extensionConfiguration = isExtension(extension) ? extension.configuration : undefined;
+      const extensionConfiguration = isExtension(extension)
+        ? extension.configuration
+        : undefined;
       const url = new URL(extensionUrl);
       guest = new Port({
         owner: this.hostName,
