@@ -23,6 +23,12 @@ import type { SharedContextValues } from '@adobe/uix-host';
 import { UIFrameRect } from '@adobe/uix-core';
 import { VirtualApi } from '@adobe/uix-core';
 
+// @internal
+export type ExtensibilityContext = {
+    host: Host;
+    extensionListFetched: boolean;
+};
+
 // @public
 export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): JSX.Element;
 
@@ -41,7 +47,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 }
 
 // @internal (undocumented)
-export const ExtensionContext: Context<Host>;
+export const ExtensionContext: Context<ExtensibilityContext>;
 
 // @public
 export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, sandbox, style, ...customIFrameProps }: GuestUIProps) => JSX.Element;
@@ -75,6 +81,9 @@ export interface TypedGuestConnection<T extends GuestApis> extends GuestConnecti
     // (undocumented)
     id: GuestConnection["id"];
 }
+
+// @beta
+export function useExtensionListFetched(): boolean;
 
 // @public
 export function useExtensions<Incoming extends GuestApis, Outgoing extends VirtualApi>(configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>, deps?: unknown[]): UseExtensionsResult<Incoming>;

@@ -17,6 +17,18 @@ import { createContext } from "react";
 import { Host } from "@adobe/uix-host";
 
 /**
+ * Context container with Host object and extensions load status.
+ *
  * @internal
  */
-export const ExtensionContext = createContext<Host>({} as unknown as Host);
+export type ExtensibilityContext = {
+  host: Host;
+  extensionListFetched: boolean;
+};
+
+/**
+ * @internal
+ */
+export const ExtensionContext = createContext<ExtensibilityContext>(
+  {} as unknown as ExtensibilityContext
+);

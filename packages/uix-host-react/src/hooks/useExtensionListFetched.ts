@@ -10,6 +10,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export * from "./useExtensions.js";
-export * from "./useExtensionListFetched.js";
-export * from "./useHost.js";
+import { useContext } from "react";
+import {
+  ExtensionContext,
+  ExtensibilityContext,
+} from "../extension-context.js";
+
+/**
+ * Indicates if external extensions provider was processed. Returns true after passing extension list to the Host.
+ *
+ * @beta
+ */
+export function useExtensionListFetched(): boolean {
+  const extensionsInfo = useContext<ExtensibilityContext>(ExtensionContext);
+
+  return extensionsInfo.extensionListFetched;
+}
