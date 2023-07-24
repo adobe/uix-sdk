@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+export declare type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;
 ```
 **References:** [Extension](./uix-core.extension.md)
 

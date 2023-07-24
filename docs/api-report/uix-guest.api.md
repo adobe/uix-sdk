@@ -30,6 +30,7 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     //
     // @eventProperty
     beforeconnect: GuestEventBeforeConnect;
+    configuration?: Record<string, unknown>;
     // @public @deprecated
     connect(): Promise<void>;
     // (undocumented)

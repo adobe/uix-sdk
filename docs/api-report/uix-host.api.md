@@ -134,7 +134,7 @@ export type HostEventLoadAllGuests = HostEvent<"loadallguests", {
 export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
 
 // @public (undocumented)
-export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+export type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;
 
 // @internal
 export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
@@ -158,6 +158,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         options: PortOptions;
         logger?: Console;
         sharedContext: Record<string, unknown>;
+        configuration?: Record<string, unknown>;
         events: Emits;
     });
     // (undocumented)

@@ -75,7 +75,10 @@ export type HostEvents =
   | HostEventError;
 
 /** @public */
-export type InstalledExtensions = Record<Extension["id"], Extension["url"]>;
+export type InstalledExtensions = Record<
+  Extension["id"],
+  Extension["url"] | Extension
+>;
 /** @public */
 export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
@@ -348,8 +351,8 @@ export class Host extends Emitter<HostEvents> {
     const loaded: Port[] = [];
     this.loading = true;
     await Promise.all(
-      Object.entries(extensions).map(async ([id, url]) => {
-        const port = await this.loadOneGuest(id, url, options);
+      Object.entries(extensions).map(async ([id, extension]) => {
+        const port = await this.loadOneGuest(id, extension, options);
         (port.error ? failed : loaded).push(port);
       })
     );
@@ -379,12 +382,20 @@ export class Host extends Emitter<HostEvents> {
   }
   private async loadOneGuest<T = unknown>(
     id: string,
-    urlString: string,
+    extension: string | Extension,
     options: PortOptions = {}
   ): Promise<Port<T>> {
     let guest = this.guests.get(id);
     if (!guest) {
-      const url = new URL(urlString);
+      const isExtension = (item: any): item is Extension => {
+        return typeof item === "object" && item !== null && "url" in item;
+      };
+
+      const extensionUrl = isExtension(extension) ? extension.url : extension;
+      const extensionConfiguration = isExtension(extension)
+        ? extension.configuration
+        : undefined;
+      const url = new URL(extensionUrl);
       guest = new Port({
         owner: this.hostName,
         id,
@@ -396,6 +407,7 @@ export class Host extends Emitter<HostEvents> {
         },
         logger: this.logger,
         sharedContext: this.sharedContext,
+        configuration: extensionConfiguration,
         events: this as Emits,
       });
       this.guests.set(id, guest);

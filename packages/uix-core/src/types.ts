@@ -96,6 +96,10 @@ export interface Extension {
    * Location of the document to load for the {@link @adobe/uix-guest#GuestServer}
    */
   url: string;
+  /**
+   * An extension configuration
+   */
+  configuration?: Record<string, unknown>;
 }
 
 /**
@@ -156,6 +160,10 @@ export interface HostConnection<T = unknown> {
    * see {@link @adobe/uix-host#Port}
    */
   getSharedContext(): Record<string, unknown>;
+  /**
+   * see {@link @adobe/uix-host#Port}
+   */
+  getConfiguration(): Record<string, unknown> | undefined;
   /**
    * see {@link @adobe/uix-host#Port}
    */

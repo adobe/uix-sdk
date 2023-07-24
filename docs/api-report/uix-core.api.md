@@ -78,6 +78,7 @@ export interface EmitterDebugLogger extends DebugLogger {
 
 // @public
 export interface Extension {
+    configuration?: Record<string, unknown>;
     id: string;
     url: string;
 }
@@ -144,6 +145,7 @@ export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
 // @internal
 export interface HostConnection<T = unknown> {
+    getConfiguration(): Record<string, unknown> | undefined;
     getSharedContext(): Record<string, unknown>;
     invokeHostMethod: RemoteMethodInvoker<T>;
 }
@@ -258,7 +260,7 @@ export function wait(ms: number): Promise<unknown>;
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
-// src/types.ts:194:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
-// src/types.ts:207:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
+// src/types.ts:202:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
+// src/types.ts:215:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
 
 ```
