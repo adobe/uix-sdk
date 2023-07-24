@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-guest",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "publishConfig": {
     "access": "public"
   },
@@ -18,7 +18,7 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.8.2"
+    "@adobe/uix-core": "^0.8.3"
   },
   "files": [
     "README.md",
