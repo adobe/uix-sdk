@@ -55,9 +55,13 @@ export interface GuestUIProps extends FrameProps {
    */
   src: string;
   /**
-   * Host methods to provide only to the guest inside this iframe.
+   * Host methods to provide only to the guest inside all iframes.
    */
   methods?: VirtualApi;
+  /**
+   * Host methods to provide only to the guest inside this iframe.
+   */
+  privateMethods?: VirtualApi;
 }
 
 const defaultIFrameProps: FrameProps = {
@@ -83,6 +87,7 @@ export const GuestUIFrame = ({
   onConnectionError,
   onResize,
   methods,
+  privateMethods,
   sandbox = "",
   style,
   ...customIFrameProps
@@ -103,7 +108,7 @@ export const GuestUIFrame = ({
       if (methods) {
         guest.provide(methods);
       }
-      const connecting = guest.attachUI(connectionFrame);
+      const connecting = guest.attachUI(connectionFrame, privateMethods);
       connecting
         .then((c) => {
           connection = c;

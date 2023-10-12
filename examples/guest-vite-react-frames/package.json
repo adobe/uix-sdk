@@ -1,0 +1,17 @@
+{
+  "name": "guest-vite-react-frames",
+  "private": "true",
+  "version": "0.0.1",
+  "description": "Frames Playground",
+  "scripts": {
+    "clean": "del dist",
+    "example:build": "vite build",
+    "example:development": "vite",
+    "example:production": "vite preview --mode production"
+  },
+  "dependencies": {
+    "@adobe/uix-guest": "*",
+    "react-router-dom": "^6.16.0"
+  },
+  "license": "Apache-2.0"
+}
