@@ -15,6 +15,7 @@ import type { GuestEmitter } from '@adobe/uix-core';
 import { HTMLAttributeReferrerPolicy } from 'react';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
+import type { VirtualApi } from '@adobe/uix-core';
 
 // @internal
 export type AttrTokens<T> = string | T[];
@@ -165,7 +166,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     get apis(): {
         [x: string]: {};
     };
-    attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
+    attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
     hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;

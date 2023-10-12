@@ -50,7 +50,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 export const ExtensionContext: Context<ExtensibilityContext>;
 
 // @public
-export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, sandbox, style, ...customIFrameProps }: GuestUIProps) => JSX.Element;
+export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => JSX.Element;
 
 // Warning: (ae-forgotten-export) The symbol "FrameProps" needs to be exported by the entry point index.d.ts
 //
@@ -63,6 +63,7 @@ export interface GuestUIProps extends FrameProps {
     onConnectionError?: (error: Error) => void;
     onDisconnect?: () => void;
     onResize?: (dimensions: UIFrameRect) => void;
+    privateMethods?: VirtualApi;
     sandbox?: AttrTokens<SandboxToken>;
     src: string;
 }

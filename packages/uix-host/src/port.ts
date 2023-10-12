@@ -239,7 +239,7 @@ export class Port<GuestApi = unknown>
           iframe: iframe,
         });
       },
-      ...privateMethods
+      ...privateMethods,
     } as UIHostMethods);
   }
 

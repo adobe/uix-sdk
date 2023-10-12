@@ -9,7 +9,7 @@ Connect an iframe element which is displaying another page in the extension with
 **Signature:**
 
 ```typescript
-attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
+attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
 ```
 
 ## Parameters
@@ -17,6 +17,7 @@ attachUI<T = unknown>(iframe: HTMLIFrameElement): Promise<CrossRealmObject<T>>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  iframe | HTMLIFrameElement |  |
+|  privateMethods | VirtualApi |  |
 
 **Returns:**
 

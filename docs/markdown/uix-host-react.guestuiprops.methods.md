@@ -4,7 +4,7 @@
 
 ## GuestUIProps.methods property
 
-Host methods to provide only to the guest inside this iframe.
+Host methods to provide only to the guest inside all iframes.
 
 **Signature:**
 
