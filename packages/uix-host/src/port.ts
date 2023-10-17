@@ -228,7 +228,8 @@ export class Port<GuestApi = unknown>
    * with the extension's bootstrap frame, so they can share context and events.
    */
   public attachUI<T = unknown>(
-    iframe: HTMLIFrameElement
+    iframe: HTMLIFrameElement,
+    privateMethods: VirtualApi
   ): Promise<CrossRealmObject<T>> {
     return this.attachFrame(iframe, {
       onIframeResize: (dimensions: { height: number; width: number }) => {
@@ -238,6 +239,7 @@ export class Port<GuestApi = unknown>
           iframe: iframe,
         });
       },
+      ...privateMethods,
     } as UIHostMethods);
   }
 
@@ -352,7 +354,7 @@ export class Port<GuestApi = unknown>
         getSharedContext: () => this.sharedContext,
         getConfiguration: () => this.configuration,
         invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address),
+          this.invokeHostMethod(address, addedMethods as RemoteHostApis),
         ...addedMethods,
       }
     );
