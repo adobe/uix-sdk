@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host-react",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "publishConfig": {
     "access": "public"
   },
@@ -18,8 +18,8 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.8.3",
-    "@adobe/uix-host": "^0.8.3"
+    "@adobe/uix-core": "^0.8.4",
+    "@adobe/uix-host": "^0.8.4"
   },
   "files": [
     "README.md",
