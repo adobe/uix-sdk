@@ -395,6 +395,11 @@ export class Host extends Emitter<HostEvents> {
       const extensionConfiguration = isExtension(extension)
         ? extension.configuration
         : undefined;
+
+      const extensionPoints = isExtension(extension)
+        ? extension.extensionPoints
+        : [];
+
       const url = new URL(extensionUrl);
       guest = new Port({
         owner: this.hostName,
@@ -408,6 +413,7 @@ export class Host extends Emitter<HostEvents> {
         logger: this.logger,
         sharedContext: this.sharedContext,
         configuration: extensionConfiguration,
+        extensionPoints,
         events: this as Emits,
       });
       this.guests.set(id, guest);

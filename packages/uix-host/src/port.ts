@@ -168,6 +168,7 @@ export class Port<GuestApi = unknown>
    * when it loads.
    */
   public url: URL;
+  public extensionPoints: string[];
   private guestServer: CrossRealmObject<GuestProxyWrapper>;
 
   // #endregion Properties (13)
@@ -194,6 +195,10 @@ export class Port<GuestApi = unknown>
      * A guest (extension) configuration
      */
     configuration?: Record<string, unknown>;
+    /**
+     * Guest (extension) extension points
+     */
+    extensionPoints?: string[];
     events: Emits;
   }) {
     super(config.id);
@@ -206,6 +211,7 @@ export class Port<GuestApi = unknown>
     this.runtimeContainer = config.runtimeContainer;
     this.sharedContext = config.sharedContext;
     this.configuration = config.configuration;
+    this.extensionPoints = config.extensionPoints;
     this.subscriptions.push(
       config.events.addEventListener("contextchange", async (event) => {
         this.sharedContext = (

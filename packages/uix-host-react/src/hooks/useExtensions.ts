@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
   GuestConnection,
   GuestApis,
@@ -21,6 +21,7 @@ import type {
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
 import { useHost } from "./useHost.js";
+import { ExtensibleComponentContext } from "../extensible-component-context";
 
 /**
  * @internal
@@ -120,6 +121,10 @@ export function useExtensions<
     };
   }
 
+  const { extensionPoint: currentComponentExtensionPoint } = useContext(
+    ExtensibleComponentContext
+  );
+
   const baseDeps = [host, ...deps];
   const {
     requires,
@@ -131,6 +136,17 @@ export function useExtensions<
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
     for (const guest of guests) {
+      //proceed only if this guest supports provided extension point
+      if (
+        currentComponentExtensionPoint &&
+        guest.extensionPoints &&
+        !guest.extensionPoints.includes(
+          `aem/${currentComponentExtensionPoint}/1`
+        )
+      ) {
+        continue;
+      }
+
       if (provides) {
         guest.provide(provides);
       }

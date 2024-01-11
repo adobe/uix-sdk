@@ -100,6 +100,10 @@ export interface Extension {
    * An extension configuration
    */
   configuration?: Record<string, unknown>;
+  /**
+   * extension points for this extension
+   */
+  extensionPoints?: string[];
 }
 
 /**
