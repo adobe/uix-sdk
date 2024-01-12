@@ -121,9 +121,11 @@ export function useExtensions<
     };
   }
 
-  const { extensionPoint: currentComponentExtensionPoint } = useContext(
-    ExtensibleComponentContext
-  );
+  const {
+    extensionPoint: currentComponentExtensionPoint,
+    service,
+    version,
+  } = useContext(ExtensibleComponentContext);
 
   const baseDeps = [host, ...deps];
   const {
@@ -141,7 +143,7 @@ export function useExtensions<
         currentComponentExtensionPoint &&
         guest.extensionPoints &&
         !guest.extensionPoints.includes(
-          `aem/${currentComponentExtensionPoint}/1`
+          `${service}/${currentComponentExtensionPoint}/${version}`
         )
       ) {
         continue;
