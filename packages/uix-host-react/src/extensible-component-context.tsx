@@ -47,7 +47,7 @@ export const ExtensibleComponent = ({
       service,
       version,
     }),
-    [extensionPoint]
+    [extensionPoint, service, version]
   );
 
   return (
