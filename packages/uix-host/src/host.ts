@@ -391,12 +391,13 @@ export class Host extends Emitter<HostEvents> {
         return typeof item === "object" && item !== null && "url" in item;
       };
 
-      const extensionUrl = isExtension(extension) ? extension.url : extension;
-      const extensionConfiguration = isExtension(extension)
+      const isExtensionObject = isExtension(extension);
+      const extensionUrl = isExtensionObject ? extension.url : extension;
+      const extensionConfiguration = isExtensionObject
         ? extension.configuration
         : undefined;
 
-      const extensionPoints = isExtension(extension)
+      const extensionPoints = isExtensionObject
         ? extension.extensionPoints
         : [];
 
