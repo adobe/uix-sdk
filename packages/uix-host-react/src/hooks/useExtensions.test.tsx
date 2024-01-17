@@ -78,16 +78,16 @@ jest.mocked(useHost).mockReturnValue({
 });
 
 const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
-({
-  requires: {},
-  provides: {},
-} as UseExtensionsConfig<GuestApis, VirtualApi>);
+  ({
+    requires: {},
+    provides: {},
+  } as UseExtensionsConfig<GuestApis, VirtualApi>);
 
 describe("useExtension hook", () => {
-
   test("returns all extensions when no ExtensibleComponentContext value is provided", async () => {
-    const { result } = renderHook(
-      () => useExtensions<GuestApis, VirtualApi>(configFactory, []));
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, [])
+    );
     expect(result.current.extensions.length).toBe(4);
   });
 
@@ -129,7 +129,7 @@ describe("useExtension hook", () => {
       () => useExtensions<GuestApis, VirtualApi>(configFactory, []),
       { wrapper }
     );
-    
+
     expect(result.current.extensions.length).toBe(1);
   });
 });
