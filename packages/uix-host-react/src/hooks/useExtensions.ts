@@ -20,7 +20,7 @@ import type {
 
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
-import { useHost } from "./useHost.js";
+import { useHost } from "./useHost";
 import { ExtensibleComponentContext } from "../extensible-component-context";
 
 /**
@@ -183,6 +183,6 @@ export function useExtensions<
       ),
     baseDeps
   );
-
+   
   return { extensions, loading: host.loading, error: hostError };
 }

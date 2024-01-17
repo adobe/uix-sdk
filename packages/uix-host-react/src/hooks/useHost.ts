@@ -15,7 +15,7 @@ import { Host } from "@adobe/uix-host";
 import {
   ExtensionContext,
   ExtensibilityContext,
-} from "../extension-context.js";
+} from "../extension-context";
 
 /**
  * @public
