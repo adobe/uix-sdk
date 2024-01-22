@@ -26,7 +26,7 @@
     "report": "run-s clean report:*",
     "report:api": "node scripts/generate-docs.mjs --no-markdown",
     "report:size": "node scripts/bundler.mjs report",
-    "test": "run-s test:unit test:subtests",
+    "test": "run-s lint test:unit test:subtests",
     "test:subtests": "npm run any test",
     "test:unit": "jest",
     "test:unit:watch": "jest --watch"
