@@ -192,7 +192,10 @@ export class Guest<
       try {
         const result = await timeoutPromise(
           () => `Calling ${formatHostMethodAddress(address)}`,
-          this.invokeAwaiter(this.hostConnection.getRemoteApi().invokeHostMethod, address),
+          this.invokeAwaiter(
+            this.hostConnection.getRemoteApi().invokeHostMethod,
+            address
+          ),
           10000
         );
         return result;
@@ -210,13 +213,16 @@ export class Guest<
    * @param address
    * @private
    */
-  private async invokeChecker<T>(invoker: RemoteMethodInvoker<unknown>, address:HostMethodAddress<unknown[]>):Promise<unknown> {
+  private async invokeChecker<T>(
+    invoker: RemoteMethodInvoker<unknown>,
+    address: HostMethodAddress<unknown[]>
+  ): Promise<unknown> {
     try {
-      const res = await invoker(address)
-      return new Promise(resolve => resolve(res))
+      const res = await invoker(address);
+      return new Promise((resolve) => resolve(res));
     } catch (e) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      return this.invokeChecker(invoker, address)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return this.invokeChecker(invoker, address);
     }
   }
 
@@ -225,18 +231,23 @@ export class Guest<
    * @param address
    * @private
    */
-  private async invokeAwaiter(invoker: RemoteMethodInvoker<unknown>, address:HostMethodAddress<unknown[]>): Promise<any> {
+  private async invokeAwaiter(
+    invoker: RemoteMethodInvoker<unknown>,
+    address: HostMethodAddress<unknown[]>
+  ): Promise<any> {
     const final = setTimeout(() => {
-      return new Promise((resolve, reject) => reject(`${address} doesn't exist`))
+      return new Promise((resolve, reject) =>
+        reject(`${address} doesn't exist`)
+      );
     }, 10000);
-    const res = await this.invokeChecker(invoker, address)
+    const res = await this.invokeChecker(invoker, address);
     return new Promise((resolve) => {
-      clearTimeout(final)
-      return resolve(res)
+      clearTimeout(final);
+      return resolve(res);
     }).catch((e) => {
-      clearTimeout(final)
+      clearTimeout(final);
       return e;
-    })
+    });
   }
   private timeout = 10000;
   protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
@@ -269,7 +280,7 @@ export class Guest<
    */
   async _connect() {
     this.emit("beforeconnect", { guest: this });
-    console.log("CONNECT")
+    console.log("CONNECT");
     try {
       const hostConnectionPromise = connectParentWindow<HostConnection>(
         {
@@ -282,7 +293,7 @@ export class Guest<
 
       this.hostConnectionPromise = hostConnectionPromise;
       this.hostConnection = await this.hostConnectionPromise;
-      console.log("this.hostConnection", this.hostConnection)
+      console.log("this.hostConnection", this.hostConnection);
       this.emit("connected", { guest: this });
     } catch (e) {
       this.emit("error", { guest: this, error: e });
@@ -293,7 +304,7 @@ export class Guest<
       this.sharedContext = new SharedContext(
         await this.hostConnection.getRemoteApi().getSharedContext()
       );
-      console.log("this.sharedContext", this.sharedContext)
+      console.log("this.sharedContext", this.sharedContext);
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getSharedContext failed!", e);
@@ -303,7 +314,7 @@ export class Guest<
       this.configuration = await this.hostConnection
         .getRemoteApi()
         .getConfiguration();
-      console.log("this.configuration", this.configuration)
+      console.log("this.configuration", this.configuration);
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getConfiguration failed!", e);
