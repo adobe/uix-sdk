@@ -280,7 +280,6 @@ export class Guest<
    */
   async _connect() {
     this.emit("beforeconnect", { guest: this });
-    console.log("CONNECT");
     try {
       const hostConnectionPromise = connectParentWindow<HostConnection>(
         {
@@ -293,7 +292,6 @@ export class Guest<
 
       this.hostConnectionPromise = hostConnectionPromise;
       this.hostConnection = await this.hostConnectionPromise;
-      console.log("this.hostConnection", this.hostConnection);
       this.emit("connected", { guest: this });
     } catch (e) {
       this.emit("error", { guest: this, error: e });
@@ -304,7 +302,6 @@ export class Guest<
       this.sharedContext = new SharedContext(
         await this.hostConnection.getRemoteApi().getSharedContext()
       );
-      console.log("this.sharedContext", this.sharedContext);
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getSharedContext failed!", e);
@@ -314,7 +311,6 @@ export class Guest<
       this.configuration = await this.hostConnection
         .getRemoteApi()
         .getConfiguration();
-      console.log("this.configuration", this.configuration);
     } catch (e) {
       this.emit("error", { guest: this, error: e });
       this.logger.error("getConfiguration failed!", e);
