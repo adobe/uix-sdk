@@ -72,7 +72,7 @@ const defaultIFrameProps: FrameProps = {
   },
 };
 
-const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
+const defaultSandbox = "allow-scripts allow-forms allow-same-origin allow-popups";
 
 /**
  * An iframe that attaches to a running GuestServer, to display visible UI pages
