@@ -17,6 +17,8 @@ import type {
   NamedEvent,
   CrossRealmObject,
   VirtualApi,
+  RemoteMethodInvoker,
+  HostMethodAddress,
 } from "@adobe/uix-core";
 import {
   Emitter,
@@ -190,7 +192,10 @@ export class Guest<
       try {
         const result = await timeoutPromise(
           () => `Calling ${formatHostMethodAddress(address)}`,
-          this.hostConnection.getRemoteApi().invokeHostMethod(address),
+          this.invokeAwaiter(
+            this.hostConnection.getRemoteApi().invokeHostMethod,
+            address
+          ),
           10000
         );
         return result;
@@ -202,6 +207,48 @@ export class Guest<
       }
     }
   );
+
+  /**
+   * @param invoker
+   * @param address
+   * @private
+   */
+  private async invokeChecker<T>(
+    invoker: RemoteMethodInvoker<unknown>,
+    address: HostMethodAddress<unknown[]>
+  ): Promise<unknown> {
+    try {
+      const res = await invoker(address);
+      return new Promise((resolve) => resolve(res));
+    } catch (e) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return this.invokeChecker(invoker, address);
+    }
+  }
+
+  /**
+   * @param invoker
+   * @param address
+   * @private
+   */
+  private async invokeAwaiter(
+    invoker: RemoteMethodInvoker<unknown>,
+    address: HostMethodAddress<unknown[]>
+  ): Promise<any> {
+    const final = setTimeout(() => {
+      return new Promise((resolve, reject) =>
+        reject(`${address} doesn't exist`)
+      );
+    }, 10000);
+    const res = await this.invokeChecker(invoker, address);
+    return new Promise((resolve) => {
+      clearTimeout(final);
+      return resolve(res);
+    }).catch((e) => {
+      clearTimeout(final);
+      return e;
+    });
+  }
   private timeout = 10000;
   protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
   protected hostConnection!: CrossRealmObject<HostConnection>;
