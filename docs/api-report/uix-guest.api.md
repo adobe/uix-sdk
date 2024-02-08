@@ -133,8 +133,8 @@ export function register<Outgoing extends GuestApis>(config: GuestConfigWithMeth
 
 // Warnings were encountered during analysis:
 //
-// src/guest.ts:41:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
-// src/guest.ts:54:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
+// src/guest.ts:43:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
+// src/guest.ts:56:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
 // src/index.ts:85:1 - (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "GuestConfig"
 
 ```
