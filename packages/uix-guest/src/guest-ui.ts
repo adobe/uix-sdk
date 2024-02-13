@@ -107,7 +107,9 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
           ? doc.borderBoxSize[0]
           : (doc.borderBoxSize as unknown as ResizeObserverSize);
         this.hostConnection.getRemoteApi().onIframeResize({
-          height: borderBoxSize.blockSize,
+          height:
+            borderBoxSize.blockSize +
+            this.calculateChildrenMargin(doc.target.querySelectorAll("*")),
           width: borderBoxSize.inlineSize,
         });
       });
@@ -116,6 +118,29 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
 
     this.logger.log("Will add resize observer on connect");
   }
+
+  /**
+   *
+   * @param elems
+   */
+  private calculateChildrenMargin(elems: NodeListOf<any>): number {
+    let margin = 0;
+
+    for (let i = 0; i < elems.length; i++) {
+      const style = elems[i].currentStyle || window.getComputedStyle(elems[i]);
+
+      if (style.marginTop !== "0px") {
+        margin = margin + parseInt(style.marginTop);
+      }
+
+      if (style.marginBottom !== "0px") {
+        margin = margin + parseInt(style.marginBottom);
+      }
+    }
+
+    return margin;
+  }
+
   /**
    * {@inheritDoc Guest.contextchange}
    * @eventProperty
