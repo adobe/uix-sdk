@@ -21,7 +21,8 @@ import type {
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
 import { useHost } from "./useHost";
-import { ExtensibleComponentContext } from "../extensible-component-context";
+import { ExtensibleComponentBoundaryContext } from "../extensible-component-context";
+import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 
 /**
  * @internal
@@ -121,11 +122,15 @@ export function useExtensions<
     };
   }
 
-  const {
-    extensionPoint: currentComponentExtensionPoint,
-    service,
-    version,
-  } = useContext(ExtensibleComponentContext);
+  const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
+  const boundryExtensionPointsAsString = extensionPoints?.map(
+    ({
+      service,
+      extensionPoint,
+      version,
+    }: ExtensionRegistryEndpointRegistration) =>
+      `${service}/${extensionPoint}/${version}`
+  );
 
   const baseDeps = [host, ...deps];
   const {
@@ -137,22 +142,21 @@ export function useExtensions<
   const getExtensions = useCallback(() => {
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
+
+    // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
+    // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
-      //proceed only if this guest supports provided extension point
       if (
-        currentComponentExtensionPoint &&
-        guest.extensionPoints &&
-        !guest.extensionPoints.includes(
-          `${service}/${currentComponentExtensionPoint}/${version}`
+        isGuestExtensionPointInBoundary(
+          boundryExtensionPointsAsString,
+          guest.extensionPoints
         )
       ) {
-        continue;
+        if (provides) {
+          guest.provide(provides);
+        }
+        newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
       }
-
-      if (provides) {
-        guest.provide(provides);
-      }
-      newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
   }, [...baseDeps, requires]);
@@ -185,4 +189,17 @@ export function useExtensions<
   );
 
   return { extensions, loading: host.loading, error: hostError };
+}
+
+function isGuestExtensionPointInBoundary(
+  boundryExtensionPointsAsString: string[],
+  guestExtensionPoints: string[]
+) {
+  return (
+    boundryExtensionPointsAsString?.length &&
+    guestExtensionPoints?.length &&
+    guestExtensionPoints.some((extensionPoint) =>
+      boundryExtensionPointsAsString.includes(extensionPoint)
+    )
+  );
 }

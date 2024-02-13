@@ -13,46 +13,32 @@ governing permissions and limitations under the License.
 /**
  * @hidden
  */
-import React, { createContext, useMemo } from "react";
+import React, { createContext } from "react";
 import type { PropsWithChildren } from "react";
 import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 
 /**
  * @internal
  */
-export const ExtensibleComponentContext =
-  createContext<ExtensionRegistryEndpointRegistration>(
-    {} as unknown as ExtensionRegistryEndpointRegistration
+export const ExtensibleComponentBoundaryContext =
+  createContext<ExtensionRegistryEndpointRegistration[]>(
+    null as ExtensionRegistryEndpointRegistration[]
   );
 
 export type ExtensibleComponentProps = PropsWithChildren<{
-  extensionPoint: string;
-  service: string;
-  version: string;
+  extensionPoints: ExtensionRegistryEndpointRegistration[];
 }>;
 
 /*
  * Wrapper that adds an extension point context to subcomponent tree.
  */
-export const ExtensibleComponent = ({
-  extensionPoint,
-  service,
-  version,
+export const ExtensibleComponentBoundary = ({
+  extensionPoints,
   children,
 }: ExtensibleComponentProps) => {
-  // memoized to avoid re-renders
-  const value = useMemo(
-    () => ({
-      extensionPoint,
-      service,
-      version,
-    }),
-    [extensionPoint, service, version]
-  );
-
   return (
-    <ExtensibleComponentContext.Provider value={value}>
+    <ExtensibleComponentBoundaryContext.Provider value={extensionPoints}>
       {children}
-    </ExtensibleComponentContext.Provider>
+    </ExtensibleComponentBoundaryContext.Provider>
   );
 };

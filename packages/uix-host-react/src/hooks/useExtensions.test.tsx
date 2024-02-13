@@ -14,7 +14,7 @@ import { GuestApis, VirtualApi } from "@adobe/uix-core";
 import { Host } from "@adobe/uix-host";
 import { renderHook } from "@testing-library/react";
 import React, { ReactNode } from "react";
-import { ExtensibleComponentContext } from "../extensible-component-context";
+import { ExtensibleComponentBoundaryContext } from "../extensible-component-context";
 import { UseExtensionsConfig, useExtensions } from "./useExtensions";
 import { useHost } from "./useHost";
 
@@ -84,24 +84,26 @@ const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
   } as UseExtensionsConfig<GuestApis, VirtualApi>);
 
 describe("useExtension hook", () => {
-  test("returns all extensions when no ExtensibleComponentContext value is provided", async () => {
+  test("returns all extensions when no ExtensibleComponentBoundaryContext value is provided", () => {
     const { result } = renderHook(() =>
       useExtensions<GuestApis, VirtualApi>(configFactory, [])
     );
     expect(result.current.extensions.length).toBe(4);
   });
 
-  test("returns filtered extensions when ExtensibleComponentContext with extensionPoints value is provided", () => {
+  test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <ExtensibleComponentContext.Provider
-        value={{
-          service: "service-1",
-          extensionPoint: "extension-point-a",
-          version: "v1",
-        }}
+      <ExtensibleComponentBoundaryContext.Provider
+        value={[
+          {
+            service: "service-1",
+            extensionPoint: "extension-point-a",
+            version: "v1",
+          },
+        ]}
       >
         {children}
-      </ExtensibleComponentContext.Provider>
+      </ExtensibleComponentBoundaryContext.Provider>
     );
 
     const { result } = renderHook(
@@ -112,17 +114,17 @@ describe("useExtension hook", () => {
     expect(result.current.extensions.length).toBe(2);
   });
 
-  test("returns filtered extensions when ExtensibleComponentContext with extensionPoints value is provided with different version", () => {
+  test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <ExtensibleComponentContext.Provider
-        value={{
+      <ExtensibleComponentBoundaryContext.Provider
+        value={[{
           service: "service-1",
           extensionPoint: "extension-point-a",
           version: "v2",
-        }}
+        }]}
       >
         {children}
-      </ExtensibleComponentContext.Provider>
+      </ExtensibleComponentBoundaryContext.Provider>
     );
 
     const { result } = renderHook(
