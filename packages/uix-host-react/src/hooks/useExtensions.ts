@@ -21,7 +21,7 @@ import type {
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
 import { useHost } from "./useHost";
-import { ExtensibleComponentBoundaryContext } from "../extensible-component-context";
+import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
 import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 
 /**
@@ -147,6 +147,8 @@ export function useExtensions<
     // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
       if (
+        !boundryExtensionPointsAsString ||
+        !guest.extensionPoints ||
         isGuestExtensionPointInBoundary(
           boundryExtensionPointsAsString,
           guest.extensionPoints

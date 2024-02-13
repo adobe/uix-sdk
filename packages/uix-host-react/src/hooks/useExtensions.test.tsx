@@ -14,7 +14,7 @@ import { GuestApis, VirtualApi } from "@adobe/uix-core";
 import { Host } from "@adobe/uix-host";
 import { renderHook } from "@testing-library/react";
 import React, { ReactNode } from "react";
-import { ExtensibleComponentBoundaryContext } from "../extensible-component-context";
+import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBoundary";
 import { UseExtensionsConfig, useExtensions } from "./useExtensions";
 import { useHost } from "./useHost";
 
@@ -93,8 +93,8 @@ describe("useExtension hook", () => {
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <ExtensibleComponentBoundaryContext.Provider
-        value={[
+      <ExtensibleComponentBoundary
+        extensionPoints={[
           {
             service: "service-1",
             extensionPoint: "extension-point-a",
@@ -103,7 +103,7 @@ describe("useExtension hook", () => {
         ]}
       >
         {children}
-      </ExtensibleComponentBoundaryContext.Provider>
+      </ExtensibleComponentBoundary>
     );
 
     const { result } = renderHook(
@@ -116,8 +116,8 @@ describe("useExtension hook", () => {
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <ExtensibleComponentBoundaryContext.Provider
-        value={[
+      <ExtensibleComponentBoundary
+        extensionPoints={[
           {
             service: "service-1",
             extensionPoint: "extension-point-a",
@@ -126,7 +126,7 @@ describe("useExtension hook", () => {
         ]}
       >
         {children}
-      </ExtensibleComponentBoundaryContext.Provider>
+      </ExtensibleComponentBoundary>
     );
 
     const { result } = renderHook(
