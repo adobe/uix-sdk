@@ -117,11 +117,13 @@ describe("useExtension hook", () => {
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <ExtensibleComponentBoundaryContext.Provider
-        value={[{
-          service: "service-1",
-          extensionPoint: "extension-point-a",
-          version: "v2",
-        }]}
+        value={[
+          {
+            service: "service-1",
+            extensionPoint: "extension-point-a",
+            version: "v2",
+          },
+        ]}
       >
         {children}
       </ExtensibleComponentBoundaryContext.Provider>

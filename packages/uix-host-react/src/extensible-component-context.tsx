@@ -20,10 +20,9 @@ import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 /**
  * @internal
  */
-export const ExtensibleComponentBoundaryContext =
-  createContext<ExtensionRegistryEndpointRegistration[]>(
-    null as ExtensionRegistryEndpointRegistration[]
-  );
+export const ExtensibleComponentBoundaryContext = createContext<
+  ExtensionRegistryEndpointRegistration[]
+>(null as ExtensionRegistryEndpointRegistration[]);
 
 export type ExtensibleComponentProps = PropsWithChildren<{
   extensionPoints: ExtensionRegistryEndpointRegistration[];
