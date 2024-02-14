@@ -46,6 +46,8 @@ testem.log
 /typings
 *.tsbuildinfo
 .parcel-cache
+jest-cache
+coverage
 
 # System Files
 .DS_Store

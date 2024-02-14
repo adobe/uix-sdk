@@ -32,6 +32,7 @@ const jestConfig = {
       ],
     }),
     sdkProject("host", {}),
+    sdkProject("host-react", {}),
   ],
 };
 

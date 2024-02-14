@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
   GuestConnection,
   GuestApis,
@@ -20,7 +20,9 @@ import type {
 
 import { Host, HostEvents } from "@adobe/uix-host";
 import type { CapabilitySpec } from "@adobe/uix-host";
-import { useHost } from "./useHost.js";
+import { useHost } from "./useHost";
+import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
+import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 
 /**
  * @internal
@@ -120,6 +122,16 @@ export function useExtensions<
     };
   }
 
+  const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
+  const boundryExtensionPointsAsString = extensionPoints?.map(
+    ({
+      service,
+      extensionPoint,
+      version,
+    }: ExtensionRegistryEndpointRegistration) =>
+      `${service}/${extensionPoint}/${version}`
+  );
+
   const baseDeps = [host, ...deps];
   const {
     requires,
@@ -130,11 +142,23 @@ export function useExtensions<
   const getExtensions = useCallback(() => {
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
+
+    // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
+    // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
-      if (provides) {
-        guest.provide(provides);
+      if (
+        !boundryExtensionPointsAsString ||
+        !guest.extensionPoints ||
+        isGuestExtensionPointInBoundary(
+          boundryExtensionPointsAsString,
+          guest.extensionPoints
+        )
+      ) {
+        if (provides) {
+          guest.provide(provides);
+        }
+        newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
       }
-      newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
   }, [...baseDeps, requires]);
@@ -167,4 +191,17 @@ export function useExtensions<
   );
 
   return { extensions, loading: host.loading, error: hostError };
+}
+
+function isGuestExtensionPointInBoundary(
+  boundryExtensionPointsAsString: string[],
+  guestExtensionPoints: string[]
+) {
+  return (
+    boundryExtensionPointsAsString?.length &&
+    guestExtensionPoints?.length &&
+    guestExtensionPoints.some((extensionPoint) =>
+      boundryExtensionPointsAsString.includes(extensionPoint)
+    )
+  );
 }

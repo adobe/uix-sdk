@@ -143,6 +143,27 @@ function App() {
 }
 ```
 
+#### Extension Boundaries
+Inside `<Extensible>` component tree, extension boundaries can be used to specify what extensionPoints are applicable to all child components in this subtree. In other words, this component subtree will only show extensions that has extensionPoint specified in it's surrounding boundary, filtering out all other extensions. 
+
+This feature is optional and can be safely omitted if not required. If not enclosed within any boundary, components will show or enable all applicable extensions.
+
+```
+import type { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
+import { ExtensibleComponentBoundary } from "@adobe/uix-host-react";
+
+const extensionPoints: ExtensionRegistryEndpointRegistration[] = [
+  { extensionPoint: "cf-editor", service: "aem", version: "1" },
+];
+
+function App() {
+  return <ExtensibleComponentBoundary extensionPoints={extensionPoints}>
+      /* Components that use extensions by utilizing useExtensions() hook */
+  </ExtensibleComponentBoundary>
+}
+
+```
+
 ### Usage - Guests
 
 An extension has its own runtime inside a Host app. It starts with one hidden

@@ -12,10 +12,7 @@ governing permissions and limitations under the License.
 
 import { useContext } from "react";
 import { Host } from "@adobe/uix-host";
-import {
-  ExtensionContext,
-  ExtensibilityContext,
-} from "../extension-context.js";
+import { ExtensionContext, ExtensibilityContext } from "../extension-context";
 
 /**
  * @public
