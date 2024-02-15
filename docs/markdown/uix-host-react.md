@@ -32,12 +32,14 @@
 
 |  Variable | Description |
 |  --- | --- |
+|  [ExtensibleComponentBoundary](./uix-host-react.extensiblecomponentboundary.md) | Wrapper that adds an extension point context to subcomponent tree. |
 |  [GuestUIFrame](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
 
 ## Type Aliases
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md) |  |
 |  [FrameProps](./uix-host-react.frameprops.md) |  |
 |  [UseHostResponse](./uix-host-react.usehostresponse.md) |  |
 

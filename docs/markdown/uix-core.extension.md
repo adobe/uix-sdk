@@ -21,6 +21,7 @@ This interface is likely to expand. As the metadata from the extension registry 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [configuration?](./uix-core.extension.configuration.md) |  | Record&lt;string, unknown&gt; | _(Optional)_ An extension configuration |
+|  [extensionPoints?](./uix-core.extension.extensionpoints.md) |  | string\[\] | _(Optional)_ extension points for this extension |
 |  [id](./uix-core.extension.id.md) |  | string | Unique ID of the extension. Must be unique across entire app |
 |  [url](./uix-core.extension.url.md) |  | string | Location of the document to load for the [GuestServer](./uix-guest.guestserver.md) |
 
