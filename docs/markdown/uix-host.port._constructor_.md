@@ -18,6 +18,7 @@ constructor(config: {
         logger?: Console;
         sharedContext: Record<string, unknown>;
         configuration?: Record<string, unknown>;
+        extensionPoints?: string[];
         events: Emits;
     });
 ```
@@ -26,5 +27,5 @@ constructor(config: {
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  config | { owner: string; id: string; url: URL; runtimeContainer: HTMLElement; options: [PortOptions](./uix-host.portoptions.md)<!-- -->; logger?: Console; sharedContext: Record&lt;string, unknown&gt;; configuration?: Record&lt;string, unknown&gt;; events: Emits; } |  |
+|  config | { owner: string; id: string; url: URL; runtimeContainer: HTMLElement; options: [PortOptions](./uix-host.portoptions.md)<!-- -->; logger?: Console; sharedContext: Record&lt;string, unknown&gt;; configuration?: Record&lt;string, unknown&gt;; extensionPoints?: string\[\]; events: Emits; } |  |
 

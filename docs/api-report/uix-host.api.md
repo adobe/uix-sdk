@@ -160,6 +160,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         logger?: Console;
         sharedContext: Record<string, unknown>;
         configuration?: Record<string, unknown>;
+        extensionPoints?: string[];
         events: Emits;
     });
     // (undocumented)
@@ -168,6 +169,8 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     };
     attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
+    // (undocumented)
+    extensionPoints: string[];
     hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
     load(): Promise<void>;

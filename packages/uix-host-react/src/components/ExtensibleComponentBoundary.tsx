@@ -24,12 +24,15 @@ export const ExtensibleComponentBoundaryContext = createContext<
   ExtensionRegistryEndpointRegistration[]
 >(null as ExtensionRegistryEndpointRegistration[]);
 
+/** @public */
 export type ExtensibleComponentProps = PropsWithChildren<{
   extensionPoints: ExtensionRegistryEndpointRegistration[];
 }>;
 
-/*
+/**
  * Wrapper that adds an extension point context to subcomponent tree.
+ *
+ * @public
  */
 export const ExtensibleComponentBoundary = ({
   extensionPoints,

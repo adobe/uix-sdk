@@ -9,6 +9,7 @@
 import type { AttrTokens } from '@adobe/uix-host';
 import type { CapabilitySpec } from '@adobe/uix-host';
 import { Context } from 'react';
+import { ExtensionRegistryEndpointRegistration } from '@adobe/uix-host';
 import type { ExtensionsProvider } from '@adobe/uix-host';
 import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
@@ -17,6 +18,7 @@ import { HostConfig } from '@adobe/uix-host';
 import type { IframeHTMLAttributes } from 'react';
 import type { PortOptions } from '@adobe/uix-host';
 import type { PropsWithChildren } from 'react';
+import { default as React_2 } from 'react';
 import type { RemoteGuestApis } from '@adobe/uix-core';
 import type { SandboxToken } from '@adobe/uix-host';
 import type { SharedContextValues } from '@adobe/uix-host';
@@ -31,6 +33,17 @@ export type ExtensibilityContext = {
 
 // @public
 export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): JSX.Element;
+
+// @public
+export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => JSX.Element;
+
+// @internal (undocumented)
+export const ExtensibleComponentBoundaryContext: React_2.Context<ExtensionRegistryEndpointRegistration[]>;
+
+// @public (undocumented)
+export type ExtensibleComponentProps = PropsWithChildren<{
+    extensionPoints: ExtensionRegistryEndpointRegistration[];
+}>;
 
 // @public (undocumented)
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
