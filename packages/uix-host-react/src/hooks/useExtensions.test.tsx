@@ -12,7 +12,7 @@
 
 import { GuestApis, VirtualApi } from "@adobe/uix-core";
 import { Host } from "@adobe/uix-host";
-import { renderHook } from "@testing-library/react";
+import { renderHook } from "@testing-library/react-hooks";
 import React, { ReactNode } from "react";
 import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBoundary";
 import { UseExtensionsConfig, useExtensions } from "./useExtensions";
