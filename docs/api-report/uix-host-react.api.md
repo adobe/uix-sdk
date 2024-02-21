@@ -32,10 +32,10 @@ export type ExtensibilityContext = {
 };
 
 // @public
-export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): JSX.Element;
+export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
 
 // @public
-export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => JSX.Element;
+export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React_2.JSX.Element;
 
 // @internal (undocumented)
 export const ExtensibleComponentBoundaryContext: React_2.Context<ExtensionRegistryEndpointRegistration[]>;
@@ -63,7 +63,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 export const ExtensionContext: Context<ExtensibilityContext>;
 
 // @public
-export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => JSX.Element;
+export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => React_2.JSX.Element;
 
 // Warning: (ae-forgotten-export) The symbol "FrameProps" needs to be exported by the entry point index.d.ts
 //

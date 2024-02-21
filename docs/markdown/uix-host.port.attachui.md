@@ -21,5 +21,5 @@ attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Pr
 
 **Returns:**
 
-Promise&lt;CrossRealmObject&lt;T&gt;&gt;
+Promise&lt;[CrossRealmObject](./uix-core.crossrealmobject.md)<!-- -->&lt;T&gt;&gt;
 

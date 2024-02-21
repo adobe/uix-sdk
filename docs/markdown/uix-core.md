@@ -11,12 +11,22 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 |  Class | Description |
 |  --- | --- |
 |  [Emitter](./uix-core.emitter.md) | <p>Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) whose [Emitter.addEventListener()](./uix-core.emitter.addeventlistener.md) method returns an anonymous function which unsubscribes the original handler.</p><p>Also provides typed events via generics. You can create or extend this class to define custom emitters with known event names and signatures.</p> |
+|  [Tunnel](./uix-core.tunnel.md) | **_(ALPHA)_** An EventEmitter across two documents. It emits events on the remote document and takes subscribers from the local document. |
+
+## Functions
+
+|  Function | Description |
+|  --- | --- |
+|  [connectIframe(frame, tunnelOptions, apiToSend)](./uix-core.connectiframe.md) | **_(ALPHA)_** Create a CrossRealmObject simulating objects from the provided iframe runtime. |
+|  [connectParentWindow(tunnelOptions, apiToSend)](./uix-core.connectparentwindow.md) | **_(ALPHA)_** Create a CrossRealmObject in an iframe, simulating objects from the parent window. |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
+|  [CrossRealmObject](./uix-core.crossrealmobject.md) | **_(ALPHA)_** Representation of an object on the other side of an iframe/window divide between JS runtimes. |
 |  [Extension](./uix-core.extension.md) | /\*\* An individual UI extension retrieved from the registry. |
+|  [TunnelConfig](./uix-core.tunnelconfig.md) | **_(ALPHA)_** |
 
 ## Type Aliases
 

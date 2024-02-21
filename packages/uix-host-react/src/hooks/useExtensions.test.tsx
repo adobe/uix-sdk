@@ -18,7 +18,7 @@ import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBo
 import { UseExtensionsConfig, useExtensions } from "./useExtensions";
 import { useHost } from "./useHost";
 
-// jest.mock("@adobe/uix-host");
+jest.mock("@adobe/uix-host");
 jest.mock("./useHost");
 
 //dummy extensions/guests data
