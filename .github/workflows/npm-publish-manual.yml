@@ -9,7 +9,7 @@ on:
 
 jobs:
   publish:
-    if: github.repository == 'adobe/uix-sdk'
+    if: github.repository == 'nitinja/uix-sdk'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,10 +24,7 @@ jobs:
         run: npm install
       - name: Lint
         run: npm run lint
+      - name: Build
+        run: npm run build
       - name: Test
         run: npm run test
-      - name: Publish SDK packages
-        run: node scripts/release.mjs ${{ github.event.inputs.level }}
-        env:
-          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
