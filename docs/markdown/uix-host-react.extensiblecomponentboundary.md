@@ -2,12 +2,23 @@
 
 [Home](./index.md) &gt; [@adobe/uix-host-react](./uix-host-react.md) &gt; [ExtensibleComponentBoundary](./uix-host-react.extensiblecomponentboundary.md)
 
-## ExtensibleComponentBoundary variable
+## ExtensibleComponentBoundary() function
 
 Wrapper that adds an extension point context to subcomponent tree.
 
 **Signature:**
 
 ```typescript
-ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => JSX.Element
+ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React.JSX.Element
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  { extensionPoints, children, } | [ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md) |  |
+
+**Returns:**
+
+React.JSX.Element
+

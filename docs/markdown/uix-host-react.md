@@ -15,6 +15,8 @@
 |  Function | Description |
 |  --- | --- |
 |  [Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, })](./uix-host-react.extensible.md) | Declares an extensible area in an app, and provides host and extension objects to all descendents. The [useExtensions()](./uix-host-react.useextensions.md) hook can only be called in a descendent of this component. |
+|  [ExtensibleComponentBoundary({ extensionPoints, children, })](./uix-host-react.extensiblecomponentboundary.md) | Wrapper that adds an extension point context to subcomponent tree. |
+|  [GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps })](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
 |  [useExtensionListFetched()](./uix-host-react.useextensionlistfetched.md) | **_(BETA)_** Indicates if external extensions provider was processed. Returns true after passing extension list to the Host. |
 |  [useExtensions(configFactory, deps)](./uix-host-react.useextensions.md) | Fetch extensions which implement an API, provide them methods, and use them. |
 |  [useHost()](./uix-host-react.usehost.md) | **_(BETA)_** Retrieve the [Host](./uix-host.host.md) object hosting all extensions inside the current parent provider. |
@@ -27,13 +29,6 @@
 |  [GuestUIProps](./uix-host-react.guestuiprops.md) |  |
 |  [UseExtensionsConfig](./uix-host-react.useextensionsconfig.md) |  |
 |  [UseExtensionsResult](./uix-host-react.useextensionsresult.md) |  |
-
-## Variables
-
-|  Variable | Description |
-|  --- | --- |
-|  [ExtensibleComponentBoundary](./uix-host-react.extensiblecomponentboundary.md) | Wrapper that adds an extension point context to subcomponent tree. |
-|  [GuestUIFrame](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
 
 ## Type Aliases
 

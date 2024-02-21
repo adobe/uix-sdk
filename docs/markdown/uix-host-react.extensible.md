@@ -9,7 +9,7 @@ Declares an extensible area in an app, and provides host and extension objects t
 **Signature:**
 
 ```typescript
-export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): JSX.Element;
+export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): React.JSX.Element;
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ export declare function Extensible({ appName, children, extensionsProvider, gues
 
 **Returns:**
 
-JSX.Element
+React.JSX.Element
 
 ## Remarks
 
