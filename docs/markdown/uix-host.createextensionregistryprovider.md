@@ -4,6 +4,11 @@
 
 ## createExtensionRegistryProvider() function
 
+> Warning: This API is now obsolete.
+> 
+> use `createExtensionRegistryAsObjectsProvider()`
+> 
+
 Create a callback that fetches extensions from the registry.
 
 **Signature:**
