@@ -9,7 +9,7 @@ on:
 
 jobs:
   publish:
-    if: github.repository == 'adobe/uix-sdk'
+    if: github.repository == 'nitinja/uix-sdk'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
