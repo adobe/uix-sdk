@@ -118,6 +118,9 @@ async function fetchExtensionsFromRegistry(
   return await resp.json();
 }
 
+/**
+ * @deprecated
+ */
 function extensionRegistryExtensionsProvider(
   config: ExtensionRegistryConfig
 ): Promise<InstalledExtensions> {
@@ -140,13 +143,51 @@ function extensionRegistryExtensionsProvider(
 }
 
 /**
+ * Fetch & return published extension objects from registry
+ */
+function extensionRegistryExtensionsAsObjectsProvider(
+  config: ExtensionRegistryConfig
+): Promise<InstalledExtensions> {
+  const erEndpoint = buildEndpointPath(config);
+  return fetchExtensionsFromRegistry(config).then((out) =>
+    out.reduce((a, e: ExtensionDefinition) => {
+      if (e.status !== "PUBLISHED") {
+        return a;
+      }
+
+      return {
+        ...a,
+        [e.name]: {
+          id: e.name,
+          url: e.endpoints[erEndpoint].view[0].href,
+          extensionPoints: [erEndpoint],
+        },
+      };
+    }, {})
+  );
+}
+
+/**
  * Create a callback that fetches extensions from the registry.
  * @public
+ * @deprecated use `createExtensionRegistryAsObjectsProvider()`
  */
 export function createExtensionRegistryProvider(
   config: ExtensionRegistryConfig
 ): ExtensionsProvider {
   return function () {
     return extensionRegistryExtensionsProvider(config);
+  };
+}
+
+/**
+ * Create a callback that fetches extensions as objects from the registry.
+ * @public
+ */
+export function createExtensionRegistryAsObjectsProvider(
+  config: ExtensionRegistryConfig
+): ExtensionsProvider {
+  return function () {
+    return extensionRegistryExtensionsAsObjectsProvider(config);
   };
 }

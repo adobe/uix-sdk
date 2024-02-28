@@ -29,6 +29,9 @@ export type CapabilitySpec<T extends GuestApis> = {
 export function combineExtensionsFromProviders(...providers: Array<ExtensionsProvider>): ExtensionsProvider;
 
 // @public
+export function createExtensionRegistryAsObjectsProvider(config: ExtensionRegistryConfig): ExtensionsProvider;
+
+// @public @deprecated
 export function createExtensionRegistryProvider(config: ExtensionRegistryConfig): ExtensionsProvider;
 
 // @public (undocumented)
@@ -138,7 +141,7 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 export type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;
 
 // @internal
-export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
+export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-same-origin" | "allow-presentation" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
 
 // @internal
 export const mergeAttrValues: <T>(...tokenLists: AttrTokens<T>[]) => T[];
