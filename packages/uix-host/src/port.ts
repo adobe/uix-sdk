@@ -435,10 +435,7 @@ export class Port<GuestApi = unknown>
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
       } catch (e) {
-        this.logger.warn(
-          `Private method ${formatHostMethodAddress(address)} not found!`,
-          address
-        );
+        // ignore error, privateMethod gets called and works
       }
     }
     if (!methodCallee) {
