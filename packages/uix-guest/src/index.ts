@@ -76,7 +76,7 @@ governing permissions and limitations under the License.
 import type { Guest, GuestConfig } from "./guest.js";
 import { GuestUI } from "./guest-ui.js";
 import { GuestServer } from "./guest-server.js";
-import { GuestApis } from "@adobe/uix-core";
+import { GuestApis, GuestMetadata } from "@adobe/uix-core";
 
 /**
  * {@inheritdoc GuestConfig}
@@ -84,6 +84,7 @@ import { GuestApis } from "@adobe/uix-core";
  */
 type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
   methods: Outgoing;
+  metadata?: GuestMetadata;
 };
 
 /**
@@ -127,7 +128,7 @@ export async function register<Outgoing extends GuestApis>(
   config: GuestConfigWithMethods<Outgoing>
 ) {
   const guest = new GuestServer(config);
-  await guest.register(config.methods);
+  await guest.register(config.methods, config.metadata);
   return guest;
 }
 

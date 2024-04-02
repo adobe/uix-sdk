@@ -146,6 +146,9 @@ export function useExtensions<
     // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
     // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
+
+      console.log(">> in filtering> metadata...", guest.metadata);
+
       if (
         !boundryExtensionPointsAsString ||
         !guest.extensionPoints ||
