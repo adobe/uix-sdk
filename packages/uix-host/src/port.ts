@@ -140,7 +140,7 @@ export class Port<GuestApi = unknown>
 {
   public get apis() {
     if (this.isReady() && this.guestServer) {
-            const server = this.guestServer.getRemoteApi();
+      const server = this.guestServer.getRemoteApi();
       return server && server.apis;
     }
   }
