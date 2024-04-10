@@ -207,7 +207,7 @@ export function useExtensions<
 function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
   try {
     const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
-      (extension: {extensionPoint: string}) => extension?.extensionPoint
+      (extension: { extensionPoint: string }) => extension?.extensionPoint
     );
     const allExtensionPoints = [
       ...(guest.extensionPoints || []),
