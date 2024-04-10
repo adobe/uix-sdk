@@ -20,10 +20,15 @@
   "dependencies": {
     "@adobe/uix-core": "^0.9.1"
   },
+  "devDependencies": {
+    "ajv": "^8.12.0",
+    "js-yaml": "^4.1.0"
+  },
   "files": [
     "README.md",
     "dist",
     "src",
+    "scripts",
     "tsconfig.json"
   ],
   "homepage": "https://github.com/adobe/uix-sdk",
