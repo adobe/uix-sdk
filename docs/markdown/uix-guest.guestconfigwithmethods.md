@@ -10,7 +10,8 @@
 ```typescript
 declare type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
     methods: Outgoing;
+    metadata?: GuestMetadata;
 };
 ```
-**References:** [GuestConfig](./uix-guest.guestconfig.md)
+**References:** [GuestConfig](./uix-guest.guestconfig.md)<!-- -->, [GuestMetadata](./uix-core.guestmetadata.md)
 

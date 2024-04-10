@@ -9,7 +9,7 @@ Pass an interface of methods which Host may call as callbacks.
 **Signature:**
 
 ```typescript
-register(implementedMethods: Outgoing): Promise<void>;
+register(implementedMethods: Outgoing, metadata: GuestMetadata): Promise<void>;
 ```
 
 ## Parameters
@@ -17,6 +17,7 @@ register(implementedMethods: Outgoing): Promise<void>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  implementedMethods | Outgoing |  |
+|  metadata | [GuestMetadata](./uix-core.guestmetadata.md) |  |
 
 **Returns:**
 

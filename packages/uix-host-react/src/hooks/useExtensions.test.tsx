@@ -71,7 +71,7 @@ const guests = [
     },
     provide: jest.fn().mockName("guest.provide"),
   },
-];
+] as unknown as GuestApis[];
 jest.mocked(useHost).mockReturnValue({
   error: undefined,
   host: {

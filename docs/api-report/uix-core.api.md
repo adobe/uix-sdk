@@ -144,6 +144,9 @@ export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Reco
 // @internal (undocumented)
 export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
+// @public (undocumented)
+export type GuestMetadata = Record<string, any>;
+
 // @internal
 export interface HostConnection<T = unknown> {
     getConfiguration(): Record<string, unknown> | undefined;
@@ -261,7 +264,7 @@ export function wait(ms: number): Promise<unknown>;
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
-// src/types.ts:206:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
-// src/types.ts:219:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
+// src/types.ts:208:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
+// src/types.ts:221:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
 
 ```

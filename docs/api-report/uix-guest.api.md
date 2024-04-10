@@ -7,6 +7,7 @@
 import type { CrossRealmObject } from '@adobe/uix-core';
 import { Emitter } from '@adobe/uix-core';
 import { GuestApis } from '@adobe/uix-core';
+import { GuestMetadata } from '@adobe/uix-core';
 import type { HostConnection } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
@@ -85,6 +86,7 @@ class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
     // (undocumented)
     protected getLocalMethods(): {
         apis: Outgoing;
+        metadata: GuestMetadata;
         emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
@@ -98,7 +100,9 @@ class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
         })) => void;
     };
     host: Guest<Outgoing>["host"];
-    register(implementedMethods: Outgoing): Promise<void>;
+    // (undocumented)
+    metadata: GuestMetadata;
+    register(implementedMethods: Outgoing, metadata: GuestMetadata): Promise<void>;
     // (undocumented)
     sharedContext: SharedContext;
 }
