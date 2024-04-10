@@ -146,8 +146,8 @@ export function useExtensions<
     // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
     // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
-
-      const allExtensionPoints: string[] = getAllExtensionPointsFromGuest(guest);
+      const allExtensionPoints: string[] =
+        getAllExtensionPointsFromGuest(guest);
 
       if (
         !boundryExtensionPointsAsString ||

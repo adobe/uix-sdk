@@ -27,8 +27,8 @@
   "files": [
     "README.md",
     "dist",
-    "src",
     "scripts",
+    "src",
     "tsconfig.json"
   ],
   "homepage": "https://github.com/adobe/uix-sdk",
