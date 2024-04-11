@@ -215,7 +215,9 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
     ];
     return allExtensionPoints;
   } catch {
-    console.error("Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective.");
+    console.error(
+      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective."
+    );
     return [];
   }
 }
