@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host-react",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "publishConfig": {
     "access": "public"
   },
@@ -20,8 +20,8 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.9.1",
-    "@adobe/uix-host": "^0.9.1"
+    "@adobe/uix-core": "^0.9.2",
+    "@adobe/uix-host": "^0.9.2"
   },
   "devDependencies": {
     "@swc/jest": "^0.2.29",
