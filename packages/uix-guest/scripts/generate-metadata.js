@@ -28,10 +28,6 @@ const path = require("path");
 const Ajv = require("ajv");
 const ajv = new Ajv();
 
-console.log("file: ", fs.readFileSync(
-  "app.config.yaml"
-));
-
 const metadataSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   title: "Generated schema for Root",
@@ -118,13 +114,9 @@ function generateAppConfigFilePath(){
   // Get the directory of the current module file
   const currentDir = __dirname;
 
-  console.log(`Current directory: ${currentDir}`);
-
   // Navigate up to the project root
   const projectRoot = path.resolve(currentDir, '../../../../');
-
-  console.log(`Project root: ${projectRoot}`);
-
+  
   return path.resolve(projectRoot, 'app.config.yaml');
 }
 
