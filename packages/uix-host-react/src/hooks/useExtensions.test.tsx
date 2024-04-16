@@ -56,7 +56,22 @@ const guests = [
 
     provide: jest.fn().mockName("guest.provide"),
   },
-];
+  {
+    id: "extension-5",
+    extensionPoints: [],
+    metadata: {
+      extensions: [
+        {
+          extensionPoint: "service-1/extension-point-a/v1",
+        },
+        {
+          extensionPoint: "service-1/extension-point-a/v2",
+        },
+      ],
+    },
+    provide: jest.fn().mockName("guest.provide"),
+  },
+] as unknown as GuestApis[];
 jest.mocked(useHost).mockReturnValue({
   error: undefined,
   host: {
@@ -88,7 +103,7 @@ describe("useExtension hook", () => {
     const { result } = renderHook(() =>
       useExtensions<GuestApis, VirtualApi>(configFactory, [])
     );
-    expect(result.current.extensions.length).toBe(4);
+    expect(result.current.extensions.length).toBe(5);
   });
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided", () => {
@@ -111,7 +126,7 @@ describe("useExtension hook", () => {
       { wrapper }
     );
 
-    expect(result.current.extensions.length).toBe(2);
+    expect(result.current.extensions.length).toBe(3);
   });
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
@@ -134,6 +149,6 @@ describe("useExtension hook", () => {
       { wrapper }
     );
 
-    expect(result.current.extensions.length).toBe(1);
+    expect(result.current.extensions.length).toBe(2);
   });
 });

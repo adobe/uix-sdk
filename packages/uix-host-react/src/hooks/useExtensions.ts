@@ -19,7 +19,7 @@ import type {
 } from "@adobe/uix-core";
 
 import { Host, HostEvents } from "@adobe/uix-host";
-import type { CapabilitySpec } from "@adobe/uix-host";
+import type { CapabilitySpec, Port } from "@adobe/uix-host";
 import { useHost } from "./useHost";
 import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
 import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
@@ -146,12 +146,15 @@ export function useExtensions<
     // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
     // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
+      const allExtensionPoints: string[] =
+        getAllExtensionPointsFromGuest(guest);
+
       if (
         !boundryExtensionPointsAsString ||
-        !guest.extensionPoints ||
+        !allExtensionPoints.length ||
         isGuestExtensionPointInBoundary(
           boundryExtensionPointsAsString,
-          guest.extensionPoints
+          allExtensionPoints
         )
       ) {
         if (provides) {
@@ -191,6 +194,32 @@ export function useExtensions<
   );
 
   return { extensions, loading: host.loading, error: hostError };
+}
+
+/**
+ * Each extension/guest can have
+ *    1. `extensioPoints` field as an array of strings
+ *    2. Metadata with array of extensionPoints. If the metadata is present, we need to use it for fitering the extensions.
+ * Returns cumulative extension points.
+ * @param guest
+ * @returns array of extension points as strings
+ */
+function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
+  try {
+    const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
+      (extension: { extensionPoint: string }) => extension?.extensionPoint
+    );
+    const allExtensionPoints = [
+      ...(guest.extensionPoints || []),
+      ...(guestExtensionPointsFromMetadata || []),
+    ];
+    return allExtensionPoints;
+  } catch {
+    console.error(
+      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective."
+    );
+    return [];
+  }
 }
 
 function isGuestExtensionPointInBoundary(

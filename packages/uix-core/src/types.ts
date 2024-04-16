@@ -39,6 +39,8 @@ export interface GuestApis {
   [k: string]: GuestApiNS;
 }
 
+export type GuestMetadata = Record<string, any>;
+
 /**
  * @internal
  */

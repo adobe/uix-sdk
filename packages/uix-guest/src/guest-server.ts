@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { GuestApis } from "@adobe/uix-core";
+import type { GuestApis, GuestMetadata } from "@adobe/uix-core";
 import type { SharedContext } from "./guest";
 import { Guest } from "./guest";
 
@@ -27,10 +27,12 @@ import { Guest } from "./guest";
  */
 export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
   private localMethods: Outgoing;
+  metadata: GuestMetadata;
   protected getLocalMethods() {
     return {
       ...super.getLocalMethods(),
       apis: this.localMethods,
+      metadata: this.metadata,
     };
   }
   /**
@@ -49,8 +51,9 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
    * pre-registered and connected.
    * @public
    */
-  async register(implementedMethods: Outgoing) {
+  async register(implementedMethods: Outgoing, metadata: GuestMetadata) {
     this.localMethods = implementedMethods;
+    this.metadata = metadata;
     return this._connect();
   }
 }

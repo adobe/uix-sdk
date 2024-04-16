@@ -182,6 +182,9 @@ import { externalDataSource } from "./guest-functionality";
 async function start() {
 
   const guestServer = await register({
+    metadata: {
+      //metadata here
+    }
     methods: {
       someNamespace: {
         getSomeData(query) {

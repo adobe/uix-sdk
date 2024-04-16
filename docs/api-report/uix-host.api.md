@@ -12,6 +12,7 @@ import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
 import type { GuestConnectionEvents } from '@adobe/uix-core';
 import type { GuestEmitter } from '@adobe/uix-core';
+import type { GuestMetadata } from '@adobe/uix-core';
 import { HTMLAttributeReferrerPolicy } from 'react';
 import type { NamedEvent } from '@adobe/uix-core';
 import type { RemoteHostApis } from '@adobe/uix-core';
@@ -177,6 +178,8 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
     isReady(): boolean;
     load(): Promise<void>;
+    // (undocumented)
+    get metadata(): GuestMetadata;
     provide(apis: RemoteHostApis): void;
     unload(): Promise<void>;
     url: URL;

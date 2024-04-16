@@ -21,6 +21,7 @@ import type {
   Unsubscriber,
   VirtualApi,
   UIHostMethods,
+  GuestMetadata,
 } from "@adobe/uix-core";
 import {
   Emitter,
@@ -91,6 +92,8 @@ interface GuestProxyWrapper {
    */
   emit(type: string, detail: unknown): Promise<void>;
 
+  metadata: GuestMetadata;
+
   // #endregion Public Methods (1)
 }
 
@@ -139,6 +142,13 @@ export class Port<GuestApi = unknown>
     if (this.isReady() && this.guestServer) {
       const server = this.guestServer.getRemoteApi();
       return server && server.apis;
+    }
+  }
+
+  public get metadata(): GuestMetadata {
+    if (this.isReady() && this.guestServer) {
+      const server = this.guestServer.getRemoteApi();
+      return server && server.metadata;
     }
   }
 
