@@ -142,7 +142,7 @@ export const GuestUIFrame = ({
         }
       };
     }
-  }, []);
+  }, [guest.id]);
 
   useEffect(() => {
     if (ref.current && onResize) {
