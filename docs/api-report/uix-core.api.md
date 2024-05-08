@@ -136,7 +136,7 @@ export type GuestConnectionEvent<Type extends string = string, Detail = Record<s
 // Warning: (ae-incompatible-release-tags) The symbol "GuestConnectionEvents" is marked as @public, but its signature references "HostMethodAddress" which is marked as @internal
 //
 // @public (undocumented)
-export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"guestresize", {
+export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"beforecallguestmethod"> | GuestConnectionEvent<"guestresize", {
     dimensions: UIFrameRect;
     iframe: HTMLIFrameElement;
 }>;
@@ -144,7 +144,7 @@ export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Reco
 // @internal (undocumented)
 export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
 
-// @public (undocumented)
+// @internal (undocumented)
 export type GuestMetadata = Record<string, any>;
 
 // @internal
@@ -264,7 +264,7 @@ export function wait(ms: number): Promise<unknown>;
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
-// src/types.ts:208:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
-// src/types.ts:221:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
+// src/types.ts:211:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
+// src/types.ts:225:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
 
 ```

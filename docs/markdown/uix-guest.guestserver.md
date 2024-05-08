@@ -22,7 +22,7 @@ This is the Guest object returned from [register()](./uix-guest.register.md)<!--
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [host](./uix-guest.guestserver.host.md) |  | Guest&lt;Outgoing&gt;\["host"\] | Proxy object for calling methods on the host. |
-|  [metadata](./uix-guest.guestserver.metadata.md) |  | [GuestMetadata](./uix-core.guestmetadata.md) |  |
+|  [metadata](./uix-guest.guestserver.metadata.md) |  | GuestMetadata |  |
 |  [sharedContext](./uix-guest.guestserver.sharedcontext.md) |  | [SharedContext](./uix-guest.sharedcontext.md) |  |
 
 ## Methods

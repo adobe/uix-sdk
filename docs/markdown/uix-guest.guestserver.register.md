@@ -17,7 +17,7 @@ register(implementedMethods: Outgoing, metadata: GuestMetadata): Promise<void>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  implementedMethods | Outgoing |  |
-|  metadata | [GuestMetadata](./uix-core.guestmetadata.md) |  |
+|  metadata | GuestMetadata |  |
 
 **Returns:**
 

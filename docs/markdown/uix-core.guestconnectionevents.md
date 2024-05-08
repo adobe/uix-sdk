@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"guestresize", {
+export declare type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"beforecallguestmethod"> | GuestConnectionEvent<"guestresize", {
     dimensions: UIFrameRect;
     iframe: HTMLIFrameElement;
 }>;

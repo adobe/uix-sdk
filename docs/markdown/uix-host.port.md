@@ -29,10 +29,10 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | { \[x: string\]: {}; } |  |
+|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | any |  |
 |  [error?](./uix-host.port.error.md) |  | Error | _(Optional)_ If any errors occurred during the loading of guests, this property will contain the error that was raised. |
 |  [extensionPoints](./uix-host.port.extensionpoints.md) |  | string\[\] |  |
-|  [metadata](./uix-host.port.metadata.md) | <code>readonly</code> | [GuestMetadata](./uix-core.guestmetadata.md) |  |
+|  [metadata](./uix-host.port.metadata.md) | <code>readonly</code> | GuestMetadata |  |
 |  [url](./uix-host.port.url.md) |  | URL | The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads. |
 
 ## Methods

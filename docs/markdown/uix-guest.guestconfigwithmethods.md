@@ -13,5 +13,5 @@ declare type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & 
     metadata?: GuestMetadata;
 };
 ```
-**References:** [GuestConfig](./uix-guest.guestconfig.md)<!-- -->, [GuestMetadata](./uix-core.guestmetadata.md)
+**References:** [GuestConfig](./uix-guest.guestconfig.md)
 
