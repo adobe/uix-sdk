@@ -361,7 +361,10 @@ export class Port<GuestApi = unknown>
    * Recursive method that wraps every function in apis object and adds
    * an event
    */
-  private addApiMiddleware(subject: RemoteHostApis, path: string[] = []): any {
+  private addApiMiddleware(
+    subject: RemoteHostApis,
+    path: string[] = []
+  ): { [x: string]: {} } {
     if (typeof subject === "object") {
       for (const [key, value] of Object.entries(subject)) {
         if (typeof value === "object") {

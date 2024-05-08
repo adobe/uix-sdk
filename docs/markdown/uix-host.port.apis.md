@@ -7,5 +7,7 @@
 **Signature:**
 
 ```typescript
-get apis(): any;
+get apis(): {
+        [x: string]: {};
+    };
 ```
