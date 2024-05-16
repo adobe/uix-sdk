@@ -62,6 +62,7 @@ export interface ExtensionRegistryExtensionRegistration
 export interface ExtensionRegistryConnection {
   baseUrl?: string;
   apiKey: string;
+  workspace?: "prod" | "all";
   auth: {
     schema: "Basic" | "Bearer";
     imsToken: string;
@@ -89,15 +90,16 @@ function ensureProtocolSpecified(url: string) {
   return `https://${url}`;
 }
 
-async function fetchExtensionsFromRegistry(
+export async function fetchExtensionsFromRegistry(
   config: ExtensionRegistryConfig
 ): Promise<Array<ExtensionDefinition>> {
+  const workspaceParam = config.workspace === "all" ? "&workspace=stage" : "";
   const resp = await fetch(
     `${ensureProtocolSpecified(
       config.baseUrl || "appregistry.adobe.io"
     )}/myxchng/v1/org/${encodeURIComponent(
       config.imsOrg
-    )}/xtn/${buildEndpointPath(config)}?auth=true`,
+    )}/xtn/${buildEndpointPath(config)}?auth=true${workspaceParam}`,
     {
       headers: {
         Accept: "application/json",

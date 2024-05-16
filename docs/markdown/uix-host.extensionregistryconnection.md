@@ -18,4 +18,5 @@ export interface ExtensionRegistryConnection
 |  [apiKey](./uix-host.extensionregistryconnection.apikey.md) |  | string |  |
 |  [auth](./uix-host.extensionregistryconnection.auth.md) |  | { schema: "Basic" \| "Bearer"; imsToken: string; } |  |
 |  [baseUrl?](./uix-host.extensionregistryconnection.baseurl.md) |  | string | _(Optional)_ |
+|  [workspace?](./uix-host.extensionregistryconnection.workspace.md) |  | "prod" \| "all" | _(Optional)_ |
 
