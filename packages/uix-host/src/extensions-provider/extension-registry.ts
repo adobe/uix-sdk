@@ -62,7 +62,8 @@ export interface ExtensionRegistryExtensionRegistration
 export interface ExtensionRegistryConnection {
   baseUrl?: string;
   apiKey: string;
-  workspace?: "prod" | "all";
+  workspace?: string;
+  filter?: (extension: ExtensionDefinition) => boolean;
   auth: {
     schema: "Basic" | "Bearer";
     imsToken: string;
@@ -93,7 +94,9 @@ function ensureProtocolSpecified(url: string) {
 export async function fetchExtensionsFromRegistry(
   config: ExtensionRegistryConfig
 ): Promise<Array<ExtensionDefinition>> {
-  const workspaceParam = config.workspace === "all" ? "&workspace=stage" : "";
+  const workspaceParam = config.workspace
+    ? `&workspace=${config.workspace}`
+    : "";
   const resp = await fetch(
     `${ensureProtocolSpecified(
       config.baseUrl || "appregistry.adobe.io"
@@ -153,7 +156,11 @@ function extensionRegistryExtensionsAsObjectsProvider(
   const erEndpoint = buildEndpointPath(config);
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
-      if (e.status !== "PUBLISHED") {
+      if (config.filter && typeof config.filter === "function") {
+        if (!config.filter(e)) {
+          return a;
+        }
+      } else if (e.status !== "PUBLISHED") {
         return a;
       }
 

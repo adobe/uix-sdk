@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-workspace?: "prod" | "all";
+workspace?: string;
 ```

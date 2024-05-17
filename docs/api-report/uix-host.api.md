@@ -50,8 +50,12 @@ export interface ExtensionRegistryConnection {
     };
     // (undocumented)
     baseUrl?: string;
+    // Warning: (ae-forgotten-export) The symbol "ExtensionDefinition" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    workspace?: "prod" | "all";
+    filter?: (extension: ExtensionDefinition) => boolean;
+    // (undocumented)
+    workspace?: string;
 }
 
 // @public (undocumented)
@@ -73,8 +77,6 @@ export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistr
 // @public (undocumented)
 export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
-// Warning: (ae-forgotten-export) The symbol "ExtensionDefinition" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
 export function fetchExtensionsFromRegistry(config: ExtensionRegistryConfig): Promise<Array<ExtensionDefinition>>;
 
