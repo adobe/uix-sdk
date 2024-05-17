@@ -68,23 +68,30 @@ A React binding is currently available. See [Extensible()](./uix-host-react.exte
 |  [combineExtensionsFromProviders(providers)](./uix-host.combineextensionsfromproviders.md) | Combine multiple [ExtensionsProvider](./uix-host.extensionsprovider.md) callbacks into a single callback, which aggregates and dedupes all extensions from all providers into one namespaced object. |
 |  [createExtensionRegistryAsObjectsProvider(config)](./uix-host.createextensionregistryasobjectsprovider.md) | Create a callback that fetches extensions as objects from the registry. |
 |  [createExtensionRegistryProvider(config)](./uix-host.createextensionregistryprovider.md) | Create a callback that fetches extensions from the registry. |
+|  [fetchExtensionsFromRegistry(config)](./uix-host.fetchextensionsfromregistry.md) |  |
 |  [mutedProvider(provider)](./uix-host.mutedprovider.md) | Mute any errors produced by provider. This function would execute given provider and return its results as is, if any error occurs this provider will log it any return an empty array of extensions. |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
+|  [ExtensionDefinition](./uix-host.extensiondefinition.md) |  |
+|  [ExtensionInfo](./uix-host.extensioninfo.md) |  |
 |  [ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md) |  |
 |  [ExtensionRegistryConnection](./uix-host.extensionregistryconnection.md) |  |
 |  [ExtensionRegistryEndpointRegistration](./uix-host.extensionregistryendpointregistration.md) |  |
 |  [ExtensionRegistryExtensionRegistration](./uix-host.extensionregistryextensionregistration.md) |  |
 |  [HostConfig](./uix-host.hostconfig.md) |  |
+|  [OperationDefinition](./uix-host.operationdefinition.md) |  |
+|  [OperationMetadata](./uix-host.operationmetadata.md) |  |
+|  [OperationProfile](./uix-host.operationprofile.md) |  |
 
 ## Type Aliases
 
 |  Type Alias | Description |
 |  --- | --- |
 |  [CapabilitySpec](./uix-host.capabilityspec.md) | A specifier for methods to be expected on a remote interface. |
+|  [EndpointDefinition](./uix-host.endpointdefinition.md) |  |
 |  [ExtensionsProvider](./uix-host.extensionsprovider.md) |  |
 |  [GuestFilter](./uix-host.guestfilter.md) | Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-host.host.getloadedguests_1.md) |
 |  [HostEvent](./uix-host.hostevent.md) |  |
