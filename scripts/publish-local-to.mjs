@@ -33,27 +33,27 @@ const bullets = (iter) => ["", ...iter].join("\n • ");
 async function publishLocalTo({ dryRun }, dependents) {
   const sh = dryRun ? fakeSh : realSh;
 
-  const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
-  try {
-    await shResult(yalc, ["--version"]);
-  } catch (e) {
-    throw new Error(
-      `Could not find "yalc" in npm path: ${e.message}. Install yalc globally with yarn or npm to proceed.
-(Sorry, 'npx yalc' doesn't work in this use case.`
-    );
-  }
+//   const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
+//   try {
+//     await shResult(yalc, ["--version"]);
+//   } catch (e) {
+//     throw new Error(
+//       `Could not find "yalc" in npm path: ${e.message}. Install yalc globally with yarn or npm to proceed.
+// (Sorry, 'npx yalc' doesn't work in this use case.`
+//     );
+//   }
 
   const sdks = await getSdks();
 
   logger.log.hl`Publishing ${sdks.map((s) => s.shortName).join(", ")}`;
   for (const { cwd } of sdks) {
-    await sh(yalc, ["publish", "--quiet", "--changed"], { cwd, silent: true });
+    await sh("npm", ["exec", "yalc", "--", "publish", "--quiet", "--changed"], { cwd, silent: true });
   }
 
   for (const dependent of dependents) {
     const usedSdkPackages = new Set();
     const unlinkedSdkPackages = new Set();
-    const yalcConfigDir = await shResult(yalc, ["dir"], {
+    const yalcConfigDir = await shResult("npm", ["exec", "yalc", "--", "dir"], {
       cwd: dependent.dir,
     });
     let yalcInstallations = {};
@@ -98,7 +98,7 @@ async function publishLocalTo({ dryRun }, dependents) {
         )}`;
       }
       for (const unlinked of unlinkedSdkPackages) {
-        await sh(yalc, ["add", "--no-pure", unlinked], {
+        await sh("npm", ["exec", "yalc", "--", "add", "--no-pure", unlinked], {
           cwd: dependent.dir,
         });
       }
@@ -108,14 +108,14 @@ async function publishLocalTo({ dryRun }, dependents) {
   // now that they're all added, push again to ensure they're up to date
   // looks repetitive because of yalc quirks, but gets by all the weird errors
   for (const sdk of sdks) {
-    await sh(yalc, ["push", "--scripts", "--quiet"], {
+    await sh("npm", ["exec", "yalc", "--", "push", "--scripts", "--quiet"], {
       cwd: sdk.cwd,
       silent: true,
     });
   }
 
   if (dependents.length > 0) {
-    await sh('yalc', ['installations', 'show']);
+    await sh("npm", ["exec", "yalc", "--", 'installations', 'show']);
   }
 
   logger.done("All SDKs published to yalc and up-to-date.");
