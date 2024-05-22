@@ -34,5 +34,4 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 |  --- | --- |
 |  [GuestConnectionEvent](./uix-core.guestconnectionevent.md) |  |
 |  [GuestConnectionEvents](./uix-core.guestconnectionevents.md) |  |
-|  [GuestMetadata](./uix-core.guestmetadata.md) |  |
 

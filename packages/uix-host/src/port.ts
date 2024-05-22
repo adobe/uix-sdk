@@ -114,8 +114,39 @@ const defaultOptions = {
   debug: false,
 };
 
+const WRAPPER_MARKER = "$_UISDK_FN_WRAPPER";
 /**
- * A Port is the Host-maintained  object representing an extension running as a
+ * Marker interface for detection of wrapped functions
+ */
+type WrappedFunction = {
+  (...args: unknown[]): unknown;
+  [WRAPPER_MARKER]: boolean;
+};
+
+/**
+ * Function typeguard
+ *
+ * @param v
+ * @returns boolean
+ */
+const isFunction = (v: unknown): v is CallableFunction => {
+  return typeof v === "function";
+};
+
+/**
+ * Typeguard for wrapped functions
+ *
+ * @param v
+ * @returns
+ */
+const isWrapperFunction = (v: unknown): v is WrappedFunction => {
+  return (
+    typeof v === "function" && (v as WrappedFunction)[WRAPPER_MARKER] === true
+  );
+};
+
+/**
+ * A Port is the Host-maintained object representing an extension running as a
  * guest. It exposes methods registered by the Guest, and can provide Host
  * methods back to the guest.
  *
@@ -141,7 +172,7 @@ export class Port<GuestApi = unknown>
   public get apis() {
     if (this.isReady() && this.guestServer) {
       const server = this.guestServer.getRemoteApi();
-      return server && server.apis;
+      return server && this.addApiMiddleware(server.apis);
     }
   }
 
@@ -325,6 +356,39 @@ export class Port<GuestApi = unknown>
   // #endregion Public Methods (6)
 
   // #region Private Methods (6)
+
+  /**
+   * Recursive method that wraps every function in apis object and adds
+   * an event
+   */
+  private addApiMiddleware(
+    subject: RemoteHostApis,
+    path: string[] = []
+  ): { [x: string]: {} } {
+    if (typeof subject === "object") {
+      for (const [key, value] of Object.entries(subject)) {
+        if (typeof value === "object") {
+          subject[key] = this.addApiMiddleware(value, [...path, key]);
+        } else if (isWrapperFunction(value)) {
+          // Remote function is already wrapped. Nothing to do...
+          continue;
+        } else if (isFunction(value)) {
+          const wrapper = (...args: any) => {
+            this.emit("beforecallguestmethod", {
+              guestPort: this,
+              path: [...path, key],
+              args,
+            });
+            return (value as CallableFunction)(...args);
+          };
+          (wrapper as WrappedFunction)[WRAPPER_MARKER] = true;
+          subject[key] = wrapper;
+        }
+      }
+    }
+
+    return subject;
+  }
 
   private hasCapability(apiName: string, methodNames: string[]) {
     const api = this.apis[apiName];

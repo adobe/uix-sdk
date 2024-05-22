@@ -52,6 +52,9 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
         .listen("unload", (log, event) => {
           log.info(event.detail);
           log.detach();
+        })
+        .listen("beforecallguestmethod", (log, event) => {
+          log.info(event.detail);
         });
     })
     .listen("guestload", (log, e) => {

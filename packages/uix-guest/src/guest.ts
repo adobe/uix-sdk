@@ -209,9 +209,7 @@ export class Guest<
   );
 
   /**
-   * @param invoker
-   * @param address
-   * @private
+   * @internal
    */
   private async invokeChecker<T>(
     invoker: RemoteMethodInvoker<unknown>,
@@ -227,9 +225,7 @@ export class Guest<
   }
 
   /**
-   * @param invoker
-   * @param address
-   * @private
+   * @internal
    */
   private async invokeAwaiter(
     invoker: RemoteMethodInvoker<unknown>,
