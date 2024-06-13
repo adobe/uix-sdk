@@ -117,9 +117,9 @@ export class Host extends Emitter<HostEvents> {
 // @public (undocumented)
 export interface HostConfig {
     debug?: boolean;
+    disableMetrics?: boolean;
     guestOptions?: PortOptions;
     hostName: string;
-    noMetrics?: boolean;
     runtimeContainer?: HTMLElement;
     sharedContext?: SharedContextValues;
 }

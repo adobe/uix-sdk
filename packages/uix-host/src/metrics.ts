@@ -22,7 +22,7 @@ import type { Metrics } from "@adobe/exc-app/metrics";
 import MetricsApi from "@adobe/exc-app/metrics";
 
 type EventPayload = {
-  event: string | string[];
+  event: string;
   args: any;
 };
 

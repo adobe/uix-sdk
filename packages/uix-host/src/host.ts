@@ -122,7 +122,7 @@ export interface HostConfig {
   /**
    * Disables built-in metrics of UIX SDK
    */
-  noMetrics?: boolean;
+  disableMetrics?: boolean;
 }
 
 /**
@@ -242,7 +242,7 @@ export class Host extends Emitter<HostEvents> {
     if (config.debug) {
       this.logger = debugHost(this);
     }
-    if (!config.noMetrics) {
+    if (!config.disableMetrics) {
       addMetrics(this);
     }
   }
