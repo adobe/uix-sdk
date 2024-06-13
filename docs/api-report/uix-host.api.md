@@ -117,6 +117,7 @@ export class Host extends Emitter<HostEvents> {
 // @public (undocumented)
 export interface HostConfig {
     debug?: boolean;
+    disableMetrics?: boolean;
     guestOptions?: PortOptions;
     hostName: string;
     runtimeContainer?: HTMLElement;
@@ -151,7 +152,7 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 export type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;
 
 // @internal
-export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
+export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-same-origin" | "allow-presentation" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
 
 // @internal
 export const mergeAttrValues: <T>(...tokenLists: AttrTokens<T>[]) => T[];
@@ -177,9 +178,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         events: Emits;
     });
     // (undocumented)
-    get apis(): {
-        [x: string]: {};
-    };
+    get apis(): RemoteHostApis<VirtualApi>;
     attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
     // (undocumented)

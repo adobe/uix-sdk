@@ -19,16 +19,14 @@ import {
   View,
   ProgressCircle,
 } from "@adobe/react-spectrum";
-import { useHost, useExtensions, GuestUIFrame } from "@adobe/uix-host-react";
+import { useExtensions, GuestUIFrame } from "@adobe/uix-host-react";
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
 function App() {
   const [urls, setUrls] = useState(undefined);
-  const { host } = useHost();
-
 
   const { extensions } = useExtensions(() => ({
-    updateOn: "each",
+    updateOn: "all",
     requires: {
       frame: ["getUrls"]
     }
@@ -45,7 +43,7 @@ function App() {
       }))
       setUrls(fetchedUrls);
     }
-  });
+  }, [extensions]);
 
   useEffect(() => {
     fetchUrls().catch(e => console.error(e))

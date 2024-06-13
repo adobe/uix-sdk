@@ -120,8 +120,7 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
   }
 
   /**
-   *
-   * @param elems
+   * @internal
    */
   private calculateChildrenMargin(elems: NodeListOf<any>): number {
     let margin = 0;

@@ -39,6 +39,9 @@ export interface GuestApis {
   [k: string]: GuestApiNS;
 }
 
+/**
+ * @internal
+ */
 export type GuestMetadata = Record<string, any>;
 
 /**
@@ -216,6 +219,7 @@ export type GuestConnectionEvents<
   | GuestConnectionEvent<"hostprovide">
   | GuestConnectionEvent<"unload">
   | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>>
+  | GuestConnectionEvent<"beforecallguestmethod">
   | GuestConnectionEvent<
       "guestresize",
       { dimensions: UIFrameRect; iframe: HTMLIFrameElement }
