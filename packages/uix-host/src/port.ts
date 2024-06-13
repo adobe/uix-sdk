@@ -364,7 +364,7 @@ export class Port<GuestApi = unknown>
   private addApiMiddleware(
     subject: RemoteHostApis,
     path: string[] = []
-  ): { [x: string]: {} } {
+  ): RemoteHostApis {
     if (typeof subject === "object") {
       for (const [key, value] of Object.entries(subject)) {
         if (typeof value === "object") {
@@ -373,13 +373,18 @@ export class Port<GuestApi = unknown>
           // Remote function is already wrapped. Nothing to do...
           continue;
         } else if (isFunction(value)) {
-          const wrapper = (...args: any) => {
+          const wrapper = async (...args: any) => {
             this.emit("beforecallguestmethod", {
               guestPort: this,
               path: [...path, key],
               args,
             });
-            return (value as CallableFunction)(...args);
+            const res = await (value as CallableFunction)(...args);
+            /*
+             * Wraps response in middleware so consequent calls could be intercepted
+             * E.g. headerMenu.getButtons().onClick()
+             */
+            return this.addApiMiddleware(res, [...path, key]);
           };
           (wrapper as WrappedFunction)[WRAPPER_MARKER] = true;
           subject[key] = wrapper;

@@ -119,6 +119,7 @@ export interface HostConfig {
     debug?: boolean;
     guestOptions?: PortOptions;
     hostName: string;
+    noMetrics?: boolean;
     runtimeContainer?: HTMLElement;
     sharedContext?: SharedContextValues;
 }
@@ -177,9 +178,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         events: Emits;
     });
     // (undocumented)
-    get apis(): {
-        [x: string]: {};
-    };
+    get apis(): RemoteHostApis<VirtualApi>;
     attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
     // (undocumented)

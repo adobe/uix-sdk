@@ -29,7 +29,7 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | { \[x: string\]: {}; } |  |
+|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | RemoteHostApis&lt;VirtualApi&gt; |  |
 |  [error?](./uix-host.port.error.md) |  | Error | _(Optional)_ If any errors occurred during the loading of guests, this property will contain the error that was raised. |
 |  [extensionPoints](./uix-host.port.extensionpoints.md) |  | string\[\] |  |
 |  [metadata](./uix-host.port.metadata.md) | <code>readonly</code> | GuestMetadata |  |

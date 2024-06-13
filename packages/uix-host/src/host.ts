@@ -21,6 +21,7 @@ import type { CapabilitySpec } from "./port.js";
 import { Emitter, quietConsole } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
+import { addMetrics } from "./metrics.js";
 
 /**
  * Dictionary of {@link Port} objects by extension ID.
@@ -118,6 +119,10 @@ export interface HostConfig {
    * guests.
    */
   sharedContext?: SharedContextValues;
+  /**
+   * Disables built-in metrics of UIX SDK
+   */
+  noMetrics?: boolean;
 }
 
 /**
@@ -236,6 +241,9 @@ export class Host extends Emitter<HostEvents> {
     this.runtimeContainer = config.runtimeContainer;
     if (config.debug) {
       this.logger = debugHost(this);
+    }
+    if (!config.noMetrics) {
+      addMetrics(this);
     }
   }
   /**
