@@ -90,6 +90,7 @@ export const GuestUIFrame = ({
   methods,
   privateMethods,
   sandbox = "",
+  onLoad,
   style,
   ...customIFrameProps
 }: GuestUIProps) => {
@@ -162,6 +163,7 @@ export const GuestUIFrame = ({
     <iframe
       {...defaultIFrameProps}
       ref={ref}
+      onLoad={onLoad}
       src={frameUrl.href}
       name={`uix-guest-${guest.id}`}
       sandbox={
