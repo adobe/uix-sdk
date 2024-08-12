@@ -196,7 +196,7 @@ export class Guest<
             this.hostConnection.getRemoteApi().invokeHostMethod,
             address
           ),
-          10000
+          20000
         );
         return result;
       } catch (e) {
@@ -235,7 +235,7 @@ export class Guest<
       return new Promise((resolve, reject) =>
         reject(`${address} doesn't exist`)
       );
-    }, 10000);
+    }, 20000);
     const res = await this.invokeChecker(invoker, address);
     return new Promise((resolve) => {
       clearTimeout(final);
@@ -245,7 +245,7 @@ export class Guest<
       return e;
     });
   }
-  private timeout = 10000;
+  private timeout = 20000;
   protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
   protected hostConnection!: CrossRealmObject<HostConnection>;
   /** @internal */
