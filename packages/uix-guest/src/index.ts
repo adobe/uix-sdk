@@ -128,7 +128,7 @@ export async function register<Outgoing extends GuestApis>(
   config: GuestConfigWithMethods<Outgoing>
 ) {
   const guest = new GuestServer(config);
-  await guest.register(config.methods, config.metadata);
+  guest.register(config.methods, config.metadata);
   return guest;
 }
 
