@@ -196,7 +196,7 @@ export class Guest<
             this.hostConnection.getRemoteApi().invokeHostMethod,
             address
           ),
-          20000
+          10000
         );
         return result;
       } catch (e) {
