@@ -1,6 +1,6 @@
 {
   "name": "@adobe/uix-host",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "publishConfig": {
     "access": "public"
   },
@@ -20,7 +20,7 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "^0.10.3"
+    "@adobe/uix-core": "^0.10.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
