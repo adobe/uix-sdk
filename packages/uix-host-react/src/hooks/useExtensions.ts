@@ -157,9 +157,6 @@ export function useExtensions<
           allExtensionPoints
         )
       ) {
-        if (provides) {
-          guest.provide(provides);
-        }
         newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
       }
     }
@@ -176,6 +173,15 @@ export function useExtensions<
   );
 
   const [extensions, setExtensions] = useState(() => getExtensions());
+
+  useEffect(() => {
+    for (const guest of extensions) {
+      if (provides) {
+        guest.provide(provides);
+      }
+    }
+  }, [provides, extensions]);
+
   useEffect(() => {
     return subscribe(() => {
       setExtensions(getExtensions());
