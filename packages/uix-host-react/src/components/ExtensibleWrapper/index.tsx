@@ -11,7 +11,7 @@
  */
 import type { PropsWithChildren, ReactElement } from "react";
 import React, { useMemo } from "react";
-import { Extensible, ExtensibleProps } from "../Extensible";
+import { Extensible } from "../Extensible";
 import {
   combineExtensionsFromProviders,
   mutedProvider,
@@ -35,10 +35,6 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
    */
   appName?: string;
   /**
-   * Function which returns a promise for the full list of extensions.
-   */
-  extensionsProvider: ExtensionsProvider;
-  /**
    * {@inheritDoc HostConfig.guestOptions}
    */
   guestOptions?: PortOptions;
@@ -52,7 +48,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   version: string;
   disableExtensionManager?: boolean;
   authConfig: {
-    accessToken: string;
+    imsToken: string;
     imsOrg: string;
     apiKey: string;
   };

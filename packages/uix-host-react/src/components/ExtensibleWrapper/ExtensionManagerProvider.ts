@@ -17,7 +17,6 @@
 
 import {
   createExtensionRegistryAsObjectsProvider,
-  ExtensionRegistryConfig,
   ExtensionsProvider,
   InstalledExtensions,
 } from "@adobe/uix-host";
@@ -50,8 +49,19 @@ export type ExtensionManagerExtension = {
   configuration?: Record<string, unknown>;
 };
 
-export interface ExtensionManagerConfig extends ExtensionRegistryConfig {
-  scope?: Record<string, unknown>;
+type AuthEMConfig = {
+  schema: "Bearer" | "Basic";
+  imsToken: string;
+};
+export interface ExtensionManagerConfig {
+  apiKey: string;
+  auth: AuthEMConfig;
+  service: string;
+  extensionPoint: string;
+  version: string;
+  imsOrg: string;
+  baseUrl: string;
+  scope?: Record<string, string>;
 }
 
 /** Authentication configuration, including IMS Org ID, access token, and API key */
@@ -59,7 +69,7 @@ export interface AuthConfig {
   /** IMS Org ID */
   imsOrg: string;
   /** Access token for the user */
-  accessToken: string;
+  imsToken: string;
   /** API key */
   apiKey: string;
 }
@@ -101,7 +111,7 @@ export interface ExtensionProviderConfig {
   appRegistryUrl?: string;
   disableExtensionManager?: boolean;
 }
-const getExtensionRegistryBaseUrl = (
+export const getExtensionRegistryBaseUrl = (
   environment: "prod" | "stage" | undefined,
   registry: string | null
 ): string =>
@@ -109,7 +119,7 @@ const getExtensionRegistryBaseUrl = (
     ? APP_REGISTRY_URL_PROD
     : registry ?? APP_REGISTRY_URL_STAGE;
 
-const getExtensionManagerBaseUrl = (
+export const getExtensionManagerBaseUrl = (
   environment: "prod" | "stage" | undefined,
   extensionManager: string | null
 ): string =>
@@ -243,11 +253,11 @@ async function getExtensionManagerExtensions(
   providerConfig: ExtensionProviderConfig,
   extensionPointId: ExtensionPointId
 ): Promise<InstalledExtensions> {
-  const config: ExtensionManagerConfig = {
+  const config = {
     apiKey: authConfig.apiKey,
     auth: {
       schema: "Bearer",
-      imsToken: authConfig.accessToken,
+      imsToken: authConfig.imsToken,
     },
     service: extensionPointId.service,
     extensionPoint: extensionPointId.name,
@@ -256,25 +266,27 @@ async function getExtensionManagerExtensions(
     scope: discoveryConfig.scope,
   };
 
+  const appRegistryConfig = {
+    ...config,
+    baseUrl: getExtensionRegistryBaseUrl(
+      discoveryConfig.experienceShellEnvironment,
+      providerConfig.appRegistryUrl
+    ),
+  } as ExtensionManagerConfig;
   const appRegistryExtensionsProvider: ExtensionsProvider =
-    createExtensionRegistryAsObjectsProvider({
-      ...config,
-      baseUrl: getExtensionRegistryBaseUrl(
-        discoveryConfig.experienceShellEnvironment,
-        providerConfig.appRegistryUrl
-      ),
-    });
+    createExtensionRegistryAsObjectsProvider(appRegistryConfig);
 
+  const extensionManagerConfiguration = {
+    ...config,
+    baseUrl: getExtensionManagerBaseUrl(
+      discoveryConfig.experienceShellEnvironment,
+      providerConfig.extensionManagerUrl
+    ),
+  } as ExtensionManagerConfig;
   const [appRegistryExtensions, extensionManagerExtensions] = await Promise.all(
     [
       appRegistryExtensionsProvider(),
-      fetchExtensionsFromExtensionManager({
-        ...config,
-        baseUrl: getExtensionManagerBaseUrl(
-          discoveryConfig.experienceShellEnvironment,
-          providerConfig.extensionManagerUrl
-        ),
-      }),
+      fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
     ]
   );
 
