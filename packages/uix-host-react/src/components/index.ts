@@ -13,4 +13,4 @@ governing permissions and limitations under the License.
 export * from "./Extensible.js";
 export * from "./GuestUIFrame.js";
 export * from "./ExtensibleComponentBoundary.js";
-export * from "./ExtensibleWrapper/index.js"
+export * from "./ExtensibleWrapper/index.js";
