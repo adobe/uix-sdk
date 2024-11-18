@@ -251,7 +251,7 @@ async function getExtensionManagerExtensions(
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
 ): Promise<InstalledExtensions> {
   const config = {
     apiKey: authConfig.apiKey,
@@ -309,14 +309,14 @@ export function createExtensionManagerExtensionsProvider(
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
 ): ExtensionsProvider {
   return () => {
     return getExtensionManagerExtensions(
       discoveryConfig,
       authConfig,
       providerConfig,
-      extensionPointId
+      extensionPointId,
     );
   };
 }

@@ -61,14 +61,18 @@ export function createUrlExtensionsProvider(
 ): ExtensionsProvider {
   const extUrlParams: ExtUrlParams = extractExtUrlParams(queryString);
 
-  const extensionUrls: string[] = Object.keys(extUrlParams)
+    const extensionUrls: string[] = Object.keys(extUrlParams)
     .filter(
       (extParam) =>
         extParam === EXT_PARAM_PREFIX ||
         extParam ===
           `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
     )
-    .flatMap((extParam) => extUrlParams[extParam].split(","));
+    .flatMap((extParam) => {
+      const paramValue = extUrlParams[extParam];
+      // If it's a single value, return it in an array. If it's already an array, return it as is.
+      return Array.isArray(paramValue) ? paramValue : [paramValue];
+    });
 
   const installedExtensions: InstalledExtensions = extensionUrls
     .map((extensionUrl: string) => {
