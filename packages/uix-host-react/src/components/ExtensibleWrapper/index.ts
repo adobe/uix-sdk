@@ -10,7 +10,6 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export * from "./Extensible.js";
-export * from "./GuestUIFrame.js";
-export * from "./ExtensibleComponentBoundary.js";
-export * from "./ExtensibleWrapper/index.js"
+export * from './ExtensibleWrapper';
+export * from './UrlExtensionProvider';
+export * from './ExtensionManagerProvider';

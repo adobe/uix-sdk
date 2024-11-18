@@ -20,7 +20,7 @@ import type {
   SharedContextValues,
 } from "@adobe/uix-host";
 import { Host } from "@adobe/uix-host";
-import { ExtensionContext } from "../extension-context.js";
+import { ExtensionContext } from "../extension-context.ts";
 
 /** @public */
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {

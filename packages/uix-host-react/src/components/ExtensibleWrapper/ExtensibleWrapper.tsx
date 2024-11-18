@@ -100,7 +100,7 @@ export const ExtensibleWrapper = ({
         },
         authConfig,
         providerConfig,
-        extensionPointId,
+        extensionPointId
       );
     return combineExtensionsFromProviders(
       urlExtensionsProvider,

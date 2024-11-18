@@ -61,7 +61,7 @@ export function createUrlExtensionsProvider(
 ): ExtensionsProvider {
   const extUrlParams: ExtUrlParams = extractExtUrlParams(queryString);
 
-    const extensionUrls: string[] = Object.keys(extUrlParams)
+  const extensionUrls: string[] = Object.keys(extUrlParams)
     .filter(
       (extParam) =>
         extParam === EXT_PARAM_PREFIX ||
