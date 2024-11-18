@@ -20,7 +20,7 @@
   ],
   "bugs": "https://github.com/adobe/uix-sdk/issues",
   "dependencies": {
-    "@adobe/uix-core": "file:.yalc/@adobe/uix-core"
+    "@adobe/uix-core": "^0.10.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
