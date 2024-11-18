@@ -32,7 +32,6 @@
     "test:unit:watch": "jest --watch"
   },
   "devDependencies": {
-    "@adobe/exc-app": "^1.4.0",
     "@adobe/react-spectrum": "^3.20.0",
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
@@ -78,7 +77,8 @@
     "typescript": "~4.8.4",
     "vite": "^3.2.3",
     "yalc": "^1.0.0-pre.53",
-    "zalgo-js": "^1.0.0"
+    "zalgo-js": "^1.0.0",
+    "@adobe/exc-app": "^1.4.0"
   },
   "license": "Apache-2.0",
   "repository": {
