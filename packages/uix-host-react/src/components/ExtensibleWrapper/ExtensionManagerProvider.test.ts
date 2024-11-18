@@ -1,3 +1,4 @@
+import { InstalledExtensions } from "@adobe/uix-host";
 import {
   buildExtensionManagerUrl,
   fetchExtensionsFromExtensionManager,
@@ -8,8 +9,158 @@ import {
   ExtensionPointId,
   getExtensionManagerBaseUrl,
   getExtensionRegistryBaseUrl,
+  createExtensionManagerExtensionsProvider,
+  DiscoveryConfig,
 } from "./ExtensionManagerProvider";
+global.fetch = jest.fn();
+describe('Utility Functions', () => {
+    
+    const mockResponse = [
+        { id: 'ext1', name: 'Extension 1', extensionPoints: [{ extensionPoint: 'service/point/1.0', url: 'http://example.com' }] }
+      ];
+    
+      jest.spyOn(global, 'fetch').mockImplementation(
+        jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                status: 200,
+                json: () => Promise.resolve(mockResponse),
+            })
+        ) as jest.Mock
+    );
+  it('should correctly extract programId and envId from repo', () => {
+    const repo = 'p123-e456';
+    const result = extractProgramIdEnvId(repo);
+    expect(result).toEqual({ programId: '123', envId: '456' });
+  });
 
+  it('should throw error if repo is invalid', () => {
+    const repo = 'invalid-repo';
+    expect(() => extractProgramIdEnvId(repo)).toThrow('Error parsing a repo value');
+  });
+
+  it('should return the correct extension registry base URL for prod', () => {
+    expect(getExtensionRegistryBaseUrl('prod', null)).toBe('https://appregistry.adobe.io');
+  });
+
+  it('should return the correct extension registry base URL for stage', () => {
+    expect(getExtensionRegistryBaseUrl('stage', null)).toBe('https://appregistry-stage.adobe.io');
+  });
+
+  it('should use default stage URL if registry is null', () => {
+    expect(getExtensionRegistryBaseUrl(undefined, null)).toBe('https://appregistry-stage.adobe.io');
+  });
+
+  it('should build the correct extension manager URL', () => {
+    const config: ExtensionManagerConfig = {
+      apiKey: 'api-key',
+      auth: { schema: 'Bearer', imsToken: 'token' },
+      service: 'service',
+      extensionPoint: 'point',
+      version: '1.0',
+      imsOrg: 'org-id',
+      baseUrl: 'https://extension-manager.adobe.io',
+    };
+    const url = buildExtensionManagerUrl(config);
+    expect(url).toBe(
+      'https://extension-manager.adobe.io/v2/extensions?extensionPoints=service%2Fpoint%2F1.0'
+    );
+  });
+
+  it('should fetch extensions from Extension Manager and return parsed data', async () => {
+    const config: ExtensionManagerConfig = {
+      apiKey: 'api-key',
+      auth: { schema: 'Bearer', imsToken: 'token' },
+      service: 'service',
+      extensionPoint: 'point',
+      version: '1.0',
+      imsOrg: 'org-id',
+      baseUrl: 'https://extension-manager.adobe.io',
+    };
+
+    const extensions = await fetchExtensionsFromExtensionManager(config);
+    expect(extensions).toEqual(mockResponse);
+  });
+
+  it('should merge extensions from AppRegistry and Extension Manager', () => {
+    const appRegistryExtensions: InstalledExtensions = {
+      ext1: { id: 'ext1', url: 'http://example.com' },
+    };
+    const extensionManagerExtensions: ExtensionManagerExtension[] = [
+      {
+        id: 'ext1',
+        name: 'ext1',
+        title: 'Extension 1',
+        description: 'A description',
+        status: 'active',
+        supportEmail: 'support@example.com',
+        extId: 'ext1',
+        disabled: false,
+        extensionPoints: [{ extensionPoint: 'service/point/1.0', url: 'http://new-example.com' }],
+        scope: {},
+      },
+    ];
+    const extensionPointId: ExtensionPointId = {
+      service: 'service',
+      name: 'point',
+      version: '1.0',
+    };
+
+    const mergedExtensions = mergeExtensions(appRegistryExtensions, extensionManagerExtensions, extensionPointId);
+    expect(mergedExtensions.ext1).toEqual({
+      id: 'ext1',
+      url: 'http://new-example.com',
+      configuration: undefined,
+      extensionPoints: ['service/point/1.0'],
+    });
+  });
+
+  it('should return only enabled extensions when merging', () => {
+    const appRegistryExtensions: InstalledExtensions = {
+      ext1: { id: 'ext1', url: 'http://example.com' },
+    };
+    const extensionManagerExtensions: ExtensionManagerExtension[] = [
+      {
+        id: 'ext1',
+        name: 'ext1',
+        title: 'Extension 1',
+        description: 'A description',
+        status: 'active',
+        supportEmail: 'support@example.com',
+        extId: 'ext1',
+        disabled: true, // Disabled extension
+        extensionPoints: [{ extensionPoint: 'service/point/1.0', url: 'http://new-example.com' }],
+        scope: {},
+      },
+    ];
+    const extensionPointId: ExtensionPointId = {
+      service: 'service',
+      name: 'point',
+      version: '1.0',
+    };
+
+    const mergedExtensions = mergeExtensions(appRegistryExtensions, extensionManagerExtensions, extensionPointId);
+    expect(mergedExtensions).toEqual({});
+  });
+
+  it('should create an extension manager extensions provider', async () => {
+    const discoveryConfig: DiscoveryConfig = { experienceShellEnvironment: "prod" };
+    const authConfig = { imsOrg: 'org-id', imsToken: 'token', apiKey: 'api-key' };
+    const providerConfig = { extensionManagerUrl: 'https://custom-url.com' };
+    const extensionPointId = { service: 'service', name: 'point', version: '1.0' };
+
+    const provider = createExtensionManagerExtensionsProvider(
+      discoveryConfig,
+      authConfig,
+      providerConfig,
+      extensionPointId
+    );
+
+    const extensions = await provider();
+    expect(extensions).toBeDefined();
+  });
+});
+/*
 describe("ExtensionManagerProvider", () => {
   describe("extractProgramIdEnvId", () => {
     it("should correctly extract programId and envId from a valid repo string", () => {
@@ -166,3 +317,4 @@ describe("ExtensionManagerProvider", () => {
     });
   });
 });
+*/
