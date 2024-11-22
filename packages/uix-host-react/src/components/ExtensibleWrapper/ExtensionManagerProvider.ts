@@ -286,7 +286,9 @@ async function getExtensionManagerExtensions(
   const [appRegistryExtensions, extensionManagerExtensions] = await Promise.all(
     [
       appRegistryExtensionsProvider(),
-      fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
+      providerConfig.disableExtensionManager
+        ? []
+        : fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
     ]
   );
 
