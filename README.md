@@ -55,15 +55,17 @@ import { Extensible } from '@adobe/uix-host-react'
 function ExtensibleApp() {
   return (
     <Extensible
-      extensions={{
-        "cc1": "https://creative-cloud-ext.adobeio-static.net",
-        "exc1": "https://experience-cloud-ext.adobeio-static.net",
-      }}>
+      extensions={async () => ({
+        "id": "id-of-the-extention",
+        "url": "url-of-the-extension",
+      })}>
       <App/>
     </Extensible>
   )
 }
 ```
+Url in ExtensibleApp should be the url of the page where extension exist. It can be localhost like eg.`localhsot:8080/path-to-extenstion` for development or this could be url of public one like eg `https://experience-cloud-ext.adobeio-static.net`
+
 
 In a real app, hardcoded extensions are unlikely; instead, extensions can be
 supplied in the form of a function which returns a Promise for the list. The
@@ -103,6 +105,57 @@ function ExtensibleApp({ params, auth, shell, service, version, env }) {
 ```
 
 Components inside the Extensible provider can use the `useExtensions` hook.
+Basic usage could looks like:
+
+#### `Component.jsx`
+```jsx
+import React from 'react';
+import { useExtensions } from '@adobe/uix-host-react'
+
+export default function Component() {
+  const [extensionMsg, setExtensionMsg] = useState('');
+
+
+  const { extensions = {} } = useExtensions(() => ({
+    requires: {
+      extensionNamespace: ["getMessage"]
+    },
+    provides: {
+      hostNamespace: {
+        getHostInfo: () => {
+          return `Message from the host to guest!`;
+        },
+      },
+    }
+  }));
+
+
+  return (
+    <div>
+      {extensions[0] && (
+        <GuestUIFrame key={Math.random()} guestId={extensions[0].id} src={extensions[0].url.href}/>
+      )}
+    </div>
+  )
+}
+```
+
+Example from ubove requires guest app to have specific methods:
+
+```jsx
+const guestServer = await register({
+  id: "extensionId",
+  methods: {
+      extensionNamespace: {
+          getMessage: async () => {
+              return `Message from the guest`;
+          }
+      }
+  }
+});
+```
+
+More advance configutation:
 
 #### `Component.jsx`
 ```jsx
