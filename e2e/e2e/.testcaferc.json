@@ -1,6 +1,6 @@
 {
   "src": "./tests/**/*.js",
-  "browsers": ["chrome"],
+  "browsers": ["chrome:headless"],
   "baseUrl": "http://localhost:3000",
   "hostname": "localhost",
   "screenshots": {
