@@ -28,30 +28,27 @@ jobs:
           node-version: '18' # Adjust this as per project requirements
 
       - name: Install Dependencies for Host App
+        working-directory: ./e2e/host-app
         run: |
-          cd e2e/host-app
           npm install uix-host-react@${{ matrix.host-app-version }}
           npm install
-          cd ../..
 
       - name: Install Dependencies for Guest App
+        working-directory: ./e2e/guest-app
+
         run: |
-          cd e2e/guest-app
           npm install uix-guest@${{ matrix.guest-app-version }}
           npm install
-          cd ../..
 
       - name: Start Host App
+        working-directory: ./e2e/host-app
         run: |
-          cd e2e/host-app
           npm start &
-          cd ../..
 
       - name: Start Guest App
+        working-directory: ./e2e/guest-app
         run: |
-          cd e2e/guest-app
           npm start &
-          cd ../..
 
       - name: Wait for Applications to be Ready
         run: |
@@ -59,8 +56,8 @@ jobs:
           sleep 10 # Adjust the time based on how long the apps take to start
 
       - name: Run E2E Tests with TestCafe
+        working-directory: ./e2e/e2e
         run: |
-          cd e2e/e2e
           npm install
           npm test
 
