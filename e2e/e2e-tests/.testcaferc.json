@@ -1,0 +1,20 @@
+{
+  "src": "./tests/**/*.js",
+  "browsers": ["chrome:headless"],
+  "baseUrl": "http://localhost:3000",
+  "hostname": "localhost",
+  "screenshots": {
+    "path": "./artifacts/screenshots/",
+    "takeOnFails": true,
+    "fullPage": true
+  },
+  "reporter": "spec",
+  "speed": 0.2,
+  "debugMode": false,
+  "debugOnFail": true,
+  "stopOnFirstFail": true,
+  "selectorTimeout": 5000,
+  "assertionTimeout": 10000,
+  "pageLoadTimeout": 10000,
+  "pageRequestTimeout": 80000
+}
