@@ -75,7 +75,7 @@
     "tsup": "^6.6.3",
     "typedoc": "^0.23.15",
     "typescript": "~4.8.4",
-    "vite": "^3.2.3",
+    "vite": "^3.2.11",
     "yalc": "^1.0.0-pre.53",
     "zalgo-js": "^1.0.0",
     "@adobe/exc-app": "^1.4.0"
