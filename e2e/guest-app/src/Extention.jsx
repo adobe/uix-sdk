@@ -4,13 +4,12 @@ import { register } from "@adobe/uix-guest";
 export default function Extension() {
     useEffect(() => {
         const init = async () => {
-            const guestServer = await register({
+            await register({
                 id: "extensionId",
                 methods: {
                     extensionNamespace: {
                         getMessage: async () => {
-                            const hostInfo = await guestServer.host.hostNamespace.getHostInfo();
-                            return `Message: "${hostInfo}"`;
+                            return `Message from guest to host`;
                         },
                         setMessage: async (text) => {
                             localStorage.setItem('guest-text', text);
