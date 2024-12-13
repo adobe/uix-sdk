@@ -31,9 +31,7 @@ export default function Component() {
   const msgInGuest = () => {
     const extension = extensions[0];
     if (extension) {
-      extension.apis.extensionNamespace.setMessage('Message from host').then(info => {
-        console.log(info);
-      });
+      extension.apis.extensionNamespace.setMessage('Message from host');
     }
   };
 
