@@ -1,0 +1,27 @@
+name: npm-unpublish-manual
+on:
+  workflow_dispatch:
+    inputs:
+      version_number:
+        description: "version number to unpublish"
+        required: true
+
+jobs:
+  publish:
+    if: github.repository == 'adobe/uix-sdk'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Unpublish uix-core package
+        run: |
+          npm unpublish "@adobe/uix-core@${{ github.event.inputs.version_number }}"
+          npm unpublish "@adobe/uix-guest@${{ github.event.inputs.version_number }}"
+          npm unpublish "@adobe/uix-host-react@${{ github.event.inputs.version_number }}"
+          npm unpublish "@adobe/uix-host@${{ github.event.inputs.version_number }}"
+        env:
+          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
