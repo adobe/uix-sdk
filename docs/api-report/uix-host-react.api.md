@@ -10,20 +10,45 @@ import type { AttrTokens } from '@adobe/uix-host';
 import type { CapabilitySpec } from '@adobe/uix-host';
 import { Context } from 'react';
 import { ExtensionRegistryEndpointRegistration } from '@adobe/uix-host';
-import type { ExtensionsProvider } from '@adobe/uix-host';
+import { ExtensionsProvider } from '@adobe/uix-host';
 import type { GuestApis } from '@adobe/uix-core';
 import type { GuestConnection } from '@adobe/uix-core';
 import { Host } from '@adobe/uix-host';
 import { HostConfig } from '@adobe/uix-host';
 import type { IframeHTMLAttributes } from 'react';
-import type { PortOptions } from '@adobe/uix-host';
+import { InstalledExtensions } from '@adobe/uix-host';
+import { PortOptions } from '@adobe/uix-host';
 import type { PropsWithChildren } from 'react';
 import { default as React_2 } from 'react';
+import type { ReactElement } from 'react';
 import type { RemoteGuestApis } from '@adobe/uix-core';
 import type { SandboxToken } from '@adobe/uix-host';
-import type { SharedContextValues } from '@adobe/uix-host';
+import { SharedContextValues } from '@adobe/uix-host';
 import { UIFrameRect } from '@adobe/uix-core';
 import { VirtualApi } from '@adobe/uix-core';
+
+// @public
+export interface AuthConfig {
+    apiKey: string;
+    imsOrg: string;
+    imsToken: string;
+}
+
+// @public
+export function buildExtensionManagerUrl(config: ExtensionManagerConfig): string;
+
+// @public
+export function createExtensionManagerExtensionsProvider(discoveryConfig: DiscoveryConfig, authConfig: AuthConfig, providerConfig: ExtensionProviderConfig, extensionPointId: ExtensionPointId): ExtensionsProvider;
+
+// @public
+export function createUrlExtensionsProvider(extensionPointId: ExtensionPointId, queryString: string | undefined): ExtensionsProvider;
+
+// @public
+export interface DiscoveryConfig {
+    experienceShellEnvironment?: "prod" | "stage";
+    // (undocumented)
+    scope?: Record<string, string>;
+}
 
 // @internal
 export type ExtensibilityContext = {
@@ -46,6 +71,39 @@ export type ExtensibleComponentProps = PropsWithChildren<{
 }>;
 
 // @public (undocumented)
+export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
+    appName?: string;
+    // (undocumented)
+    authConfig: {
+        imsToken: string;
+        imsOrg: string;
+        apiKey: string;
+    };
+    // (undocumented)
+    disableExtensionManager?: boolean;
+    // (undocumented)
+    experienceShellEnvironment?: "prod" | "stage";
+    // (undocumented)
+    extensionPoint: string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: This type of declaration is not supported yet by the resolver
+    //
+    // (undocumented)
+    guestOptions?: PortOptions;
+    // (undocumented)
+    queryString?: string;
+    // (undocumented)
+    scope?: Record<string, any>;
+    // (undocumented)
+    service: string;
+    // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: This type of declaration is not supported yet by the resolver
+    //
+    // (undocumented)
+    sharedContext?: SharedContextValues;
+    // (undocumented)
+    version: string;
+}
+
+// @public (undocumented)
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
     appName?: string;
     extensionsProvider: ExtensionsProvider;
@@ -59,8 +117,101 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
     sharedContext?: SharedContextValues;
 }
 
+// @public (undocumented)
+export const ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
+
 // @internal (undocumented)
 export const ExtensionContext: Context<ExtensibilityContext>;
+
+// @public (undocumented)
+export interface ExtensionManagerConfig {
+    // (undocumented)
+    apiKey: string;
+    // Warning: (ae-forgotten-export) The symbol "AuthEMConfig" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    auth: AuthEMConfig;
+    // (undocumented)
+    baseUrl: string;
+    // (undocumented)
+    extensionPoint: string;
+    // (undocumented)
+    imsOrg: string;
+    // (undocumented)
+    scope?: Record<string, string>;
+    // (undocumented)
+    service: string;
+    // (undocumented)
+    version: string;
+}
+
+// @public (undocumented)
+export type ExtensionManagerExtension = {
+    id: string;
+    name: string;
+    title: string;
+    description: string;
+    status: string;
+    supportEmail: string;
+    extId: string;
+    disabled: boolean;
+    extensionPoints: ExtensionPoint[];
+    scope: Record<string, unknown>;
+    configuration?: Record<string, unknown>;
+};
+
+// @public
+export interface ExtensionPointId {
+    name: string;
+    service: string;
+    version: string;
+}
+
+// @public (undocumented)
+export interface ExtensionProviderConfig {
+    // (undocumented)
+    appRegistryUrl?: string;
+    // (undocumented)
+    disableExtensionManager?: boolean;
+    // (undocumented)
+    extensionManagerUrl?: string;
+}
+
+// @public
+export interface ExtensionsProviderConfig {
+    authConfig: AuthConfig;
+    discoveryConfig: DiscoveryConfig;
+    extensionPointId: ExtensionPointId;
+    // (undocumented)
+    providerConfig: ExtensionProviderConfig;
+}
+
+// @public
+export function extractExtUrlParams(queryString: string | undefined): ExtUrlParams;
+
+// @public
+export function extractProgramIdEnvId(repo: string): {
+    programId: string;
+    envId: string;
+};
+
+// @public (undocumented)
+export interface ExtUrlParams {
+    // (undocumented)
+    [key: string]: string;
+}
+
+// @public (undocumented)
+export function fetchExtensionsFromExtensionManager(config: ExtensionManagerConfig): Promise<ExtensionManagerExtension[]>;
+
+// @public
+export function generateExtensionId(extensionUrl: string): string;
+
+// @public (undocumented)
+export const getExtensionManagerBaseUrl: (environment: "prod" | "stage" | undefined, extensionManager: string | null) => string;
+
+// @public (undocumented)
+export const getExtensionRegistryBaseUrl: (environment: "prod" | "stage" | undefined, registry: string | null) => string;
 
 // @public
 export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => React_2.JSX.Element;
@@ -80,6 +231,9 @@ export interface GuestUIProps extends FrameProps {
     sandbox?: AttrTokens<SandboxToken>;
     src: string;
 }
+
+// @public
+export function mergeExtensions(appRegistryExtensions: InstalledExtensions, extensionManagerExtensions: ExtensionManagerExtension[], extensionPointId: ExtensionPointId): InstalledExtensions;
 
 // @public (undocumented)
 export class OutsideOfExtensionContextError extends Error {
@@ -127,6 +281,7 @@ export * from "@adobe/uix-host";
 
 // Warnings were encountered during analysis:
 //
+// src/components/ExtensibleWrapper/ExtensionManagerProvider.ts:47:3 - (ae-forgotten-export) The symbol "ExtensionPoint" needs to be exported by the entry point index.d.ts
 // src/components/GuestUIFrame.tsx:28:1 - (ae-forgotten-export) The symbol "ReactIframeProps" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
