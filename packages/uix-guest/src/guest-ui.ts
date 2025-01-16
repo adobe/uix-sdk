@@ -127,13 +127,15 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
 
     for (let i = 0; i < elems.length; i++) {
       const style = elems[i].currentStyle || window.getComputedStyle(elems[i]);
+      const marginTop = parseInt(style.marginTop);
+      const marginBottom = parseInt(style.marginBottom);
 
-      if (style.marginTop !== "0px") {
-        margin = margin + parseInt(style.marginTop);
+      if (marginTop > 0) {
+        margin = margin + marginTop;
       }
 
-      if (style.marginBottom !== "0px") {
-        margin = margin + parseInt(style.marginBottom);
+      if (marginBottom > 0) {
+        margin = margin + marginBottom;
       }
     }
 
