@@ -41,6 +41,18 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    * {@inheritDoc HostConfig.sharedContext}
    */
   sharedContext?: SharedContextValues;
+  /**
+   * {@inheritDoc HostConfig.debug}
+   */
+  debug?: boolean;
+  /**
+   * {@inheritDoc HostConfig.disableMetrics}
+   */
+  disableMetrics?: boolean;
+  /**
+   * {@inheritDoc HostConfig.runtimeContainer}
+   */
+  runtimeContainer?: HTMLElement;
 }
 
 function areExtensionsDifferent(
@@ -78,6 +90,7 @@ export function Extensible({
   runtimeContainer,
   debug,
   sharedContext,
+  disableMetrics
 }: PropsWithChildren<ExtensibleProps>) {
   const hostName = appName || window.location.host || "mainframe";
 
@@ -108,7 +121,7 @@ export function Extensible({
       };
     }
 
-    const host = new Host({ debug, hostName, runtimeContainer, sharedContext });
+    const host = new Host({ debug, hostName, runtimeContainer, sharedContext, disableMetrics });
     setHost(host);
 
     if (!Object.entries(extensions).length) {
