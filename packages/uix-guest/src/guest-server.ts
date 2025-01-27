@@ -33,6 +33,7 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
       ...super.getLocalMethods(),
       apis: this.localMethods,
       metadata: this.metadata,
+      extension_id: this.id,
     };
   }
   /**
