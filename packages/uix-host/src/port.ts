@@ -90,8 +90,6 @@ interface GuestProxyWrapper {
 
   metadata: GuestMetadata;
 
-  extension_id: string;
-
   // #endregion Public Methods (1)
 }
 
@@ -181,12 +179,6 @@ export class Port<GuestApi = unknown>
     }
   }
 
-  public get extension_id(): string {
-    if (this.isReady() && this.guestServer) {
-      const server = this.guestServer.getRemoteApi() as GuestProxyWrapper;
-      return server && server.extension_id;
-    }
-  }
   // #region Properties (13)
 
   private debug: boolean;
