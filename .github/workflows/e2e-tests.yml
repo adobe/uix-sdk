@@ -1,9 +1,6 @@
 name: E2E Tests
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
   e2e-tests:
