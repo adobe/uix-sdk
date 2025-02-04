@@ -1,0 +1,58 @@
+name: E2E Tests
+
+on: workflow_dispatch
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests with TestCafe
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        host-app-version: [ "0.8.0", "0.8.1", "0.8.2", "0.8.3", "0.8.4", "0.8.5", "0.9.0", "0.9.1", "0.9.2", "0.10.0","0.10.1", "0.10.2","0.10.3","0.10.4", "latest" ]
+        guest-app-version: [ "0.8.0", "0.8.1", "0.8.2", "0.8.3", "0.8.4", "0.8.5", "0.9.0", "0.9.1", "0.9.2", "0.10.0","0.10.1", "0.10.2","0.10.3","0.10.4", "latest" ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Adjust this as per project requirements
+
+      - name: Install Dependencies for Host App
+        working-directory: e2e/host-app
+        run: |
+          npm install @adobe/uix-host-react@${{ matrix.host-app-version }}
+          npm install
+
+      - name: Install Dependencies for Guest App
+        working-directory: e2e/guest-app
+
+        run: |
+          npm install @adobe/uix-guest@${{ matrix.guest-app-version }}
+          npm install
+
+      - name: Start Host App
+        working-directory: e2e/host-app
+        run: |
+          npm start &
+
+      - name: Start Guest App
+        working-directory: e2e/guest-app
+        run: |
+          npm start &
+
+      - name: Wait for Applications to be Ready
+        run: |
+          echo "Waiting for services to start..."
+          sleep 10 # Adjust the time based on how long the apps take to start
+
+      - name: Run E2E Tests with TestCafe
+        working-directory: e2e/e2e-tests
+        run: |
+          npm install
+          npm test
+
+
