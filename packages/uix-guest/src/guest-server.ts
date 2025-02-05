@@ -53,7 +53,10 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
    */
   async register(implementedMethods: Outgoing, metadata: GuestMetadata) {
     this.localMethods = implementedMethods;
-    this.metadata = metadata;
+    this.metadata = {
+      ...metadata,
+      extensionId: this.id,
+    };
     return this._connect();
   }
 }

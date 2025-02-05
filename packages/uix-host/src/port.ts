@@ -23,11 +23,7 @@ import type {
   UIHostMethods,
   GuestMetadata,
 } from "@adobe/uix-core";
-import {
-  Emitter,
-  connectIframe,
-  formatHostMethodAddress,
-} from "@adobe/uix-core";
+import { Emitter, connectIframe } from "@adobe/uix-core";
 import { normalizeIframe } from "./dom-utils";
 
 /**
