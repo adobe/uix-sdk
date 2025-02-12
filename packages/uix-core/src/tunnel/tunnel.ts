@@ -91,8 +91,6 @@ export class Tunnel extends EventEmitter {
   constructor(config: TunnelConfig) {
     super();
     this.config = config;
-    //@ts-ignore
-    this.config.instance = Math.random();
   }
 
   // #endregion Constructors
@@ -168,7 +166,6 @@ export class Tunnel extends EventEmitter {
         ]);
         tunnel.connect(channel.port2);
       }
-      return true;
     };
     const cleanup = () => {
       clearTimeout(timeout);
@@ -254,11 +251,10 @@ export class Tunnel extends EventEmitter {
             "Received handshake accept message, but it did not include a MessagePort to establish tunnel"
           );
           tunnel.emitLocal("error", portError);
-          return true;
+          return;
         }
         tunnel.connect(event.ports[0]);
       }
-      return true;
     };
     const cleanup = () => {
       clearInterval(retrying);
@@ -336,7 +332,6 @@ export class Tunnel extends EventEmitter {
     if (!this._messagePort) {
       return false;
     }
-
     this._messagePort.postMessage({ type, payload });
     return true;
   }
