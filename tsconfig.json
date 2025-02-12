@@ -18,6 +18,9 @@
     },
     {
       "path": "packages/uix-host-react"
+    },
+    {
+      "path": "packages/uix-guest-react"
     }
   ]
 }

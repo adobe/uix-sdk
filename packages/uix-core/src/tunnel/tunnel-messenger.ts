@@ -74,6 +74,7 @@ export class TunnelMessenger {
     );
   }
   isHandshakeOffer(message: unknown): message is HandshakeOffered {
+    console.log("0007 isHandshakeOffer", message);
     return (
       this.isHandshake(message) &&
       typeof unwrap(message as HandshakeOffered).offers === "string"

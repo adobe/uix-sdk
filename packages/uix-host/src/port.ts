@@ -145,6 +145,11 @@ const isWrapperFunction = (v: unknown): v is WrappedFunction => {
   );
 };
 
+export type UiFrameType = {
+  connection: CrossRealmObject<unknown>;
+  path: string;
+};
+
 /**
  * A Port is the Host-maintained object representing an extension running as a
  * guest. It exposes methods registered by the Guest, and can provide Host
@@ -185,6 +190,7 @@ export class Port<GuestApi = unknown>
 
   // #region Properties (13)
 
+  public uiFrames: UiFrameType[];
   private debug: boolean;
   private logger?: Console;
   private guestServerFrame: HTMLIFrameElement;
@@ -253,6 +259,7 @@ export class Port<GuestApi = unknown>
     this.sharedContext = config.sharedContext;
     this.configuration = config.configuration;
     this.extensionPoints = config.extensionPoints;
+    this.uiFrames = [] as UiFrameType[];
     this.subscriptions.push(
       config.events.addEventListener("contextchange", async (event) => {
         this.sharedContext = (

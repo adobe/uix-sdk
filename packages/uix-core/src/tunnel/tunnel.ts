@@ -91,6 +91,8 @@ export class Tunnel extends EventEmitter {
   constructor(config: TunnelConfig) {
     super();
     this.config = config;
+    //@ts-ignore
+    this.config.instance = Math.random();
   }
 
   // #endregion Constructors
@@ -154,6 +156,7 @@ export class Tunnel extends EventEmitter {
     let frameStatusCheck: number;
     let timeout: number;
     const offerListener = (event: MessageEvent) => {
+      console.log("00018 subject", event, window.location.href);
       if (
         !tunnel.isConnected &&
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
@@ -166,8 +169,10 @@ export class Tunnel extends EventEmitter {
         ]);
         tunnel.connect(channel.port2);
       }
+      return true;
     };
     const cleanup = () => {
+      console.log("00030 cleanup");
       clearTimeout(timeout);
       clearInterval(frameStatusCheck);
       window.removeEventListener("message", offerListener);
@@ -240,21 +245,24 @@ export class Tunnel extends EventEmitter {
       logger: config.logger,
     });
     const acceptListener = (event: MessageEvent) => {
+      console.log("0006 acceptListener", event, window.location.href);
       if (
         !timedOut &&
         isFromOrigin(event, source, config.targetOrigin) &&
         messenger.isHandshakeAccepting(event.data, key)
       ) {
+        console.log("00020 acceptListener", event);
         cleanup();
         if (!event.ports || !event.ports.length) {
           const portError = new Error(
             "Received handshake accept message, but it did not include a MessagePort to establish tunnel"
           );
           tunnel.emitLocal("error", portError);
-          return;
+          return true;
         }
         tunnel.connect(event.ports[0]);
       }
+      return true;
     };
     const cleanup = () => {
       clearInterval(retrying);
@@ -300,6 +308,7 @@ export class Tunnel extends EventEmitter {
 
   connect(remote: MessagePort) {
     if (this._messagePort) {
+      console.log("311 Connect", this._emitFromMessage);
       this._messagePort.removeEventListener("message", this._emitFromMessage);
       this._messagePort.close();
     }
@@ -329,14 +338,33 @@ export class Tunnel extends EventEmitter {
   }
 
   emit(type: string | symbol, payload?: unknown): boolean {
+    console.log(
+      "00031 emitter",
+      type,
+      payload,
+      window.location.href,
+      this._messagePort,
+      this.isConnected
+    );
     if (!this._messagePort) {
+      console.log("00032 noport-emitter");
       return false;
     }
+
     this._messagePort.postMessage({ type, payload });
+    console.log("00033 emitter after message");
     return true;
   }
 
   emitLocal = (type: string | symbol, payload?: unknown) => {
+    //@ts-ignore
+    console.log(
+      "this._listeners",
+      window.location.href,
+      this.config,
+      this.listeners(),
+      this.eventNames()
+    );
     return emitOn.call(this, type, payload);
   };
 
@@ -376,6 +404,13 @@ export class Tunnel extends EventEmitter {
   // #region Private Methods
 
   private _emitFromMessage = ({ data: { type, payload } }: MessageEvent) => {
+    console.log(
+      "00033 EMIT FROM MESSAGE",
+      type,
+      payload,
+      window.location.href,
+      this
+    );
     this.emitLocal(type, payload);
   };
 
