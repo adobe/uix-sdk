@@ -10,10 +10,6 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/**
- * Type definition for GuestUI class
- */
-
 import { createContext } from "react";
 import { ExtensibleStoreManagerInterface, VirtualApi } from "@adobe/uix-core";
 import { GuestUI } from "@adobe/uix-guest";
