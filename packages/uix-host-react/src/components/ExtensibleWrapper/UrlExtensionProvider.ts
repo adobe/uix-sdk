@@ -17,12 +17,25 @@
 import { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
 import { Extension } from "@adobe/uix-core";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
-
+import { sanitizeUrl, BLANK_URL } from "@braintree/sanitize-url";
 const EXT_PARAM_PREFIX = "ext";
 
 export interface ExtUrlParams {
   [key: string]: string;
 }
+
+const isUrlValid = (url: string): boolean => {
+  if (!/^\S*$/.test(url) || url === "") {
+    return false;
+  }
+  try {
+    new URL(url);
+    const sanitizedUrl = sanitizeUrl(url);
+    return sanitizedUrl !== BLANK_URL;
+  } catch (err) {
+    return false;
+  }
+};
 
 /**
  * Extracts extension URLs from the query string
@@ -36,8 +49,11 @@ export function extractExtUrlParams(
   }
   const params: URLSearchParams = new URLSearchParams(queryString);
   return Array.from(params.entries()).reduce((extParams, [key, value]) => {
-    if (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) {
-      extParams[key] = value;
+    if (
+      (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) &&
+      isUrlValid(value)
+    ) {
+      extParams[key] = sanitizeUrl(value);
     }
     return extParams;
   }, {} as ExtUrlParams);

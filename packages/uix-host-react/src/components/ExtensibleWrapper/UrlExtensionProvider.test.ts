@@ -27,9 +27,8 @@ describe("extractExtUrlParams", () => {
 
   it("should extract valid extension params", () => {
     const queryString =
-      "ext=foo&ext.service1.name1.version1=http://example.com";
+      "ext=javascript:alert(document.domain)&ext.service1.name1.version1=http://example.com";
     const expectedParams = {
-      ext: "foo",
       "ext.service1.name1.version1": "http://example.com",
     };
     expect(extractExtUrlParams(queryString)).toEqual(expectedParams);
@@ -37,9 +36,9 @@ describe("extractExtUrlParams", () => {
 
   it('should only include params with the "ext" prefix', () => {
     const queryString =
-      "ext=foo&other=bar&ext.service1.name1.version1=http://example.com";
+      "ext=http://example2.com&other=bar&ext.service1.name1.version1=http://example.com";
     const expectedParams = {
-      ext: "foo",
+      ext: "http://example2.com",
       "ext.service1.name1.version1": "http://example.com",
     };
     expect(extractExtUrlParams(queryString)).toEqual(expectedParams);
@@ -67,7 +66,7 @@ describe("createUrlExtensionsProvider", () => {
 
   it("should return an ExtensionsProvider that provides installed extensions", async () => {
     const queryString =
-      "ext=foo&ext.service1/name1/version1=http://example2.com";
+      "ext=http://example1.com&ext.service1/name1/version1=http://example2.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
       queryString
@@ -75,7 +74,7 @@ describe("createUrlExtensionsProvider", () => {
 
     const extensions = await provider();
     expect(Object.keys(extensions)).toHaveLength(2);
-    expect(extensions).toHaveProperty("foo");
+    expect(extensions).toHaveProperty("http___example1_com");
     expect(extensions).toHaveProperty("http___example2_com");
     expect(extensions["http___example2_com"]).toHaveProperty(
       "url",
