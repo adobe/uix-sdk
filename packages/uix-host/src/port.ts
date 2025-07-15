@@ -15,7 +15,6 @@ import type {
   GuestConnection,
   GuestConnectionEvents,
   HostMethodAddress,
-  RemoteHostApis,
   GuestApis,
   CrossRealmObject,
   Unsubscriber,
@@ -64,7 +63,7 @@ import { normalizeIframe } from "./dom-utils";
  * @public
  */
 export type CapabilitySpec<T extends GuestApis> = {
-  [Name in keyof T]: (keyof T[Name])[];
+  [Name in keyof T]+?: (keyof T[Name])[];
 };
 
 /**
@@ -77,7 +76,7 @@ interface GuestProxyWrapper {
   /**
    * Methods from guest
    */
-  apis: RemoteHostApis;
+  apis: VirtualApi;
 
   // #endregion Properties (1)
 
@@ -184,7 +183,7 @@ export class Port<GuestApi = unknown>
   private debug: boolean;
   private logger?: Console;
   private guestServerFrame: HTMLIFrameElement;
-  private hostApis: RemoteHostApis = {};
+  private hostApis: VirtualApi = {};
   private isLoaded = false;
   private runtimeContainer: HTMLElement;
   private sharedContext: Record<string, unknown>;
@@ -330,7 +329,7 @@ export class Port<GuestApi = unknown>
    * of methods down to the guest as proxies.
    * Merges at the first level, the API level. Overwrites a deeper levels.
    */
-  public provide(apis: RemoteHostApis) {
+  public provide(apis: VirtualApi) {
     for (const [apiNamespace, methods] of Object.entries(apis)) {
       this.hostApis[apiNamespace] = this.hostApis[apiNamespace] || {};
       Object.assign(this.hostApis[apiNamespace], methods);
@@ -357,10 +356,7 @@ export class Port<GuestApi = unknown>
    * Recursive method that wraps every function in apis object and adds
    * an event
    */
-  private addApiMiddleware(
-    subject: RemoteHostApis,
-    path: string[] = []
-  ): RemoteHostApis {
+  private addApiMiddleware(subject: any, path: string[] = []): VirtualApi {
     if (typeof subject === "object") {
       for (const [key, value] of Object.entries(subject)) {
         if (typeof value === "object") {
@@ -435,7 +431,7 @@ export class Port<GuestApi = unknown>
         getSharedContext: () => this.sharedContext,
         getConfiguration: () => this.configuration,
         invokeHostMethod: (address: HostMethodAddress) =>
-          this.invokeHostMethod(address, addedMethods as RemoteHostApis),
+          this.invokeHostMethod(address, addedMethods as VirtualApi),
         ...addedMethods,
       }
     );
@@ -468,8 +464,8 @@ export class Port<GuestApi = unknown>
 
   private getHostMethodCallee<T = unknown>(
     { name, path }: HostMethodAddress,
-    methodSource: RemoteHostApis
-  ): RemoteHostApis<VirtualApi> {
+    methodSource: VirtualApi
+  ): VirtualApi {
     const dots = (level: number) => `host.${path.slice(0, level).join(".")}`;
     const methodCallee = path.reduce((current, prop, level) => {
       this.assert(
@@ -484,7 +480,7 @@ export class Port<GuestApi = unknown>
             level
           )}.${prop} is not an object; namespaces must be objects with methods`
       );
-      return next as RemoteHostApis<GuestApi>;
+      return next as VirtualApi;
     }, methodSource);
     this.assert(
       typeof methodCallee[name] === "function" &&
@@ -496,7 +492,7 @@ export class Port<GuestApi = unknown>
 
   private invokeHostMethod<T = unknown>(
     address: HostMethodAddress,
-    privateMethods?: RemoteHostApis
+    privateMethods?: VirtualApi
   ): T {
     const { name, path, args = [] } = address;
     this.assert(name && typeof name === "string", () => "Method name required");

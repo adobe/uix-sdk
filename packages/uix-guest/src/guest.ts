@@ -12,13 +12,13 @@ governing permissions and limitations under the License.
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 import type {
-  RemoteHostApis,
   HostConnection,
   NamedEvent,
   CrossRealmObject,
   VirtualApi,
   RemoteMethodInvoker,
   HostMethodAddress,
+  GuestApis,
 } from "@adobe/uix-core";
 import {
   Emitter,
@@ -40,9 +40,18 @@ export type GuestEvent<
   Type,
   Detail &
     Record<string, unknown> & {
-      guest: Guest;
+      guest: Guest<any>;
     }
 >;
+
+/**
+ * @public
+ */
+export type AppConnection = {
+  outgoing: GuestApis;
+  incoming: GuestApis;
+  sharedContext: Record<string, unknown>;
+};
 
 /**
  * @public
@@ -108,29 +117,44 @@ export interface GuestConfig {
  * ```
  * @public
  */
-export class SharedContext {
+export class SharedContext<T> {
   private _map: Map<string, unknown>;
-  constructor(values: Record<string, unknown>) {
+  constructor(values: T) {
     this.reset(values);
   }
-  private reset(values: Record<string, unknown>) {
+  private reset(values: T) {
     this._map = new Map(Object.entries(values));
   }
   /**
    * @public
    * Retrieve a copy of a value from the {@link @adobe/uix-host#HostConfig.sharedContext} object. *Note that this is not a reference to any actual objects from the parent. If the parent updates an "inner object" inside the SharedContext, that change will not be reflected in the Guest!*
    */
-  get(key: string) {
-    return this._map.get(key);
+  get(key: Extract<keyof T, string>) {
+    return this._map.get(key) as T[keyof T];
   }
 }
+
+type TestSharedContext = {
+  key1: string;
+  key2: number;
+  key3: boolean;
+};
+
+const test = new SharedContext<TestSharedContext>({
+  key1: "value1",
+  key2: 42,
+  key3: true,
+});
+
+test.get("key1");
 
 /**
  * Generic Guest object, with methods shared by all types of Guest.
  * @internal
  */
 export class Guest<
-  Incoming extends object = VirtualApi
+  App extends AppConnection
+  //Incoming extends object = VirtualApi
 > extends Emitter<GuestEvents> {
   /**
    * Shared context has been set or updated.
@@ -155,7 +179,7 @@ export class Guest<
   /**
    * {@inheritdoc SharedContext}
    */
-  sharedContext: SharedContext;
+  sharedContext: SharedContext<App["sharedContext"]>;
   /**
    * A guest (extension) configuration
    */
@@ -186,7 +210,7 @@ export class Guest<
    * Promises which resolve to the value the Host method returns.
    * @public
    */
-  host: RemoteHostApis<Incoming> = makeNamespaceProxy<Incoming>(
+  host: App["incoming"] = makeNamespaceProxy<App["incoming"]>(
     async (address) => {
       await this.hostConnectionPromise;
       try {

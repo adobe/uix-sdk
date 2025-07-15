@@ -12,7 +12,6 @@ governing permissions and limitations under the License.
 
 import type {
   CrossRealmObject,
-  RemoteHostApis,
   UIHostConnection,
   VirtualApi,
 } from "@adobe/uix-core";
@@ -94,7 +93,7 @@ import {
  *
  * @public
  */
-export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
+export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * {@inheritDoc Guest."constructor"}
    */
@@ -165,6 +164,6 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
   /**
    * {@inheritDoc Guest.host}
    */
-  host: RemoteHostApis<IHost>;
+  host: IHost;
   protected hostConnection!: CrossRealmObject<UIHostConnection>;
 }
