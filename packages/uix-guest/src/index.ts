@@ -73,11 +73,11 @@ governing permissions and limitations under the License.
  * ```
  *
  */
-import type { Guest, GuestConfig } from "./guest.js";
+import type { Guest, GuestConfig, AppConnection } from "./guest.js";
 import { GuestUI } from "./guest-ui.js";
 import { GuestServer } from "./guest-server.js";
-import { GuestApis, GuestMetadata } from "@adobe/uix-core";
-
+import { GuestApis, GuestMetadata, HostMethodAddress } from "@adobe/uix-core";
+export type { AppConnection } from "./guest";
 /**
  * {@inheritdoc GuestConfig}
  * @public
@@ -124,10 +124,10 @@ export async function attach(config: GuestConfig) {
  *
  * @public
  */
-export async function register<Outgoing extends GuestApis>(
-  config: GuestConfigWithMethods<Outgoing>
+export async function register<App extends AppConnection>(
+  config: GuestConfigWithMethods<App["outgoing"]>
 ) {
-  const guest = new GuestServer(config);
+  const guest = new GuestServer<App>(config);
   guest.register(config.methods, config.metadata);
   return guest;
 }
