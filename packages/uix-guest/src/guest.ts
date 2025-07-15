@@ -134,20 +134,6 @@ export class SharedContext<T> {
   }
 }
 
-type TestSharedContext = {
-  key1: string;
-  key2: number;
-  key3: boolean;
-};
-
-const test = new SharedContext<TestSharedContext>({
-  key1: "value1",
-  key2: 42,
-  key3: true,
-});
-
-test.get("key1");
-
 /**
  * Generic Guest object, with methods shared by all types of Guest.
  * @internal
