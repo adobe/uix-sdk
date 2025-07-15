@@ -202,18 +202,6 @@ export function useExtensions<
 
   return { extensions, loading: host.loading, error: hostError };
 }
-type Test = {
-  header?: {
-    /**
-     * Does important job.
-     *
-     * @param arg1
-     * @param arg2
-     * @returns
-     */
-    fakeMethod?: (arg1: string, arg2: number) => Promise<string[]>;
-  };
-};
 
 /**
  * Each extension/guest can have
