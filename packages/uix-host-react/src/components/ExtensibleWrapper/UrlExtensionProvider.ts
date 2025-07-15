@@ -17,7 +17,6 @@
 import { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
 import { Extension } from "@adobe/uix-core";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
-import { sanitizeUrl, BLANK_URL } from "@braintree/sanitize-url";
 const EXT_PARAM_PREFIX = "ext";
 
 export interface ExtUrlParams {
@@ -25,13 +24,9 @@ export interface ExtUrlParams {
 }
 
 const isUrlValid = (url: string): boolean => {
-  if (!/^\S*$/.test(url) || url === "") {
-    return false;
-  }
   try {
     new URL(url);
-    const sanitizedUrl = sanitizeUrl(url);
-    return sanitizedUrl !== BLANK_URL;
+    return true;
   } catch (err) {
     return false;
   }
@@ -51,9 +46,9 @@ export function extractExtUrlParams(
   return Array.from(params.entries()).reduce((extParams, [key, value]) => {
     if (
       (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) &&
-      isUrlValid(value)
+      URL.canParse(value)
     ) {
-      extParams[key] = sanitizeUrl(value);
+      extParams[key] = value;
     }
     return extParams;
   }, {} as ExtUrlParams);
