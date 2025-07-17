@@ -4,7 +4,9 @@
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"],
   "exclude": ["packages/*/src/**/*.d.ts", "packages/*/src/**/*.d.tsx"],
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"]
   },
   "references": [
     {
