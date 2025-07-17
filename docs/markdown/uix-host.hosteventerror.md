@@ -9,7 +9,7 @@ An error has occurred during loading or unloading of guests.
 **Signature:**
 
 ```typescript
-export declare type HostEventError = HostEvent<"error", {
+export type HostEventError = HostEvent<"error", {
     error: Error;
 }>;
 ```

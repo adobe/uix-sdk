@@ -9,7 +9,7 @@ All guests requested by host have been loaded and connected.
 **Signature:**
 
 ```typescript
-export declare type HostEventLoadAllGuests = HostEvent<"loadallguests", {
+export type HostEventLoadAllGuests = HostEvent<"loadallguests", {
     failed: Port[];
     loaded: Port[];
 }>;

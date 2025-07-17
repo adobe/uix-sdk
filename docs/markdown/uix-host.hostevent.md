@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type HostEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {
+export type HostEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {
     host: Host;
 }>;
 ```

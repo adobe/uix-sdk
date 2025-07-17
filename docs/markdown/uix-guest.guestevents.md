@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type GuestEvents = GuestEventContextChange | GuestEventBeforeConnect | GuestEventConnected | GuestEventError;
+export type GuestEvents = GuestEventContextChange | GuestEventBeforeConnect | GuestEventConnected | GuestEventError;
 ```
 **References:** [GuestEventContextChange](./uix-guest.guesteventcontextchange.md)<!-- -->, [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md)<!-- -->, [GuestEventConnected](./uix-guest.guesteventconnected.md)<!-- -->, [GuestEventError](./uix-guest.guesteventerror.md)
 

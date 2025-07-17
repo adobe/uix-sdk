@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-declare type EndpointDefinition = Record<string, Array<OperationDefinition>>;
+type EndpointDefinition = Record<string, Array<OperationDefinition>>;
 ```
 **References:** [OperationDefinition](./uix-host.operationdefinition.md)
 

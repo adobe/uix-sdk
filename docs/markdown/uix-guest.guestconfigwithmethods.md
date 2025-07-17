@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-declare type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
+type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
     methods: Outgoing;
     metadata?: GuestMetadata;
 };

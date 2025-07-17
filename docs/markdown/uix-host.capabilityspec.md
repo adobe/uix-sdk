@@ -9,7 +9,7 @@ A specifier for methods to be expected on a remote interface.
 **Signature:**
 
 ```typescript
-export declare type CapabilitySpec<T extends GuestApis> = {
+export type CapabilitySpec<T extends GuestApis> = {
     [Name in keyof T]: (keyof T[Name])[];
 };
 ```

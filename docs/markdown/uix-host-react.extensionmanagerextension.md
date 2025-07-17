@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-export declare type ExtensionManagerExtension = {
+export type ExtensionManagerExtension = {
     id: string;
     name: string;
     title: string;

@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type GuestEventConnected = GuestEvent<"connected">;
+export type GuestEventConnected = GuestEvent<"connected">;
 ```
 **References:** [GuestEvent](./uix-guest.guestevent.md)
 

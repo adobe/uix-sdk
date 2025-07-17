@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type PortOptions = {
+export type PortOptions = {
     timeout?: number;
     debug?: boolean;
 };

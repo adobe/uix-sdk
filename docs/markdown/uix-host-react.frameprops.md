@@ -8,5 +8,5 @@
 **Signature:**
 
 ```typescript
-declare type FrameProps = Omit<ReactIframeProps, "sandbox">;
+type FrameProps = Omit<ReactIframeProps, "sandbox">;
 ```
