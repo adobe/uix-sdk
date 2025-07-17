@@ -38,11 +38,11 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
   /**
    * {@inheritDoc BaseGuest.sharedContext}
    */
-  sharedContext: SharedContext;
+  declare sharedContext: SharedContext;
   /**
    * {@inheritdoc BaseGuest.host}
    */
-  host: Guest<Outgoing>["host"];
+  declare host: Guest<Outgoing>["host"];
   /**
    * Pass an interface of methods which Host may call as callbacks.
    *
