@@ -443,37 +443,39 @@ export class Port<GuestApi = unknown>
 
   private async connect() {
     const urlObject = new URL(this.url.href);
-    if (URL.canParse(this.url.href) && urlObject.protocol === "https") {
-      const serverFrame =
-        this.runtimeContainer.ownerDocument.createElement("iframe");
-      normalizeIframe(serverFrame);
-      serverFrame.setAttribute("aria-hidden", "true");
-      serverFrame.setAttribute("src", this.url.href);
-      this.guestServerFrame = serverFrame;
-      this.runtimeContainer.appendChild(serverFrame);
-      if (this.logger) {
-        this.logger.info(
-          `Guest ${this.id} attached iframe of ${this.url.href}`,
-          this
-        );
-      }
-      this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
-      this.isLoaded = true;
-      if (this.logger) {
-        this.logger.info(
-          `Guest ${this.id} established connection, received methods`,
-          this.apis,
-          this
-        );
-      }
+    const serverFrame =
+      this.runtimeContainer.ownerDocument.createElement("iframe");
+    normalizeIframe(serverFrame);
+    serverFrame.setAttribute("aria-hidden", "true");
+    let iframeUrl = "about:blank";
+    if (URL.canParse(this.url.href) && urlObject.protocol === "https:") {
+      iframeUrl = this.url.href;
     } else {
       if (this.logger) {
         this.logger.info(
-          `Guest ${this.id} did not attach iframe of ${this.url.href}, insecure or invalid URL`,
-          this.apis,
+          `insecure or invalid URL: ${this.url.href}`,
+          this.url,
           this
         );
       }
+    }
+    serverFrame.setAttribute("src", iframeUrl);
+    this.guestServerFrame = serverFrame;
+    this.runtimeContainer.appendChild(serverFrame);
+    if (this.logger) {
+      this.logger.info(
+        `Guest ${this.id} attached iframe of ${this.url.href}`,
+        this
+      );
+    }
+    this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
+    this.isLoaded = true;
+    if (this.logger) {
+      this.logger.info(
+        `Guest ${this.id} established connection, received methods`,
+        this.apis,
+        this
+      );
     }
   }
 
