@@ -140,4 +140,5 @@ export {
   GuestUI as UIGuest,
   GuestServer,
   GuestServer as PrimaryGuest,
+  GuestConfig as GuestConfigInterface,
 };

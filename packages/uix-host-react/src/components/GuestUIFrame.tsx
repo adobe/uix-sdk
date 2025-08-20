@@ -116,6 +116,7 @@ export const GuestUIFrame = ({
       connecting
         .then((c) => {
           connection = c;
+          guest.uiFrames.push({ connection, path: src });
           if (!mounted) {
             c.tunnel.destroy();
           } else if (onConnect) {
