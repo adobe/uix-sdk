@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type ExtensibleComponentProps = PropsWithChildren<{
+export type ExtensibleComponentProps = PropsWithChildren<{
     extensionPoints: ExtensionRegistryEndpointRegistration[];
 }>;
 ```

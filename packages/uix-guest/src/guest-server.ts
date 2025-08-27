@@ -38,11 +38,11 @@ export class GuestServer<App extends AppConnection> extends Guest<App> {
   /**
    * {@inheritDoc BaseGuest.sharedContext}
    */
-  sharedContext: SharedContext<App["sharedContext"]>;
+  declare sharedContext: SharedContext<App["sharedContext"]>;
   /**
    * {@inheritdoc BaseGuest.host}
    */
-  host: Guest<App>["host"];
+  declare host: Guest<App>["host"];
   /**
    * Pass an interface of methods which Host may call as callbacks.
    *

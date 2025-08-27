@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-declare type UseHostResponse = {
+type UseHostResponse = {
     host: undefined;
     error: Error;
 } | {

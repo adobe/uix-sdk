@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type GuestEventError = GuestEvent<"error", {
+export type GuestEventError = GuestEvent<"error", {
     error: Error;
 }>;
 ```

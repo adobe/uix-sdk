@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type GuestEventContextChange = GuestEvent<"contextchange", {
+export type GuestEventContextChange = GuestEvent<"contextchange", {
     context: Record<string, unknown>;
 }>;
 ```

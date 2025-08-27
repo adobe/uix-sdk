@@ -17,12 +17,20 @@
 import { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
 import { Extension } from "@adobe/uix-core";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
-
 const EXT_PARAM_PREFIX = "ext";
 
 export interface ExtUrlParams {
   [key: string]: string;
 }
+
+const isUrlValid = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
 
 /**
  * Extracts extension URLs from the query string
@@ -36,7 +44,10 @@ export function extractExtUrlParams(
   }
   const params: URLSearchParams = new URLSearchParams(queryString);
   return Array.from(params.entries()).reduce((extParams, [key, value]) => {
-    if (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) {
+    if (
+      (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) &&
+      URL.canParse(value)
+    ) {
       extParams[key] = value;
     }
     return extParams;

@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export declare type ExtensionsProvider = () => Promise<InstalledExtensions>;
+export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 ```
 **References:** [InstalledExtensions](./uix-host.installedextensions.md)
 

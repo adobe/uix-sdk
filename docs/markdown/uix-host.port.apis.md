@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-get apis(): RemoteHostApis<VirtualApi>;
+get apis(): RemoteHostApis;
 ```
