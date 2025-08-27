@@ -87,9 +87,9 @@ export function createUrlExtensionsProvider(
       const paramValue = extUrlParams[extParam];
       // If it's a single value, return it in an array. If it's already an array, return it as is.
       if (Array.isArray(paramValue)) {
-        return paramValue.filter(param => isValidHttpUrl(param));
+        return paramValue.filter((param) => isValidHttpUrl(param));
       } else {
-          return isValidHttpUrl(paramValue) ? [paramValue] : [];
+        return isValidHttpUrl(paramValue) ? [paramValue] : [];
       }
     });
 

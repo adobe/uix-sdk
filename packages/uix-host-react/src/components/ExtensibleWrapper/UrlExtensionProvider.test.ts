@@ -16,17 +16,6 @@ import {
   createUrlExtensionsProvider,
 } from "./UrlExtensionProvider";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
-global.URL.canParse = jest.fn((input, base) => {
-  try {
-    new URL(input, base);
-    const urlRegex =
-      /^((http(s?)?):\/\/)?([wW]{3}\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/g;
-    const result = (input as string).match(urlRegex);
-    return result !== null;
-  } catch (e) {
-    return false;
-  }
-});
 
 describe("extractExtUrlParams", () => {
   it("should return an empty object when no query string is provided", () => {
