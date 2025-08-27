@@ -67,20 +67,6 @@ export type VirtualApi = Record<
 >;
 
 /**
- * @internal
- */
-// export type RemoteHostApis<Api = VirtualApi> = {
-//   [K in ExtractKeys<Api, CallableFunction | object>]: Api[K] extends (
-//     ...args: unknown[]
-//   ) => PromiseLike<unknown>
-//     ? Api[K]
-//     : Api[K] extends (...args: infer A) => infer R
-//     ? (...args: A) => Promise<R>
-//     : RemoteHostApis<Api[K]>;
-// };
-/**
-
-/**
  * An individual UI extension retrieved from the registry.
  *
  * @remarks This interface is likely to expand. As the metadata from the
