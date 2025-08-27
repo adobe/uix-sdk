@@ -25,6 +25,21 @@ export interface ExtUrlParams {
 }
 
 /**
+ * Validates if a URL is safe and only allows HTTP/HTTPS protocols
+ * @param url - The URL string to validate
+ * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
+ */
+function isValidHttpUrl(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url);
+
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Extracts extension URLs from the query string
  * @ignore
  */
@@ -71,7 +86,11 @@ export function createUrlExtensionsProvider(
     .flatMap((extParam) => {
       const paramValue = extUrlParams[extParam];
       // If it's a single value, return it in an array. If it's already an array, return it as is.
-      return Array.isArray(paramValue) ? paramValue : [paramValue];
+      if (Array.isArray(paramValue)) {
+        return paramValue.filter(param => isValidHttpUrl(param));
+      } else {
+          return isValidHttpUrl(paramValue) ? [paramValue] : [];
+      }
     });
 
   const installedExtensions: InstalledExtensions = extensionUrls
