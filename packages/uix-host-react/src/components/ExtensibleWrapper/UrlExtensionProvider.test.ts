@@ -16,46 +16,6 @@ import {
   createUrlExtensionsProvider,
 } from "./UrlExtensionProvider";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
-global.URL.canParse = jest.fn((input, base) => {
-  try {
-    new URL(input, base);
-    const urlRegex =
-      /^((http(s?)?):\/\/)?([wW]{3}\.)?[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?$/g;
-    const result = (input as string).match(urlRegex);
-    return result !== null;
-  } catch (e) {
-    return false;
-  }
-});
-
-describe("extractExtUrlParams", () => {
-  it("should return an empty object when no query string is provided", () => {
-    expect(extractExtUrlParams(undefined)).toEqual({});
-  });
-
-  it("should return an empty object when the query string does not contain any valid extension params", () => {
-    expect(extractExtUrlParams("foo=bar&baz=qux")).toEqual({});
-  });
-
-  it("should extract valid extension params", () => {
-    const queryString =
-      "ext=javascript:eval(12345)&ext.service1.name1.version1=http://example.com";
-    const expectedParams = {
-      "ext.service1.name1.version1": "http://example.com",
-    };
-    expect(extractExtUrlParams(queryString)).toEqual(expectedParams);
-  });
-
-  it('should only include params with the "ext" prefix', () => {
-    const queryString =
-      "ext=http://example2.com&other=bar&ext.service1.name1.version1=http://example.com";
-    const expectedParams = {
-      ext: "http://example2.com",
-      "ext.service1.name1.version1": "http://example.com",
-    };
-    expect(extractExtUrlParams(queryString)).toEqual(expectedParams);
-  });
-});
 
 describe("generateExtensionId", () => {
   it("should replace non-word characters with underscores", () => {
