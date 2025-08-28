@@ -9,14 +9,14 @@ The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass 
 **Signature:**
 
 ```typescript
-provide(apis: RemoteHostApis): void;
+provide(apis: VirtualApi): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  apis | RemoteHostApis |  |
+|  apis | VirtualApi |  |
 
 **Returns:**
 

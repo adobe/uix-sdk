@@ -9,7 +9,7 @@ A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced metho
 **Signature:**
 
 ```typescript
-requires?: CapabilitySpec<Incoming>;
+requires?: CapabilitySpec<Required<Incoming>>;
 ```
 
 ## Remarks

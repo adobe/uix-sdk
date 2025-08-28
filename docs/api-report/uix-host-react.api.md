@@ -233,6 +233,9 @@ export interface GuestUIProps extends FrameProps {
 }
 
 // @public
+export function isValidHttpUrl(url: string): boolean;
+
+// @public
 export function mergeExtensions(appRegistryExtensions: InstalledExtensions, extensionManagerExtensions: ExtensionManagerExtension[], extensionPointId: ExtensionPointId): InstalledExtensions;
 
 // @public (undocumented)
@@ -259,7 +262,7 @@ export function useExtensions<Incoming extends GuestApis, Outgoing extends Virtu
 // @public (undocumented)
 export interface UseExtensionsConfig<Incoming extends GuestApis, Outgoing extends VirtualApi> {
     provides?: Outgoing;
-    requires?: CapabilitySpec<Incoming>;
+    requires?: CapabilitySpec<Required<Incoming>>;
     updateOn?: "each" | "all";
 }
 

@@ -9,18 +9,18 @@ Initiate a connection to the host app and its extension points.
 **Signature:**
 
 ```typescript
-export declare function register<Outgoing extends GuestApis>(config: GuestConfigWithMethods<Outgoing>): Promise<GuestServer<GuestApis>>;
+export declare function register<App extends AppConnection>(config: GuestConfigWithMethods<App["outgoing"]>): Promise<GuestServer<App>>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  config | [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)<!-- -->&lt;Outgoing&gt; |  |
+|  config | [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)<!-- -->&lt;App\["outgoing"\]&gt; |  |
 
 **Returns:**
 
-Promise&lt;[GuestServer](./uix-guest.guestserver.md)<!-- -->&lt;GuestApis&gt;&gt;
+Promise&lt;[GuestServer](./uix-guest.guestserver.md)<!-- -->&lt;App&gt;&gt;
 
 ## Remarks
 

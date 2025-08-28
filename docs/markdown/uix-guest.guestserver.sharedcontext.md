@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-sharedContext: SharedContext;
+sharedContext: SharedContext<App["sharedContext"]>;
 ```

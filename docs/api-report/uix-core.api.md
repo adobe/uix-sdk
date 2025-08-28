@@ -107,7 +107,7 @@ export interface GuestApis {
 // @internal (undocumented)
 export interface GuestConnection {
     // (undocumented)
-    attachUI(frame: HTMLIFrameElement, privateMethods?: RemoteHostApis): Promise<unknown>;
+    attachUI(frame: HTMLIFrameElement, privateMethods?: VirtualApi): Promise<unknown>;
     // (undocumented)
     error?: Error;
     // (undocumented)
@@ -162,7 +162,7 @@ export interface HostMethodAddress<Args = unknown[]> {
 }
 
 // @internal
-export function makeNamespaceProxy<ProxiedApi extends object>(invoke: RemoteMethodInvoker<unknown>, path?: string[]): RemoteHostApis<ProxiedApi>;
+export function makeNamespaceProxy<ProxiedApi extends object>(invoke: RemoteMethodInvoker<unknown>, path?: string[]): ProxiedApi;
 
 // @internal
 export type NamedEvent<Type extends string = string, Detail = Record<string, unknown>> = CustomEvent<Detail> & {
@@ -172,21 +172,14 @@ export type NamedEvent<Type extends string = string, Detail = Record<string, unk
 // @internal (undocumented)
 export const quietConsole: Console;
 
-// Warning: (ae-forgotten-export) The symbol "ExtractKeys_2" needs to be exported by the entry point index.d.ts
-//
 // @internal (undocumented)
 export type RemoteGuestApiNS<G extends GuestApiNS = GuestApiNS> = {
-    [K in ExtractKeys_2<G, GuestApiMethod>]: (...args: Parameters<G[K]>) => Promise<ReturnType<G[K]>>;
+    [K in keyof G]-?: (...args: Parameters<G[K]>) => ReturnType<G[K]>;
 };
 
 // @internal (undocumented)
 export type RemoteGuestApis<G extends GuestApis = GuestApis> = {
-    [K in ExtractKeys_2<G, GuestApiNS>]: RemoteGuestApiNS<GuestApiNS>;
-};
-
-// @internal (undocumented)
-export type RemoteHostApis<Api = VirtualApi> = {
-    [K in ExtractKeys_2<Api, CallableFunction | object>]: Api[K] extends (...args: unknown[]) => PromiseLike<any> ? Api[K] : Api[K] extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : RemoteHostApis<Api[K]>;
+    [K in keyof G]-?: RemoteGuestApiNS<G[K]>;
 };
 
 // @internal
@@ -264,7 +257,7 @@ export function wait(ms: number): Promise<unknown>;
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Colors" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:98:1 - (ae-forgotten-export) The symbol "Layouts" needs to be exported by the entry point index.d.ts
 // src/debuglog.ts:181:21 - (ae-forgotten-export) The symbol "stateTypes" needs to be exported by the entry point index.d.ts
-// src/types.ts:211:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
-// src/types.ts:225:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
+// src/types.ts:195:7 - (ae-incompatible-release-tags) The symbol "guestPort" is marked as @public, but its signature references "GuestConnection" which is marked as @internal
+// src/types.ts:209:9 - (ae-incompatible-release-tags) The symbol "dimensions" is marked as @public, but its signature references "UIFrameRect" which is marked as @internal
 
 ```

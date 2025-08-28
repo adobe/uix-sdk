@@ -10,7 +10,7 @@ A specifier for methods to be expected on a remote interface.
 
 ```typescript
 export type CapabilitySpec<T extends GuestApis> = {
-    [Name in keyof T]: (keyof T[Name])[];
+    [Name in keyof T]+?: (keyof T[Name])[];
 };
 ```
 

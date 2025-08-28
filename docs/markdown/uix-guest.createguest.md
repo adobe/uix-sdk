@@ -14,7 +14,7 @@ Create and immediately return a [GuestServer](./uix-guest.guestserver.md)<!-- --
 **Signature:**
 
 ```typescript
-export declare function createGuest(config: GuestConfig): GuestServer<GuestApis>;
+export declare function createGuest(config: GuestConfig): GuestServer<AppConnection>;
 ```
 
 ## Parameters
@@ -25,5 +25,5 @@ export declare function createGuest(config: GuestConfig): GuestServer<GuestApis>
 
 **Returns:**
 
-[GuestServer](./uix-guest.guestserver.md)<!-- -->&lt;GuestApis&gt;
+[GuestServer](./uix-guest.guestserver.md)<!-- -->&lt;[AppConnection](./uix-guest.appconnection.md)<!-- -->&gt;
 

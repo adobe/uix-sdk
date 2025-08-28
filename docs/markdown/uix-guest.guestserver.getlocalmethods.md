@@ -8,22 +8,22 @@
 
 ```typescript
 protected getLocalMethods(): {
-        apis: Outgoing;
+        apis: App["outgoing"];
         metadata: GuestMetadata;
         emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
-            guest: Guest<import("@adobe/uix-core").VirtualApi>;
+            guest: Guest<any>;
         }) | (Record<string, unknown> & {
-            guest: Guest<import("@adobe/uix-core").VirtualApi>;
+            guest: Guest<any>;
         }) | ({
             error: Error;
         } & Record<string, unknown> & {
-            guest: Guest<import("@adobe/uix-core").VirtualApi>;
+            guest: Guest<any>;
         })) => void;
     };
 ```
 **Returns:**
 
-{ apis: Outgoing; metadata: GuestMetadata; emit: (type: "contextchange" \| "beforeconnect" \| "connected" \| "error", detail: ({ context: Record&lt;string, unknown&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| (Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; }) \| ({ error: Error; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;import("@adobe/uix-core").VirtualApi&gt;; })) =&gt; void; }
+{ apis: App\["outgoing"\]; metadata: GuestMetadata; emit: (type: "contextchange" \| "beforeconnect" \| "connected" \| "error", detail: ({ context: Record&lt;string, unknown&gt;; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;any&gt;; }) \| (Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;any&gt;; }) \| ({ error: Error; } &amp; Record&lt;string, unknown&gt; &amp; { guest: Guest&lt;any&gt;; })) =&gt; void; }
 

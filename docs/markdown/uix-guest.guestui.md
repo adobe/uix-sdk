@@ -9,9 +9,9 @@ A Guest to be used in an extension-controlled frame, usually to display UI.
 **Signature:**
 
 ```typescript
-export declare class GuestUI<IHost extends VirtualApi> extends Guest<IHost> 
+export declare class GuestUI<IHost extends VirtualApi> extends Guest<any> 
 ```
-**Extends:** Guest&lt;IHost&gt;
+**Extends:** Guest&lt;any&gt;
 
 ## Remarks
 
@@ -85,6 +85,6 @@ export default function PopupOverlay(props) {
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [host](./uix-guest.guestui.host.md) |  | RemoteHostApis&lt;IHost&gt; | Proxy object for calling methods on the host. |
+|  [host](./uix-guest.guestui.host.md) |  | IHost | Proxy object for calling methods on the host. |
 |  [hostConnection](./uix-guest.guestui.hostconnection.md) | <code>protected</code> | [CrossRealmObject](./uix-core.crossrealmobject.md)<!-- -->&lt;UIHostConnection&gt; |  |
 

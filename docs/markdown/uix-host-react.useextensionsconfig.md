@@ -16,6 +16,6 @@ export interface UseExtensionsConfig<Incoming extends GuestApis, Outgoing extend
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [provides?](./uix-host-react.useextensionsconfig.provides.md) |  | Outgoing | _(Optional)_ A namespaced object of methods which extensions will be able to call. |
-|  [requires?](./uix-host-react.useextensionsconfig.requires.md) |  | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Incoming&gt; | _(Optional)_ A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced methods extensions must implement to be used by this component. |
+|  [requires?](./uix-host-react.useextensionsconfig.requires.md) |  | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Required&lt;Incoming&gt;&gt; | _(Optional)_ A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced methods extensions must implement to be used by this component. |
 |  [updateOn?](./uix-host-react.useextensionsconfig.updateon.md) |  | "each" \| "all" | _(Optional)_ Sets when re-render is triggered on extension load. |
 

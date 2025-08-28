@@ -9,14 +9,14 @@ Pass an interface of methods which Host may call as callbacks.
 **Signature:**
 
 ```typescript
-register(implementedMethods: Outgoing, metadata: GuestMetadata): Promise<void>;
+register(implementedMethods: App["outgoing"], metadata: GuestMetadata): Promise<void>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  implementedMethods | Outgoing |  |
+|  implementedMethods | App\["outgoing"\] |  |
 |  metadata | GuestMetadata |  |
 
 **Returns:**

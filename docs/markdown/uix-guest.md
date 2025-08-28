@@ -91,6 +91,7 @@ if (!saved) {
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [AppConnection](./uix-guest.appconnection.md) |  |
 |  [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md) |  |
 |  [GuestEvent](./uix-guest.guestevent.md) |  |
 |  [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md) |  |

@@ -9,12 +9,12 @@ Constructs a new instance of the `SharedContext` class
 **Signature:**
 
 ```typescript
-constructor(values: Record<string, unknown>);
+constructor(values: T);
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  values | Record&lt;string, unknown&gt; |  |
+|  values | T |  |
 

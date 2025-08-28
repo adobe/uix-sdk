@@ -9,7 +9,7 @@ A `Map` representing the [HostConfig.sharedContext](./uix-host.hostconfig.shared
 **Signature:**
 
 ```typescript
-export declare class SharedContext 
+export declare class SharedContext<T> 
 ```
 
 ## Remarks

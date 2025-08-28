@@ -27,6 +27,7 @@
 |  [getExtensionManagerBaseUrl(environment, extensionManager)](./uix-host-react.getextensionmanagerbaseurl.md) |  |
 |  [getExtensionRegistryBaseUrl(environment, registry)](./uix-host-react.getextensionregistrybaseurl.md) |  |
 |  [GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps })](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
+|  [isValidHttpUrl(url)](./uix-host-react.isvalidhttpurl.md) | Validates if a URL is safe and only allows HTTP/HTTPS protocols |
 |  [mergeExtensions(appRegistryExtensions, extensionManagerExtensions, extensionPointId)](./uix-host-react.mergeextensions.md) | Takes an array of extensions from the App Registry, an array of extensions from the Extension Manager, and merges them into a list of Extensions. If an extension is disabled in the Extension Manager, it is removed from the list. Extension list from the App Registry is used as a base.  |
 |  [useExtensionListFetched()](./uix-host-react.useextensionlistfetched.md) | **_(BETA)_** Indicates if external extensions provider was processed. Returns true after passing extension list to the Host. |
 |  [useExtensions(configFactory, deps)](./uix-host-react.useextensions.md) | Fetch extensions which implement an API, provide them methods, and use them. |

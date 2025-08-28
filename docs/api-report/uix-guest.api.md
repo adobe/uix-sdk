@@ -10,9 +10,15 @@ import { GuestApis } from '@adobe/uix-core';
 import { GuestMetadata } from '@adobe/uix-core';
 import type { HostConnection } from '@adobe/uix-core';
 import type { NamedEvent } from '@adobe/uix-core';
-import type { RemoteHostApis } from '@adobe/uix-core';
 import type { UIHostConnection } from '@adobe/uix-core';
 import { VirtualApi } from '@adobe/uix-core';
+
+// @public (undocumented)
+export type AppConnection = {
+    outgoing: GuestApis;
+    incoming: GuestApis;
+    sharedContext: Record<string, unknown>;
+};
 
 // Warning: (ae-forgotten-export) The symbol "GuestConfig" needs to be exported by the entry point index.d.ts
 //
@@ -20,12 +26,12 @@ import { VirtualApi } from '@adobe/uix-core';
 export function attach(config: GuestConfig): Promise<GuestUI<VirtualApi>>;
 
 // @public @deprecated
-export function createGuest(config: GuestConfig): GuestServer<GuestApis>;
+export function createGuest(config: GuestConfig): GuestServer<AppConnection>;
 
 // Warning: (ae-forgotten-export) The symbol "GuestEvents" needs to be exported by the entry point index.d.ts
 //
 // @internal
-class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
+class Guest<App extends AppConnection> extends Emitter<GuestEvents> {
     constructor(config: GuestConfig);
     // Warning: (ae-forgotten-export) The symbol "GuestEventBeforeConnect" needs to be exported by the entry point index.d.ts
     //
@@ -53,17 +59,17 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
         emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         }) | (Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         }) | ({
             error: Error;
         } & Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         })) => void;
     };
     // @public
-    host: RemoteHostApis<Incoming>;
+    host: App["incoming"];
     // (undocumented)
     protected hostConnection: CrossRealmObject<HostConnection>;
     // (undocumented)
@@ -74,7 +80,7 @@ class Guest<Incoming extends object = VirtualApi> extends Emitter<GuestEvents> {
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "SharedContext"
     //
     // (undocumented)
-    sharedContext: SharedContext;
+    sharedContext: SharedContext<App["sharedContext"]>;
 }
 export { Guest as BaseGuest }
 export { Guest }
@@ -82,29 +88,29 @@ export { Guest }
 // Warning: (ae-incompatible-release-tags) The symbol "GuestServer" is marked as @public, but its signature references "Guest" which is marked as @internal
 //
 // @public
-class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
+class GuestServer<App extends AppConnection> extends Guest<App> {
     // (undocumented)
     protected getLocalMethods(): {
-        apis: Outgoing;
+        apis: App["outgoing"];
         metadata: GuestMetadata;
         emit: (type: "contextchange" | "beforeconnect" | "connected" | "error", detail: ({
             context: Record<string, unknown>;
         } & Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         }) | (Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         }) | ({
             error: Error;
         } & Record<string, unknown> & {
-            guest: Guest<VirtualApi>;
+            guest: Guest<any>;
         })) => void;
     };
-    host: Guest<Outgoing>["host"];
+    host: Guest<App>["host"];
     // (undocumented)
     metadata: GuestMetadata;
-    register(implementedMethods: Outgoing, metadata: GuestMetadata): Promise<void>;
+    register(implementedMethods: App["outgoing"], metadata: GuestMetadata): Promise<void>;
     // (undocumented)
-    sharedContext: SharedContext;
+    sharedContext: SharedContext<App["sharedContext"]>;
 }
 export { GuestServer }
 export { GuestServer as PrimaryGuest }
@@ -112,7 +118,7 @@ export { GuestServer as PrimaryGuest }
 // Warning: (ae-incompatible-release-tags) The symbol "GuestUI" is marked as @public, but its signature references "Guest" which is marked as @internal
 //
 // @public
-class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
+class GuestUI<IHost extends VirtualApi> extends Guest<any> {
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: No member was found with name "constructor"
     constructor(config: GuestConfig);
     // @eventProperty
@@ -123,7 +129,7 @@ class GuestUI<IHost extends VirtualApi> extends Guest<IHost> {
     contextchange: GuestEventContextChange;
     // @eventProperty
     error: GuestEventError;
-    host: RemoteHostApis<IHost>;
+    host: IHost;
     // (undocumented)
     protected hostConnection: CrossRealmObject<UIHostConnection>;
 }
@@ -133,12 +139,12 @@ export { GuestUI as UIGuest }
 // Warning: (ae-forgotten-export) The symbol "GuestConfigWithMethods" needs to be exported by the entry point index.d.ts
 //
 // @public
-export function register<Outgoing extends GuestApis>(config: GuestConfigWithMethods<Outgoing>): Promise<GuestServer<GuestApis>>;
+export function register<App extends AppConnection>(config: GuestConfigWithMethods<App["outgoing"]>): Promise<GuestServer<App>>;
 
 // Warnings were encountered during analysis:
 //
 // src/guest.ts:43:7 - (ae-incompatible-release-tags) The symbol "guest" is marked as @public, but its signature references "Guest" which is marked as @internal
-// src/guest.ts:56:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
+// src/guest.ts:65:1 - (ae-forgotten-export) The symbol "GuestEvent" needs to be exported by the entry point index.d.ts
 // src/index.ts:85:1 - (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: The package "@adobe/uix-guest" does not have an export "GuestConfig"
 
 ```

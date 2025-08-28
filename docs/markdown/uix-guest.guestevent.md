@@ -9,6 +9,6 @@
 
 ```typescript
 export type GuestEvent<Type extends string = string, Detail = Record<string, unknown>> = NamedEvent<Type, Detail & Record<string, unknown> & {
-    guest: Guest;
+    guest: Guest<any>;
 }>;
 ```

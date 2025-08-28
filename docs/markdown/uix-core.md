@@ -25,7 +25,7 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 |  Interface | Description |
 |  --- | --- |
 |  [CrossRealmObject](./uix-core.crossrealmobject.md) | **_(ALPHA)_** Representation of an object on the other side of an iframe/window divide between JS runtimes. |
-|  [Extension](./uix-core.extension.md) | /\*\* An individual UI extension retrieved from the registry. |
+|  [Extension](./uix-core.extension.md) | An individual UI extension retrieved from the registry. |
 |  [TunnelConfig](./uix-core.tunnelconfig.md) | **_(ALPHA)_** |
 
 ## Type Aliases

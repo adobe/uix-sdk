@@ -9,9 +9,9 @@ A Guest to be used in the "main" or primary frame of an extension, the frame the
 **Signature:**
 
 ```typescript
-export declare class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> 
+export declare class GuestServer<App extends AppConnection> extends Guest<App> 
 ```
-**Extends:** Guest&lt;Outgoing&gt;
+**Extends:** Guest&lt;App&gt;
 
 ## Remarks
 
@@ -21,9 +21,9 @@ This is the Guest object returned from [register()](./uix-guest.register.md)<!--
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [host](./uix-guest.guestserver.host.md) |  | Guest&lt;Outgoing&gt;\["host"\] | Proxy object for calling methods on the host. |
+|  [host](./uix-guest.guestserver.host.md) |  | Guest&lt;App&gt;\["host"\] | Proxy object for calling methods on the host. |
 |  [metadata](./uix-guest.guestserver.metadata.md) |  | GuestMetadata |  |
-|  [sharedContext](./uix-guest.guestserver.sharedcontext.md) |  | [SharedContext](./uix-guest.sharedcontext.md) |  |
+|  [sharedContext](./uix-guest.guestserver.sharedcontext.md) |  | [SharedContext](./uix-guest.sharedcontext.md)<!-- -->&lt;App\["sharedContext"\]&gt; |  |
 
 ## Methods
 

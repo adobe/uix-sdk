@@ -4,7 +4,7 @@
 
 ## Extension interface
 
-/\*\* An individual UI extension retrieved from the registry.
+An individual UI extension retrieved from the registry.
 
 **Signature:**
 

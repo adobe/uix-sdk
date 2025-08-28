@@ -15,7 +15,6 @@ import type { GuestEmitter } from '@adobe/uix-core';
 import type { GuestMetadata } from '@adobe/uix-core';
 import { HTMLAttributeReferrerPolicy } from 'react';
 import type { NamedEvent } from '@adobe/uix-core';
-import type { RemoteHostApis } from '@adobe/uix-core';
 import type { VirtualApi } from '@adobe/uix-core';
 
 // @internal
@@ -23,7 +22,7 @@ export type AttrTokens<T> = string | T[];
 
 // @public
 export type CapabilitySpec<T extends GuestApis> = {
-    [Name in keyof T]: (keyof T[Name])[];
+    [Name in keyof T]+?: (keyof T[Name])[];
 };
 
 // @public
@@ -178,7 +177,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         events: Emits;
     });
     // (undocumented)
-    get apis(): RemoteHostApis;
+    get apis(): VirtualApi;
     attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
     // (undocumented)
@@ -188,7 +187,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
     load(): Promise<void>;
     // (undocumented)
     get metadata(): GuestMetadata;
-    provide(apis: RemoteHostApis): void;
+    provide(apis: VirtualApi): void;
     unload(): Promise<void>;
     url: URL;
 }

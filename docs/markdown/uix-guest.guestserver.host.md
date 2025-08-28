@@ -9,7 +9,7 @@ Proxy object for calling methods on the host.
 **Signature:**
 
 ```typescript
-host: Guest<Outgoing>["host"];
+host: Guest<App>["host"];
 ```
 
 ## Remarks

@@ -9,16 +9,16 @@ Retrieve a copy of a value from the [HostConfig.sharedContext](./uix-host.hostco
 **Signature:**
 
 ```typescript
-get(key: string): unknown;
+get(key: Extract<keyof T, string>): T[keyof T];
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  key | string |  |
+|  key | Extract&lt;keyof T, string&gt; |  |
 
 **Returns:**
 
-unknown
+T\[keyof T\]
 
