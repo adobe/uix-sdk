@@ -23,7 +23,7 @@ type ExtractKeys<T, U> = {
 /**
  * @internal
  */
-type GuestApiMethod = (...args: any[]) => any;
+type GuestApiMethod = (...args: any[]) => Promise<any>;
 
 /**
  * @internal
@@ -48,16 +48,14 @@ export type GuestMetadata = Record<string, any>;
  * @internal
  */
 export type RemoteGuestApiNS<G extends GuestApiNS = GuestApiNS> = {
-  [K in ExtractKeys<G, GuestApiMethod>]: (
-    ...args: Parameters<G[K]>
-  ) => Promise<ReturnType<G[K]>>;
+  [K in keyof G]-?: (...args: Parameters<G[K]>) => ReturnType<G[K]>;
 };
 
 /**
  * @internal
  */
 export type RemoteGuestApis<G extends GuestApis = GuestApis> = {
-  [K in ExtractKeys<G, GuestApiNS>]: RemoteGuestApiNS<GuestApiNS>;
+  [K in keyof G]-?: RemoteGuestApiNS<G[K]>;
 };
 
 /**
@@ -67,20 +65,6 @@ export type VirtualApi = Record<
   string,
   object | ((...args: unknown[]) => unknown)
 >;
-
-/**
- * @internal
- */
-export type RemoteHostApis<Api = VirtualApi> = {
-  [K in ExtractKeys<Api, CallableFunction | object>]: Api[K] extends (
-    ...args: unknown[]
-  ) => PromiseLike<any>
-    ? Api[K]
-    : Api[K] extends (...args: infer A) => infer R
-    ? (...args: A) => Promise<R>
-    : RemoteHostApis<Api[K]>;
-};
-/**
 
 /**
  * An individual UI extension retrieved from the registry.
@@ -234,7 +218,7 @@ export interface GuestConnection {
   url: URL;
   attachUI(
     frame: HTMLIFrameElement,
-    privateMethods?: RemoteHostApis
+    privateMethods?: VirtualApi
   ): Promise<unknown>;
   load(): Promise<unknown>;
   error?: Error;

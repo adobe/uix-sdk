@@ -15,6 +15,7 @@ import type {
   GuestConnection,
   GuestApis,
   RemoteGuestApis,
+  RemoteGuestApiNS,
   VirtualApi,
 } from "@adobe/uix-core";
 
@@ -46,7 +47,7 @@ export interface UseExtensionsConfig<
    * This declaration is used to filter the extensions that will be
    * returned; if they don't implement those methods, they will be filtered out.
    */
-  requires?: CapabilitySpec<Incoming>;
+  requires?: CapabilitySpec<Required<Incoming>>;
   /**
    * A namespaced object of methods which extensions will be able to call.
    *

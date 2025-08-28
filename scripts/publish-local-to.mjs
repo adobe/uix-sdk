@@ -33,7 +33,7 @@ const bullets = (iter) => ["", ...iter].join("\n • ");
 async function publishLocalTo({ dryRun }, dependents) {
   const sh = dryRun ? fakeSh : realSh;
 
-  const yalc = resolve(await shResult("npm", ["bin"]), "yalc");
+  const yalc = resolve(await shResult("which", ["yalc"]));
   try {
     await shResult(yalc, ["--version"]);
   } catch (e) {
@@ -108,7 +108,7 @@ async function publishLocalTo({ dryRun }, dependents) {
   // now that they're all added, push again to ensure they're up to date
   // looks repetitive because of yalc quirks, but gets by all the weird errors
   for (const sdk of sdks) {
-    await sh(yalc, ["push", "--scripts", "--quiet"], {
+    await sh(yalc, ["push", "--scripts", "--sig"], {
       cwd: sdk.cwd,
       silent: true,
     });
