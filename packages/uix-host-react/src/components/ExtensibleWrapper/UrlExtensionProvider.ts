@@ -29,7 +29,7 @@ export interface ExtUrlParams {
  * @param url - The URL string to validate
  * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
  */
-function isValidHttpUrl(url: string): boolean {
+export function isValidHttpUrl(url: string): boolean {
   try {
     const parsedUrl = new URL(url);
 
