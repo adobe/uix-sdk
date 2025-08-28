@@ -10,8 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { GuestApis, GuestMetadata } from "@adobe/uix-core";
-import type { SharedContext } from "./guest";
+import type { GuestMetadata } from "@adobe/uix-core";
+import type { SharedContext, AppConnection } from "./guest";
 import { Guest } from "./guest";
 
 /**
@@ -25,8 +25,8 @@ import { Guest } from "./guest";
  *
  * @public
  */
-export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
-  private localMethods: Outgoing;
+export class GuestServer<App extends AppConnection> extends Guest<App> {
+  private localMethods: App["outgoing"];
   metadata: GuestMetadata;
   protected getLocalMethods() {
     return {
@@ -38,11 +38,11 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
   /**
    * {@inheritDoc BaseGuest.sharedContext}
    */
-  declare sharedContext: SharedContext;
+  declare sharedContext: SharedContext<App["sharedContext"]>;
   /**
    * {@inheritdoc BaseGuest.host}
    */
-  declare host: Guest<Outgoing>["host"];
+  declare host: Guest<App>["host"];
   /**
    * Pass an interface of methods which Host may call as callbacks.
    *
@@ -51,7 +51,7 @@ export class GuestServer<Outgoing extends GuestApis> extends Guest<Outgoing> {
    * pre-registered and connected.
    * @public
    */
-  async register(implementedMethods: Outgoing, metadata: GuestMetadata) {
+  async register(implementedMethods: App["outgoing"], metadata: GuestMetadata) {
     this.localMethods = implementedMethods;
     this.metadata = {
       ...metadata,

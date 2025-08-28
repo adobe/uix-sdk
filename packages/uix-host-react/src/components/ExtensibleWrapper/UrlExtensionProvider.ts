@@ -23,15 +23,6 @@ export interface ExtUrlParams {
   [key: string]: string;
 }
 
-const isUrlValid = (url: string): boolean => {
-  try {
-    new URL(url);
-    return true;
-  } catch (err) {
-    return false;
-  }
-};
-
 /**
  * Validates if a URL is safe and only allows HTTP/HTTPS protocols
  * @param url - The URL string to validate
@@ -59,10 +50,7 @@ export function extractExtUrlParams(
   }
   const params: URLSearchParams = new URLSearchParams(queryString);
   return Array.from(params.entries()).reduce((extParams, [key, value]) => {
-    if (
-      (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) &&
-      URL.canParse(value)
-    ) {
+    if (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) {
       extParams[key] = value;
     }
     return extParams;

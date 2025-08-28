@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RemoteHostApis, RemoteMethodInvoker } from "./types.js";
+import { RemoteMethodInvoker } from "./types.js";
 
 /**
  * Build a fake object that turns "method calls" into RPC messages
@@ -45,7 +45,7 @@ import { RemoteHostApis, RemoteMethodInvoker } from "./types.js";
 export function makeNamespaceProxy<ProxiedApi extends object>(
   invoke: RemoteMethodInvoker<unknown>,
   path: string[] = []
-): RemoteHostApis<ProxiedApi> {
+): ProxiedApi {
   const handler: ProxyHandler<Record<string, any>> = {
     get: (target, prop) => {
       if (typeof prop === "string") {
@@ -61,11 +61,11 @@ export function makeNamespaceProxy<ProxiedApi extends object>(
       }
     },
   };
-  const target = {} as unknown as RemoteHostApis<ProxiedApi>;
+  const target = {} as unknown as ProxiedApi;
   // Only trap the apply if there's at least two levels of namespace.
   // uix.host() is not a function, and neither is uix.host.bareMethod().
   if (path.length < 2) {
-    return new Proxy<RemoteHostApis<ProxiedApi>>(target, handler);
+    return new Proxy<ProxiedApi>(target, handler);
   }
   const invoker = (...args: unknown[]) =>
     invoke({
