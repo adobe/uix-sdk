@@ -178,7 +178,7 @@ export class Port<GuestApi = unknown> extends Emitter<GuestConnectionEvents> imp
         events: Emits;
     });
     // (undocumented)
-    get apis(): RemoteHostApis<VirtualApi>;
+    get apis(): RemoteHostApis;
     attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Promise<CrossRealmObject<T>>;
     error?: Error;
     // (undocumented)

@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-declare type HostGuestEvent<Type extends string> = HostEvent<`guest${Type}`, {
+type HostGuestEvent<Type extends string> = HostEvent<`guest${Type}`, {
     guest: Port;
 }>;
 ```

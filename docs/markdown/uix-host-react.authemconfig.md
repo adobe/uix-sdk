@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-declare type AuthEMConfig = {
+type AuthEMConfig = {
     schema: "Bearer" | "Basic";
     imsToken: string;
 };

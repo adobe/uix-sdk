@@ -9,5 +9,5 @@ Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-
 **Signature:**
 
 ```typescript
-declare type GuestFilter = (item: GuestEmitter) => boolean;
+type GuestFilter = (item: GuestEmitter) => boolean;
 ```

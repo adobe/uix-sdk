@@ -9,7 +9,7 @@ Shared context has been set or updated; all guests receive this event too.
 **Signature:**
 
 ```typescript
-export declare type HostEventContextChange = HostEvent<"contextchange", {
+export type HostEventContextChange = HostEvent<"contextchange", {
     context: SharedContextValues;
 }>;
 ```

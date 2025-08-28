@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-declare type ExtensionPoint = {
+type ExtensionPoint = {
     extensionPoint: string;
     url: string;
 };

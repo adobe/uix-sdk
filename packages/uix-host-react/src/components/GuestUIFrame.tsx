@@ -99,6 +99,9 @@ export const GuestUIFrame = ({
     return null;
   }
   const guest = host.guests.get(guestId);
+  if (!URL.canParse(src, guest.url.href)) {
+    return null;
+  }
   const frameUrl = new URL(src, guest.url.href);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 {
   "name": "@adobe/uix-sdk-monorepo",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Monorepo for @adobe/uix-sdk development",
   "author": "Adobe, Inc,",
   "scripts": {
@@ -41,6 +41,7 @@
     "@testing-library/dom": "^8.19.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "^29.2.2",
+    "@types/node": "^20.11.19",
     "@types/react": "^17.0.47",
     "@types/react-dom": "^17",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
@@ -74,8 +75,8 @@
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "tsup": "^6.6.3",
-    "typedoc": "^0.23.15",
-    "typescript": "~4.8.4",
+    "typedoc": "^0.25.13",
+    "typescript": "5.2",
     "vite": "^3.2.3",
     "yalc": "^1.0.0-pre.53",
     "zalgo-js": "^1.0.0"
