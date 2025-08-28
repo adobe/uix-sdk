@@ -17,7 +17,6 @@ import {
 } from "./UrlExtensionProvider";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
 
-
 describe("generateExtensionId", () => {
   it("should replace non-word characters with underscores", () => {
     const url = "http://example.com/some/path";
