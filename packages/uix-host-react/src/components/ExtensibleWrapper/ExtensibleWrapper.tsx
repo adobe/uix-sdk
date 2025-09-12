@@ -42,6 +42,18 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
    * {@inheritDoc HostConfig.sharedContext}
    */
   sharedContext?: SharedContextValues;
+  /**
+   * {@inheritDoc HostConfig.debug}
+   */
+  debug?: boolean;
+  /**
+   * {@inheritDoc HostConfig.disableMetrics}
+   */
+  disableMetrics?: boolean;
+  /**
+   * {@inheritDoc HostConfig.runtimeContainer}
+   */
+  runtimeContainer?: HTMLElement;
   queryString?: string;
   service: string;
   extensionPoint: string;
@@ -63,6 +75,7 @@ export const ExtensibleWrapper = ({
   runtimeContainer,
   debug,
   sharedContext,
+  disableMetrics,
   experienceShellEnvironment,
   queryString,
   service,
@@ -124,6 +137,7 @@ export const ExtensibleWrapper = ({
       debug={debug}
       guestOptions={guestOptions}
       sharedContext={sharedContext}
+      disableMetrics={disableMetrics}
     >
       {children}
     </Extensible>
