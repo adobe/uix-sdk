@@ -200,7 +200,11 @@ export function useExtensions<
     baseDeps
   );
 
-  return { extensions, loading: host.loading, error: hostError };
+  return {
+    extensions,
+    loading: extensions.length === 0 ? false : host.loading,
+    error: hostError,
+  };
 }
 
 /**
