@@ -15,6 +15,7 @@ import type {
   UIHostConnection,
   VirtualApi,
 } from "@adobe/uix-core";
+import { ExtensibleStoreManager } from "@adobe/uix-core";
 import {
   Guest,
   GuestConfig,
@@ -97,8 +98,15 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * {@inheritDoc Guest."constructor"}
    */
+  private readonly localMethods: {
+    broadcastToUiFrames: (key: string, value: unknown) => void;
+  };
   constructor(config: GuestConfig) {
     super(config);
+    const storageManager = ExtensibleStoreManager.getInstance();
+    this.localMethods = {
+      broadcastToUiFrames: storageManager.publish.bind(storageManager),
+    };
     this.addEventListener("connected", () => {
       const resizeObserver = new ResizeObserver((entries) => {
         const doc = entries.find((entry) => entry.target === document.body);
@@ -116,6 +124,13 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
     });
 
     this.logger.log("Will add resize observer on connect");
+  }
+
+  protected getLocalMethods() {
+    return {
+      ...super.getLocalMethods(),
+      apis: this.localMethods,
+    };
   }
 
   /**

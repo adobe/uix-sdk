@@ -14,3 +14,4 @@ export * from "./Extensible.js";
 export * from "./GuestUIFrame.js";
 export * from "./ExtensibleComponentBoundary.js";
 export * from "./ExtensibleWrapper/index.js";
+export * from "./ExtensibleState/index.js";
