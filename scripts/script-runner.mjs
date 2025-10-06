@@ -95,14 +95,17 @@ export function sh(cmd, args, opts = {}) {
       const child = spawn(cmd, args, {
         stdio: ["pipe", silent ? "ignore" : "inherit", "inherit"],
         encoding: "utf-8",
+        shell: process.platform === 'win32' ? true : undefined,
         ...spawnOpts,
       });
-      child.on("error", reject);
-      child.on("close", (code) =>
+      child.on("error", (err) => {
+        reject(err);
+      });
+      child.on("close", (code) => {
         code === 0
           ? resolve()
-          : reject(new Error(`"${cmd} ${args.join(" ")}" exited with errors.`))
-      );
+          : reject(new Error(`"${cmd} ${args.join(" ")}" exited with errors.`));
+      });
     } catch (e) {
       reject(e);
     }
@@ -120,30 +123,45 @@ export async function shResult(cmd, args, opts = {}) {
   return (await execP(cmd, args, { encoding: "utf-8", ...opts })).stdout.trim();
 }
 
+function cleanPathForWin(path) {
+  if (process.platform === "win32") {
+    return path.replace('C:\\', '');
+  }
+  return path;
+}
+
 const IS_NOT_WORKSPACE = Symbol("IS_NOT_WORKSPACE");
-export async function getWorkspaces(category) {
-  const workspaceNames = await readdir(resolve(repoRoot, category));
+export async function getWorkspaces(category) {  
+  let dirPath = resolve(repoRoot, category);
+  dirPath = cleanPathForWin(dirPath);  
+  const workspaceNames = await readdir(dirPath);  
   const workspaces = await Promise.all(
     workspaceNames.map(async (name) => {
-      const workspaceDir = resolve(repoRoot, category, name);
+      let workspaceDir = resolve(repoRoot, category, name);
+      workspaceDir = cleanPathForWin(workspaceDir);      
       try {
-        const hasPkg = (await readdir(workspaceDir)).some(
+        const files = await readdir(workspaceDir);        
+        const hasPkg = files.some(
           (filename) => filename === "package.json"
-        );
-        if (!hasPkg) {
+        );        
+        if (!hasPkg) {          
           return IS_NOT_WORKSPACE;
         }
-      } catch (e) {
+      } catch (e) {        
         return IS_NOT_WORKSPACE;
       }
-      const pkg = JSON.parse(
-        await readFile(resolve(workspaceDir, "package.json"))
-      );
-      return {
-        cwd: workspaceDir,
-        shortName: basename(workspaceDir).replace("uix-", ""),
-        pkg,
-      };
+      try {
+        const pkgPath = resolve(workspaceDir, "package.json");        
+        const pkgContent = await readFile(pkgPath);
+        const pkg = JSON.parse(pkgContent);        
+        return {
+          cwd: workspaceDir,
+          shortName: basename(workspaceDir).replace("uix-", ""),
+          pkg,
+        };
+      } catch (e) {        
+        return IS_NOT_WORKSPACE;
+      }
     })
   );
   return workspaces.filter((result) => result !== IS_NOT_WORKSPACE);
