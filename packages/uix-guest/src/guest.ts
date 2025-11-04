@@ -322,5 +322,10 @@ export class Guest<
       this.logger.error("getConfiguration failed!", e);
       throw e;
     }
+
+    // Notify parent iframe that guest is ready
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "guest-ready", guestId: this.id }, "*");
+    }
   }
 }
