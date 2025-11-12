@@ -348,6 +348,7 @@ export class Port<GuestApi = unknown>
     if (this.guestReadyMessageHandler) {
       window.removeEventListener("message", this.guestReadyMessageHandler);
       this.guestReadyMessageHandler = null;
+      this.isGuestReady = false;
     }
 
     if (this.guestServerFrame && this.guestServerFrame.parentElement) {
@@ -438,7 +439,10 @@ export class Port<GuestApi = unknown>
       },
       {
         getSharedContext: () => this.sharedContext,
-        getConfiguration: () => this.configuration,
+        getConfiguration: () => ({
+          ...this.configuration,
+          hostOrigin: window.location.origin,
+        }),
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address, addedMethods as VirtualApi),
         ...addedMethods,
@@ -453,14 +457,8 @@ export class Port<GuestApi = unknown>
     serverFrame.setAttribute("aria-hidden", "true");
     serverFrame.setAttribute("src", this.url.href);
     this.guestServerFrame = serverFrame;
-    this.runtimeContainer.appendChild(serverFrame);
-    if (this.logger) {
-      this.logger.info(
-        `Guest ${this.id} attached iframe of ${this.url.href}`,
-        this
-      );
-    }
 
+    let timeoutId: NodeJS.Timeout | null = null;
     // Set up promise to wait for guest-ready message
     const guestReadyPromise = new Promise<void>((resolve, reject) => {
       const handleMessage = (event: MessageEvent) => {
@@ -468,13 +466,17 @@ export class Port<GuestApi = unknown>
         if (
           event.data &&
           event.data.type === "guest-ready" &&
-          event.source === serverFrame.contentWindow
+          event.source === serverFrame.contentWindow &&
+          event.origin == this.url.origin
         ) {
-          console.log(
-            `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
-              event.data.guestId || "unknown"
-            })`
-          );
+          if (this.logger) {
+            this.logger.info(
+              `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
+                event.data.guestId || "unknown"
+              })`
+            );
+          }
+
           this.isGuestReady = true;
           if (this.logger) {
             this.logger.info(`Guest ${this.id} reported ready status`);
@@ -483,14 +485,20 @@ export class Port<GuestApi = unknown>
 
           // Clean up listener and resolve
           window.removeEventListener("message", handleMessage);
-          clearTimeout(timeoutId);
+          this.guestReadyMessageHandler = null;
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
           resolve();
         }
       };
 
       // Set up timeout in case guest never sends ready message
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         window.removeEventListener("message", handleMessage);
+        this.guestReadyMessageHandler = null;
+        timeoutId = null;
         reject(
           new Error(
             `Guest ${this.id} did not send ready message within ${this.timeout}ms`
@@ -504,11 +512,30 @@ export class Port<GuestApi = unknown>
       this.guestReadyMessageHandler = handleMessage;
     });
 
-    this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
+    this.runtimeContainer.appendChild(serverFrame);
+    if (this.logger) {
+      this.logger.info(
+        `Guest ${this.id} attached iframe of ${this.url.href}`,
+        this
+      );
+    }
+    try {
+      this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
+      this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
 
-    // Wait for guest to report ready before marking as loaded
-    await guestReadyPromise;
-
+      // Wait for guest to report ready before marking as loaded
+      await guestReadyPromise;
+    } catch (e) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      if (this.guestReadyMessageHandler) {
+        window.removeEventListener("message", this.guestReadyMessageHandler);
+        this.guestReadyMessageHandler = null;
+      }
+      throw e;
+    }
     this.isLoaded = true;
     if (this.logger) {
       this.logger.info(

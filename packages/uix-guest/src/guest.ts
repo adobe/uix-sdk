@@ -325,6 +325,14 @@ export class Guest<
 
     // Notify parent iframe that guest is ready
     if (window.parent && window.parent !== window) {
+      const parentOrigin =
+        (this.configuration?.hostOrigin as string) ||
+        (document.referrer ? new URL(document.referrer).origin : "*");
+      if (parentOrigin === "*") {
+        this.logger.warn(
+          "Unable to determine parent origin. Using wildcard (insecure)."
+        );
+      }
       window.parent.postMessage({ type: "guest-ready", guestId: this.id }, "*");
     }
   }
