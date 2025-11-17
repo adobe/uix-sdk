@@ -54,27 +54,39 @@ function areExtensionsDifferent(
     return true;
   }
   
+  let isDifferent = false;
 
-  return ids1.some(id => {
+  ids1.forEach(id => {
+    if (isDifferent) {
+      return;
+    }
+    
     const ext1 = set1[id];
     const ext2 = set2[id];
     
     if (typeof ext1 !== typeof ext2) {
-      return true;
+      isDifferent = true;
+      return;
     }
     
     if (typeof ext1 === "string" && typeof ext2 === "string") {
-      return ext1 !== ext2;
+      if (ext1 !== ext2) {
+        isDifferent = true;
+        return;
+      }
     }
     
     if (typeof ext1 === "object" && typeof ext2 === "object") {
-      return ext1.url !== ext2.url || 
-             JSON.stringify(ext1.extensionPoints) !== JSON.stringify(ext2.extensionPoints) ||
-             JSON.stringify(ext1.configuration) !== JSON.stringify(ext2.configuration);
+      if (ext1.url !== ext2.url || 
+          JSON.stringify(ext1.extensionPoints) !== JSON.stringify(ext2.extensionPoints) ||
+          JSON.stringify(ext1.configuration) !== JSON.stringify(ext2.configuration)) {
+        isDifferent = true;
+        return;
+      }
     }
-    
-    return false;
   });
+  
+  return isDifferent;
 }
 
 /**
@@ -139,8 +151,8 @@ export function Extensible({
 
     const loadExtensions = (hostInstance: Host) => {
       hostInstance
-      .load(extensions, guestOptions)
-      .catch(logError("Load of extensions failed!"));
+        .load(extensions, guestOptions)
+        .catch(logError("Load of extensions failed!"));
     };
 
     const sharedContextChanged = prevSharedContext.current !== JSON.stringify(sharedContext);
@@ -150,7 +162,6 @@ export function Extensible({
     }
 
     if (!host || sharedContextChanged) {
-      console.log("Creating host");
       const newHost = new Host({ debug, hostName, runtimeContainer, sharedContext });
       setHost(newHost);
       loadExtensions(newHost);
