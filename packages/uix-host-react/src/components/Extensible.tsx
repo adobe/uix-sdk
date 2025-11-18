@@ -49,43 +49,47 @@ function areExtensionsDifferent(
 ) {
   const ids1 = Object.keys(set1).sort();
   const ids2 = Object.keys(set2).sort();
-  
+
   if (ids1.length !== ids2.length) {
     return true;
   }
-  
+
   let isDifferent = false;
 
-  ids1.forEach(id => {
+  ids1.forEach((id) => {
     if (isDifferent) {
       return;
     }
-    
+
     const ext1 = set1[id];
     const ext2 = set2[id];
-    
+
     if (typeof ext1 !== typeof ext2) {
       isDifferent = true;
       return;
     }
-    
+
     if (typeof ext1 === "string" && typeof ext2 === "string") {
       if (ext1 !== ext2) {
         isDifferent = true;
         return;
       }
     }
-    
+
     if (typeof ext1 === "object" && typeof ext2 === "object") {
-      if (ext1.url !== ext2.url || 
-          JSON.stringify(ext1.extensionPoints) !== JSON.stringify(ext2.extensionPoints) ||
-          JSON.stringify(ext1.configuration) !== JSON.stringify(ext2.configuration)) {
+      if (
+        ext1.url !== ext2.url ||
+        JSON.stringify(ext1.extensionPoints) !==
+          JSON.stringify(ext2.extensionPoints) ||
+        JSON.stringify(ext1.configuration) !==
+          JSON.stringify(ext2.configuration)
+      ) {
         isDifferent = true;
         return;
       }
     }
   });
-  
+
   return isDifferent;
 }
 
@@ -155,14 +159,20 @@ export function Extensible({
         .catch(logError("Load of extensions failed!"));
     };
 
-    const sharedContextChanged = prevSharedContext.current !== JSON.stringify(sharedContext);
-    
+    const sharedContextChanged =
+      prevSharedContext.current !== JSON.stringify(sharedContext);
+
     if (sharedContextChanged) {
       prevSharedContext.current = JSON.stringify(sharedContext);
     }
 
     if (!host || sharedContextChanged) {
-      const newHost = new Host({ debug, hostName, runtimeContainer, sharedContext });
+      const newHost = new Host({
+        debug,
+        hostName,
+        runtimeContainer,
+        sharedContext,
+      });
       setHost(newHost);
       loadExtensions(newHost);
     } else {
