@@ -60,6 +60,7 @@ async function emitBundle(arguedMode, { silent, esm }) {
           UIX_SDK_BUILDMODE: arguedMode,
           NODE_ENV: mode,
         },
+        shell: process.platform === 'win32' ? true : undefined,
       }).status !== 0
     ) {
       failed = pkg.name;

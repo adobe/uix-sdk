@@ -54,6 +54,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   };
   scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
+  extensionListCallback?: (extensions: ExtensionsProvider) => ExtensionsProvider;
 }
 
 export const ExtensibleWrapper = ({
@@ -71,6 +72,7 @@ export const ExtensibleWrapper = ({
   disableExtensionManager,
   authConfig,
   scope,
+  extensionListCallback,
 }: PropsWithChildren<ExtensibleDefaultProps>): ReactElement => {
   const defaultExtensionsProvider = useMemo(() => {
     const extensionPointId: ExtensionPointId = {
@@ -86,12 +88,15 @@ export const ExtensibleWrapper = ({
     const providerConfig: ExtensionProviderConfig = {
       disableExtensionManager,
     };
+
     if (extensionManagerUrlOverride) {
       providerConfig.extensionManagerUrl = extensionManagerUrlOverride;
     }
+
     if (appRegistryUrlOverride) {
       providerConfig.appRegistryUrl = appRegistryUrlOverride;
     }
+
     const extensionManagerExtensionsProvider: ExtensionsProvider =
       createExtensionManagerExtensionsProvider(
         {
@@ -102,10 +107,13 @@ export const ExtensibleWrapper = ({
         providerConfig,
         extensionPointId
       );
-    return combineExtensionsFromProviders(
+
+    const extenstions = combineExtensionsFromProviders(
       urlExtensionsProvider,
-      mutedProvider(extensionManagerExtensionsProvider)
+      mutedProvider(extensionManagerExtensionsProvider),
     );
+
+    return extensionListCallback ? extensionListCallback(extenstions) : extenstions;
   }, [
     experienceShellEnvironment,
     queryString,
