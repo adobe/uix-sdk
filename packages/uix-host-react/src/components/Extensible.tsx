@@ -41,6 +41,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    * {@inheritDoc HostConfig.sharedContext}
    */
   sharedContext?: SharedContextValues;
+  extensionsListCallback?: (extensions: InstalledExtensions) => InstalledExtensions;
 }
 
 function areExtensionsDifferent(
@@ -117,6 +118,7 @@ export function Extensible({
   runtimeContainer,
   debug,
   sharedContext,
+  extensionsListCallback,
 }: PropsWithChildren<ExtensibleProps>) {
   const hostName = appName || window.location.host || "mainframe";
 
@@ -128,9 +130,13 @@ export function Extensible({
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
-        setExtensions((prev) =>
-          areExtensionsDifferent(prev, loaded) ? loaded : prev
-        );
+        setExtensions((prev) => {
+          let newExtensions = loaded;
+          if (extensionsListCallback) {
+            newExtensions = extensionsListCallback(newExtensions); 
+          }
+          return areExtensionsDifferent(prev, newExtensions) ? newExtensions : prev
+        });
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);

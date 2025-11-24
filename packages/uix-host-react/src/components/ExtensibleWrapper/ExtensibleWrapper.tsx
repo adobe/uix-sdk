@@ -14,6 +14,7 @@ import React, { useMemo } from "react";
 import { Extensible } from "../Extensible";
 import {
   combineExtensionsFromProviders,
+  InstalledExtensions,
   mutedProvider,
   type ExtensionsProvider,
   type HostConfig,
@@ -54,7 +55,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   };
   scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
-  extensionListCallback?: (extensions: ExtensionsProvider) => ExtensionsProvider;
+  extensionsListCallback?: (extensions: InstalledExtensions) => InstalledExtensions;
 }
 
 export const ExtensibleWrapper = ({
@@ -72,7 +73,7 @@ export const ExtensibleWrapper = ({
   disableExtensionManager,
   authConfig,
   scope,
-  extensionListCallback,
+  extensionsListCallback,
 }: PropsWithChildren<ExtensibleDefaultProps>): ReactElement => {
   const defaultExtensionsProvider = useMemo(() => {
     const extensionPointId: ExtensionPointId = {
@@ -113,7 +114,7 @@ export const ExtensibleWrapper = ({
       mutedProvider(extensionManagerExtensionsProvider),
     );
 
-    return extensionListCallback ? extensionListCallback(extenstions) : extenstions;
+    return extenstions;
   }, [
     experienceShellEnvironment,
     queryString,
@@ -132,6 +133,7 @@ export const ExtensibleWrapper = ({
       debug={debug}
       guestOptions={guestOptions}
       sharedContext={sharedContext}
+      extensionsListCallback={extensionsListCallback}
     >
       {children}
     </Extensible>
