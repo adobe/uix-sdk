@@ -41,7 +41,9 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    * {@inheritDoc HostConfig.sharedContext}
    */
   sharedContext?: SharedContextValues;
-  extensionsListCallback?: (extensions: InstalledExtensions) => InstalledExtensions;
+  extensionsListCallback?: (
+    extensions: InstalledExtensions
+  ) => InstalledExtensions;
 }
 
 function areExtensionsDifferent(
@@ -133,9 +135,11 @@ export function Extensible({
         setExtensions((prev) => {
           let newExtensions = loaded;
           if (extensionsListCallback) {
-            newExtensions = extensionsListCallback(newExtensions); 
+            newExtensions = extensionsListCallback(newExtensions);
           }
-          return areExtensionsDifferent(prev, newExtensions) ? newExtensions : prev
+          return areExtensionsDifferent(prev, newExtensions)
+            ? newExtensions
+            : prev;
         });
       })
       .catch((e: Error | unknown) => {
