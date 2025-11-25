@@ -7,14 +7,14 @@
 **Signature:**
 
 ```typescript
-ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement
+ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  { appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, } | PropsWithChildren&lt;[ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md)<!-- -->&gt; |  |
+|  { appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, } | PropsWithChildren&lt;[ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md)<!-- -->&gt; |  |
 
 **Returns:**
 

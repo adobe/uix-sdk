@@ -17,6 +17,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName">
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [appName?](./uix-host-react.extensibleprops.appname.md) |  | string | _(Optional)_ Unique name for identifying this extensible app. May be used as metadata in extension registry in the future. |
+|  [extensionsListCallback?](./uix-host-react.extensibleprops.extensionslistcallback.md) |  | (extensions: [InstalledExtensions](./uix-host.installedextensions.md)<!-- -->) =&gt; [InstalledExtensions](./uix-host.installedextensions.md) | _(Optional)_ |
 |  [extensionsProvider](./uix-host-react.extensibleprops.extensionsprovider.md) |  | [ExtensionsProvider](./uix-host.extensionsprovider.md) | Function which returns a promise for the full list of extensions. |
 |  [guestOptions?](./uix-host-react.extensibleprops.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ |
 |  [sharedContext?](./uix-host-react.extensibleprops.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | _(Optional)_ |
