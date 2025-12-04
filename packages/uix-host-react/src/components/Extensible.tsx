@@ -124,22 +124,27 @@ export function Extensible({
 }: PropsWithChildren<ExtensibleProps>) {
   const hostName = appName || window.location.host || "mainframe";
 
-  const [extensions, setExtensions] = useState({});
+  const [extensions, setExtensions] = useState<InstalledExtensions>({});
   const [extensionListFetched, setExtensionListFetched] =
     useState<boolean>(false);
   const prevSharedContext = useRef(JSON.stringify(sharedContext));
-
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
         setExtensions((prev) => {
           let newExtensions = loaded;
-          if (extensionsListCallback) {
+
+          if (extensionsListCallback && loaded) {
             newExtensions = extensionsListCallback(newExtensions);
           }
-          return areExtensionsDifferent(prev, newExtensions)
-            ? newExtensions
-            : prev;
+
+          const shouldUpdate = areExtensionsDifferent(prev, newExtensions);
+
+          if (shouldUpdate) {
+            return newExtensions;
+          } else {
+            return prev;
+          }
         });
       })
       .catch((e: Error | unknown) => {
@@ -148,7 +153,7 @@ export function Extensible({
       .finally(() => {
         setExtensionListFetched(true);
       });
-  }, [extensionsProvider]);
+  }, [extensionsProvider, extensionsListCallback]);
 
   const [host, setHost] = useState<Host>();
   useEffect(() => {
@@ -159,7 +164,7 @@ export function Extensible({
       };
     }
 
-    if (!Object.entries(extensions).length) {
+    if (!extensions || !Object.keys(extensions).length) {
       return;
     }
 
@@ -175,7 +180,6 @@ export function Extensible({
     if (sharedContextChanged) {
       prevSharedContext.current = JSON.stringify(sharedContext);
     }
-
     if (!host || sharedContextChanged) {
       const newHost = new Host({
         debug,
@@ -192,7 +196,7 @@ export function Extensible({
 
   // skip render before host is initialized
   if (!host) {
-    return null;
+    return <>{children}</>;
   }
 
   return (
