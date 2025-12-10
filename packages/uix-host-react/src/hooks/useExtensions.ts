@@ -167,7 +167,7 @@ export function useExtensions<
     (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
-      
+
       return () => {
         host.removeEventListener(eventName, handler);
       };
@@ -175,17 +175,14 @@ export function useExtensions<
     [...baseDeps, updateOn]
   );
 
-  const subscribeToUnload = useCallback(
-    (handler: EventListener) => {
-      host.addEventListener('guestunload', handler);
-      
-      return () => {
-        host.removeEventListener('guestunload', handler);
-      };
-    },
-    baseDeps
-  );
-  
+  const subscribeToUnload = useCallback((handler: EventListener) => {
+    host.addEventListener("guestunload", handler);
+
+    return () => {
+      host.removeEventListener("guestunload", handler);
+    };
+  }, baseDeps);
+
   const [extensions, setExtensions] = useState(() => getExtensions());
 
   useEffect(() => {
@@ -198,7 +195,9 @@ export function useExtensions<
 
     if (guest && guest.id) {
       setExtensions((prevExtensions) => {
-        const filtered = prevExtensions.filter((ext) => ext.id !== guest.id || ext.url !== guest.url);
+        const filtered = prevExtensions.filter(
+          (ext) => ext.id !== guest.id || ext.url !== guest.url
+        );
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
     }
