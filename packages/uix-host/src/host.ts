@@ -22,6 +22,7 @@ import { Emitter, quietConsole } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
+import { compareExtensions } from "./utils/compareExtensions.js";
 
 /**
  * Dictionary of {@link Port} objects by extension ID.
@@ -69,6 +70,8 @@ export type HostEventError = HostEvent<"error", { error: Error }>;
 export type HostEvents =
   | HostGuestEvent<"beforeload">
   | HostGuestEvent<"load">
+  | HostGuestEvent<"beforeunload">
+  | HostGuestEvent<"unload">
   | HostEvent<"beforeunload">
   | HostEvent<"unload">
   | HostEventLoadAllGuests
@@ -80,6 +83,10 @@ export type InstalledExtensions = Record<
   Extension["id"],
   Extension["url"] | Extension
 >;
+
+/** @public */
+export type ExtensionsArray = Array<[string, Extension | string]>;
+
 /** @public */
 export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
@@ -211,6 +218,8 @@ export class Host extends Emitter<HostEvents> {
     top: 0,
     left: "-1px",
   };
+
+  private lastExtenstionList: InstalledExtensions = {};
   /**
    * Unique string identifying the Host object.
    */
@@ -355,6 +364,33 @@ export class Host extends Emitter<HostEvents> {
   ): Promise<void> {
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
+    const result = compareExtensions(this.lastExtenstionList, extensions);
+    this.lastExtenstionList = extensions;
+    const extensionsToAdd = Object.entries(result.added);
+    const extensionsToRemove = Object.entries(result.removed);
+    if (result.hasChanges && extensionsToAdd.length > 0) {
+      this.logger.log(
+        `Host ${this.hostName} loading extensions:`, extensionsToAdd
+      );
+      await this.addLoadsNewGuests(result.added, options);
+    }
+
+    if (result.hasChanges && extensionsToRemove.length > 0) {
+      this.logger.log(
+        `Host ${this.hostName} removing extensions:`, extensionsToRemove
+      );
+      extensionsToRemove.forEach(async ([id, ext]) => {
+        if (typeof ext === "object" && ext !== null && "url" in ext) {
+          await this.removeGuest(id, ext as Extension);
+        }
+      });
+    }
+  }
+
+  async addLoadsNewGuests(
+    extensions: InstalledExtensions,
+    options?: PortOptions
+  ): Promise<void> {
     const failed: Port[] = [];
     const loaded: Port[] = [];
     this.loading = true;
@@ -365,8 +401,21 @@ export class Host extends Emitter<HostEvents> {
       })
     );
     this.loading = false;
-    this.emit("loadallguests", { host: this, failed, loaded });
+    this.emit("loadallguests", { host: this, failed, loaded });  }
+
+  /**
+   * Unload and remove a specific extension by its ID.
+   */ 
+  async removeGuest(id: string, extension: Extension): Promise<void> {
+    const guest = this.guests.get(id);
+    if (guest) {
+      this.emit("guestbeforeunload", { guest, host: this });
+      await guest.unload();
+      this.guests.delete(id);
+      this.emit("guestunload", { guest, host: this, });
+    }
   }
+
   /**
    * Unload all extensions and remove their frames/workers. Use this to unmount
    * a UI or when switching to a different extensible UI.
@@ -378,6 +427,7 @@ export class Host extends Emitter<HostEvents> {
     this.runtimeContainer.parentElement.removeChild(this.runtimeContainer);
     this.emit("unload", { host: this });
   }
+
   private createRuntimeContainer(window: Window) {
     const { document } = window;
     const container = document.createElement("div");

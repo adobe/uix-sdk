@@ -122,7 +122,7 @@ export function useExtensions<
       error,
     };
   }
-
+  const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
     ({
@@ -132,7 +132,6 @@ export function useExtensions<
     }: ExtensionRegistryEndpointRegistration) =>
       `${service}/${extensionPoint}/${version}`
   );
-
   const baseDeps = [host, ...deps];
   const {
     requires,
@@ -168,12 +167,46 @@ export function useExtensions<
     (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
-      return () => host.removeEventListener(eventName, handler);
+      
+      return () => {
+        host.removeEventListener(eventName, handler);
+      };
     },
     [...baseDeps, updateOn]
   );
 
+  const subscribeToUnload = useCallback(
+    (handler: EventListener) => {
+      host.addEventListener('guestunload', handler);
+      
+      return () => {
+        host.removeEventListener('guestunload', handler);
+      };
+    },
+    baseDeps
+  );
+  
   const [extensions, setExtensions] = useState(() => getExtensions());
+
+  useEffect(() => {
+    return subscribe(() => setExtensions(getExtensions()));
+  }, [subscribe]);
+
+  const unloadExtentionCallback = (e: CustomEvent) => {
+    const eventDetail = e.detail;
+    const guest = eventDetail.guest as Port<GuestApis>;
+
+    if (guest && guest.id) {
+      setExtensions((prevExtensions) => {
+        const filtered = prevExtensions.filter((ext) => ext.id !== guest.id || ext.url !== guest.url);
+        return filtered.length === 0 ? NO_EXTENSIONS : filtered;
+      });
+    }
+  };
+
+  useEffect(() => {
+    return subscribeToUnload(unloadExtentionCallback);
+  }, [subscribeToUnload]);
 
   useEffect(() => {
     for (const guest of extensions) {
@@ -183,13 +216,6 @@ export function useExtensions<
     }
   }, [provides, extensions]);
 
-  useEffect(() => {
-    return subscribe(() => {
-      setExtensions(getExtensions());
-    });
-  }, [subscribe, getExtensions]);
-
-  const [hostError, setHostError] = useState<Error>();
   useEffect(
     () =>
       host.addEventListener(
