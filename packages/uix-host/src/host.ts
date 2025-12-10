@@ -370,16 +370,14 @@ export class Host extends Emitter<HostEvents> {
     const extensionsToRemove = Object.entries(result.removed);
     if (result.hasChanges && extensionsToAdd.length > 0) {
       this.logger.log(
-        `Host ${this.hostName} loading extensions:`,
-        extensionsToAdd
+        `Host ${this.hostName} loading extensions:`, extensionsToAdd
       );
       await this.addLoadsNewGuests(result.added, options);
     }
 
     if (result.hasChanges && extensionsToRemove.length > 0) {
       this.logger.log(
-        `Host ${this.hostName} removing extensions:`,
-        extensionsToRemove
+        `Host ${this.hostName} removing extensions:`, extensionsToRemove
       );
       extensionsToRemove.forEach(async ([id, ext]) => {
         if (typeof ext === "object" && ext !== null && "url" in ext) {
@@ -403,19 +401,18 @@ export class Host extends Emitter<HostEvents> {
       })
     );
     this.loading = false;
-    this.emit("loadallguests", { host: this, failed, loaded });
-  }
+    this.emit("loadallguests", { host: this, failed, loaded });  }
 
   /**
    * Unload and remove a specific extension by its ID.
-   */
+   */ 
   async removeGuest(id: string, extension: Extension): Promise<void> {
     const guest = this.guests.get(id);
     if (guest) {
       this.emit("guestbeforeunload", { guest, host: this });
       await guest.unload();
       this.guests.delete(id);
-      this.emit("guestunload", { guest, host: this });
+      this.emit("guestunload", { guest, host: this, });
     }
   }
 

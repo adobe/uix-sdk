@@ -16,13 +16,10 @@ import { InstalledExtensions } from "../host";
 export interface ExtensionsDifference {
   added: Record<string, Extension["url"] | Extension>;
   removed: Record<string, Extension["url"] | Extension>;
-  modified: Record<
-    string,
-    {
-      old: Extension["url"] | Extension;
-      new: Extension["url"] | Extension;
-    }
-  >;
+  modified: Record<string, {
+    old: Extension["url"] | Extension;
+    new: Extension["url"] | Extension;
+  }>;
   hasChanges: boolean;
 }
 
@@ -34,7 +31,7 @@ export function compareExtensions(
     added: {},
     removed: {},
     modified: {},
-    hasChanges: false,
+    hasChanges: false
   };
 
   const keys1 = new Set(Object.keys(extensions1));
@@ -58,7 +55,7 @@ export function compareExtensions(
       if (!areExtensionsEqual(ext1, ext2)) {
         result.modified[key] = {
           old: ext1,
-          new: ext2,
+          new: ext2
         };
         result.hasChanges = true;
       }
@@ -87,14 +84,14 @@ function areExtensionsEqual(
 
     const ep1 = ext1.extensionPoints || [];
     const ep2 = ext2.extensionPoints || [];
-
+    
     if (ep1.length !== ep2.length) {
       return false;
     }
-
+    
     const sortedEp1 = [...ep1].sort();
     const sortedEp2 = [...ep2].sort();
-
+    
     for (let i = 0; i < sortedEp1.length; i++) {
       if (sortedEp1[i] !== sortedEp2[i]) {
         return false;
@@ -132,12 +129,10 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
       return false;
     }
 
-    if (
-      !deepEqual(
-        (obj1 as Record<string, unknown>)[key],
-        (obj2 as Record<string, unknown>)[key]
-      )
-    ) {
+    if (!deepEqual(
+      (obj1 as Record<string, unknown>)[key],
+      (obj2 as Record<string, unknown>)[key]
+    )) {
       return false;
     }
   }
