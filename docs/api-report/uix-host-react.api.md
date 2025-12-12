@@ -57,7 +57,7 @@ export type ExtensibilityContext = {
 };
 
 // @public
-export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
+export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
 
 // @public
 export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React_2.JSX.Element;
@@ -85,6 +85,8 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
     experienceShellEnvironment?: "prod" | "stage";
     // (undocumented)
     extensionPoint: string;
+    // (undocumented)
+    extensionsListCallback?: (extensions: InstalledExtensions) => InstalledExtensions;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: This type of declaration is not supported yet by the resolver
     //
     // (undocumented)
@@ -106,6 +108,8 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
 // @public (undocumented)
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
     appName?: string;
+    // (undocumented)
+    extensionsListCallback?: (extensions: InstalledExtensions) => InstalledExtensions;
     extensionsProvider: ExtensionsProvider;
     // Warning: (ae-unresolved-inheritdoc-reference) The @inheritDoc reference could not be resolved: This type of declaration is not supported yet by the resolver
     //
@@ -118,7 +122,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 }
 
 // @public (undocumented)
-export const ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
+export const ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
 
 // @internal (undocumented)
 export const ExtensionContext: Context<ExtensibilityContext>;

@@ -21,6 +21,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName">
 |  [disableExtensionManager?](./uix-host-react.extensibledefaultprops.disableextensionmanager.md) |  | boolean | _(Optional)_ |
 |  [experienceShellEnvironment?](./uix-host-react.extensibledefaultprops.experienceshellenvironment.md) |  | "prod" \| "stage" | _(Optional)_ |
 |  [extensionPoint](./uix-host-react.extensibledefaultprops.extensionpoint.md) |  | string |  |
+|  [extensionsListCallback?](./uix-host-react.extensibledefaultprops.extensionslistcallback.md) |  | (extensions: [InstalledExtensions](./uix-host.installedextensions.md)<!-- -->) =&gt; [InstalledExtensions](./uix-host.installedextensions.md) | _(Optional)_ |
 |  [guestOptions?](./uix-host-react.extensibledefaultprops.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ |
 |  [queryString?](./uix-host-react.extensibledefaultprops.querystring.md) |  | string | _(Optional)_ |
 |  [scope?](./uix-host-react.extensibledefaultprops.scope.md) |  | Record&lt;string, any&gt; | _(Optional)_ |

@@ -74,6 +74,9 @@ export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistr
 }
 
 // @public (undocumented)
+export type ExtensionsArray = Array<[string, Extension | string]>;
+
+// @public (undocumented)
 export type ExtensionsProvider = () => Promise<InstalledExtensions>;
 
 // @public (undocumented)
@@ -82,6 +85,8 @@ export function fetchExtensionsFromRegistry(config: ExtensionRegistryConfig): Pr
 // @public
 export class Host extends Emitter<HostEvents> {
     constructor(config: HostConfig);
+    // (undocumented)
+    addLoadsNewGuests(extensions: InstalledExtensions, options?: PortOptions): Promise<void>;
     // @eventProperty
     contextchange: HostEventContextChange;
     // @eventProperty
@@ -106,6 +111,7 @@ export class Host extends Emitter<HostEvents> {
     // @eventProperty
     loadallguests: HostEventLoadAllGuests;
     loading: boolean;
+    removeGuest(id: string, extension: Extension): Promise<void>;
     shareContext(context: SharedContextValues): void;
     shareContext(setter: (context: SharedContextValues) => SharedContextValues): void;
     // (undocumented)
@@ -145,7 +151,7 @@ export type HostEventLoadAllGuests = HostEvent<"loadallguests", {
 }>;
 
 // @public (undocumented)
-export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
+export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostGuestEvent<"beforeunload"> | HostGuestEvent<"unload"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
 
 // @public (undocumented)
 export type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;

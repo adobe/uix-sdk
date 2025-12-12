@@ -9,14 +9,14 @@ Declares an extensible area in an app, and provides host and extension objects t
 **Signature:**
 
 ```typescript
-export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, }: PropsWithChildren<ExtensibleProps>): React.JSX.Element;
+export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }: PropsWithChildren<ExtensibleProps>): React.JSX.Element;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  { appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, } | PropsWithChildren&lt;[ExtensibleProps](./uix-host-react.extensibleprops.md)<!-- -->&gt; |  |
+|  { appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, } | PropsWithChildren&lt;[ExtensibleProps](./uix-host-react.extensibleprops.md)<!-- -->&gt; |  |
 
 **Returns:**
 

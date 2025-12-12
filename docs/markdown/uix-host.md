@@ -92,6 +92,7 @@ A React binding is currently available. See [Extensible()](./uix-host-react.exte
 |  --- | --- |
 |  [CapabilitySpec](./uix-host.capabilityspec.md) | A specifier for methods to be expected on a remote interface. |
 |  [EndpointDefinition](./uix-host.endpointdefinition.md) |  |
+|  [ExtensionsArray](./uix-host.extensionsarray.md) |  |
 |  [ExtensionsProvider](./uix-host.extensionsprovider.md) |  |
 |  [GuestFilter](./uix-host.guestfilter.md) | Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-host.host.getloadedguests_1.md) |
 |  [HostEvent](./uix-host.hostevent.md) |  |

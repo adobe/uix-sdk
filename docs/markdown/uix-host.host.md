@@ -51,10 +51,12 @@ When a Host creates a Guest, it must create an `<iframe>` element to contain the
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
+|  [addLoadsNewGuests(extensions, options)](./uix-host.host.addloadsnewguests.md) |  |  |
 |  [getLoadedGuests()](./uix-host.host.getloadedguests.md) |  | Return all loaded guests. |
 |  [getLoadedGuests(filter)](./uix-host.host.getloadedguests_1.md) |  | Return loaded guests which satisfy the passed test function. |
 |  [getLoadedGuests(capabilities)](./uix-host.host.getloadedguests_2.md) |  | Return loaded guests which expose the provided [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->. |
 |  [load(extensions, options)](./uix-host.host.load.md) |  | Load extension into host application from provided extension description. Returned promise resolves when all extensions are loaded and registered. |
+|  [removeGuest(id, extension)](./uix-host.host.removeguest.md) |  | Unload and remove a specific extension by its ID. |
 |  [shareContext(context)](./uix-host.host.sharecontext.md) |  | Set the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This overwrites any previous object. |
 |  [shareContext(setter)](./uix-host.host.sharecontext_1.md) |  | Update the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This method takes a callback which receives the previous context and may return an entirely new context, or new values merged with the old context. |
 |  [shareContext(setter)](./uix-host.host.sharecontext_2.md) |  |  |

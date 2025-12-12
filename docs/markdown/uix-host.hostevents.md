@@ -8,7 +8,7 @@
 **Signature:**
 
 ```typescript
-export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
+export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> | HostGuestEvent<"beforeunload"> | HostGuestEvent<"unload"> | HostEvent<"beforeunload"> | HostEvent<"unload"> | HostEventLoadAllGuests | HostEventContextChange | HostEventError;
 ```
 **References:** [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->, [HostEvent](./uix-host.hostevent.md)<!-- -->, [HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md)<!-- -->, [HostEventContextChange](./uix-host.hosteventcontextchange.md)<!-- -->, [HostEventError](./uix-host.hosteventerror.md)
 

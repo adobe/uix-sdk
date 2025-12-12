@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
 import type {
   InstalledExtensions,
@@ -41,6 +41,9 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    * {@inheritDoc HostConfig.sharedContext}
    */
   sharedContext?: SharedContextValues;
+  extensionsListCallback?: (
+    extensions: InstalledExtensions
+  ) => InstalledExtensions;
 }
 
 function areExtensionsDifferent(
@@ -49,9 +52,48 @@ function areExtensionsDifferent(
 ) {
   const ids1 = Object.keys(set1).sort();
   const ids2 = Object.keys(set2).sort();
-  return (
-    ids1.length !== ids2.length || ids1.some((id, index) => id !== ids2[index])
-  );
+
+  if (ids1.length !== ids2.length) {
+    return true;
+  }
+
+  let isDifferent = false;
+
+  ids1.forEach((id) => {
+    if (isDifferent) {
+      return;
+    }
+
+    const ext1 = set1[id];
+    const ext2 = set2[id];
+
+    if (typeof ext1 !== typeof ext2) {
+      isDifferent = true;
+      return;
+    }
+
+    if (typeof ext1 === "string" && typeof ext2 === "string") {
+      if (ext1 !== ext2) {
+        isDifferent = true;
+        return;
+      }
+    }
+
+    if (typeof ext1 === "object" && typeof ext2 === "object") {
+      if (
+        ext1.url !== ext2.url ||
+        JSON.stringify(ext1.extensionPoints) !==
+          JSON.stringify(ext2.extensionPoints) ||
+        JSON.stringify(ext1.configuration) !==
+          JSON.stringify(ext2.configuration)
+      ) {
+        isDifferent = true;
+        return;
+      }
+    }
+  });
+
+  return isDifferent;
 }
 
 /**
@@ -78,18 +120,32 @@ export function Extensible({
   runtimeContainer,
   debug,
   sharedContext,
+  extensionsListCallback,
 }: PropsWithChildren<ExtensibleProps>) {
   const hostName = appName || window.location.host || "mainframe";
 
-  const [extensions, setExtensions] = useState({});
+  const [extensions, setExtensions] = useState<InstalledExtensions>({});
   const [extensionListFetched, setExtensionListFetched] =
     useState<boolean>(false);
+  const prevSharedContext = useRef(JSON.stringify(sharedContext));
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
-        setExtensions((prev) =>
-          areExtensionsDifferent(prev, loaded) ? loaded : prev
-        );
+        setExtensions((prev) => {
+          let newExtensions = loaded;
+
+          if (extensionsListCallback && loaded) {
+            newExtensions = extensionsListCallback(newExtensions);
+          }
+
+          const shouldUpdate = areExtensionsDifferent(prev, newExtensions);
+
+          if (shouldUpdate) {
+            return newExtensions;
+          } else {
+            return prev;
+          }
+        });
       })
       .catch((e: Error | unknown) => {
         console.error("Fetching list of extensions failed!", e);
@@ -97,7 +153,7 @@ export function Extensible({
       .finally(() => {
         setExtensionListFetched(true);
       });
-  }, [extensionsProvider]);
+  }, [extensionsProvider, extensionsListCallback]);
 
   const [host, setHost] = useState<Host>();
   useEffect(() => {
@@ -108,21 +164,39 @@ export function Extensible({
       };
     }
 
-    const host = new Host({ debug, hostName, runtimeContainer, sharedContext });
-    setHost(host);
-
-    if (!Object.entries(extensions).length) {
+    if (!extensions || !Object.keys(extensions).length) {
       return;
     }
 
-    host
-      .load(extensions, guestOptions)
-      .catch(logError("Load of extensions failed!"));
+    const loadExtensions = (hostInstance: Host) => {
+      hostInstance
+        .load(extensions, guestOptions)
+        .catch(logError("Load of extensions failed!"));
+    };
+
+    const sharedContextChanged =
+      prevSharedContext.current !== JSON.stringify(sharedContext);
+
+    if (sharedContextChanged) {
+      prevSharedContext.current = JSON.stringify(sharedContext);
+    }
+    if (!host || sharedContextChanged) {
+      const newHost = new Host({
+        debug,
+        hostName,
+        runtimeContainer,
+        sharedContext,
+      });
+      setHost(newHost);
+      loadExtensions(newHost);
+    } else {
+      loadExtensions(host);
+    }
   }, [debug, hostName, runtimeContainer, extensions]);
 
   // skip render before host is initialized
   if (!host) {
-    return null;
+    return <>{children}</>;
   }
 
   return (
