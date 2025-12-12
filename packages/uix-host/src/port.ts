@@ -341,10 +341,18 @@ export class Port<GuestApi = unknown>
    * Disconnect from the extension.
    */
   public async unload(): Promise<void> {
+    for (const unsubscribe of this.subscriptions) {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    }
+    this.subscriptions = [];
+
     if (this.guestServerFrame && this.guestServerFrame.parentElement) {
       this.guestServerFrame.parentElement.removeChild(this.guestServerFrame);
       this.guestServerFrame = undefined;
     }
+
     this.emit("unload", { guestPort: this });
   }
 
