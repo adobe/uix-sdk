@@ -305,7 +305,7 @@ export class Port<GuestApi = unknown>
   }
 
   /**
-   * True when al extensions have loaded.
+   * True when all extensions have loaded.
    */
   public isReady(): boolean {
     return this.isLoaded && this.isGuestReady && !this.error;
@@ -348,6 +348,7 @@ export class Port<GuestApi = unknown>
     if (this.guestReadyMessageHandler) {
       window.removeEventListener("message", this.guestReadyMessageHandler);
       this.guestReadyMessageHandler = null;
+      this.isGuestReady = false;
     }
 
     for (const unsubscribe of this.subscriptions) {
@@ -455,6 +456,7 @@ export class Port<GuestApi = unknown>
   }
 
   private async connect() {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const serverFrame =
       this.runtimeContainer.ownerDocument.createElement("iframe");
     normalizeIframe(serverFrame);
@@ -468,6 +470,12 @@ export class Port<GuestApi = unknown>
         this
       );
     }
+    try {
+      this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
+    } catch (error) {
+      this.logger?.error(`Failed to attach guest server for ${this.id}:`, error);
+      clearTimeout(timeoutId);
+    }
 
     // Set up promise to wait for guest-ready message
     const guestReadyPromise = new Promise<void>((resolve, reject) => {
@@ -478,7 +486,7 @@ export class Port<GuestApi = unknown>
           event.data.type === "guest-ready" &&
           event.source === serverFrame.contentWindow
         ) {
-          console.log(
+          this.logger?.log(
             `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
               event.data.guestId || "unknown"
             })`
@@ -497,7 +505,7 @@ export class Port<GuestApi = unknown>
       };
 
       // Set up timeout in case guest never sends ready message
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         window.removeEventListener("message", handleMessage);
         reject(
           new Error(
@@ -511,8 +519,6 @@ export class Port<GuestApi = unknown>
       // Store cleanup function
       this.guestReadyMessageHandler = handleMessage;
     });
-
-    this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
 
     // Wait for guest to report ready before marking as loaded
     await guestReadyPromise;
