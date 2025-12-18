@@ -473,7 +473,10 @@ export class Port<GuestApi = unknown>
     try {
       this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
     } catch (error) {
-      this.logger?.error(`Failed to attach guest server for ${this.id}:`, error);
+      this.logger?.error(
+        `Failed to attach guest server for ${this.id}:`,
+        error
+      );
       clearTimeout(timeoutId);
     }
 
