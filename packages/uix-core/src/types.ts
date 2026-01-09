@@ -207,7 +207,8 @@ export type GuestConnectionEvents<
   | GuestConnectionEvent<
       "guestresize",
       { dimensions: UIFrameRect; iframe: HTMLIFrameElement }
-    >;
+    >
+  | GuestConnectionEvent<"guestready">;
 
 /**
  * {@inheritDoc @adobe/uix-host#Port}
