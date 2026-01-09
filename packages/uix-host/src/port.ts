@@ -317,11 +317,10 @@ export class Port<GuestApi = unknown>
         return (
           this.isLoaded &&
           !this.error &&
-          this.isSharedContextUpdated &&
-          this.isConfigurationUpdated
+          this.isGuestReady
         );
       } else {
-        return this.isLoaded && this.isGuestReady && !this.error;
+        return this.isLoaded && this.isSharedContextUpdated && this.isConfigurationUpdated && !this.error;
       }
     }
     return false;
