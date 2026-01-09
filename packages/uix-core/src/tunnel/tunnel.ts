@@ -110,9 +110,11 @@ export class Tunnel extends EventEmitter {
    *
    * @alpha
    */
+
   static toIframe(
     target: HTMLIFrameElement,
-    options: Partial<TunnelConfig>
+    options: Partial<TunnelConfig>,
+    versionCallback?: (version: string) => void
   ): Tunnel {
     if (!isIframe(target)) {
       throw new Error(
@@ -129,6 +131,7 @@ export class Tunnel extends EventEmitter {
       targetOrigin: config.targetOrigin,
       logger: config.logger,
     });
+
     tunnel.on("destroyed", () =>
       config.logger.log(
         `Tunnel to iframe at ${config.targetOrigin} destroyed!`,
@@ -153,13 +156,18 @@ export class Tunnel extends EventEmitter {
     );
     let frameStatusCheck: number;
     let timeout: number;
+
     const offerListener = (event: MessageEvent) => {
       if (
         !tunnel.isConnected &&
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
-        const accepted = messenger.makeAccepted(unwrap(event.data).offers);
+        const { offers, version } = unwrap(event.data);
+        const accepted = messenger.makeAccepted(offers);
+        if (versionCallback) {
+          versionCallback(version);
+        }
         const channel = new MessageChannel();
         target.contentWindow.postMessage(accepted, config.targetOrigin, [
           channel.port1,

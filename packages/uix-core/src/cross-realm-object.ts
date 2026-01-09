@@ -114,8 +114,9 @@ export async function connectParentWindow<Expected>(
 export async function connectIframe<Expected>(
   frame: HTMLIFrameElement,
   tunnelOptions: Partial<TunnelConfig>,
-  apiToSend: unknown
+  apiToSend: unknown,
+  versionCallback?: (version: string) => void
 ): Promise<CrossRealmObject<Expected>> {
-  const tunnel = Tunnel.toIframe(frame, tunnelOptions);
+  const tunnel = Tunnel.toIframe(frame, tunnelOptions, versionCallback);
   return setupApiExchange<Expected>(tunnel, apiToSend);
 }

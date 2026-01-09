@@ -24,6 +24,7 @@ import type {
 } from "@adobe/uix-core";
 import { Emitter, connectIframe } from "@adobe/uix-core";
 import { normalizeIframe } from "./dom-utils";
+import { compareVersions } from "./utils/comparePackagesVersions";
 
 /**
  * A specifier for methods to be expected on a remote interface.
@@ -190,6 +191,8 @@ export class Port<GuestApi = unknown>
   private configuration?: Record<string, unknown>;
   private subscriptions: Unsubscriber[] = [];
   private timeout: number;
+  private isSharedContextUpdated = false;
+  private isConfigurationUpdated = false;
 
   /**
    * If any errors occurred during the loading of guests, this property will
@@ -206,6 +209,7 @@ export class Port<GuestApi = unknown>
   public url: URL;
   public extensionPoints: string[];
   private guestServer: CrossRealmObject<GuestProxyWrapper>;
+  private guestVersion: string | undefined;
 
   // #endregion Properties (13)
 
@@ -305,7 +309,20 @@ export class Port<GuestApi = unknown>
    * True when al extensions have loaded.
    */
   public isReady(): boolean {
-    return this.isLoaded && !this.error;
+    if (this.guestVersion && this.guestVersion.length > 0) {
+      if (compareVersions(this.guestVersion, "1.1.3") >= 0) {
+        return (
+          this.isLoaded &&
+          !this.error &&
+          this.isSharedContextUpdated &&
+          this.isConfigurationUpdated
+        );
+      } else {
+        return this.isLoaded && !this.error;
+      }
+    }
+    return false;
+    // return this.isLoaded && !this.error;
   }
 
   /**
@@ -427,7 +444,6 @@ export class Port<GuestApi = unknown>
   ) {
     // at least this is necessary
     normalizeIframe(iframe);
-    this.logger.log("attachFrame", iframe);
     return connectIframe<T>(
       iframe,
       {
@@ -436,11 +452,20 @@ export class Port<GuestApi = unknown>
         timeout: this.timeout,
       },
       {
-        getSharedContext: () => this.sharedContext,
-        getConfiguration: () => this.configuration,
+        getSharedContext: () => {
+          this.isSharedContextUpdated = true;
+          return this.sharedContext;
+        },
+        getConfiguration: () => {
+          this.isConfigurationUpdated = true;
+          return this.configuration;
+        },
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address, addedMethods as VirtualApi),
         ...addedMethods,
+      },
+      (version: string) => {
+        this.guestVersion = version;
       }
     );
   }
