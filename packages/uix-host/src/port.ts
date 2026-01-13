@@ -194,8 +194,6 @@ export class Port<GuestApi = unknown>
   private configuration?: Record<string, unknown>;
   private subscriptions: Unsubscriber[] = [];
   private timeout: number;
-  private isSharedContextUpdated = false;
-  private isConfigurationUpdated = false;
 
   /**
    * If any errors occurred during the loading of guests, this property will
@@ -314,17 +312,12 @@ export class Port<GuestApi = unknown>
   public isReady(): boolean {
     if (this.guestVersion && this.guestVersion.length > 0) {
       if (compareVersions(this.guestVersion, "1.1.3") >= 0) {
-        return (
-          this.isLoaded &&
-          !this.error &&
-          this.isGuestReady
-        );
+        return this.isLoaded && !this.error && this.isGuestReady;
       } else {
-        return this.isLoaded && this.isSharedContextUpdated && this.isConfigurationUpdated && !this.error;
+        return this.isLoaded && !this.error;
       }
     }
     return false;
-    // return this.isLoaded && !this.error;
   }
 
   /**
@@ -462,11 +455,9 @@ export class Port<GuestApi = unknown>
       },
       {
         getSharedContext: () => {
-          this.isSharedContextUpdated = true;
           return this.sharedContext;
         },
         getConfiguration: () => {
-          this.isConfigurationUpdated = true;
           return this.configuration;
         },
         invokeHostMethod: (address: HostMethodAddress) =>
@@ -504,51 +495,33 @@ export class Port<GuestApi = unknown>
       clearTimeout(timeoutId);
     }
 
-    // Set up promise to wait for guest-ready message
-    const guestReadyPromise = new Promise<void>((resolve, reject) => {
-      const handleMessage = (event: MessageEvent) => {
-        // Check if this is a guest-ready message from our specific iframe
-        if (
-          event.data &&
-          event.data.type === "guest-ready" &&
-          event.source === serverFrame.contentWindow
-        ) {
-          this.logger?.log(
-            `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
-              event.data.guestId || "unknown"
-            })`
-          );
-          this.isGuestReady = true;
-          if (this.logger) {
-            this.logger.info(`Guest ${this.id} reported ready status`);
-          }
-          this.emit("guestready", { guestPort: this });
-
-          // Clean up listener and resolve
-          window.removeEventListener("message", handleMessage);
-          clearTimeout(timeoutId);
-          resolve();
-        }
-      };
-
-      // Set up timeout in case guest never sends ready message
-      timeoutId = setTimeout(() => {
-        window.removeEventListener("message", handleMessage);
-        reject(
-          new Error(
-            `Guest ${this.id} did not send ready message within ${this.timeout}ms`
-          )
+    const handleMessage = (event: MessageEvent) => {
+      // Check if this is a guest-ready message from our specific iframe
+      if (
+        event.data &&
+        event.data.type === "guest-ready" &&
+        event.source === serverFrame.contentWindow
+      ) {
+        this.logger?.log(
+          `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
+            event.data.guestId || "unknown"
+          })`
         );
-      }, this.timeout);
+        this.isGuestReady = true;
+        if (this.logger) {
+          this.logger.info(`Guest ${this.id} reported ready status`);
+        }
+        this.emit("guestready", { guestPort: this });
 
-      window.addEventListener("message", handleMessage);
+        // Clean up listener and resolve
+        window.removeEventListener("message", handleMessage);
+      }
+    };
 
-      // Store cleanup function
-      this.guestReadyMessageHandler = handleMessage;
-    });
+    window.addEventListener("message", handleMessage);
 
-    // Wait for guest to report ready before marking as loaded
-    await guestReadyPromise;
+    // Store cleanup function
+    this.guestReadyMessageHandler = handleMessage;
 
     this.isLoaded = true;
     if (this.logger) {
