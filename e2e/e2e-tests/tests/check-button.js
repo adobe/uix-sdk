@@ -4,7 +4,7 @@ const iframeSelector = "#iframe-for-guest";
 
 fixture("UIX Host App").page("http://localhost:3000");
 
-test("Check if guest loaded", async (t) => {
+test("Check if guest is loaded", async (t) => {
   const iframe = Selector(iframeSelector);
   await t.expect(iframe.exists).ok("Iframe should exist");
 
