@@ -14,7 +14,7 @@ export type Asynced<T> = T extends (...args: infer A) => infer R ? (...args: A) 
 };
 
 // @alpha
-export function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<CrossRealmObject<Expected>>;
+export function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown, versionCallback?: (version: string) => void): Promise<CrossRealmObject<Expected>>;
 
 // @alpha
 export function connectParentWindow<Expected>(tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<CrossRealmObject<Expected>>;
@@ -139,7 +139,7 @@ export type GuestConnectionEvent<Type extends string = string, Detail = Record<s
 export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"beforecallguestmethod"> | GuestConnectionEvent<"guestresize", {
     dimensions: UIFrameRect;
     iframe: HTMLIFrameElement;
-}>;
+}> | GuestConnectionEvent<"guestready">;
 
 // @internal (undocumented)
 export type GuestEmitter = GuestConnection & Emits<GuestConnectionEvents>;
@@ -211,7 +211,7 @@ export class Tunnel extends EventEmitter {
     emitLocal: (type: string | symbol, payload?: unknown) => any;
     // (undocumented)
     isConnected: boolean;
-    static toIframe(target: HTMLIFrameElement, options: Partial<TunnelConfig>): Tunnel;
+    static toIframe(target: HTMLIFrameElement, options: Partial<TunnelConfig>, versionCallback?: (version: string) => void): Tunnel;
     static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel;
 }
 

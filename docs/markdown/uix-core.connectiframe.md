@@ -12,7 +12,7 @@ Create a CrossRealmObject simulating objects from the provided iframe runtime.
 **Signature:**
 
 ```typescript
-export declare function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown): Promise<CrossRealmObject<Expected>>;
+export declare function connectIframe<Expected>(frame: HTMLIFrameElement, tunnelOptions: Partial<TunnelConfig>, apiToSend: unknown, versionCallback?: (version: string) => void): Promise<CrossRealmObject<Expected>>;
 ```
 
 ## Parameters
@@ -22,6 +22,7 @@ export declare function connectIframe<Expected>(frame: HTMLIFrameElement, tunnel
 |  frame | HTMLIFrameElement |  |
 |  tunnelOptions | Partial&lt;[TunnelConfig](./uix-core.tunnelconfig.md)<!-- -->&gt; |  |
 |  apiToSend | unknown |  |
+|  versionCallback | (version: string) =&gt; void | _(Optional)_ |
 
 **Returns:**
 

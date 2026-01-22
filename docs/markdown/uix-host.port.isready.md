@@ -4,7 +4,7 @@
 
 ## Port.isReady() method
 
-True when al extensions have loaded.
+True when all extensions have loaded.
 
 **Signature:**
 

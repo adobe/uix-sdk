@@ -17,7 +17,7 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 
 |  Function | Description |
 |  --- | --- |
-|  [connectIframe(frame, tunnelOptions, apiToSend)](./uix-core.connectiframe.md) | **_(ALPHA)_** Create a CrossRealmObject simulating objects from the provided iframe runtime. |
+|  [connectIframe(frame, tunnelOptions, apiToSend, versionCallback)](./uix-core.connectiframe.md) | **_(ALPHA)_** Create a CrossRealmObject simulating objects from the provided iframe runtime. |
 |  [connectParentWindow(tunnelOptions, apiToSend)](./uix-core.connectparentwindow.md) | **_(ALPHA)_** Create a CrossRealmObject in an iframe, simulating objects from the parent window. |
 
 ## Interfaces

@@ -11,7 +11,7 @@
 export type GuestConnectionEvents<HostApi extends Record<string, unknown> = Record<string, unknown>> = GuestConnectionEvent<"hostprovide"> | GuestConnectionEvent<"unload"> | GuestConnectionEvent<"beforecallhostmethod", HostMethodAddress<HostApi>> | GuestConnectionEvent<"beforecallguestmethod"> | GuestConnectionEvent<"guestresize", {
     dimensions: UIFrameRect;
     iframe: HTMLIFrameElement;
-}>;
+}> | GuestConnectionEvent<"guestready">;
 ```
 **References:** [GuestConnectionEvent](./uix-core.guestconnectionevent.md)
 
