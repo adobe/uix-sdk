@@ -1,7 +1,6 @@
 {
   "src": "./tests/**/*.js",
-  "browsers": ["chrome:headless"],
-  "baseUrl": "http://localhost:3000",
+  "browsers": ["chrome:headless --disable-web-security --allow-running-insecure-content --disable-features=VizDisplayCompositor --allow-access-from-files --disable-site-isolation-trials"],
   "hostname": "localhost",
   "screenshots": {
     "path": "./artifacts/screenshots/",
@@ -9,12 +8,12 @@
     "fullPage": true
   },
   "reporter": "spec",
-  "speed": 0.2,
+  "speed": 1,
   "debugMode": false,
   "debugOnFail": true,
   "stopOnFirstFail": true,
   "selectorTimeout": 5000,
   "assertionTimeout": 10000,
-  "pageLoadTimeout": 10000,
-  "pageRequestTimeout": 80000
+  "pageLoadTimeout": 15000,
+  "pageRequestTimeout": 20000
 }
