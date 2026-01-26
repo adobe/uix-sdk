@@ -25,6 +25,8 @@ jobs:
         working-directory: e2e/host-app
         run: |
           npm install @adobe/uix-host-react@${{ matrix.host-app-version }}
+          npm install @adobe/uix-host@${{ matrix.host-app-version }}
+          npm install @adobe/uix-core@${{ matrix.host-app-version }}
           npm install
 
       - name: Install Dependencies for Guest App
@@ -32,6 +34,7 @@ jobs:
 
         run: |
           npm install @adobe/uix-guest@${{ matrix.guest-app-version }}
+          npm install @adobe/uix-core@${{ matrix.guest-app-version }}
           npm install
 
       - name: Start Host App
