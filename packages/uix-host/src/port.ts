@@ -311,7 +311,7 @@ export class Port<GuestApi = unknown>
    */
   public isReady(): boolean {
     if (this.guestVersion && this.guestVersion.length > 0) {
-      if (compareVersions(this.guestVersion, "1.1.3") >= 0) {
+      if (compareVersions(this.guestVersion, "1.1.4") >= 0) {
         return this.isLoaded && !this.error && this.isGuestReady;
       } else {
         return this.isLoaded && !this.error;
