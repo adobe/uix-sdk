@@ -52,6 +52,10 @@ jobs:
           echo "Waiting for services to start..."
           sleep 10 # Adjust the time based on how long the apps take to start
 
+      - name: Wait for servers to start
+        run: |
+          npx wait-on http://localhost:3000 http://localhost:3002 --timeout 60000
+
       - name: Run E2E Tests with TestCafe
         working-directory: e2e/e2e-tests
         run: |

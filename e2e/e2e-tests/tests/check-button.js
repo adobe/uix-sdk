@@ -26,11 +26,11 @@ test("Set message from host", async (t) => {
   await t.click("#set-message-from-host");
 
   const iframe = Selector(iframeSelector);
-  await t.expect(iframe.exists).ok("Iframe should exist", { timeout: 10000 });
+  await t.expect(iframe.exists).ok("Iframe should exist", { timeout: 30000 });
 
   await t
     .expect(iframe.getAttribute("src"))
-    .notEql("", "Iframe should have src attribute", { timeout: 10000 });
+    .notEql("", "Iframe should have src attribute", { timeout: 30000 });
 
   await t.switchToIframe(iframeSelector);
 
