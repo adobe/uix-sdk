@@ -33,7 +33,7 @@ const base = {
   define: {
     UIX_SDK_BUILDMODE: mode,
     UIX_SDK_VERSION:
-      process.env.UIX_SDK_VERSION || `"${require("../package.json").version}"`,
+      JSON.stringify(process.env.UIX_SDK_VERSION || `"${require("../package.json").version}"`),
   },
   tsconfig: "./tsconfig.json", // see above
   format: ["cjs"],
