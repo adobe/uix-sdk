@@ -306,12 +306,21 @@ export class Port<GuestApi = unknown>
     );
   }
 
+  private getGuestVersion(): string {
+    if (!this.guestVersion) {
+      return '';
+    }
+    const versionMatch = this.guestVersion.match(/\d+(\.\d+)*/);
+    return versionMatch ? versionMatch[0] : '';
+  }
+
   /**
    * True when all extensions have loaded.
    */
   public isReady(): boolean {
-    if (this.guestVersion && this.guestVersion.length > 0) {
-      if (compareVersions(this.guestVersion, "1.1.4") >= 0) {
+    const version = this.getGuestVersion();
+    if (version && version.length > 0) {
+      if (compareVersions(version, "1.1.4") >= 0) {
         return this.isLoaded && !this.error && this.isGuestReady;
       } else {
         return this.isLoaded && !this.error;
