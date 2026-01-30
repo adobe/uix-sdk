@@ -308,10 +308,10 @@ export class Port<GuestApi = unknown>
 
   private getGuestVersion(): string {
     if (!this.guestVersion) {
-      return '';
+      return "";
     }
     const versionMatch = this.guestVersion.match(/\d+(\.\d+)*/);
-    return versionMatch ? versionMatch[0] : '';
+    return versionMatch ? versionMatch[0] : "";
   }
 
   /**
