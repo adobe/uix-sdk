@@ -319,7 +319,7 @@ export class Port<GuestApi = unknown>
    */
   public isReady(): boolean {
     const version = this.getGuestVersion();
-    if (version && version.length > 0) {
+    if (version) {
       if (compareVersions(version, "1.1.4") >= 0) {
         return this.isLoaded && !this.error && this.isGuestReady;
       } else {
@@ -504,33 +504,53 @@ export class Port<GuestApi = unknown>
       clearTimeout(timeoutId);
     }
 
-    const handleMessage = (event: MessageEvent) => {
-      // Check if this is a guest-ready message from our specific iframe
-      if (
-        event.data &&
-        event.data.type === "guest-ready" &&
-        event.source === serverFrame.contentWindow
-      ) {
-        this.logger?.log(
-          `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
-            event.data.guestId || "unknown"
-          })`
-        );
-        this.isGuestReady = true;
-        if (this.logger) {
-          this.logger.info(`Guest ${this.id} reported ready status`);
+    const guestReadyPromise = new Promise<void>((resolve, reject) => {
+      const handleMessage = (event: MessageEvent) => {
+        // Check if this is a guest-ready message from our specific iframe
+        if (
+          event.data &&
+          event.data.type === "guest-ready" &&
+          event.source === serverFrame.contentWindow
+        ) {
+          this.logger?.log(
+            `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
+              event.data.guestId || "unknown"
+            })`
+          );
+          this.isGuestReady = true;
+          if (this.logger) {
+            this.logger.info(`Guest ${this.id} reported ready status`);
+          }
+          this.emit("guestready", { guestPort: this });
+
+          // Clean up listener and resolve
+          window.removeEventListener("message", handleMessage);
+          clearTimeout(timeoutId);
+          resolve();
         }
-        this.emit("guestready", { guestPort: this });
+      };
 
-        // Clean up listener and resolve
+      // Set up timeout in case guest never sends ready message
+      timeoutId = setTimeout(() => {
         window.removeEventListener("message", handleMessage);
-      }
-    };
+        reject(
+          new Error(
+            `Guest ${this.id} did not send ready message within ${this.timeout}ms`
+          )
+        );
+      }, this.timeout);
 
-    window.addEventListener("message", handleMessage);
+      window.addEventListener("message", handleMessage);
 
-    // Store cleanup function
-    this.guestReadyMessageHandler = handleMessage;
+      // Store cleanup function
+      this.guestReadyMessageHandler = handleMessage;
+    });
+
+    const version = this.getGuestVersion();
+    if (compareVersions(version, "1.1.4") >=0) {
+      // Wait for guest to report ready before marking as loaded
+      await guestReadyPromise;
+    }
 
     this.isLoaded = true;
     if (this.logger) {
