@@ -47,9 +47,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.inputs.branch || github.ref }}
-
-      - name: Set up Node.js
+          ref: ${{ github.event.inputs.branch || github.ref }}      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.19.5'
@@ -68,9 +66,9 @@ jobs:
       - name: Skip build step
         if: ${{ github.event.inputs.run_build == 'false' }}
         run: |
-          echo "Skipping package build (run_build = false)"
+          echo "Skipping package build"
           echo "Checking if dist folders exist..."
-          ls -la packages/*/dist || echo "Some dist folders missing - tests may fail"
+          ls -la packages/*/dist || echo "Some dist folders missing"
 
       - name: Install host app dependencies
         working-directory: e2e/local-dist/host-app
