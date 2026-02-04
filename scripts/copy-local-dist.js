@@ -102,24 +102,11 @@ function removeDirSafe(dirPath) {
  */
 function copyDir(src, dest) {
   try {
-    // Ensure parent directory exists first (synchronously)
-    const parentDir = path.dirname(dest);
-    try {
-      if (!fs.existsSync(parentDir)) {
-        fs.mkdirSync(parentDir, { recursive: true });
-        logInfo(`  Created parent: ${parentDir}`);
-      }
-    } catch (mkdirError) {
-      logError(`  Failed to create parent directory ${parentDir}: ${mkdirError.message}`);
-      throw mkdirError;
-    }
-    
-    // Ensure destination directory exists (synchronously)
-    try {
+    // Ensure destination directory exists (with all parents)
+    // Use synchronous existsSync + mkdirSync for maximum reliability in CI
+    if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
-    } catch (mkdirError) {
-      logError(`  Failed to create destination ${dest}: ${mkdirError.message}`);
-      throw mkdirError;
+      logInfo(`  Created: ${dest}`);
     }
     
     // Get all items in source directory
@@ -248,8 +235,7 @@ function copyToApp(appPath) {
     fs.mkdirSync(adobeDir, { recursive: true });
     logInfo(`Created @adobe directory in ${appPath}`);
   }
-  
-  let success = true;
+    let success = true;
   let copiedPackages = 0;
   // Copy each package
   for (const pkg of PACKAGES) {
@@ -258,24 +244,24 @@ function copyToApp(appPath) {
     
     log(`  Copying ${pkg.name}...`);
     
-    // Ensure the full path to target exists (including @adobe directory)
-    // This is critical for CI environments where mkdir might not be immediate
+    // Ensure the full target path exists BEFORE copying
+    // This is critical for CI environments
     try {
-      fs.mkdirSync(adobeDir, { recursive: true });
-      logInfo(`  Ensured @adobe directory exists for ${pkg.name}`);
+      fs.mkdirSync(targetPath, { recursive: true });
+      logInfo(`  Created target directory: ${targetPath}`);
     } catch (error) {
-      logError(`  Failed to ensure @adobe directory: ${error.message}`);
+      logError(`  Failed to create target directory ${targetPath}: ${error.message}`);
       success = false;
       continue;
     }
     
-    // Remove existing target directory safely
-    if (dirExists(targetPath)) {
-      if (!removeDirSafe(targetPath)) {
-        logError(`  Failed to remove existing ${pkg.name}`);
-        success = false;
-        continue;
-      }
+    // Remove the directory we just created (we need to copy into it fresh)
+    try {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    } catch (error) {
+      logError(`  Failed to remove target directory ${targetPath}: ${error.message}`);
+      success = false;
+      continue;
     }
     
     // Copy dist folder contents
