@@ -102,6 +102,12 @@ function removeDirSafe(dirPath) {
  */
 function copyDir(src, dest) {
   try {
+    // Ensure parent directories exist first
+    const parentDir = path.dirname(dest);
+    if (!fs.existsSync(parentDir)) {
+      fs.mkdirSync(parentDir, { recursive: true });
+    }
+    
     // Ensure destination directory exists
     fs.mkdirSync(dest, { recursive: true });
     
@@ -234,13 +240,18 @@ function copyToApp(appPath) {
   
   let success = true;
   let copiedPackages = 0;
-  
-  // Copy each package
+    // Copy each package
   for (const pkg of PACKAGES) {
     const sourcePath = path.join(ROOT_DIR, pkg.source);
     const targetPath = path.join(adobeDir, pkg.name);
     
     log(`  Copying ${pkg.name}...`);
+    
+    // Ensure parent directory exists before removing/copying
+    const targetParent = path.dirname(targetPath);
+    if (!fs.existsSync(targetParent)) {
+      fs.mkdirSync(targetParent, { recursive: true });
+    }
     
     // Remove existing target directory safely
     if (dirExists(targetPath)) {
