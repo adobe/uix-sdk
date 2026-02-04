@@ -178,7 +178,7 @@ function verifyDistFolders() {
     results.push({
       package: pkg.name,
       path: pkg.source,
-      exists: exists,.
+      exists: exists,
       fullPath: fullPath
     });
     
