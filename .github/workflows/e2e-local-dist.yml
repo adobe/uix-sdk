@@ -132,7 +132,8 @@ jobs:
         run: |
           echo "Installing test dependencies..."
           npm install
-          echo "✅ Test dependencies installed"      - name: Run E2E tests
+          echo "✅ Test dependencies installed"
+      - name: Run E2E tests
         working-directory: e2e/local-dist/tests
         timeout-minutes: ${{ fromJson(github.event.inputs.test_timeout || '10') }}
         run: |
