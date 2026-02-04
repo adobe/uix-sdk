@@ -178,7 +178,7 @@ function verifyDistFolders() {
     results.push({
       package: pkg.name,
       path: pkg.source,
-      exists: exists,
+      exists: exists,.
       fullPath: fullPath
     });
     
@@ -215,9 +215,14 @@ function copyToApp(appPath) {
   // Check if node_modules exists
   const nodeModulesPath = path.join(appFullPath, 'node_modules');
   if (!dirExists(nodeModulesPath)) {
-    logError(`node_modules not found in ${appPath}`);
-    logInfo(`Run "npm install" in ${appPath} first`);
-    return false;
+    logWarning(`node_modules not found in ${appPath}, creating...`);
+    try {
+      fs.mkdirSync(nodeModulesPath, { recursive: true });
+      logInfo(`Created node_modules in ${appPath}`);
+    } catch (error) {
+      logError(`Failed to create node_modules in ${appPath}: ${error.message}`);
+      return false;
+    }
   }
   
   // Ensure @adobe directory exists

@@ -150,27 +150,6 @@ jobs:
           BRANCH_NAME: ${{ github.event.inputs.branch || github.ref_name }}
           WORKFLOW_RUN_ID: ${{ github.run_id }}
 
-      - name: Upload test artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
-          path: |
-            e2e/local-dist/tests/artifacts/
-            e2e/local-dist/tests/screenshots/
-          retention-days: 7
-
-      - name: Upload build logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
-          path: |
-            packages/*/dist/
-            npm-debug.log*
-            ~/.npm/_logs/
-          retention-days: 3
-
       - name: Cleanup processes
         if: always()
         run: |
