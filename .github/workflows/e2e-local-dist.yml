@@ -84,7 +84,9 @@ jobs:
         run: |
           echo "Installing guest app with local packages..."
           npm install
-          echo "Guest app dependencies installed"      - name: Copy build files to applications
+          echo "Guest app dependencies installed"
+
+      - name: Copy build files to applications
         run: |
           echo "Copying local packages..."
           npm run copy:local-dist
