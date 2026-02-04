@@ -38,12 +38,11 @@ jobs:
     steps:
       - name: Display workflow inputs
         run: |
-          echo "🚀 Starting E2E Local Dist Tests"
-          echo "📋 Workflow Inputs:"
-          echo "  - Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "  - Build packages: ${{ github.event.inputs.run_build || 'true' }}"
-          echo "  - Test timeout: ${{ github.event.inputs.test_timeout || '15' }} minutes"
-          echo "  - Triggered by: ${{ github.event_name }}"
+          echo "Starting E2E Local Dist Tests"
+          echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "Build packages: ${{ github.event.inputs.run_build || 'true' }}"
+          echo "Test timeout: ${{ github.event.inputs.test_timeout || '15' }} minutes"
+          echo "Triggered by: ${{ github.event_name }}"
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -62,34 +61,34 @@ jobs:
       - name: Build all packages
         if: ${{ github.event.inputs.run_build != 'false' }}
         run: |
-          echo "🔨 Building UIX SDK packages..."
+          echo "Building UIX SDK packages..."
           npm run build
-          echo "✅ All packages built successfully"
+          echo "All packages built successfully"
 
       - name: Skip build step
         if: ${{ github.event.inputs.run_build == 'false' }}
         run: |
-          echo "⏭️ Skipping package build (run_build = false)"
-          echo "🔍 Checking if dist folders exist..."
-          ls -la packages/*/dist || echo "⚠️ Some dist folders missing - tests may fail"
+          echo "Skipping package build (run_build = false)"
+          echo "Checking if dist folders exist..."
+          ls -la packages/*/dist || echo "Some dist folders missing - tests may fail"
 
       - name: Install host app dependencies
         working-directory: e2e/local-dist/host-app
         run: |
           echo "Installing host app with local packages..."
           npm install
-          echo "✅ Host app dependencies installed"
+          echo "Host app dependencies installed"
 
       - name: Install guest app dependencies
         working-directory: e2e/local-dist/guest-app
         run: |
           echo "Installing guest app with local packages..."
           npm install
-          echo "✅ Guest app dependencies installed"
+          echo "Guest app dependencies installed"
 
       - name: Copy build files to applications
         run: |
-          echo "Copy local packages..."
+          echo "Copying local packages..."
           npm run copy:local-dist
 
       - name: Start host app
@@ -120,30 +119,30 @@ jobs:
           
           echo "Waiting for servers to respond..."
           wait-on http://localhost:3000 http://localhost:3002 --timeout 180000 --interval 3000
-          echo "✅ Both applications are ready!"
+          echo "Both applications are ready!"
 
       - name: Verify applications are responding
         run: |
           echo "Testing host app response..."
-          wget --spider --quiet http://localhost:3000 && echo "✅ Host app responding" || echo "❌ Host app not responding"
+          wget --spider --quiet http://localhost:3000 && echo "Host app responding" || echo "Host app not responding"
           
           echo "Testing guest app response..."
-          wget --spider --quiet http://localhost:3002 && echo "✅ Guest app responding" || echo "❌ Guest app not responding"
+          wget --spider --quiet http://localhost:3002 && echo "Guest app responding" || echo "Guest app not responding"
 
       - name: Install test dependencies
         working-directory: e2e/local-dist/tests
         run: |
           echo "Installing test dependencies..."
           npm install
-          echo "✅ Test dependencies installed"
+          echo "Test dependencies installed"
 
       - name: Run E2E tests
         working-directory: e2e/local-dist/tests
         timeout-minutes: ${{ fromJson(github.event.inputs.test_timeout || '10') }}
         run: |
-          echo "🧪 Running E2E tests with local dist packages..."
-          echo "📍 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "🏗️ Build enabled: ${{ github.event.inputs.run_build || 'true' }}"
+          echo "Running E2E tests with local dist packages..."
+          echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "Build enabled: ${{ github.event.inputs.run_build || 'true' }}"
           npm test
         env:
           CI: true
@@ -185,7 +184,6 @@ jobs:
             kill $GUEST_PID 2>/dev/null || echo "Guest process already stopped"
           fi
           
-          # Kill any remaining processes on our ports
           pkill -f "npm.*start.*3000" 2>/dev/null || echo "No remaining processes on port 3000"
           pkill -f "npm.*start.*3002" 2>/dev/null || echo "No remaining processes on port 3002"
           pkill -f "node.*3000" 2>/dev/null || echo "No node processes on port 3000"
@@ -202,7 +200,7 @@ jobs:
         run: |
           echo "## UIX SDK Local Dist E2E Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📋 Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Configuration" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: \`${{ github.event.inputs.branch || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Packages**: ${{ github.event.inputs.run_build || 'true' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Test Timeout**: ${{ github.event.inputs.test_timeout || '15' }} minutes" >> $GITHUB_STEP_SUMMARY
@@ -211,13 +209,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.build-and-test.result }}" == "success" ]; then
-            echo "✅ **Status**: All tests passed with local dist packages" >> $GITHUB_STEP_SUMMARY
-            echo "🎯 **Build Type**: Local development build" >> $GITHUB_STEP_SUMMARY
-            echo "📦 **Packages**: Built from source in \`./packages/\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Status**: All tests passed with local dist packages" >> $GITHUB_STEP_SUMMARY
+            echo "**Build Type**: Local development build" >> $GITHUB_STEP_SUMMARY
+            echo "**Packages**: Built from source in \`./packages/\`" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ **Status**: Tests failed with local dist packages" >> $GITHUB_STEP_SUMMARY
-            echo "🔍 **Next Steps**: Check build logs and test artifacts" >> $GITHUB_STEP_SUMMARY
-            echo "📁 **Artifacts**: \`local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Status**: Tests failed with local dist packages" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps**: Check build logs and test artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "**Artifacts**: \`local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
