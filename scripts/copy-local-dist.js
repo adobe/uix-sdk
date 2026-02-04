@@ -102,14 +102,25 @@ function removeDirSafe(dirPath) {
  */
 function copyDir(src, dest) {
   try {
-    // Ensure parent directories exist first
+    // Ensure parent directory exists first (synchronously)
     const parentDir = path.dirname(dest);
-    if (!fs.existsSync(parentDir)) {
-      fs.mkdirSync(parentDir, { recursive: true });
+    try {
+      if (!fs.existsSync(parentDir)) {
+        fs.mkdirSync(parentDir, { recursive: true });
+        logInfo(`  Created parent: ${parentDir}`);
+      }
+    } catch (mkdirError) {
+      logError(`  Failed to create parent directory ${parentDir}: ${mkdirError.message}`);
+      throw mkdirError;
     }
     
-    // Ensure destination directory exists
-    fs.mkdirSync(dest, { recursive: true });
+    // Ensure destination directory exists (synchronously)
+    try {
+      fs.mkdirSync(dest, { recursive: true });
+    } catch (mkdirError) {
+      logError(`  Failed to create destination ${dest}: ${mkdirError.message}`);
+      throw mkdirError;
+    }
     
     // Get all items in source directory
     const items = fs.readdirSync(src);
@@ -240,17 +251,22 @@ function copyToApp(appPath) {
   
   let success = true;
   let copiedPackages = 0;
-    // Copy each package
+  // Copy each package
   for (const pkg of PACKAGES) {
     const sourcePath = path.join(ROOT_DIR, pkg.source);
     const targetPath = path.join(adobeDir, pkg.name);
     
     log(`  Copying ${pkg.name}...`);
     
-    // Ensure parent directory exists before removing/copying
-    const targetParent = path.dirname(targetPath);
-    if (!fs.existsSync(targetParent)) {
-      fs.mkdirSync(targetParent, { recursive: true });
+    // Ensure the full path to target exists (including @adobe directory)
+    // This is critical for CI environments where mkdir might not be immediate
+    try {
+      fs.mkdirSync(adobeDir, { recursive: true });
+      logInfo(`  Ensured @adobe directory exists for ${pkg.name}`);
+    } catch (error) {
+      logError(`  Failed to ensure @adobe directory: ${error.message}`);
+      success = false;
+      continue;
     }
     
     // Remove existing target directory safely
