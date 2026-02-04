@@ -54,7 +54,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.19.5'
-          cache: 'npm'      - name: Install root dependencies
+          cache: 'npm'
+      - name: Install root dependencies
         run: npm ci
 
       - name: Build all packages
@@ -71,41 +72,12 @@ jobs:
           echo "🔍 Checking if dist folders exist..."
           ls -la packages/*/dist || echo "⚠️ Some dist folders missing - tests may fail"
 
-      - name: Verify dist folders exist
-        run: |
-          echo "Checking if dist folders were created..."
-          ls -la packages/*/dist || echo "Some dist folders missing"
-          
-          echo "UIX Core dist:"
-          ls -la packages/uix-core/dist || echo "❌ uix-core dist missing"
-          
-          echo "UIX Host dist:" 
-          ls -la packages/uix-host/dist || echo "❌ uix-host dist missing"
-          
-          echo "UIX Host React dist:"
-          ls -la packages/uix-host-react/dist || echo "❌ uix-host-react dist missing"
-          
-          echo "UIX Guest dist:"
-          ls -la packages/uix-guest/dist || echo "❌ uix-guest dist missing"
-
-      - name: Clean and prepare host app
-        working-directory: e2e/local-dist/host-app
-        run: |
-          rm -rf node_modules package-lock.json .yalc yalc.lock 2>/dev/null || true
-          echo "Host app cleaned"
-
       - name: Install host app dependencies
         working-directory: e2e/local-dist/host-app
         run: |
           echo "Installing host app with local packages..."
           npm install
           echo "✅ Host app dependencies installed"
-
-      - name: Clean and prepare guest app
-        working-directory: e2e/local-dist/guest-app
-        run: |
-          rm -rf node_modules package-lock.json .yalc yalc.lock 2>/dev/null || true
-          echo "Guest app cleaned"
 
       - name: Install guest app dependencies
         working-directory: e2e/local-dist/guest-app
