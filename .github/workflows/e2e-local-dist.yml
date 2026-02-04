@@ -89,13 +89,11 @@ jobs:
       - name: Copy build files to applications
         run: |
           echo "Copying local packages..."
-          npm run copy:local-dist
-
-      - name: Start host app
+          npm run copy:local-dist      - name: Start host app
         working-directory: e2e/local-dist/host-app
         run: |
           echo "Starting host app on port 3000..."
-          npm start &
+          PORT=3000 npm start &
           HOST_PID=$!
           echo "Host app started with PID: $HOST_PID"
           echo "HOST_PID=$HOST_PID" >> $GITHUB_ENV
@@ -104,7 +102,7 @@ jobs:
         working-directory: e2e/local-dist/guest-app
         run: |
           echo "Starting guest app on port 3002..."
-          npm start &
+          PORT=3002 npm start &
           GUEST_PID=$!
           echo "Guest app started with PID: $GUEST_PID" 
           echo "GUEST_PID=$GUEST_PID" >> $GITHUB_ENV
