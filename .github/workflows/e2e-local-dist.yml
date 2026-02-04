@@ -55,6 +55,7 @@ jobs:
         with:
           node-version: '20.19.5'
           cache: 'npm'
+
       - name: Install root dependencies
         run: npm ci
 
@@ -85,10 +86,12 @@ jobs:
           echo "Installing guest app with local packages..."
           npm install
           echo "✅ Guest app dependencies installed"
-      - name: Copy build files to guest and Host
+
+      - name: Copy build files to applications
         run: |
           echo "Copy local packages..."
           npm run copy:local-dist
+
       - name: Start host app
         working-directory: e2e/local-dist/host-app
         run: |
@@ -98,7 +101,7 @@ jobs:
           echo "Host app started with PID: $HOST_PID"
           echo "HOST_PID=$HOST_PID" >> $GITHUB_ENV
 
-      - name: Start guest app  
+      - name: Start guest app
         working-directory: e2e/local-dist/guest-app
         run: |
           echo "Starting guest app on port 3002..."
@@ -122,10 +125,10 @@ jobs:
       - name: Verify applications are responding
         run: |
           echo "Testing host app response..."
-          curl -f http://localhost:3000 > /dev/null && echo "✅ Host app responding" || echo "❌ Host app not responding"
+          wget --spider --quiet http://localhost:3000 && echo "✅ Host app responding" || echo "❌ Host app not responding"
           
           echo "Testing guest app response..."
-          curl -f http://localhost:3002 > /dev/null && echo "✅ Guest app responding" || echo "❌ Guest app not responding"
+          wget --spider --quiet http://localhost:3002 && echo "✅ Guest app responding" || echo "❌ Guest app not responding"
 
       - name: Install test dependencies
         working-directory: e2e/local-dist/tests
@@ -133,6 +136,7 @@ jobs:
           echo "Installing test dependencies..."
           npm install
           echo "✅ Test dependencies installed"
+
       - name: Run E2E tests
         working-directory: e2e/local-dist/tests
         timeout-minutes: ${{ fromJson(github.event.inputs.test_timeout || '10') }}
@@ -146,6 +150,7 @@ jobs:
           BUILD_TYPE: "local-dist"
           BRANCH_NAME: ${{ github.event.inputs.branch || github.ref_name }}
           WORKFLOW_RUN_ID: ${{ github.run_id }}
+
       - name: Upload test artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v3
@@ -185,6 +190,7 @@ jobs:
           pkill -f "npm.*start.*3002" 2>/dev/null || echo "No remaining processes on port 3002"
           pkill -f "node.*3000" 2>/dev/null || echo "No node processes on port 3000"
           pkill -f "node.*3002" 2>/dev/null || echo "No node processes on port 3002"
+
   test-summary:
     name: Test Results Summary
     runs-on: ubuntu-latest
