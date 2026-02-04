@@ -55,7 +55,7 @@ jobs:
           node-version: '20.19.5'
           cache: 'npm'
 
-      - name: Install root dependencies
+      - name: Install main dependencies
         run: npm ci
 
       - name: Build all packages
