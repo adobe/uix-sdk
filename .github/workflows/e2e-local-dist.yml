@@ -1,0 +1,244 @@
+name: E2E Local Dist Tests
+
+on: 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run tests on'
+        required: true
+        default: 'main'
+        type: string
+      run_build:
+        description: 'Build packages before testing'
+        required: false
+        default: true
+        type: boolean
+      test_timeout:
+        description: 'Test timeout in minutes'
+        required: false
+        default: '15'
+        type: string
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - 'packages/**'
+      - 'e2e/local-dist/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'packages/**'
+      - 'e2e/local-dist/**'
+
+jobs:
+  build-and-test:
+    name: Build Packages and Run E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJson(github.event.inputs.test_timeout || '15') }}
+    
+    steps:
+      - name: Display workflow inputs
+        run: |
+          echo "🚀 Starting E2E Local Dist Tests"
+          echo "📋 Workflow Inputs:"
+          echo "  - Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "  - Build packages: ${{ github.event.inputs.run_build || 'true' }}"
+          echo "  - Test timeout: ${{ github.event.inputs.test_timeout || '15' }} minutes"
+          echo "  - Triggered by: ${{ github.event_name }}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.19.5'
+          cache: 'npm'      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build all packages
+        if: ${{ github.event.inputs.run_build != 'false' }}
+        run: |
+          echo "🔨 Building UIX SDK packages..."
+          npm run build
+          echo "✅ All packages built successfully"
+
+      - name: Skip build step
+        if: ${{ github.event.inputs.run_build == 'false' }}
+        run: |
+          echo "⏭️ Skipping package build (run_build = false)"
+          echo "🔍 Checking if dist folders exist..."
+          ls -la packages/*/dist || echo "⚠️ Some dist folders missing - tests may fail"
+
+      - name: Verify dist folders exist
+        run: |
+          echo "Checking if dist folders were created..."
+          ls -la packages/*/dist || echo "Some dist folders missing"
+          
+          echo "UIX Core dist:"
+          ls -la packages/uix-core/dist || echo "❌ uix-core dist missing"
+          
+          echo "UIX Host dist:" 
+          ls -la packages/uix-host/dist || echo "❌ uix-host dist missing"
+          
+          echo "UIX Host React dist:"
+          ls -la packages/uix-host-react/dist || echo "❌ uix-host-react dist missing"
+          
+          echo "UIX Guest dist:"
+          ls -la packages/uix-guest/dist || echo "❌ uix-guest dist missing"
+
+      - name: Clean and prepare host app
+        working-directory: e2e/local-dist/host-app
+        run: |
+          rm -rf node_modules package-lock.json .yalc yalc.lock 2>/dev/null || true
+          echo "Host app cleaned"
+
+      - name: Install host app dependencies
+        working-directory: e2e/local-dist/host-app
+        run: |
+          echo "Installing host app with local packages..."
+          npm install
+          echo "✅ Host app dependencies installed"
+
+      - name: Clean and prepare guest app
+        working-directory: e2e/local-dist/guest-app
+        run: |
+          rm -rf node_modules package-lock.json .yalc yalc.lock 2>/dev/null || true
+          echo "Guest app cleaned"
+
+      - name: Install guest app dependencies
+        working-directory: e2e/local-dist/guest-app
+        run: |
+          echo "Installing guest app with local packages..."
+          npm install
+          echo "✅ Guest app dependencies installed"
+      - name: Copy build files to guest and Host
+        run: |
+          echo "Copy local packages..."
+          npm run copy:local-dist
+      - name: Start host app
+        working-directory: e2e/local-dist/host-app
+        run: |
+          echo "Starting host app on port 3000..."
+          npm start &
+          HOST_PID=$!
+          echo "Host app started with PID: $HOST_PID"
+          echo "HOST_PID=$HOST_PID" >> $GITHUB_ENV
+
+      - name: Start guest app  
+        working-directory: e2e/local-dist/guest-app
+        run: |
+          echo "Starting guest app on port 3002..."
+          npm start &
+          GUEST_PID=$!
+          echo "Guest app started with PID: $GUEST_PID" 
+          echo "GUEST_PID=$GUEST_PID" >> $GITHUB_ENV
+
+      - name: Wait for applications to be ready
+        run: |
+          echo "Waiting for applications to start..."
+          sleep 15
+          
+          echo "Installing wait-on globally..."
+          npm install -g wait-on
+          
+          echo "Waiting for servers to respond..."
+          wait-on http://localhost:3000 http://localhost:3002 --timeout 180000 --interval 3000
+          echo "✅ Both applications are ready!"
+
+      - name: Verify applications are responding
+        run: |
+          echo "Testing host app response..."
+          curl -f http://localhost:3000 > /dev/null && echo "✅ Host app responding" || echo "❌ Host app not responding"
+          
+          echo "Testing guest app response..."
+          curl -f http://localhost:3002 > /dev/null && echo "✅ Guest app responding" || echo "❌ Guest app not responding"
+
+      - name: Install test dependencies
+        working-directory: e2e/local-dist/tests
+        run: |
+          echo "Installing test dependencies..."
+          npm install
+          echo "✅ Test dependencies installed"      - name: Run E2E tests
+        working-directory: e2e/local-dist/tests
+        timeout-minutes: ${{ fromJson(github.event.inputs.test_timeout || '10') }}
+        run: |
+          echo "🧪 Running E2E tests with local dist packages..."
+          echo "📍 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "🏗️ Build enabled: ${{ github.event.inputs.run_build || 'true' }}"
+          npm test
+        env:
+          CI: true
+          BUILD_TYPE: "local-dist"
+          BRANCH_NAME: ${{ github.event.inputs.branch || github.ref_name }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
+          path: |
+            e2e/local-dist/tests/artifacts/
+            e2e/local-dist/tests/screenshots/
+          retention-days: 7
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
+          path: |
+            packages/*/dist/
+            npm-debug.log*
+            ~/.npm/_logs/
+          retention-days: 3
+
+      - name: Cleanup processes
+        if: always()
+        run: |
+          echo "Cleaning up background processes..."
+          
+          if [ ! -z "$HOST_PID" ]; then
+            kill $HOST_PID 2>/dev/null || echo "Host process already stopped"
+          fi
+          
+          if [ ! -z "$GUEST_PID" ]; then
+            kill $GUEST_PID 2>/dev/null || echo "Guest process already stopped"
+          fi
+          
+          # Kill any remaining processes on our ports
+          pkill -f "npm.*start.*3000" 2>/dev/null || echo "No remaining processes on port 3000"
+          pkill -f "npm.*start.*3002" 2>/dev/null || echo "No remaining processes on port 3002"
+          pkill -f "node.*3000" 2>/dev/null || echo "No node processes on port 3000"
+          pkill -f "node.*3002" 2>/dev/null || echo "No node processes on port 3002"
+  test-summary:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    
+    steps:
+      - name: Report results
+        run: |
+          echo "## UIX SDK Local Dist E2E Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.event.inputs.branch || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Packages**: ${{ github.event.inputs.run_build || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Timeout**: ${{ github.event.inputs.test_timeout || '15' }} minutes" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.build-and-test.result }}" == "success" ]; then
+            echo "✅ **Status**: All tests passed with local dist packages" >> $GITHUB_STEP_SUMMARY
+            echo "🎯 **Build Type**: Local development build" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Packages**: Built from source in \`./packages/\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status**: Tests failed with local dist packages" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 **Next Steps**: Check build logs and test artifacts" >> $GITHUB_STEP_SUMMARY
+            echo "📁 **Artifacts**: \`local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This workflow tests the UIX SDK using locally built packages rather than published versions." >> $GITHUB_STEP_SUMMARY

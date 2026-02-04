@@ -1,11 +1,11 @@
 {
-  "name": "uix-host-app",
+  "name": "uix-host-app-local-dist",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@adobe/uix-core": "file:.yalc/@adobe/uix-core",
-    "@adobe/uix-host": "file:.yalc/@adobe/uix-host",
-    "@adobe/uix-host-react": "file:.yalc/@adobe/uix-host-react",
+    "@adobe/uix-core": "file:../../packages/uix-core",
+    "@adobe/uix-host": "file:../../packages/uix-host",
+    "@adobe/uix-host-react": "file:../../packages/uix-host-react",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

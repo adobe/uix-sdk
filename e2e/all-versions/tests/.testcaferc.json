@@ -1,0 +1,21 @@
+{
+  "src": "./tests/**/*.js",
+  "browsers": ["chrome:headless --disable-web-security --allow-running-insecure-content --disable-features=VizDisplayCompositor --allow-access-from-files --disable-site-isolation-trials --no-sandbox --disable-dev-shm-usage"],
+  "hostname": "localhost",
+  "screenshots": {
+    "path": "./artifacts/screenshots/",
+    "takeOnFails": true,
+    "fullPage": true
+  },
+  "reporter": ["spec"],
+  "speed": 0.8,
+  "debugMode": false,
+  "debugOnFail": false,
+  "stopOnFirstFail": false,
+  "selectorTimeout": 10000,
+  "assertionTimeout": 15000,
+  "pageLoadTimeout": 30000,
+  "pageRequestTimeout": 40000,
+  "skipJsErrors": true,
+  "skipUncaughtErrors": true
+}

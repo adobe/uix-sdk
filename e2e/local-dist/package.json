@@ -1,0 +1,38 @@
+{
+  "name": "uix-sdk-local-dist-e2e",
+  "version": "1.0.0", 
+  "description": "UIX SDK E2E tests using locally built packages",
+  "scripts": {
+    "test": "pwsh ./run-local-tests.ps1",
+    "test:skip-build": "pwsh ./run-local-tests.ps1 -SkipBuild",
+    "test:verbose": "pwsh ./run-local-tests.ps1 -Verbose",
+    "test:quick": "npm run test:skip-build",
+    "clean": "pwsh -Command \"Remove-Item -Recurse -Force .\\*\\node_modules, .\\*\\package-lock.json -ErrorAction SilentlyContinue\"",
+    "build-packages": "cd ../.. && npm run build:packages",
+    "setup:host": "cd host-app && npm install",
+    "setup:guest": "cd guest-app && npm install", 
+    "setup:tests": "cd tests && npm install",
+    "setup:all": "npm run setup:host && npm run setup:guest && npm run setup:tests",
+    "start:host": "cd host-app && npm start",
+    "start:guest": "cd guest-app && npm start",
+    "test:only": "cd tests && npm test",
+    "verify:builds": "ls -la ../../packages/*/dist || dir ..\\..\\packages\\*\\dist",
+    "verify:deps": "cd host-app && npm ls @adobe/uix-core @adobe/uix-host @adobe/uix-host-react && cd ../guest-app && npm ls @adobe/uix-core @adobe/uix-guest"
+  },
+  "keywords": [
+    "uix",
+    "sdk", 
+    "e2e",
+    "testing",
+    "local-build",
+    "development"
+  ],
+  "author": "Adobe UIX SDK Team",
+  "license": "ISC",
+  "devDependencies": {
+    "wait-on": "^7.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
