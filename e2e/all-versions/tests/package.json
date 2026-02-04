@@ -1,0 +1,14 @@
+{
+  "name": "uix-sdk-e2e-all-versions",
+  "version": "1.0.0",
+  "description": "This is an e2e test bucket for uix sdk",
+  "main": "index.js",  "scripts": {
+    "test": "npx testcafe --config-file .testcaferc.json ",
+    "test:local": "npx testcafe --config-file .testcaferc.local.json"
+  },
+  "author": "Amine Hajji",
+  "license": "ISC",
+  "devDependencies": {
+    "testcafe": "^3.7.0"
+  }
+}

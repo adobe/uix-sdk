@@ -1,0 +1,33 @@
+{
+  "name": "uix-sdk-all-versions-e2e",
+  "version": "1.0.0", 
+  "description": "UIX SDK E2E tests with version matrix",
+  "scripts": {
+    "test": "pwsh ./run-tests.ps1",
+    "test:bash": "./run-tests.sh",
+    "test:specific": "pwsh ./run-tests.ps1 -HostVersion",
+    "clean": "pwsh -Command \"Remove-Item -Recurse -Force .\\*\\node_modules, .\\*\\package-lock.json -ErrorAction SilentlyContinue\"",
+    "setup:host": "cd host-app && npm install",
+    "setup:guest": "cd guest-app && npm install", 
+    "setup:tests": "cd tests && npm install",
+    "setup:all": "npm run setup:host && npm run setup:guest && npm run setup:tests",
+    "start:host": "cd host-app && npm start",
+    "start:guest": "cd guest-app && npm start",
+    "test:only": "cd tests && npm test",
+    "test:local": "cd tests && npm run test:local",
+    "test:debug": "cd tests && npm run test:debug"
+  },
+  "keywords": [
+    "uix",
+    "sdk", 
+    "e2e",
+    "testing",
+    "version-matrix",
+    "compatibility"
+  ],
+  "author": "Adobe UIX SDK Team",
+  "license": "ISC",
+  "devDependencies": {
+    "wait-on": "^7.0.1"
+  }
+}

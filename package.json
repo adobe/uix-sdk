@@ -29,7 +29,12 @@
     "test": "run-s lint test:unit test:subtests",
     "test:subtests": "npm run any test",
     "test:unit": "jest",
-    "test:unit:watch": "jest --watch"
+    "test:unit:watch": "jest --watch",
+    "copy:local-dist": "node scripts/copy-local-dist.js",
+    "copy:local-dist:verbose": "node scripts/copy-local-dist.js --verbose",
+    "copy:local-dist:dry-run": "node scripts/copy-local-dist.js --dry-run",
+    "build:copy-local": "npm run build && npm run copy:local-dist",
+    "y": "npm run build && cd ./packages/uix-core && yalc push --sig && cd ../uix-host && yalc push --sig && cd ../uix-host-react &&yalc push --sig && cd ../uix-guest && yalc push --sig"
   },
   "devDependencies": {
     "@adobe/exc-app": "^1.4.0",
