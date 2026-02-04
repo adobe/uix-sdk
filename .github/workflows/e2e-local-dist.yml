@@ -84,12 +84,12 @@ jobs:
         run: |
           echo "Installing guest app with local packages..."
           npm install
-          echo "Guest app dependencies installed"
-
-      - name: Copy build files to applications
+          echo "Guest app dependencies installed"      - name: Copy build files to applications
         run: |
           echo "Copying local packages..."
-          npm run copy:local-dist      - name: Start host app
+          npm run copy:local-dist
+
+      - name: Start host app
         working-directory: e2e/local-dist/host-app
         run: |
           echo "Starting host app on port 3000..."
