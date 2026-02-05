@@ -72,7 +72,7 @@ jobs:
           wait-on http://localhost:3000 http://localhost:3002 --timeout 60000
 
       - name: Run E2E Tests with TestCafe
-        working-directory: e2e/all-versions/tests
+        working-directory: e2e/all-versions/e2e-tests
         run: |
           npm install
           npm test
