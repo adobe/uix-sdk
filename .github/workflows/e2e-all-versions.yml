@@ -39,7 +39,9 @@ jobs:
         run: |
           npm install @adobe/uix-guest@${{ matrix.guest-app-version }}
           npm install @adobe/uix-core@${{ matrix.guest-app-version }}
-          npm install      - name: Start Host App
+          npm install
+
+      - name: Start Host App
         working-directory: e2e/all-versions/host-app
         run: |
           PORT=3000 npm start &
@@ -47,7 +49,9 @@ jobs:
       - name: Start Guest App
         working-directory: e2e/all-versions/guest-app
         run: |
-          PORT=3002 npm start &      - name: Wait for Applications to be Ready
+          PORT=3002 npm start &
+
+      - name: Wait for Applications to be Ready
         run: |
           echo "Waiting for services to start..."
           sleep 10
