@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: '20.19.5'
 
+      - name: Configure npm to use public registry
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set @adobe:registry https://registry.npmjs.org/
+
       - name: Install Dependencies for Host App
         working-directory: e2e/all-versions/host-app
         run: |
@@ -34,26 +39,23 @@ jobs:
         run: |
           npm install @adobe/uix-guest@${{ matrix.guest-app-version }}
           npm install @adobe/uix-core@${{ matrix.guest-app-version }}
-          npm install
-
-      - name: Start Host App
+          npm install      - name: Start Host App
         working-directory: e2e/all-versions/host-app
         run: |
-          npm start &
+          PORT=3000 npm start &
 
       - name: Start Guest App
         working-directory: e2e/all-versions/guest-app
         run: |
-          npm start &
-
-      - name: Wait for Applications to be Ready
+          PORT=3002 npm start &      - name: Wait for Applications to be Ready
         run: |
           echo "Waiting for services to start..."
           sleep 10
+          npm install -g wait-on
 
       - name: Wait for servers to start
         run: |
-          npx wait-on http://localhost:3000 http://localhost:3002 --timeout 60000
+          wait-on http://localhost:3000 http://localhost:3002 --timeout 60000
 
       - name: Run E2E Tests with TestCafe
         working-directory: e2e/all-versions/tests
