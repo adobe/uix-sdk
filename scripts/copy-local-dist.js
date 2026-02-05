@@ -41,10 +41,6 @@ function logInfo(message) {
   console.log(`[INFO] ${message}`);
 }
 
-function logHeader(message) {
-  console.log(message);
-}
-
 // Configuration
 const PACKAGES = [
   { name: 'uix-core', source: 'packages/uix-core/dist' },
@@ -353,31 +349,31 @@ function main() {
   const dryRun = args.includes('--dry-run');
   const force = args.includes('--force');
     if (showHelp) {
-    logHeader('UIX SDK Local Dist Copy Script');
-    console.log('Cross-platform package copying utility\n');
-    console.log('Usage: node copy-local-dist.js [options]\n');
-    console.log('Options:');
-    console.log('  --help, -h        Show this help message');
-    console.log('  --verbose, -v     Show verbose output and detailed summary');
-    console.log('  --skip-verify     Skip verification of dist folders');
-    console.log('  --dry-run         Show what would be copied without actually copying');
-    console.log('  --force           Force removal of existing packages without prompting');
-    console.log('\nDescription:');
-    console.log('  Copies built packages from packages/*/dist to node_modules/@adobe/*');
-    console.log('  in local-dist e2e applications for testing with fresh builds.');
-    console.log('\nPlatform Support:');
-    console.log('  - Windows (with proper symlink/junction handling)');
-    console.log('  - macOS');
-    console.log('  - Linux');
-    console.log('\nExamples:');
-    console.log('  node copy-local-dist.js');
-    console.log('  node copy-local-dist.js --verbose');
-    console.log('  node copy-local-dist.js --skip-verify --force');
-    console.log('  node copy-local-dist.js --dry-run');
+    log('UIX SDK Local Dist Copy Script');
+    log('Cross-platform package copying utility\n');
+    log('Usage: node copy-local-dist.js [options]\n');
+    log('Options:');
+    log('  --help, -h        Show this help message');
+    log('  --verbose, -v     Show verbose output and detailed summary');
+    log('  --skip-verify     Skip verification of dist folders');
+    log('  --dry-run         Show what would be copied without actually copying');
+    log('  --force           Force removal of existing packages without prompting');
+    log('\nDescription:');
+    log('  Copies built packages from packages/*/dist to node_modules/@adobe/*');
+    log('  in local-dist e2e applications for testing with fresh builds.');
+    log('\nPlatform Support:');
+    log('  - Windows (with proper symlink/junction handling)');
+    log('  - macOS');
+    log('  - Linux');
+    log('\nExamples:');
+    log('  node copy-local-dist.js');
+    log('  node copy-local-dist.js --verbose');
+    log('  node copy-local-dist.js --skip-verify --force');
+    log('  node copy-local-dist.js --dry-run');
     process.exit(0);
   }
     try {
-    logHeader('UIX SDK Local Dist Copy Script');
+    log('UIX SDK Local Dist Copy Script');
     log('Cross-platform package copying utility');
     log('====================================');
     
