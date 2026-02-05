@@ -8,11 +8,6 @@ on:
         required: true
         default: 'main'
         type: string
-      run_build:
-        description: 'Build packages before testing'
-        required: false
-        default: true
-        type: boolean
       test_timeout:
         description: 'Test timeout in minutes'
         required: false
@@ -40,7 +35,6 @@ jobs:
         run: |
           echo "Starting E2E Local Dist Tests"
           echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "Build packages: ${{ github.event.inputs.run_build || 'true' }}"
           echo "Test timeout: ${{ github.event.inputs.test_timeout || '15' }} minutes"
           echo "Triggered by: ${{ github.event_name }}"
 
@@ -59,14 +53,12 @@ jobs:
         run: npm ci
 
       - name: Build all packages
-        if: ${{ github.event.inputs.run_build != 'false' }}
         run: |
           echo "Building UIX SDK packages..."
           npm run build
           echo "All packages built successfully"
 
       - name: Skip build step
-        if: ${{ github.event.inputs.run_build == 'false' }}
         run: |
           echo "Skipping package build"
           echo "Checking if dist folders exist..."
@@ -142,7 +134,6 @@ jobs:
         run: |
           echo "Running E2E tests with local dist packages..."
           echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "Build enabled: ${{ github.event.inputs.run_build || 'true' }}"
           npm test
         env:
           CI: true
@@ -181,7 +172,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Test Configuration" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: \`${{ github.event.inputs.branch || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build Packages**: ${{ github.event.inputs.run_build || 'true' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Test Timeout**: ${{ github.event.inputs.test_timeout || '15' }} minutes" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered By**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
