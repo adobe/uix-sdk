@@ -10,7 +10,23 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-export * from "./useExtensions.js";
-export * from "./useExtensionListFetched.js";
-export * from "./useHost.js";
-export * from "./useExtensibilityState.js";
+import { createContext } from "react";
+import { ExtensibleStoreManagerInterface, VirtualApi } from "@adobe/uix-core";
+import { GuestUI } from "@adobe/uix-guest";
+
+/**
+ * Context container with Host object and extensions load status.
+ *
+ * @internal
+ */
+export type AttachContextType = {
+  connection: GuestUI<VirtualApi>;
+  storeManager: ExtensibleStoreManagerInterface;
+};
+
+/**
+ * @internal
+ */
+export const AttachContext = createContext<AttachContextType>(
+  {} as AttachContextType
+);

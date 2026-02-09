@@ -9,8 +9,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTA
 OF ANY KIND, either express or implied. See the License for the specific language
 governing permissions and limitations under the License.
 */
-
-export * from "./useExtensions.js";
-export * from "./useExtensionListFetched.js";
-export * from "./useHost.js";
-export * from "./useExtensibilityState.js";
+export * from "./attach-context";
+export * from "./components/index.js";
+export * from "./hooks/index.js";
+export * from "@adobe/uix-guest";
