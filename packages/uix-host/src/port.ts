@@ -547,7 +547,7 @@ export class Port<GuestApi = unknown>
     });
 
     const version = this.getGuestVersion();
-    if (compareVersions(version, "1.1.4") >=0) {
+    if (compareVersions(version, "1.1.4") >= 0) {
       // Wait for guest to report ready before marking as loaded
       await guestReadyPromise;
     }
