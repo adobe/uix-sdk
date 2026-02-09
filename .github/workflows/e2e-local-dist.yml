@@ -8,11 +8,6 @@ on:
         required: true
         default: 'main'
         type: string
-      run_build:
-        description: 'Build packages before testing'
-        required: false
-        default: true
-        type: boolean
       test_timeout:
         description: 'Test timeout in minutes'
         required: false
@@ -40,7 +35,6 @@ jobs:
         run: |
           echo "Starting E2E Local Dist Tests"
           echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "Build packages: ${{ github.event.inputs.run_build || 'true' }}"
           echo "Test timeout: ${{ github.event.inputs.test_timeout || '15' }} minutes"
           echo "Triggered by: ${{ github.event_name }}"
 
@@ -59,14 +53,12 @@ jobs:
         run: npm ci
 
       - name: Build all packages
-        if: ${{ github.event.inputs.run_build != 'false' }}
         run: |
           echo "Building UIX SDK packages..."
           npm run build
           echo "All packages built successfully"
 
       - name: Skip build step
-        if: ${{ github.event.inputs.run_build == 'false' }}
         run: |
           echo "Skipping package build"
           echo "Checking if dist folders exist..."
@@ -95,7 +87,7 @@ jobs:
         working-directory: e2e/local-dist/host-app
         run: |
           echo "Starting host app on port 3000..."
-          npm start &
+          PORT=3000 npm start &
           HOST_PID=$!
           echo "Host app started with PID: $HOST_PID"
           echo "HOST_PID=$HOST_PID" >> $GITHUB_ENV
@@ -104,7 +96,7 @@ jobs:
         working-directory: e2e/local-dist/guest-app
         run: |
           echo "Starting guest app on port 3002..."
-          npm start &
+          PORT=3002 npm start &
           GUEST_PID=$!
           echo "Guest app started with PID: $GUEST_PID" 
           echo "GUEST_PID=$GUEST_PID" >> $GITHUB_ENV
@@ -142,34 +134,12 @@ jobs:
         run: |
           echo "Running E2E tests with local dist packages..."
           echo "Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "Build enabled: ${{ github.event.inputs.run_build || 'true' }}"
           npm test
         env:
           CI: true
           BUILD_TYPE: "local-dist"
           BRANCH_NAME: ${{ github.event.inputs.branch || github.ref_name }}
           WORKFLOW_RUN_ID: ${{ github.run_id }}
-
-      - name: Upload test artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: local-dist-test-artifacts-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
-          path: |
-            e2e/local-dist/tests/artifacts/
-            e2e/local-dist/tests/screenshots/
-          retention-days: 7
-
-      - name: Upload build logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-logs-${{ github.event.inputs.branch || github.ref_name }}-${{ github.run_id }}
-          path: |
-            packages/*/dist/
-            npm-debug.log*
-            ~/.npm/_logs/
-          retention-days: 3
 
       - name: Cleanup processes
         if: always()
@@ -202,7 +172,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Test Configuration" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: \`${{ github.event.inputs.branch || github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build Packages**: ${{ github.event.inputs.run_build || 'true' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Test Timeout**: ${{ github.event.inputs.test_timeout || '15' }} minutes" >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered By**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY

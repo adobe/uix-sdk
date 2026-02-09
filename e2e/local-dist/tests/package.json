@@ -1,0 +1,17 @@
+{
+  "name": "uix-sdk-e2e-local-dist",
+  "version": "1.0.0",
+  "description": "E2E tests for UIX SDK using local dist builds",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx testcafe --config-file .testcaferc.json",
+    "test:local": "npx testcafe --config-file .testcaferc.local.json",
+    "test:debug": "npx testcafe chrome tests/ --live",
+    "test:single": "npx testcafe chrome tests/check-button.js"
+  },
+  "author": "Adobe UIX SDK Team",
+  "license": "ISC",
+  "devDependencies": {
+    "testcafe": "^3.7.0"
+  }
+}
