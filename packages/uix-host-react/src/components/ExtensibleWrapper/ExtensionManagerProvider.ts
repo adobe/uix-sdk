@@ -137,7 +137,7 @@ export function extractProgramIdEnvId(repo: string): {
   programId: string;
   envId: string;
 } {
-  const regex: RegExp = /p(\d+)-e(\d+)/;
+  const regex = /p(\d+)-e(\d+)/;
   const match: RegExpMatchArray | null = regex.exec(repo);
   if (!match) {
     throw new Error("Error parsing a repo value");
@@ -163,7 +163,7 @@ export function buildExtensionManagerUrl(
         Object.entries(config.scope).map(([k, v]) => [`scope.${k}`, v])
       )
     : {};
-  const extensionPoints: string = `${config.service}/${config.extensionPoint}/${config.version}`;
+  const extensionPoints = `${config.service}/${config.extensionPoint}/${config.version}`;
   const queryParams = new URLSearchParams({
     ...scope,
     extensionPoints,
@@ -194,7 +194,7 @@ export async function fetchExtensionsFromExtensionManager(
     );
   }
 
-  return resp.json();
+  return resp.json() as Promise<ExtensionManagerExtension[]>;
 }
 
 /**

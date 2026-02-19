@@ -11,7 +11,6 @@ governing permissions and limitations under the License.
 */
 
 import {
-  extractExtUrlParams,
   generateExtensionId,
   createUrlExtensionsProvider,
 } from "./UrlExtensionProvider";
@@ -19,8 +18,8 @@ import { ExtensionPointId } from "./ExtensionManagerProvider";
 
 describe("generateExtensionId", () => {
   it("should replace non-word characters with underscores", () => {
-    const url = "http://example.com/some/path";
-    expect(generateExtensionId(url)).toBe("http___example_com_some_path");
+    const url = "https://example.com/some/path";
+    expect(generateExtensionId(url)).toBe("https___example_com_some_path");
   });
 
   it("should return the same ID when there are no non-word characters", () => {
@@ -38,7 +37,7 @@ describe("createUrlExtensionsProvider", () => {
 
   it("should return an ExtensionsProvider that provides installed extensions", async () => {
     const queryString =
-      "ext=http://example1.com&ext.service1/name1/version1=http://example2.com";
+      "ext=https://example1.com&ext.service1/name1/version1=https://example2.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
       queryString
@@ -46,11 +45,11 @@ describe("createUrlExtensionsProvider", () => {
 
     const extensions = await provider();
     expect(Object.keys(extensions)).toHaveLength(2);
-    expect(extensions).toHaveProperty("http___example1_com");
-    expect(extensions).toHaveProperty("http___example2_com");
-    expect(extensions["http___example2_com"]).toHaveProperty(
+    expect(extensions).toHaveProperty("https___example1_com");
+    expect(extensions).toHaveProperty("https___example2_com");
+    expect(extensions["https___example2_com"]).toHaveProperty(
       "url",
-      "http://example2.com"
+      "https://example2.com"
     );
   });
 
@@ -67,18 +66,18 @@ describe("createUrlExtensionsProvider", () => {
 
   it("should filter extensions by the correct extension point", async () => {
     const queryString =
-      "ext.service1/name1/version1=http://example1.com&ext.service2/name2/version2=https://www.test.";
+      "ext.service1/name1/version1=https://example1.com&ext.service2/name2/version2=https://www.test.";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
       queryString
     );
 
     const extensions = await provider();
-    expect(extensions).toHaveProperty("http___example1_com");
+    expect(extensions).toHaveProperty("https___example1_com");
   });
 
   it("should return an empty object when the query string does not match the expected extension point", async () => {
-    const queryString = "ext.service2.name2.version2=http://example1.com";
+    const queryString = "ext.service2.name2.version2=https://example1.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
       queryString

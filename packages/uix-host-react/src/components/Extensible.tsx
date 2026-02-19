@@ -192,7 +192,7 @@ export function Extensible({
     } else {
       loadExtensions(host);
     }
-  }, [debug, hostName, runtimeContainer, extensions]);
+  }, [debug, hostName, runtimeContainer, extensions, guestOptions, host, sharedContext]);
 
   // skip render before host is initialized
   if (!host) {

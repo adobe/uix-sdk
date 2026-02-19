@@ -23,19 +23,20 @@ import {
   createExtensionManagerExtensionsProvider,
   DiscoveryConfig,
 } from "./ExtensionManagerProvider";
-global.fetch = jest.fn();
-describe("Utility Functions", () => {
-  const mockResponse = [
-    {
-      id: "ext1",
-      name: "Extension 1",
-      extensionPoints: [
-        { extensionPoint: "service/point/1.0", url: "http://example.com" },
-      ],
-    },
-  ];
+globalThis.fetch = jest.fn();
 
-  jest.spyOn(global, "fetch").mockImplementation(
+const mockResponse = [
+  {
+    id: "ext1",
+    name: "Extension 1",
+    extensionPoints: [
+      { extensionPoint: "service/point/1.0", url: "https://example.com" },
+    ],
+  },
+];
+
+beforeEach(() => {
+  jest.spyOn(globalThis, "fetch").mockImplementation(
     jest.fn(() =>
       Promise.resolve({
         ok: true,
@@ -44,6 +45,9 @@ describe("Utility Functions", () => {
       })
     ) as jest.Mock
   );
+});
+
+describe("extractProgramIdEnvId", () => {
   it("should correctly extract programId and envId from repo", () => {
     const repo = "p123-e456";
     const result = extractProgramIdEnvId(repo);
@@ -56,7 +60,9 @@ describe("Utility Functions", () => {
       "Error parsing a repo value"
     );
   });
+});
 
+describe("getExtensionRegistryBaseUrl", () => {
   it("should return the correct extension registry base URL for prod", () => {
     expect(getExtensionRegistryBaseUrl("prod", null)).toBe(
       "https://appregistry.adobe.io"
@@ -74,7 +80,9 @@ describe("Utility Functions", () => {
       "https://appregistry-stage.adobe.io"
     );
   });
+});
 
+describe("buildExtensionManagerUrl", () => {
   it("should build the correct extension manager URL", () => {
     const config: ExtensionManagerConfig = {
       apiKey: "api-key",
@@ -90,7 +98,9 @@ describe("Utility Functions", () => {
       "https://extension-manager.adobe.io/v2/extensions?extensionPoints=service%2Fpoint%2F1.0"
     );
   });
+});
 
+describe("fetchExtensionsFromExtensionManager", () => {
   it("should fetch extensions from Extension Manager and return parsed data", async () => {
     const config: ExtensionManagerConfig = {
       apiKey: "api-key",
@@ -105,10 +115,12 @@ describe("Utility Functions", () => {
     const extensions = await fetchExtensionsFromExtensionManager(config);
     expect(extensions).toEqual(mockResponse);
   });
+});
 
+describe("mergeExtensions", () => {
   it("should merge extensions from AppRegistry and Extension Manager", () => {
     const appRegistryExtensions: InstalledExtensions = {
-      ext1: { id: "ext1", url: "http://example.com" },
+      ext1: { id: "ext1", url: "https://example.com" },
     };
     const extensionManagerExtensions: ExtensionManagerExtension[] = [
       {
@@ -123,7 +135,7 @@ describe("Utility Functions", () => {
         extensionPoints: [
           {
             extensionPoint: "service/point/1.0",
-            url: "http://new-example.com",
+            url: "https://new-example.com",
           },
         ],
         scope: {},
@@ -142,7 +154,7 @@ describe("Utility Functions", () => {
     );
     expect(mergedExtensions.ext1).toEqual({
       id: "ext1",
-      url: "http://new-example.com",
+      url: "https://new-example.com",
       configuration: undefined,
       extensionPoints: ["service/point/1.0"],
     });
@@ -150,7 +162,7 @@ describe("Utility Functions", () => {
 
   it("should return only enabled extensions when merging", () => {
     const appRegistryExtensions: InstalledExtensions = {
-      ext1: { id: "ext1", url: "http://example.com" },
+      ext1: { id: "ext1", url: "https://example.com" },
     };
     const extensionManagerExtensions: ExtensionManagerExtension[] = [
       {
@@ -161,11 +173,11 @@ describe("Utility Functions", () => {
         status: "active",
         supportEmail: "support@example.com",
         extId: "ext1",
-        disabled: true, // Disabled extension
+        disabled: true,
         extensionPoints: [
           {
             extensionPoint: "service/point/1.0",
-            url: "http://new-example.com",
+            url: "https://new-example.com",
           },
         ],
         scope: {},
@@ -184,7 +196,9 @@ describe("Utility Functions", () => {
     );
     expect(mergedExtensions).toEqual({});
   });
+});
 
+describe("createExtensionManagerExtensionsProvider", () => {
   it("should create an extension manager extensions provider", async () => {
     const discoveryConfig: DiscoveryConfig = {
       experienceShellEnvironment: "prod",

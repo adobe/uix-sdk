@@ -84,12 +84,7 @@ export function createUrlExtensionsProvider(
     )
     .flatMap((extParam) => {
       const paramValue = extUrlParams[extParam];
-      // If it's a single value, return it in an array. If it's already an array, return it as is.
-      if (Array.isArray(paramValue)) {
-        return paramValue.filter((param) => isValidHttpUrl(param));
-      } else {
-        return isValidHttpUrl(paramValue) ? [paramValue] : [];
-      }
+      return isValidHttpUrl(paramValue) ? [paramValue] : [];
     });
 
   const installedExtensions: InstalledExtensions = extensionUrls
@@ -107,5 +102,5 @@ export function createUrlExtensionsProvider(
       return acc;
     }, {} as InstalledExtensions);
 
-  return async () => installedExtensions;
+  return () => Promise.resolve(installedExtensions);
 }

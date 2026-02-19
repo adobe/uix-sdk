@@ -53,7 +53,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
     imsOrg: string;
     apiKey: string;
   };
-  scope?: Record<string, any>;
+  scope?: Record<string, string>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
     extensions: InstalledExtensions

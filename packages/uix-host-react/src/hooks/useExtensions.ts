@@ -15,7 +15,6 @@ import type {
   GuestConnection,
   GuestApis,
   RemoteGuestApis,
-  RemoteGuestApiNS,
   VirtualApi,
 } from "@adobe/uix-core";
 
@@ -95,6 +94,7 @@ export interface UseExtensionsResult<T extends GuestApis> {
 }
 
 const NO_EXTENSIONS: [] = [];
+const noop: () => void = () => undefined;
 
 /**
  * Fetch extensions which implement an API, provide them methods, and use them.
@@ -114,46 +114,47 @@ export function useExtensions<
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = []
 ): UseExtensionsResult<Incoming> {
-  const { host, error } = useHost();
-  if (error) {
-    return {
-      extensions: NO_EXTENSIONS,
-      loading: false,
-      error,
-    };
-  }
+  const { host, error: hostContextError } = useHost();
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
-  const boundryExtensionPointsAsString = extensionPoints?.map(
-    ({
-      service,
-      extensionPoint,
-      version,
-    }: ExtensionRegistryEndpointRegistration) =>
-      `${service}/${extensionPoint}/${version}`
+  const boundaryExtensionPointsAsString = useMemo(
+    () =>
+      extensionPoints?.map(
+        ({
+          service,
+          extensionPoint,
+          version,
+        }: ExtensionRegistryEndpointRegistration) =>
+          `${service}/${extensionPoint}/${version}`
+      ),
+    [extensionPoints]
   );
-  const baseDeps = [host, ...deps];
-  const {
-    requires,
-    provides,
-    updateOn = "each",
-  } = useMemo(() => configFactory(host), baseDeps);
+
+  const config = useMemo(() => {
+    if (!host) {
+      return { updateOn: "each" as const };
+    }
+    return configFactory(host);
+  }, [host, configFactory, ...deps]);
+
+  const { requires, provides, updateOn = "each" } = config;
 
   const getExtensions = useCallback(() => {
-    const newExtensions = [];
+    if (!host) {
+      return NO_EXTENSIONS;
+    }
+    const newExtensions: TypedGuestConnection<Incoming>[] = [];
     const guests = host.getLoadedGuests(requires);
 
-    // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
-    // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
       const allExtensionPoints: string[] =
         getAllExtensionPointsFromGuest(guest);
 
       if (
-        !boundryExtensionPointsAsString ||
+        !boundaryExtensionPointsAsString ||
         !allExtensionPoints.length ||
         isGuestExtensionPointInBoundary(
-          boundryExtensionPointsAsString,
+          boundaryExtensionPointsAsString,
           allExtensionPoints
         )
       ) {
@@ -161,10 +162,13 @@ export function useExtensions<
       }
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
-  }, [...baseDeps, requires]);
+  }, [host, requires, boundaryExtensionPointsAsString]);
 
   const subscribe = useCallback(
     (handler: EventListener) => {
+      if (!host) {
+        return noop;
+      }
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
 
@@ -172,39 +176,44 @@ export function useExtensions<
         host.removeEventListener(eventName, handler);
       };
     },
-    [...baseDeps, updateOn]
+    [host, updateOn]
   );
 
-  const subscribeToUnload = useCallback((handler: EventListener) => {
-    host.addEventListener("guestunload", handler);
+  const subscribeToUnload = useCallback(
+    (handler: EventListener) => {
+      if (!host) {
+        return noop;
+      }
+      host.addEventListener("guestunload" as HostEvents["type"], handler);
 
-    return () => {
-      host.removeEventListener("guestunload", handler);
-    };
-  }, baseDeps);
+      return () => {
+        host.removeEventListener("guestunload" as HostEvents["type"], handler);
+      };
+    },
+    [host]
+  );
 
   const [extensions, setExtensions] = useState(() => getExtensions());
 
   useEffect(() => {
     return subscribe(() => setExtensions(getExtensions()));
-  }, [subscribe]);
-
-  const unloadExtentionCallback = (e: CustomEvent) => {
-    const eventDetail = e.detail;
-    const guest = eventDetail.guest as Port<GuestApis>;
-
-    if (guest && guest.id) {
-      setExtensions((prevExtensions) => {
-        const filtered = prevExtensions.filter(
-          (ext) => ext.id !== guest.id || ext.url !== guest.url
-        );
-        return filtered.length === 0 ? NO_EXTENSIONS : filtered;
-      });
-    }
-  };
+  }, [subscribe, getExtensions]);
 
   useEffect(() => {
-    return subscribeToUnload(unloadExtentionCallback);
+    const unloadCallback = (e: CustomEvent<{ guest: Port<GuestApis> }>) => {
+      const { guest } = e.detail;
+
+      if (guest && guest.id) {
+        setExtensions((prevExtensions) => {
+          const filtered = prevExtensions.filter(
+            (ext) => ext.id !== guest.id || ext.url !== guest.url
+          );
+          return filtered.length === 0 ? NO_EXTENSIONS : filtered;
+        });
+      }
+    };
+
+    return subscribeToUnload(unloadCallback as EventListener);
   }, [subscribeToUnload]);
 
   useEffect(() => {
@@ -215,19 +224,28 @@ export function useExtensions<
     }
   }, [provides, extensions]);
 
-  useEffect(
-    () =>
-      host.addEventListener(
-        "error",
-        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error)
-      ),
-    baseDeps
-  );
+  useEffect(() => {
+    if (!host) {
+      return;
+    }
+    return host.addEventListener(
+      "error",
+      (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+        setHostError(event.detail.error)
+    );
+  }, [host]);
+
+  if (hostContextError) {
+    return {
+      extensions: NO_EXTENSIONS,
+      loading: false,
+      error: hostContextError,
+    };
+  }
 
   return {
     extensions,
-    loading: extensions.length === 0 ? false : host.loading,
+    loading: extensions.length === 0 ? false : !!host?.loading,
     error: hostError,
   };
 }
@@ -242,8 +260,11 @@ export function useExtensions<
  */
 function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
   try {
-    const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
-      (extension: { extensionPoint: string }) => extension?.extensionPoint
+    const extensions = guest.metadata?.extensions as
+      | { extensionPoint: string }[]
+      | undefined;
+    const guestExtensionPointsFromMetadata = extensions?.map(
+      (extension) => extension?.extensionPoint
     );
     const allExtensionPoints = [
       ...(guest.extensionPoints || []),
@@ -259,14 +280,14 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
 }
 
 function isGuestExtensionPointInBoundary(
-  boundryExtensionPointsAsString: string[],
+  boundaryExtensionPointsAsString: string[],
   guestExtensionPoints: string[]
 ) {
   return (
-    boundryExtensionPointsAsString?.length &&
+    boundaryExtensionPointsAsString?.length &&
     guestExtensionPoints?.length &&
     guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint)
+      boundaryExtensionPointsAsString.includes(extensionPoint)
     )
   );
 }
