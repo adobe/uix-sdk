@@ -20,7 +20,8 @@ import type {
 import { Emitter, quietConsole } from "@adobe/uix-core";
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
-import type { CapabilitySpec, Port, type PortOptions } from "./port.js";
+import type { CapabilitySpec, PortOptions } from "./port.js";
+import { Port } from "./port.js";
 import { compareExtensions } from "./utils/compareExtensions.js";
 
 /**

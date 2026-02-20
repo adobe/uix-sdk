@@ -10,6 +10,7 @@
     "build:development": "node scripts/bundler.mjs development",
     "build:production": "node scripts/bundler.mjs production",
     "clean": "del {dist,*.tsbuildinfo,docs/temp,.parcel-cache,node_modules/.cache} {packages,examples}/*/{dist,*.tsbuildinfo,node_modules/.cache,.parcel-cache,node_modules/.vite} packages/*/src/**/*.{d.ts,d.ts.map,js,js.map} && npm run -s any -- -s clean",
+    "copy:local-dist": "node scripts/copy-local-dist.js",
     "declarations:build": "tsc --build",
     "declarations:watch": "tsc --build tsconfig.json --watch",
     "demo": "npm run build:production -- --esm && npm run any example:build && node scripts/multi-server.mjs production",
@@ -30,8 +31,7 @@
     "test": "run-s lint test:unit test:subtests",
     "test:subtests": "npm run any test",
     "test:unit": "jest",
-    "test:unit:watch": "jest --watch",
-    "copy:local-dist": "node scripts/copy-local-dist.js"
+    "test:unit:watch": "jest --watch"
   },
   "devDependencies": {
     "@adobe/exc-app": "^1.4.0",

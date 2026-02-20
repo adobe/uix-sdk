@@ -12,14 +12,13 @@
 import type { PropsWithChildren, ReactElement } from "react";
 import React, { useMemo } from "react";
 import type {
-  combineExtensionsFromProviders,
   ExtensionsProvider,
   HostConfig,
-  type InstalledExtensions,
-  mutedProvider,
+  InstalledExtensions,
   PortOptions,
   SharedContextValues,
 } from "@adobe/uix-host";
+import { combineExtensionsFromProviders, mutedProvider } from "@adobe/uix-host";
 import { Extensible } from "../Extensible";
 import type {
   ExtensionPointId,

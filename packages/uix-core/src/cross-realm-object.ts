@@ -91,7 +91,9 @@ async function setupApiExchange<T>(
 
       tunnel.on("destroyed", destroy);
       tunnel.on("connected", () =>
-        (sendApi as (...args: unknown[]) => unknown)(apiToSend).catch(destroy),
+        (sendApi as (...args: unknown[]) => Promise<unknown>)(apiToSend).catch(
+          destroy,
+        ),
       );
     }),
     tunnel.config.timeout,

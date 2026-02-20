@@ -21,8 +21,8 @@ import type {
 import type {
   CapabilitySpec,
   ExtensionRegistryEndpointRegistration,
-  type Host,
-  type HostEvents,
+  Host,
+  HostEvents,
   Port,
 } from "@adobe/uix-host";
 import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
