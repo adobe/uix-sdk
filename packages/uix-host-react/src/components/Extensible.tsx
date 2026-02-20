@@ -10,12 +10,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import React, { useState, useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type {
-  InstalledExtensions,
   ExtensionsProvider,
   HostConfig,
+  InstalledExtensions,
   PortOptions,
   SharedContextValues,
 } from "@adobe/uix-host";
@@ -42,16 +42,16 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    */
   sharedContext?: SharedContextValues;
   extensionsListCallback?: (
-    extensions: InstalledExtensions
+    extensions: InstalledExtensions,
   ) => InstalledExtensions;
 }
 
-function areExtensionsDifferent(
+const areExtensionsDifferent = (
   set1: InstalledExtensions,
-  set2: InstalledExtensions
-) {
-  const ids1 = Object.keys(set1).sort();
-  const ids2 = Object.keys(set2).sort();
+  set2: InstalledExtensions,
+) => {
+  const ids1 = Object.keys(set1).sort((a, b) => a.localeCompare(b));
+  const ids2 = Object.keys(set2).sort((a, b) => a.localeCompare(b));
 
   if (ids1.length !== ids2.length) {
     return true;
@@ -94,7 +94,7 @@ function areExtensionsDifferent(
   });
 
   return isDifferent;
-}
+};
 
 /**
  * Declares an extensible area in an app, and provides host and extension
@@ -112,7 +112,7 @@ function areExtensionsDifferent(
  *
  * @public
  */
-export function Extensible({
+export const Extensible = ({
   appName,
   children,
   extensionsProvider,
@@ -121,13 +121,14 @@ export function Extensible({
   debug,
   sharedContext,
   extensionsListCallback,
-}: PropsWithChildren<ExtensibleProps>) {
+}: PropsWithChildren<ExtensibleProps>) => {
   const hostName = appName || window.location.host || "mainframe";
 
   const [extensions, setExtensions] = useState<InstalledExtensions>({});
   const [extensionListFetched, setExtensionListFetched] =
     useState<boolean>(false);
   const prevSharedContext = useRef(JSON.stringify(sharedContext));
+
   useEffect(() => {
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
@@ -156,13 +157,13 @@ export function Extensible({
   }, [extensionsProvider, extensionsListCallback]);
 
   const [host, setHost] = useState<Host>();
+
   useEffect(() => {
-    function logError(msg: string) {
-      return (e: Error | unknown) => {
-        const error = e instanceof Error ? e : new Error(String(e));
-        console.error(msg, error, extensions, guestOptions);
-      };
-    }
+    const logError = (msg: string) => (e: Error | unknown) => {
+      const error = e instanceof Error ? e : new Error(String(e));
+
+      console.error(msg, error, extensions, guestOptions);
+    };
 
     if (!extensions || !Object.keys(extensions).length) {
       return;
@@ -180,6 +181,7 @@ export function Extensible({
     if (sharedContextChanged) {
       prevSharedContext.current = JSON.stringify(sharedContext);
     }
+
     if (!host || sharedContextChanged) {
       const newHost = new Host({
         debug,
@@ -187,12 +189,21 @@ export function Extensible({
         runtimeContainer,
         sharedContext,
       });
+
       setHost(newHost);
       loadExtensions(newHost);
     } else {
       loadExtensions(host);
     }
-  }, [debug, hostName, runtimeContainer, extensions]);
+  }, [
+    debug,
+    hostName,
+    runtimeContainer,
+    extensions,
+    guestOptions,
+    host,
+    sharedContext,
+  ]);
 
   // skip render before host is initialized
   if (!host) {
@@ -202,12 +213,11 @@ export function Extensible({
   return (
     <ExtensionContext.Provider
       value={{
-        host: host,
-        extensionListFetched: extensionListFetched,
+        extensionListFetched,
+        host,
       }}
     >
       {children}
     </ExtensionContext.Provider>
   );
-}
-export default Extensible;
+};

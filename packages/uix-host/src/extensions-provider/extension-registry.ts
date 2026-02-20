@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { InstalledExtensions, ExtensionsProvider } from "../host.js";
+import type { ExtensionsProvider, InstalledExtensions } from "../host.js";
 
 interface ExtensionDefinition {
   name: string;
@@ -53,8 +53,7 @@ export interface ExtensionRegistryEndpointRegistration {
 }
 
 /** @public */
-export interface ExtensionRegistryExtensionRegistration
-  extends ExtensionRegistryEndpointRegistration {
+export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistryEndpointRegistration {
   imsOrg: string;
 }
 
@@ -72,11 +71,10 @@ export interface ExtensionRegistryConnection {
 
 /** @public */
 export interface ExtensionRegistryConfig
-  extends ExtensionRegistryExtensionRegistration,
-    ExtensionRegistryConnection {}
+  extends ExtensionRegistryExtensionRegistration, ExtensionRegistryConnection {}
 
 function buildEndpointPath(
-  config: ExtensionRegistryEndpointRegistration
+  config: ExtensionRegistryEndpointRegistration,
 ): string {
   return `${config.service}/${config.extensionPoint}/${config.version}`;
 }
@@ -85,23 +83,25 @@ function ensureProtocolSpecified(url: string) {
   if (url.startsWith("https://")) {
     return url;
   }
+
   if (url.startsWith("http://")) {
     return url;
   }
+
   return `https://${url}`;
 }
 
 export async function fetchExtensionsFromRegistry(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<Array<ExtensionDefinition>> {
   const workspaceParam = config.workspace
     ? `&workspace=${config.workspace}`
     : "";
   const resp = await fetch(
     `${ensureProtocolSpecified(
-      config.baseUrl || "appregistry.adobe.io"
+      config.baseUrl || "appregistry.adobe.io",
     )}/myxchng/v1/org/${encodeURIComponent(
-      config.imsOrg
+      config.imsOrg,
     )}/xtn/${buildEndpointPath(config)}?auth=true${workspaceParam}`,
     {
       headers: {
@@ -109,14 +109,14 @@ export async function fetchExtensionsFromRegistry(
         Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
         "X-Api-Key": config.apiKey,
       },
-    }
+    },
   );
 
   if (resp.status != 200) {
     throw new Error(
       `extension registry returned non-200 response (${
         resp.status
-      }): ${await resp.text()}`
+      }): ${await resp.text()}`,
     );
   }
 
@@ -127,9 +127,10 @@ export async function fetchExtensionsFromRegistry(
  * @deprecated
  */
 function extensionRegistryExtensionsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
+
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (e.status !== "PUBLISHED") {
@@ -141,7 +142,7 @@ function extensionRegistryExtensionsProvider(
         // todo: make safer way to extract href
         [e.name]: e.endpoints[erEndpoint].view[0].href,
       };
-    }, {})
+    }, {}),
   );
 
   return Promise.resolve({});
@@ -151,9 +152,10 @@ function extensionRegistryExtensionsProvider(
  * Fetch & return published extension objects from registry
  */
 function extensionRegistryExtensionsAsObjectsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
+
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (config.filter && typeof config.filter === "function") {
@@ -167,12 +169,12 @@ function extensionRegistryExtensionsAsObjectsProvider(
       return {
         ...a,
         [e.name]: {
+          extensionPoints: [erEndpoint],
           id: e.name,
           url: e.endpoints[erEndpoint].view[0].href,
-          extensionPoints: [erEndpoint],
         },
       };
-    }, {})
+    }, {}),
   );
 }
 
@@ -182,9 +184,10 @@ function extensionRegistryExtensionsAsObjectsProvider(
  * @deprecated use `createExtensionRegistryAsObjectsProvider()`
  */
 export function createExtensionRegistryProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): ExtensionsProvider {
   return function () {
+    // eslint-disable-next-line sonarjs/deprecation
     return extensionRegistryExtensionsProvider(config);
   };
 }
@@ -194,7 +197,7 @@ export function createExtensionRegistryProvider(
  * @public
  */
 export function createExtensionRegistryAsObjectsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): ExtensionsProvider {
   return function () {
     return extensionRegistryExtensionsAsObjectsProvider(config);

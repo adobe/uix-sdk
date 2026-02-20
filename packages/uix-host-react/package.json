@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsup",
     "build:esm": "tsup --format esm,cjs",
+    "lint": "eslint src",
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch",
     "watch": "tsup --watch --silent"

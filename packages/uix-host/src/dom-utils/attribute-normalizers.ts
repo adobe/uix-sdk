@@ -64,10 +64,12 @@ export const tokenizeAttrValues = <T>(tokens: AttrTokens<T>) =>
  */
 export const mergeAttrValues = <T>(...tokenLists: AttrTokens<T>[]) => {
   const allMerged = new Set<T>();
+
   for (const tokenList of tokenLists) {
     for (const token of tokenizeAttrValues(tokenList)) {
       allMerged.add(token);
     }
   }
+
   return [...allMerged];
 };

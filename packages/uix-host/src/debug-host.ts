@@ -10,18 +10,12 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import {
-  debugEmitter,
-  EmitterDebugLogger,
-  Emits,
-  GuestEmitter,
-} from "@adobe/uix-core";
+import type { Emits, EmitterDebugLogger, GuestEmitter } from "@adobe/uix-core";
+import { debugEmitter } from "@adobe/uix-core";
 import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
 
 export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
@@ -29,16 +23,19 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
     theme: "blue medium",
     type: "Host",
   });
+
   hostLogger
     .listen("guestbeforeload", (log, event) => {
       const { detail } = event;
       const guest = detail.guest as GuestEmitter;
+
       log.info(event, `Guest ID ${guest.id}`);
       const portLogger = debugEmitter(guest, {
+        id: `${host.id} ➔ ${guest.id}`,
         theme: "green medium",
         type: "Port",
-        id: `${host.id} ➔ ${guest.id}`,
       });
+
       portLogger
         .listen("hostprovide", (log, event) => {
           log.info("received APIs", event.detail.apis);
@@ -69,8 +66,9 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
         if (failed.length > 0) {
           log.error("%d guests failed to load!", failed.length);
         }
+
         log.info("%d guests loaded", loaded.length, host);
-      }
+      },
     )
     .listen("unload", (log) => {
       log.info("Unloaded guest and container.");

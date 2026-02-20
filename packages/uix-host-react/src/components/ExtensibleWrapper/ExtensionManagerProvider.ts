@@ -1,4 +1,4 @@
-/*************************************************************************
+/** ***********************************************************************
  * ADOBE CONFIDENTIAL
  * ___________________
  *
@@ -15,11 +15,8 @@
  * from Adobe.
  **************************************************************************/
 
-import {
-  createExtensionRegistryAsObjectsProvider,
-  ExtensionsProvider,
-  InstalledExtensions,
-} from "@adobe/uix-host";
+import type { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
+import { createExtensionRegistryAsObjectsProvider } from "@adobe/uix-host";
 
 const EXTENSION_MANAGER_URL_PROD = "https://aemx-mngr.adobe.io";
 const EXTENSION_MANAGER_URL_STAGE = "https://aemx-mngr-stage.adobe.io";
@@ -35,6 +32,7 @@ type ExtensionPoint = {
   extensionPoint: string;
   url: string;
 };
+
 export type ExtensionManagerExtension = {
   id: string;
   name: string;
@@ -53,6 +51,7 @@ type AuthEMConfig = {
   schema: "Bearer" | "Basic";
   imsToken: string;
 };
+
 export interface ExtensionManagerConfig {
   apiKey: string;
   auth: AuthEMConfig;
@@ -113,19 +112,19 @@ export interface ExtensionProviderConfig {
 }
 export const getExtensionRegistryBaseUrl = (
   environment: "prod" | "stage" | undefined,
-  registry: string | null
+  registry: string | null,
 ): string =>
   environment === "prod"
     ? APP_REGISTRY_URL_PROD
-    : registry ?? APP_REGISTRY_URL_STAGE;
+    : (registry ?? APP_REGISTRY_URL_STAGE);
 
 export const getExtensionManagerBaseUrl = (
   environment: "prod" | "stage" | undefined,
-  extensionManager: string | null
+  extensionManager: string | null,
 ): string =>
   environment === "prod"
     ? EXTENSION_MANAGER_URL_PROD
-    : extensionManager ?? EXTENSION_MANAGER_URL_STAGE;
+    : (extensionManager ?? EXTENSION_MANAGER_URL_STAGE);
 
 /**
  * Extracts programId and envId from the repo value
@@ -133,21 +132,24 @@ export const getExtensionManagerBaseUrl = (
  * @returns object with programId and envId
  * @ignore
  */
-export function extractProgramIdEnvId(repo: string): {
+export const extractProgramIdEnvId = (
+  repo: string,
+): {
   programId: string;
   envId: string;
-} {
-  const regex: RegExp = /p(\d+)-e(\d+)/;
+} => {
+  const regex = /p(\d+)-e(\d+)/;
   const match: RegExpMatchArray | null = regex.exec(repo);
+
   if (!match) {
     throw new Error("Error parsing a repo value");
   }
 
   return {
-    programId: match[1],
     envId: match[2],
+    programId: match[1],
   };
-}
+};
 
 /**
  * Builds the URL for fetching extensions from the Extension Manager service
@@ -155,29 +157,29 @@ export function extractProgramIdEnvId(repo: string): {
  * @returns the URL for fetching extensions
  * @ignore
  */
-export function buildExtensionManagerUrl(
-  config: ExtensionManagerConfig
-): string {
+export const buildExtensionManagerUrl = (
+  config: ExtensionManagerConfig,
+): string => {
   const scope = config.scope
     ? Object.fromEntries(
-        Object.entries(config.scope).map(([k, v]) => [`scope.${k}`, v])
+        Object.entries(config.scope).map(([k, v]) => [`scope.${k}`, v]),
       )
     : {};
-  const extensionPoints: string = `${config.service}/${config.extensionPoint}/${config.version}`;
+  const extensionPoints = `${config.service}/${config.extensionPoint}/${config.version}`;
   const queryParams = new URLSearchParams({
     ...scope,
     extensionPoints,
   });
 
   return `${config.baseUrl}/v2/extensions?${queryParams.toString()}`;
-}
+};
 
 /**
  * @ignore
  */
-export async function fetchExtensionsFromExtensionManager(
-  config: ExtensionManagerConfig
-): Promise<ExtensionManagerExtension[]> {
+export const fetchExtensionsFromExtensionManager = async (
+  config: ExtensionManagerConfig,
+): Promise<ExtensionManagerExtension[]> => {
   const resp: Response = await fetch(buildExtensionManagerUrl(config), {
     headers: {
       Authorization: `Bearer ${config.auth.imsToken}`,
@@ -190,12 +192,12 @@ export async function fetchExtensionsFromExtensionManager(
     throw new Error(
       `Extension Manager returned non-200 response (${
         resp.status
-      }): ${await resp.text()}`
+      }): ${await resp.text()}`,
     );
   }
 
-  return resp.json();
-}
+  return resp.json() as Promise<ExtensionManagerExtension[]>;
+};
 
 /**
  * Takes an array of extensions from the App Registry, an array of extensions from the Extension Manager, and
@@ -204,15 +206,16 @@ export async function fetchExtensionsFromExtensionManager(
  * Extension list from the App Registry is used as a base.
  * @ignore
  */
-export function mergeExtensions(
+export const mergeExtensions = (
   appRegistryExtensions: InstalledExtensions,
   extensionManagerExtensions: ExtensionManagerExtension[],
-  extensionPointId: ExtensionPointId
-): InstalledExtensions {
+  extensionPointId: ExtensionPointId,
+): InstalledExtensions => {
   const mergedExtensions: InstalledExtensions = Object.assign(
     appRegistryExtensions,
-    {}
+    {},
   );
+
   extensionManagerExtensions.forEach((extension: ExtensionManagerExtension) => {
     if (extension.disabled) {
       // remove disabled extensions
@@ -222,55 +225,56 @@ export function mergeExtensions(
         extension.extensionPoints.find(
           (_extensionPoint: ExtensionPoint) =>
             _extensionPoint.extensionPoint ===
-            `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
+            `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
         );
+
       if (extPoint) {
         // add a new extension record or replace the existing one by an extension record from Extension Manager
         // extension points are useful for filtering out extensions
         mergedExtensions[extension.name] = {
-          id: extension.name,
-          url: extPoint.url,
           configuration: extension.configuration,
           extensionPoints: extension.extensionPoints.map(
-            (point) => point.extensionPoint
+            (point) => point.extensionPoint,
           ),
+          id: extension.name,
+          url: extPoint.url,
         };
       } else {
-        //this should never happen because we query Extension Manager service for our specific extension point
+        // this should never happen because we query Extension Manager service for our specific extension point
         console.warn(
-          `Extension point ${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version} not found for extension ${extension.name}`
+          `Extension point ${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version} not found for extension ${extension.name}`,
         );
       }
     }
   });
 
   return mergedExtensions;
-}
+};
 
-async function getExtensionManagerExtensions(
+const getExtensionManagerExtensions = async (
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
-): Promise<InstalledExtensions> {
+  extensionPointId: ExtensionPointId,
+): Promise<InstalledExtensions> => {
   const config = {
     apiKey: authConfig.apiKey,
     auth: {
-      schema: "Bearer",
       imsToken: authConfig.imsToken,
+      schema: "Bearer",
     },
-    service: extensionPointId.service,
     extensionPoint: extensionPointId.name,
-    version: extensionPointId.version,
     imsOrg: authConfig.imsOrg,
     scope: discoveryConfig.scope,
+    service: extensionPointId.service,
+    version: extensionPointId.version,
   };
 
   const appRegistryConfig = {
     ...config,
     baseUrl: getExtensionRegistryBaseUrl(
       discoveryConfig.experienceShellEnvironment,
-      providerConfig.appRegistryUrl
+      providerConfig.appRegistryUrl,
     ),
   } as ExtensionManagerConfig;
   const appRegistryExtensionsProvider: ExtensionsProvider =
@@ -280,7 +284,7 @@ async function getExtensionManagerExtensions(
     ...config,
     baseUrl: getExtensionManagerBaseUrl(
       discoveryConfig.experienceShellEnvironment,
-      providerConfig.extensionManagerUrl
+      providerConfig.extensionManagerUrl,
     ),
   } as ExtensionManagerConfig;
   const [appRegistryExtensions, extensionManagerExtensions] = await Promise.all(
@@ -289,7 +293,7 @@ async function getExtensionManagerExtensions(
       providerConfig.disableExtensionManager
         ? []
         : fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
-    ]
+    ],
   );
 
   if (providerConfig.disableExtensionManager) {
@@ -298,27 +302,26 @@ async function getExtensionManagerExtensions(
     return mergeExtensions(
       appRegistryExtensions,
       extensionManagerExtensions,
-      extensionPointId
+      extensionPointId,
     );
   }
-}
+};
 
 /**
  * Creates an extension manager extension provider
  * @ignore
  */
-export function createExtensionManagerExtensionsProvider(
-  discoveryConfig: DiscoveryConfig,
-  authConfig: AuthConfig,
-  providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
-): ExtensionsProvider {
-  return () => {
-    return getExtensionManagerExtensions(
+export const createExtensionManagerExtensionsProvider =
+  (
+    discoveryConfig: DiscoveryConfig,
+    authConfig: AuthConfig,
+    providerConfig: ExtensionProviderConfig,
+    extensionPointId: ExtensionPointId,
+  ): ExtensionsProvider =>
+  () =>
+    getExtensionManagerExtensions(
       discoveryConfig,
       authConfig,
       providerConfig,
-      extensionPointId
+      extensionPointId,
     );
-  };
-}

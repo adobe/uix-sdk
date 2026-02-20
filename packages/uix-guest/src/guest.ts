@@ -12,21 +12,20 @@ governing permissions and limitations under the License.
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 import type {
-  HostConnection,
-  NamedEvent,
   CrossRealmObject,
-  VirtualApi,
-  RemoteMethodInvoker,
-  HostMethodAddress,
   GuestApis,
+  HostConnection,
+  HostMethodAddress,
+  NamedEvent,
+  RemoteMethodInvoker,
 } from "@adobe/uix-core";
 import {
+  connectParentWindow,
   Emitter,
   formatHostMethodAddress,
   makeNamespaceProxy,
-  connectParentWindow,
-  timeoutPromise,
   quietConsole,
+  timeoutPromise,
 } from "@adobe/uix-core";
 import { debugGuest } from "./debug-guest.js";
 
@@ -35,7 +34,7 @@ import { debugGuest } from "./debug-guest.js";
  */
 export type GuestEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = NamedEvent<
   Type,
   Detail &
@@ -139,8 +138,8 @@ export class SharedContext<T> {
  * @internal
  */
 export class Guest<
-  App extends AppConnection
-  //Incoming extends object = VirtualApi
+  App extends AppConnection,
+  // Incoming extends object = VirtualApi
 > extends Emitter<GuestEvents> {
   /**
    * Shared context has been set or updated.
@@ -177,12 +176,15 @@ export class Guest<
    */
   constructor(config: GuestConfig) {
     super(config.id);
+
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
     }
+
     if (config.debug) {
       this.logger = debugGuest(this);
     }
+
     this.addEventListener("contextchange", (event) => {
       this.sharedContext = new SharedContext(event.detail.context);
     });
@@ -204,18 +206,20 @@ export class Guest<
           () => `Calling ${formatHostMethodAddress(address)}`,
           this.invokeAwaiter(
             this.hostConnection.getRemoteApi().invokeHostMethod,
-            address
+            address,
           ),
-          10000
+          10000,
         );
+
         return result;
       } catch (e) {
         const error =
           e instanceof Error ? e : new Error(e as unknown as string);
+
         this.logger.error(error);
         throw error;
       }
-    }
+    },
   );
 
   /**
@@ -223,11 +227,13 @@ export class Guest<
    */
   private async invokeChecker<T>(
     invoker: RemoteMethodInvoker<unknown>,
-    address: HostMethodAddress<unknown[]>
+    address: HostMethodAddress<unknown[]>,
   ): Promise<unknown> {
     try {
       const res = await invoker(address);
-      return new Promise((resolve) => resolve(res));
+
+      return Promise.resolve(res);
+      // eslint-disable-next-line sonarjs/no-ignored-exceptions -- intentional retry on error
     } catch (e) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       return this.invokeChecker(invoker, address);
@@ -239,14 +245,14 @@ export class Guest<
    */
   private async invokeAwaiter(
     invoker: RemoteMethodInvoker<unknown>,
-    address: HostMethodAddress<unknown[]>
+    address: HostMethodAddress<unknown[]>,
   ): Promise<any> {
-    const final = setTimeout(() => {
-      return new Promise((resolve, reject) =>
-        reject(`${address} doesn't exist`)
-      );
-    }, 20000);
+    const final = setTimeout(
+      () => Promise.reject(`${address} doesn't exist`),
+      20000,
+    );
     const res = await this.invokeChecker(invoker, address);
+
     return new Promise((resolve) => {
       clearTimeout(final);
       return resolve(res);
@@ -289,43 +295,46 @@ export class Guest<
     try {
       const hostConnectionPromise = connectParentWindow<HostConnection>(
         {
+          logger: this.logger,
           targetOrigin: "*",
           timeout: this.timeout,
-          logger: this.logger,
         },
-        this.getLocalMethods()
+        this.getLocalMethods(),
       );
 
       this.hostConnectionPromise = hostConnectionPromise;
       this.hostConnection = await this.hostConnectionPromise;
       this.emit("connected", { guest: this });
     } catch (e) {
-      this.emit("error", { guest: this, error: e });
+      this.emit("error", { error: e, guest: this });
       this.logger.error("Connection failed!", e);
       throw e;
     }
+
     try {
       this.sharedContext = new SharedContext(
-        await this.hostConnection.getRemoteApi().getSharedContext()
+        await this.hostConnection.getRemoteApi().getSharedContext(),
       );
     } catch (e) {
-      this.emit("error", { guest: this, error: e });
+      this.emit("error", { error: e, guest: this });
       this.logger.error("getSharedContext failed!", e);
       throw e;
     }
+
     try {
       this.configuration = await this.hostConnection
         .getRemoteApi()
         .getConfiguration();
     } catch (e) {
-      this.emit("error", { guest: this, error: e });
+      this.emit("error", { error: e, guest: this });
       this.logger.error("getConfiguration failed!", e);
       throw e;
     }
 
     // Notify parent iframe that guest is ready
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: "guest-ready", guestId: this.id }, "*");
+      // eslint-disable-next-line sonarjs/post-message -- targetOrigin "*" required for cross-origin iframe communication
+      window.parent.postMessage({ guestId: this.id, type: "guest-ready" }, "*");
     }
   }
 }

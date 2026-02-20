@@ -10,8 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { _customConsole, DebugLogger, Theme } from "./debuglog.js";
-import { Emits, Unsubscriber } from "./types.js";
+import type { DebugLogger, Theme } from "./debuglog.js";
+import { _customConsole } from "./debuglog.js";
+import type { Emits, Unsubscriber } from "./types.js";
 
 /**
  * Adds methods for logging events
@@ -24,7 +25,7 @@ export interface EmitterDebugLogger extends DebugLogger {
    */
   listen(
     type: string,
-    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown,
   ): this;
 }
 
@@ -40,18 +41,20 @@ export function debugEmitter(
     theme: Theme;
     type?: string;
     id?: string;
-  }
+  },
 ): EmitterDebugLogger {
   const logger = _customConsole(
     opts.theme,
     opts.type ||
       (Object.getPrototypeOf(emitter) as typeof emitter).constructor.name,
-    opts.id || emitter.id
+    opts.id || emitter.id,
   ) as EmitterDebugLogger;
   const oldDispatch = emitter.dispatchEvent;
+
   emitter.dispatchEvent = (event) => {
-    logger.pushState({ type: "event", name: event.type });
+    logger.pushState({ name: event.type, type: "event" });
     const retVal = oldDispatch.call(emitter, event) as boolean;
+
     logger.popState();
     return retVal;
   };
@@ -59,6 +62,7 @@ export function debugEmitter(
   const subscriptions: Unsubscriber[] = [];
 
   const oldDetach = logger.detach;
+
   logger.detach = () => {
     oldDetach.call(logger);
     subscriptions.forEach((unsubscribe) => unsubscribe());
@@ -69,10 +73,10 @@ export function debugEmitter(
    */
   function listen(
     type: string,
-    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown,
   ) {
     subscriptions.push(
-      emitter.addEventListener(type, (event) => listener(logger, event))
+      emitter.addEventListener(type, (event) => listener(logger, event)),
     );
     return logger;
   }
