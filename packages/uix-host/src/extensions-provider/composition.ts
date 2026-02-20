@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { InstalledExtensions, ExtensionsProvider } from "../host.js";
+import type { ExtensionsProvider, InstalledExtensions } from "../host.js";
 
 /**
  * Combine multiple {@link @adobe/uix-host#ExtensionsProvider} callbacks into a
@@ -23,8 +23,7 @@ export function combineExtensionsFromProviders(
 ): ExtensionsProvider {
   return () =>
     Promise.all(providers.map((ep: ExtensionsProvider) => ep())).then(
-      (extensionsBatches: Array<InstalledExtensions>) => {
-        return Object.assign({}, ...extensionsBatches);
-      }
+      (extensionsBatches: Array<InstalledExtensions>) =>
+        Object.assign({}, ...extensionsBatches),
     );
 }

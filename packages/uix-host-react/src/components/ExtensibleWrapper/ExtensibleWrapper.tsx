@@ -11,21 +11,21 @@
  */
 import type { PropsWithChildren, ReactElement } from "react";
 import React, { useMemo } from "react";
-import { Extensible } from "../Extensible";
-import {
+import type {
   combineExtensionsFromProviders,
-  InstalledExtensions,
+  ExtensionsProvider,
+  HostConfig,
+  type InstalledExtensions,
   mutedProvider,
-  type ExtensionsProvider,
-  type HostConfig,
-  type PortOptions,
-  type SharedContextValues,
+  PortOptions,
+  SharedContextValues,
 } from "@adobe/uix-host";
-import {
+import { Extensible } from "../Extensible";
+import type {
   ExtensionPointId,
   ExtensionProviderConfig,
-  createExtensionManagerExtensionsProvider,
 } from "./ExtensionManagerProvider";
+import { createExtensionManagerExtensionsProvider } from "./ExtensionManagerProvider";
 import { createUrlExtensionsProvider } from "./UrlExtensionProvider";
 
 /** @public */
@@ -56,7 +56,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   scope?: Record<string, string>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
-    extensions: InstalledExtensions
+    extensions: InstalledExtensions,
   ) => InstalledExtensions;
 }
 
@@ -79,8 +79,8 @@ export const ExtensibleWrapper = ({
 }: PropsWithChildren<ExtensibleDefaultProps>): ReactElement => {
   const defaultExtensionsProvider = useMemo(() => {
     const extensionPointId: ExtensionPointId = {
-      service,
       name: extensionPoint,
+      service,
       version,
     };
     const params: URLSearchParams = new URLSearchParams(queryString ?? "");
@@ -108,12 +108,12 @@ export const ExtensibleWrapper = ({
         },
         authConfig,
         providerConfig,
-        extensionPointId
+        extensionPointId,
       );
 
     const extenstions = combineExtensionsFromProviders(
       urlExtensionsProvider,
-      mutedProvider(extensionManagerExtensionsProvider)
+      mutedProvider(extensionManagerExtensionsProvider),
     );
 
     return extenstions;
@@ -127,6 +127,7 @@ export const ExtensibleWrapper = ({
     authConfig,
     scope,
   ]);
+
   return (
     <Extensible
       extensionsProvider={defaultExtensionsProvider}
@@ -141,5 +142,3 @@ export const ExtensibleWrapper = ({
     </Extensible>
   );
 };
-
-export default ExtensibleWrapper;

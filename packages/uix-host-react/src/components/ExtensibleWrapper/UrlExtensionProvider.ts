@@ -1,4 +1,4 @@
-/*************************************************************************
+/** ***********************************************************************
  * ADOBE CONFIDENTIAL
  * ___________________
  *
@@ -14,9 +14,10 @@
  * is strictly forbidden unless prior written permission is obtained
  * from Adobe.
  **************************************************************************/
-import { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
-import { Extension } from "@adobe/uix-core";
-import { ExtensionPointId } from "./ExtensionManagerProvider";
+import type { Extension } from "@adobe/uix-core";
+import type { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
+import type { ExtensionPointId } from "./ExtensionManagerProvider";
+
 const EXT_PARAM_PREFIX = "ext";
 
 export interface ExtUrlParams {
@@ -28,7 +29,7 @@ export interface ExtUrlParams {
  * @param url - The URL string to validate
  * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
  */
-export function isValidHttpUrl(url: string): boolean {
+export const isValidHttpUrl = (url: string): boolean => {
   try {
     const parsedUrl = new URL(url);
 
@@ -36,43 +37,45 @@ export function isValidHttpUrl(url: string): boolean {
   } catch {
     return false;
   }
-}
+};
 
 /**
  * Extracts extension URLs from the query string
  * @ignore
  */
-export function extractExtUrlParams(
-  queryString: string | undefined
-): ExtUrlParams {
+export const extractExtUrlParams = (
+  queryString: string | undefined,
+): ExtUrlParams => {
   if (!queryString) {
     return {};
   }
+
   const params: URLSearchParams = new URLSearchParams(queryString);
+
   return Array.from(params.entries()).reduce((extParams, [key, value]) => {
     if (key === EXT_PARAM_PREFIX || key.startsWith(`${EXT_PARAM_PREFIX}.`)) {
       extParams[key] = value;
     }
+
     return extParams;
   }, {} as ExtUrlParams);
-}
+};
 
 /**
  * Generates an extension ID from the extension URL
  * @ignore
  */
-export function generateExtensionId(extensionUrl: string): string {
-  return extensionUrl.replace(/\W/g, "_");
-}
+export const generateExtensionId = (extensionUrl: string): string =>
+  extensionUrl.replace(/\W/g, "_");
 
 /**
  * Creates an ExtensionsProvider that provides extensions from the URL
  * @ignore
  */
-export function createUrlExtensionsProvider(
+export const createUrlExtensionsProvider = (
   extensionPointId: ExtensionPointId,
-  queryString: string | undefined
-): ExtensionsProvider {
+  queryString: string | undefined,
+): ExtensionsProvider => {
   const extUrlParams: ExtUrlParams = extractExtUrlParams(queryString);
 
   const extensionUrls: string[] = Object.keys(extUrlParams)
@@ -80,27 +83,29 @@ export function createUrlExtensionsProvider(
       (extParam) =>
         extParam === EXT_PARAM_PREFIX ||
         extParam ===
-          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
+          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
     )
     .flatMap((extParam) => {
       const paramValue = extUrlParams[extParam];
+
       return isValidHttpUrl(paramValue) ? [paramValue] : [];
     });
 
   const installedExtensions: InstalledExtensions = extensionUrls
-    .map((extensionUrl: string) => {
-      return {
-        id: generateExtensionId(extensionUrl),
-        url: extensionUrl,
-        extensionPoints: [
-          `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
-        ],
-      } as Extension;
-    })
+    .map(
+      (extensionUrl: string) =>
+        ({
+          extensionPoints: [
+            `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
+          ],
+          id: generateExtensionId(extensionUrl),
+          url: extensionUrl,
+        }) as Extension,
+    )
     .reduce((acc: InstalledExtensions, extension: Extension) => {
       acc[extension.id] = extension;
       return acc;
     }, {} as InstalledExtensions);
 
   return () => Promise.resolve(installedExtensions);
-}
+};

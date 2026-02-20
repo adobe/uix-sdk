@@ -10,28 +10,30 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import type { ExtensionPointId } from "./ExtensionManagerProvider";
 import {
-  generateExtensionId,
   createUrlExtensionsProvider,
+  generateExtensionId,
 } from "./UrlExtensionProvider";
-import { ExtensionPointId } from "./ExtensionManagerProvider";
 
 describe("generateExtensionId", () => {
   it("should replace non-word characters with underscores", () => {
     const url = "https://example.com/some/path";
+
     expect(generateExtensionId(url)).toBe("https___example_com_some_path");
   });
 
   it("should return the same ID when there are no non-word characters", () => {
     const url = "extension_1";
+
     expect(generateExtensionId(url)).toBe("extension_1");
   });
 });
 
 describe("createUrlExtensionsProvider", () => {
   const mockExtensionPointId: ExtensionPointId = {
-    service: "service1",
     name: "name1",
+    service: "service1",
     version: "version1",
   };
 
@@ -40,16 +42,17 @@ describe("createUrlExtensionsProvider", () => {
       "ext=https://example1.com&ext.service1/name1/version1=https://example2.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
+
     expect(Object.keys(extensions)).toHaveLength(2);
     expect(extensions).toHaveProperty("https___example1_com");
     expect(extensions).toHaveProperty("https___example2_com");
     expect(extensions["https___example2_com"]).toHaveProperty(
       "url",
-      "https://example2.com"
+      "https://example2.com",
     );
   });
 
@@ -57,10 +60,11 @@ describe("createUrlExtensionsProvider", () => {
     const queryString = "foo=bar&baz=qux";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
+
     expect(extensions).toEqual({});
   });
 
@@ -69,10 +73,11 @@ describe("createUrlExtensionsProvider", () => {
       "ext.service1/name1/version1=https://example1.com&ext.service2/name2/version2=https://www.test.";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
+
     expect(extensions).toHaveProperty("https___example1_com");
   });
 
@@ -80,10 +85,11 @@ describe("createUrlExtensionsProvider", () => {
     const queryString = "ext.service2.name2.version2=https://example1.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
+
     expect(extensions).toEqual({});
   });
 });

@@ -10,55 +10,57 @@
  * governing permissions and limitations under the License.
  */
 
-import { GuestApis, VirtualApi } from "@adobe/uix-core";
-import { Host } from "@adobe/uix-host";
+import type { ReactNode } from "react";
+import React from "react";
+import type { GuestApis, VirtualApi } from "@adobe/uix-core";
+import type { Host } from "@adobe/uix-host";
 import { renderHook } from "@testing-library/react-hooks";
-import React, { ReactNode } from "react";
 import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBoundary";
-import { UseExtensionsConfig, useExtensions } from "./useExtensions";
+import type { UseExtensionsConfig } from "./useExtensions";
+import { useExtensions } from "./useExtensions";
 import { useHost } from "./useHost";
 
 jest.mock("@adobe/uix-host");
 jest.mock("./useHost");
 
-//dummy extensions/guests data
+// dummy extensions/guests data
 const guests = [
   {
+    extensionPoints: [
+      "service-1/extension-point-a/v1",
+      "service-1/extension-point-b/v1",
+    ],
     id: "extension-1",
-    extensionPoints: [
-      "service-1/extension-point-a/v1",
-      "service-1/extension-point-b/v1",
-    ],
     provide: jest.fn().mockName("guest.provide"),
   },
   {
+    extensionPoints: [
+      "service-1/extension-point-b/v1",
+      "service-1/extension-point-c/v1",
+    ],
     id: "extension-2",
-    extensionPoints: [
-      "service-1/extension-point-b/v1",
-      "service-1/extension-point-c/v1",
-    ],
     provide: jest.fn().mockName("guest.provide"),
   },
   {
-    id: "extension-3",
     extensionPoints: [
       "service-1/extension-point-a/v1",
       "service-1/extension-point-c/v1",
     ],
+    id: "extension-3",
     provide: jest.fn().mockName("guest.provide"),
   },
   {
-    id: "extension-4",
     extensionPoints: [
       "service-1/extension-point-a/v2",
       "service-1/extension-point-c/v2",
     ],
+    id: "extension-4",
 
     provide: jest.fn().mockName("guest.provide"),
   },
   {
-    id: "extension-5",
     extensionPoints: [],
+    id: "extension-5",
     metadata: {
       extensions: [
         {
@@ -72,21 +74,22 @@ const guests = [
     provide: jest.fn().mockName("guest.provide"),
   },
 ] as unknown as GuestApis[];
+
 jest.mocked(useHost).mockReturnValue({
   error: undefined,
   host: {
     addEventListener(): () => void {
       return function () {
-        //do nothing, since its a mock
+        // do nothing, since its a mock
       };
     },
-    removeEventListener(): void {
+    destroy(): null {
       return null;
     },
     getLoadedGuests() {
       return guests;
     },
-    destroy(): null {
+    removeEventListener(): void {
       return null;
     },
   } as unknown as Host,
@@ -94,15 +97,16 @@ jest.mocked(useHost).mockReturnValue({
 
 const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
   ({
-    requires: {},
     provides: {},
-  } as UseExtensionsConfig<GuestApis, VirtualApi>);
+    requires: {},
+  }) as UseExtensionsConfig<GuestApis, VirtualApi>;
 
 describe("useExtension hook", () => {
   test("returns all extensions when no ExtensibleComponentBoundaryContext value is provided", () => {
     const { result } = renderHook(() =>
-      useExtensions<GuestApis, VirtualApi>(configFactory, [])
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
     );
+
     expect(result.current.extensions.length).toBe(5);
   });
 
@@ -111,8 +115,8 @@ describe("useExtension hook", () => {
       <ExtensibleComponentBoundary
         extensionPoints={[
           {
-            service: "service-1",
             extensionPoint: "extension-point-a",
+            service: "service-1",
             version: "v1",
           },
         ]}
@@ -123,7 +127,7 @@ describe("useExtension hook", () => {
 
     const { result } = renderHook(
       () => useExtensions<GuestApis, VirtualApi>(configFactory, []),
-      { wrapper }
+      { wrapper },
     );
 
     expect(result.current.extensions.length).toBe(3);
@@ -134,8 +138,8 @@ describe("useExtension hook", () => {
       <ExtensibleComponentBoundary
         extensionPoints={[
           {
-            service: "service-1",
             extensionPoint: "extension-point-a",
+            service: "service-1",
             version: "v2",
           },
         ]}
@@ -146,7 +150,7 @@ describe("useExtension hook", () => {
 
     const { result } = renderHook(
       () => useExtensions<GuestApis, VirtualApi>(configFactory, []),
-      { wrapper }
+      { wrapper },
     );
 
     expect(result.current.extensions.length).toBe(2);

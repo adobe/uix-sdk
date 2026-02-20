@@ -1,10 +1,10 @@
-import { RemoteSubject } from "../remote-subject";
-import { makeCallSender } from "./call-sender";
-import { ObjectSimulator } from "../object-simulator";
+import EventEmitter from "eventemitter3";
 import { FakeFinalizationRegistry } from "../__mocks__/mock-finalization-registry";
 import { FakeWeakRef } from "../__mocks__/mock-weak-ref";
+import { ObjectSimulator } from "../object-simulator";
 import { wait } from "../promises/wait";
-import EventEmitter from "eventemitter3";
+import type { RemoteSubject } from "../remote-subject";
+import { makeCallSender } from "./call-sender";
 
 describe("an proxy representing a function in the other realm", () => {
   const SOUND = "RIIIICOLAAAA";
@@ -15,6 +15,7 @@ describe("an proxy representing a function in the other realm", () => {
   let emitter;
   let subject: RemoteSubject;
   let remoteAlpenhorn: ((...args: any[]) => Promise<unknown>) | (() => any);
+
   beforeEach(() => {
     alpenhorn.mockClear();
     emitter = new EventEmitter();
@@ -22,7 +23,7 @@ describe("an proxy representing a function in the other realm", () => {
     subject = simulator.subject;
     remoteAlpenhorn = makeCallSender(
       { fnId: alpenhornId },
-      new FakeWeakRef(subject)
+      new FakeWeakRef(subject),
     );
     jest.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -33,41 +34,50 @@ describe("an proxy representing a function in the other realm", () => {
       },
       (callTicket) => {
         const { callId, fnId } = callTicket;
+
         subject.respond({
           callId,
           fnId,
           status: "resolve",
           value: FARAWAY_SOUND,
         });
-      }
+      },
     );
     await expect(remoteAlpenhorn()).resolves.toBe(FARAWAY_SOUND);
   });
   it("rejects through the emitter", async () => {
     subject.onCall({ fnId: alpenhornId }, (callTicket) => {
       const { callId, fnId } = callTicket;
+
       subject.respond({
         callId,
+        error: new Error("bonk"),
         fnId,
         status: "reject",
-        error: new Error("bonk"),
       });
     });
-    await expect(remoteAlpenhorn()).rejects.toThrowError("bonk");
+    await expect(remoteAlpenhorn())
+      .rejects // eslint-disable-next-line sonarjs/deprecation
+      .toThrowError("bonk");
   });
   it("destroys itself on disconnect", async () => {
     subject.onCall({ fnId: alpenhornId }, async (callTicket) => {
       const { callId, fnId } = callTicket;
+
       subject.notifyDestroy();
       await wait(100);
       subject.respond({
         callId,
+        error: new Error("bonk"),
         fnId,
         status: "reject",
-        error: new Error("bonk"),
       });
     });
-    await expect(remoteAlpenhorn()).rejects.toThrowError("destroyed");
-    await expect(remoteAlpenhorn()).rejects.toThrowError("destroyed");
+    await expect(remoteAlpenhorn())
+      .rejects // eslint-disable-next-line sonarjs/deprecation
+      .toThrowError("destroyed");
+    await expect(remoteAlpenhorn())
+      .rejects // eslint-disable-next-line sonarjs/deprecation
+      .toThrowError("destroyed");
   });
 });
