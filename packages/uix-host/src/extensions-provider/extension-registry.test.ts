@@ -1,8 +1,8 @@
 import fetch, { enableFetchMocks } from "jest-fetch-mock";
-import fetchMock from "jest-fetch-mock";
 
 const {
   createExtensionRegistryAsObjectsProvider,
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
 } = require("./extension-registry");
 
 enableFetchMocks();
@@ -16,7 +16,6 @@ describe("Extension Registry", () => {
     fetch.mockResponseOnce(
       JSON.stringify([
         {
-          name: "my-test-extn",
           endpoints: {
             "myservice/testextpoint/1": {
               view: [
@@ -26,10 +25,10 @@ describe("Extension Registry", () => {
               ],
             },
           },
+          name: "my-test-extn",
           status: "PUBLISHED",
         },
         {
-          name: "my-test-extn-1",
           endpoints: {
             "myservice/testextpoint/1": {
               view: [
@@ -39,38 +38,39 @@ describe("Extension Registry", () => {
               ],
             },
           },
+          name: "my-test-extn-1",
           status: "DRAFT",
         },
-      ])
+      ]),
     );
 
     const config = {
-      service: "myservice",
-      extensionPoint: "testextpoint",
-      version: "1",
-      imsOrg: "test-org",
-      baseUrl: "http://example.com",
       apiKey: "test-key",
       auth: {
-        schema: "Basic",
         imsToken: "test-token",
+        schema: "Basic",
       },
+      baseUrl: "http://example.com",
+      extensionPoint: "testextpoint",
+      imsOrg: "test-org",
+      service: "myservice",
+      version: "1",
     };
     const extensionRegistry = createExtensionRegistryAsObjectsProvider(config);
     const extensions = await extensionRegistry();
 
     expect(extensions).toEqual({
       "my-test-extn": {
+        extensionPoints: ["myservice/testextpoint/1"],
         id: "my-test-extn",
         url: "https://example.com/index.html",
-        extensionPoints: ["myservice/testextpoint/1"],
       },
     });
     expect(extensions).not.toContain({
       "my-test-extn-1": {
+        extensionPoints: ["myservice/testextpoint/1"],
         id: "my-test-extn-1",
         url: "https://example.com/index.html",
-        extensionPoints: ["myservice/testextpoint/1"],
       },
     });
   });

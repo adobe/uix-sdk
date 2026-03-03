@@ -12,7 +12,8 @@ governing permissions and limitations under the License.
 
 import { useContext } from "react";
 import { Host } from "@adobe/uix-host";
-import { ExtensionContext, ExtensibilityContext } from "../extension-context";
+import type { ExtensibilityContext } from "../extension-context";
+import { ExtensionContext } from "../extension-context";
 
 /**
  * @public
@@ -37,17 +38,19 @@ type UseHostResponse =
  * @remarks Returns a `{ host, error }` tuple, not the host object directly.
  * @beta
  */
-export function useHost(): UseHostResponse {
+export const useHost = (): UseHostResponse => {
   const extensionsInfo = useContext<ExtensibilityContext>(ExtensionContext);
 
   if (!(extensionsInfo.host instanceof Host)) {
     const error = new OutsideOfExtensionContextError(
-      "Attempt to use extensions outside of ExtensionContext. Wrap extensible part of application with Extensible component."
+      "Attempt to use extensions outside of ExtensionContext. Wrap extensible part of application with Extensible component.",
     );
+
     return {
-      host: undefined,
       error,
+      host: undefined,
     };
   }
+
   return { error: undefined, host: extensionsInfo.host };
-}
+};

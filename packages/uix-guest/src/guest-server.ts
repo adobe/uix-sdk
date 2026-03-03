@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import type { GuestMetadata } from "@adobe/uix-core";
-import type { SharedContext, AppConnection } from "./guest";
+import type { AppConnection, SharedContext } from "./guest";
 import { Guest } from "./guest";
 
 /**

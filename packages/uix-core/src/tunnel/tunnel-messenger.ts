@@ -1,7 +1,11 @@
 import { NS_ROOT, VERSION } from "../constants";
+import type { WrappedMessage } from "../message-wrapper";
+import { isWrapped, unwrap, wrap } from "../message-wrapper";
+import type {
+  HandshakeAcceptedTicket,
+  HandshakeOfferedTicket,
+} from "../tickets";
 import { isPlainObject } from "../value-assertions";
-import { WrappedMessage, isWrapped, wrap, unwrap } from "../message-wrapper";
-import { HandshakeAcceptedTicket, HandshakeOfferedTicket } from "../tickets";
 
 type Handshake = HandshakeAcceptedTicket | HandshakeOfferedTicket;
 type HandshakeAccepted = WrappedMessage<HandshakeAcceptedTicket>;
@@ -25,14 +29,20 @@ const VERSION_CORRECTED = {
 };
 
 function getVersionParts(version: string): ParsedVersion {
-  const realVersion = VERSION_CORRECTED.hasOwnProperty(version)
+  const realVersion = Object.prototype.hasOwnProperty.call(
+    VERSION_CORRECTED,
+    version,
+  )
     ? VERSION_CORRECTED[version as keyof typeof VERSION_CORRECTED]
     : version;
   const [major, minor = "UNKNOWN", suffix = "UNKNOWN"] = realVersion.split(".");
   const [patch, prerelease = ""] = suffix.split("-");
+
   return { major, minor, patch, prerelease };
 }
+
 const thisVersion = getVersionParts(VERSION);
+
 export class TunnelMessenger {
   private myOrigin: string;
   private remoteOrigin: string;
@@ -66,7 +76,7 @@ export class TunnelMessenger {
   }
   isHandshakeAccepting(
     message: unknown,
-    id: string
+    id: string,
   ): message is HandshakeAccepted {
     return (
       this.isHandshake(message) &&
@@ -81,6 +91,7 @@ export class TunnelMessenger {
   }
   isCompatibleVersion(versionString: string) {
     const version = getVersionParts(versionString);
+
     return (
       version.major === thisVersion.major &&
       version.minor === thisVersion.minor &&
@@ -92,9 +103,11 @@ export class TunnelMessenger {
       this.logMalformed(message);
       return false;
     }
+
     const tunnelData: Handshake = unwrap<Handshake>(
-      message as HandshakeMessage
+      message as HandshakeMessage,
     );
+
     if (
       !isPlainObject(tunnelData) ||
       typeof tunnelData.version !== "string" ||
@@ -103,33 +116,40 @@ export class TunnelMessenger {
       this.logMalformed(message);
       return false;
     }
+
     const { version } = tunnelData;
+
     if (
       !this.isCompatibleVersion(version) &&
       !this.versionWarnings.has(version)
     ) {
       this.versionWarnings.add(version);
       this.logger.warn(
-        `SDK version mismatch. ${this.myOrigin} is using v${VERSION}, but received message from ${this.remoteOrigin} using SDK v${version}. Extensions may be broken or unresponsive.`
+        `SDK version mismatch. ${this.myOrigin} is using v${VERSION}, but received message from ${this.remoteOrigin} using SDK v${version}. Extensions may be broken or unresponsive.`,
       );
     }
+
     return true;
   }
   private logMalformed(message: unknown) {
     let inspectedMessage: string;
+
     try {
       inspectedMessage = JSON.stringify(message, null, 2);
+      // eslint-disable-next-line sonarjs/no-ignored-exceptions
     } catch (_) {
       try {
         inspectedMessage = message.toString();
-      } catch (e) {
+        // eslint-disable-next-line sonarjs/no-ignored-exceptions
+      } catch (_) {
         inspectedMessage = Object.prototype.toString.call(message);
       }
     }
+
     this.logger.error(
       `Malformed tunnel message sent from SDK at ${this.remoteOrigin} to ${this.myOrigin}:
 ${inspectedMessage}
-Message must be an object with "${NS_ROOT}" property, which must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`
+Message must be an object with "${NS_ROOT}" property, which must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`,
     );
   }
 }

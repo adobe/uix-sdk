@@ -1,10 +1,10 @@
+import type EventEmitter from "eventemitter3";
 import { isWrapped, unwrap, wrap } from "./message-wrapper";
-import EventEmitter from "eventemitter3";
 import type { DefMessage, Materialized, Simulated } from "./object-walker";
 import { NOT_TRANSFORMED, transformRecursive } from "./object-walker";
-import { makeCallSender, receiveCalls } from "./rpc";
 import type { Simulator } from "./remote-subject";
 import { RemoteSubject } from "./remote-subject";
+import { makeCallSender, receiveCalls } from "./rpc";
 import type { DefTicket } from "./tickets";
 import { hasProp } from "./value-assertions";
 
@@ -15,6 +15,7 @@ function isDefMessage(value: unknown): value is DefMessage {
 const bindAll = <T>(inst: T, methods: (keyof T)[]) => {
   for (const methodName of methods) {
     const method = inst[methodName];
+
     if (typeof method === "function") {
       inst[methodName] = method.bind(inst);
     }
@@ -62,20 +63,20 @@ export class ObjectSimulator implements Simulator {
 
   static create(
     emitter: EventEmitter,
-    Cleanup: CleanupNotifierConstructor
+    Cleanup: CleanupNotifierConstructor,
   ): ObjectSimulator {
+    // eslint-disable-next-line prefer-const -- circular ref: simulatorInterface needs simulator
     let simulator: Simulator;
-    // proxy simulator, so as not to have cyclic dependency
     const simulatorInterface: Simulator = {
-      simulate: (x) => simulator.simulate(x),
       materialize: (x) => simulator.materialize(x),
+      simulate: (x) => simulator.simulate(x),
     };
 
     const subject = new RemoteSubject(emitter, simulatorInterface);
 
-    const cleanupNotifier = new Cleanup((fnId: string) => {
-      return subject.notifyCleanup({ fnId });
-    });
+    const cleanupNotifier = new Cleanup((fnId: string) =>
+      subject.notifyCleanup({ fnId }),
+    );
 
     simulator = new ObjectSimulator(subject, cleanupNotifier);
 
@@ -86,39 +87,50 @@ export class ObjectSimulator implements Simulator {
 
   // #region Public Methods
 
-  makeReceiver(fn: CallableFunction, parent?: Object) {
+  // eslint-disable-next-line sonarjs/function-return-type
+  makeReceiver(fn: CallableFunction, parent?: object) {
     if (typeof fn !== "function") {
       return NOT_TRANSFORMED;
     }
+
     let fnTicket = this.receiverTicketCache.get(fn);
+
     if (!fnTicket) {
       fnTicket = {
         fnId: `${fn.name || "<anonymous>"}_${++this.fnCounter}`,
       };
       // Bind function to parent object if it exists
       let boundFunction = fn;
+
       if (parent) {
         boundFunction = fn.bind(parent);
       }
+
       const cleanup = receiveCalls(
         boundFunction,
         fnTicket,
-        new WeakRef(this.subject)
+        new WeakRef(this.subject),
       );
+
       this.subject.onOutOfScope(fnTicket, cleanup);
       this.receiverTicketCache.set(boundFunction, fnTicket);
     }
+
     return wrap(fnTicket);
   }
 
+  // eslint-disable-next-line sonarjs/function-return-type
   makeSender(message: unknown) {
     if (!isDefMessage(message)) {
       return NOT_TRANSFORMED;
     }
+
     const ticket = unwrap(message);
+
     /* istanbul ignore else: preopt */
     if (!this.senderCache.has(ticket)) {
       const sender = makeCallSender(ticket, new WeakRef(this.subject));
+
       this.cleanupNotifier.register(sender, ticket.fnId, sender);
       this.senderCache.set(ticket, sender);
       return sender;
@@ -130,14 +142,14 @@ export class ObjectSimulator implements Simulator {
   materialize<T>(simulated: T) {
     return transformRecursive<CallableFunction>(
       this.makeSender,
-      simulated
+      simulated,
     ) as Materialized<T>;
   }
 
   simulate<T>(localObject: T) {
     return transformRecursive<DefMessage>(
       this.makeReceiver,
-      localObject
+      localObject,
     ) as Simulated<T>;
   }
 

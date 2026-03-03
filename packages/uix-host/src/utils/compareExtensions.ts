@@ -10,8 +10,8 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { Extension } from "@adobe/uix-core";
-import { InstalledExtensions } from "../host";
+import type { Extension } from "@adobe/uix-core";
+import type { InstalledExtensions } from "../host";
 
 export interface ExtensionsDifference {
   added: Record<string, Extension["url"] | Extension>;
@@ -28,13 +28,13 @@ export interface ExtensionsDifference {
 
 export function compareExtensions(
   extensions1: InstalledExtensions,
-  extensions2: InstalledExtensions
+  extensions2: InstalledExtensions,
 ): ExtensionsDifference {
   const result: ExtensionsDifference = {
     added: {},
-    removed: {},
-    modified: {},
     hasChanges: false,
+    modified: {},
+    removed: {},
   };
 
   const keys1 = new Set(Object.keys(extensions1));
@@ -57,8 +57,8 @@ export function compareExtensions(
 
       if (!areExtensionsEqual(ext1, ext2)) {
         result.modified[key] = {
-          old: ext1,
           new: ext2,
+          old: ext1,
         };
         result.hasChanges = true;
       }
@@ -70,7 +70,7 @@ export function compareExtensions(
 
 function areExtensionsEqual(
   ext1: Extension["url"] | Extension,
-  ext2: Extension["url"] | Extension
+  ext2: Extension["url"] | Extension,
 ): boolean {
   if (typeof ext1 !== typeof ext2) {
     return false;
@@ -92,8 +92,8 @@ function areExtensionsEqual(
       return false;
     }
 
-    const sortedEp1 = [...ep1].sort();
-    const sortedEp2 = [...ep2].sort();
+    const sortedEp1 = [...ep1].sort((a, b) => a.localeCompare(b));
+    const sortedEp2 = [...ep2].sort((a, b) => a.localeCompare(b));
 
     for (let i = 0; i < sortedEp1.length; i++) {
       if (sortedEp1[i] !== sortedEp2[i]) {
@@ -135,7 +135,7 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
     if (
       !deepEqual(
         (obj1 as Record<string, unknown>)[key],
-        (obj2 as Record<string, unknown>)[key]
+        (obj2 as Record<string, unknown>)[key],
       )
     ) {
       return false;
@@ -147,7 +147,7 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
 
 export function areExtensionsDifferent(
   extensions1: InstalledExtensions,
-  extensions2: InstalledExtensions
+  extensions2: InstalledExtensions,
 ): boolean {
   return compareExtensions(extensions1, extensions2).hasChanges;
 }

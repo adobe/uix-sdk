@@ -24,13 +24,16 @@ import { isFunction, isIterable, isPrimitive } from "./value-assertions";
 export function formatHostMethodArgument(argument: unknown): string {
   try {
     return JSON.stringify(argument, null, 2);
-  } catch (e) {
+    // eslint-disable-next-line sonarjs/no-ignored-exceptions
+  } catch (_) {
     if (isIterable(argument)) {
       return `Iterable<${argument.length}>`;
     }
+
     if (isPrimitive(argument) || isFunction(argument)) {
       return `${argument}`;
     }
+
     return Object.prototype.toString.call(argument);
   }
 }
@@ -53,5 +56,6 @@ export function formatHostMethodAddress(address: HostMethodAddress) {
       : address.path.join(".");
   const name = address.name || "<Missing method name!>";
   const args = address.args?.map(formatHostMethodArgument).join(",");
+
   return `host.${path}.${name}(${args})`;
 }

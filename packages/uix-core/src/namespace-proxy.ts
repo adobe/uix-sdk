@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RemoteMethodInvoker } from "./types.js";
+import type { RemoteMethodInvoker } from "./types.js";
 
 /**
  * Build a fake object that turns "method calls" into RPC messages
@@ -44,35 +44,40 @@ import { RemoteMethodInvoker } from "./types.js";
  */
 export function makeNamespaceProxy<ProxiedApi extends object>(
   invoke: RemoteMethodInvoker<unknown>,
-  path: string[] = []
+  path: string[] = [],
 ): ProxiedApi {
   const handler: ProxyHandler<Record<string, any>> = {
     get: (target, prop) => {
       if (typeof prop === "string") {
         if (!Reflect.has(target, prop)) {
           const next = makeNamespaceProxy(invoke, path.concat(prop));
+
           Reflect.set(target, prop, next);
         }
+
         return Reflect.get(target, prop) as unknown;
       } else {
         throw new Error(
-          `Cannot look up a symbol ${String(prop)} on a host connection proxy.`
+          `Cannot look up a symbol ${String(prop)} on a host connection proxy.`,
         );
       }
     },
   };
   const target = {} as unknown as ProxiedApi;
+
   // Only trap the apply if there's at least two levels of namespace.
   // uix.host() is not a function, and neither is uix.host.bareMethod().
   if (path.length < 2) {
     return new Proxy<ProxiedApi>(target, handler);
   }
+
   const invoker = (...args: unknown[]) =>
     invoke({
-      path: path.slice(0, -1),
-      name: path[path.length - 1],
       args,
+      name: path[path.length - 1],
+      path: path.slice(0, -1),
     });
+
   return new Proxy<typeof invoker>(invoker, {
     ...handler,
     apply(target, _, args: unknown[]) {

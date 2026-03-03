@@ -8,11 +8,12 @@ const fakeConsole = {
 
 describe("tunnel negotiation message factory", () => {
   let messenger: TunnelMessenger;
+
   beforeEach(() => {
     messenger = new TunnelMessenger({
+      logger: fakeConsole,
       myOrigin: "https://me",
       targetOrigin: "https://you",
-      logger: fakeConsole,
     });
     jest.clearAllMocks();
   });
@@ -42,7 +43,7 @@ describe("tunnel negotiation message factory", () => {
           offers: "test2",
           version: VERSION,
         },
-      })
+      }),
     ).toBeTruthy();
     expect(
       messenger.isHandshakeOffer({
@@ -50,7 +51,7 @@ describe("tunnel negotiation message factory", () => {
           accepts: "test2",
           version: VERSION,
         },
-      })
+      }),
     ).toBeFalsy();
     expect(messenger.isHandshakeOffer({})).toBeFalsy();
   });
@@ -63,8 +64,8 @@ describe("tunnel negotiation message factory", () => {
             version: VERSION,
           },
         },
-        "test3"
-      )
+        "test3",
+      ),
     ).toBeTruthy();
     expect(
       messenger.isHandshakeAccepting(
@@ -72,8 +73,8 @@ describe("tunnel negotiation message factory", () => {
           accepts: "test3",
           version: VERSION,
         },
-        "mismatch"
-      )
+        "mismatch",
+      ),
     ).toBeFalsy();
     expect(messenger.isHandshakeAccepting({}, "test3")).toBeFalsy();
   });
@@ -102,12 +103,12 @@ describe("tunnel negotiation message factory", () => {
       expect(
         messenger.isHandshakeOffer({
           someOtherRoot: false,
-        })
+        }),
       ).toBeFalsy();
       expect(
         messenger.isHandshake({
           [NS_ROOT]: 5,
-        })
+        }),
       ).toBeFalsy();
       expect(fakeConsole.error.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
@@ -131,7 +132,7 @@ describe("tunnel negotiation message factory", () => {
           [NS_ROOT]: {
             version: VERSION,
           },
-        })
+        }),
       ).toBeFalsy();
     });
     it("with no version string", () => {
@@ -140,7 +141,7 @@ describe("tunnel negotiation message factory", () => {
           [NS_ROOT]: {
             offers: "test4",
           },
-        })
+        }),
       ).toBeFalsy();
     });
   });
@@ -151,6 +152,7 @@ describe("tunnel negotiation message factory", () => {
         version,
       },
     });
+
     it("warns in console, once for each version", () => {
       expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("999.999.999"))).toBeTruthy();
@@ -168,31 +170,32 @@ describe("tunnel negotiation message factory", () => {
     });
     it("does not warn for only patch version changes", () => {
       const [major, minor, patch] = VERSION.split(".");
+
       expect(
         messenger.isHandshake(
-          withVersion(`${major}.${minor}.${Number(patch) + 1}`)
-        )
+          withVersion(`${major}.${minor}.${Number(patch) + 1}`),
+        ),
       ).toBeTruthy();
       expect(fakeConsole.warn).not.toHaveBeenCalled();
       expect(
         messenger.isHandshake(
-          withVersion(`${major}.${Number(minor) + 1}.${patch}`)
-        )
+          withVersion(`${major}.${Number(minor) + 1}.${patch}`),
+        ),
       ).toBeTruthy();
       expect(fakeConsole.warn).toHaveBeenCalled();
     });
     it("resetWarnings() resets seen version warnings so they'll log again", () => {
       messenger.resetWarnings();
       expect(
-        messenger.isHandshake(withVersion("same-bad-version"))
+        messenger.isHandshake(withVersion("same-bad-version")),
       ).toBeTruthy();
       expect(
-        messenger.isHandshake(withVersion("same-bad-version"))
+        messenger.isHandshake(withVersion("same-bad-version")),
       ).toBeTruthy();
       expect(fakeConsole.warn).toHaveBeenCalledTimes(1);
       messenger.resetWarnings();
       expect(
-        messenger.isHandshake(withVersion("same-bad-version"))
+        messenger.isHandshake(withVersion("same-bad-version")),
       ).toBeTruthy();
       expect(fakeConsole.warn).toHaveBeenCalledTimes(2);
     });

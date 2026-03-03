@@ -14,7 +14,7 @@ governing permissions and limitations under the License.
  * @hidden
  */
 import { createContext } from "react";
-import { Host } from "@adobe/uix-host";
+import type { Host } from "@adobe/uix-host";
 
 /**
  * Context container with Host object and extensions load status.
@@ -30,5 +30,5 @@ export type ExtensibilityContext = {
  * @internal
  */
 export const ExtensionContext = createContext<ExtensibilityContext>(
-  {} as unknown as ExtensibilityContext
+  {} as unknown as ExtensibilityContext,
 );

@@ -11,17 +11,17 @@ governing permissions and limitations under the License.
 */
 
 import type {
+  Emits,
   Extension,
+  GuestApis,
   GuestEmitter,
   NamedEvent,
-  Emits,
-  GuestApis,
 } from "@adobe/uix-core";
-import type { CapabilitySpec } from "./port.js";
 import { Emitter, quietConsole } from "@adobe/uix-core";
-import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
+import type { CapabilitySpec, PortOptions } from "./port.js";
+import { Port } from "./port.js";
 import { compareExtensions } from "./utils/compareExtensions.js";
 
 /**
@@ -33,7 +33,7 @@ export type PortMap = Map<string, Port>;
 /** @public */
 export type HostEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = NamedEvent<Type, Detail & Record<string, unknown> & { host: Host }>;
 /** @public */
 type HostGuestEvent<Type extends string> = HostEvent<
@@ -210,13 +210,13 @@ export class Host extends Emitter<HostEvents> {
   public error: HostEventError;
 
   private static containerStyle = {
-    position: "fixed",
-    width: "1px",
     height: "1px",
-    pointerEvents: "none",
-    opacity: 0,
-    top: 0,
     left: "-1px",
+    opacity: 0,
+    pointerEvents: "none",
+    position: "fixed",
+    top: 0,
+    width: "1px",
   };
 
   private lastExtenstionList: InstalledExtensions = {};
@@ -241,6 +241,7 @@ export class Host extends Emitter<HostEvents> {
   constructor(config: HostConfig) {
     super(config.hostName);
     const { guestOptions = {} } = config;
+
     this.guestOptions = {
       ...guestOptions,
       debug: guestOptions.debug === false ? false : !!config.debug,
@@ -248,9 +249,11 @@ export class Host extends Emitter<HostEvents> {
     this.hostName = config.hostName;
     this.sharedContext = config.sharedContext || {};
     this.runtimeContainer = config.runtimeContainer;
+
     if (config.debug) {
       this.logger = debugHost(this);
     }
+
     if (!config.disableMetrics) {
       addMetrics(this);
     }
@@ -267,21 +270,24 @@ export class Host extends Emitter<HostEvents> {
    * Return loaded guests which expose the provided {@link CapabilitySpec}.
    */
   getLoadedGuests<Apis extends GuestApis>(
-    capabilities: CapabilitySpec<Apis>
+    capabilities: CapabilitySpec<Apis>,
   ): Port<GuestApis>[];
   getLoadedGuests<Apis extends GuestApis = never>(
-    filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter
+    filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter,
   ): Port<GuestApis>[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
     }
+
     const filter = filterOrCapabilities || passAllGuests;
     const result = [];
+
     for (const guest of this.guests.values()) {
       if (guest.isReady() && filter(guest)) {
         result.push(guest as Port<GuestApis>);
       }
     }
+
     return result;
   }
   /**
@@ -330,24 +336,25 @@ export class Host extends Emitter<HostEvents> {
    * ```
    */
   shareContext(
-    setter: (context: SharedContextValues) => SharedContextValues
+    setter: (context: SharedContextValues) => SharedContextValues,
   ): void;
   shareContext(
-    setter: (context: SharedContextValues) => SharedContextValues
+    setter: (context: SharedContextValues) => SharedContextValues,
   ): void;
   shareContext(
     setterOrContext:
       | ((context: SharedContextValues) => SharedContextValues)
-      | SharedContextValues
+      | SharedContextValues,
   ) {
     if (typeof setterOrContext === "function") {
       this.sharedContext = setterOrContext(this.sharedContext);
     } else {
       this.sharedContext = setterOrContext;
     }
+
     this.emit("contextchange", {
-      host: this,
       context: this.sharedContext,
+      host: this,
     });
   }
   /**
@@ -360,18 +367,20 @@ export class Host extends Emitter<HostEvents> {
    */
   async load(
     extensions: InstalledExtensions,
-    options?: PortOptions
+    options?: PortOptions,
   ): Promise<void> {
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
     const result = compareExtensions(this.lastExtenstionList, extensions);
+
     this.lastExtenstionList = extensions;
     const extensionsToAdd = Object.entries(result.added);
     const extensionsToRemove = Object.entries(result.removed);
+
     if (result.hasChanges && extensionsToAdd.length > 0) {
       this.logger.log(
         `Host ${this.hostName} loading extensions:`,
-        extensionsToAdd
+        extensionsToAdd,
       );
       await this.addLoadsNewGuests(result.added, options);
     }
@@ -379,7 +388,7 @@ export class Host extends Emitter<HostEvents> {
     if (result.hasChanges && extensionsToRemove.length > 0) {
       this.logger.log(
         `Host ${this.hostName} removing extensions:`,
-        extensionsToRemove
+        extensionsToRemove,
       );
       extensionsToRemove.forEach(async ([id, ext]) => {
         if (typeof ext === "object" && ext !== null && "url" in ext) {
@@ -391,19 +400,21 @@ export class Host extends Emitter<HostEvents> {
 
   async addLoadsNewGuests(
     extensions: InstalledExtensions,
-    options?: PortOptions
+    options?: PortOptions,
   ): Promise<void> {
     const failed: Port[] = [];
     const loaded: Port[] = [];
+
     this.loading = true;
     await Promise.all(
       Object.entries(extensions).map(async ([id, extension]) => {
         const port = await this.loadOneGuest(id, extension, options);
+
         (port.error ? failed : loaded).push(port);
-      })
+      }),
     );
     this.loading = false;
-    this.emit("loadallguests", { host: this, failed, loaded });
+    this.emit("loadallguests", { failed, host: this, loaded });
   }
 
   /**
@@ -411,6 +422,7 @@ export class Host extends Emitter<HostEvents> {
    */
   async removeGuest(id: string, extension: Extension): Promise<void> {
     const guest = this.guests.get(id);
+
     if (guest) {
       this.emit("guestbeforeunload", { guest, host: this });
       await guest.unload();
@@ -434,6 +446,7 @@ export class Host extends Emitter<HostEvents> {
   private createRuntimeContainer(window: Window) {
     const { document } = window;
     const container = document.createElement("div");
+
     container.setAttribute("data-uix-guest-container", this.hostName);
     container.setAttribute("role", "presentation");
     container.setAttribute("aria-hidden", "true");
@@ -444,13 +457,13 @@ export class Host extends Emitter<HostEvents> {
   private async loadOneGuest<T = unknown>(
     id: string,
     extension: string | Extension,
-    options: PortOptions = {}
+    options: PortOptions = {},
   ): Promise<Port<T>> {
     let guest = this.guests.get(id);
+
     if (!guest) {
-      const isExtension = (item: any): item is Extension => {
-        return typeof item === "object" && item !== null && "url" in item;
-      };
+      const isExtension = (item: any): item is Extension =>
+        typeof item === "object" && item !== null && "url" in item;
 
       const isExtensionObject = isExtension(extension);
       const extensionUrl = isExtensionObject ? extension.url : extension;
@@ -463,23 +476,25 @@ export class Host extends Emitter<HostEvents> {
         : [];
 
       const url = new URL(extensionUrl);
+
       guest = new Port({
-        owner: this.hostName,
+        configuration: extensionConfiguration,
+        events: this as Emits,
+        extensionPoints,
         id,
-        url,
-        runtimeContainer: this.runtimeContainer,
+        logger: this.logger,
         options: {
           ...this.guestOptions,
           ...options,
         },
-        logger: this.logger,
+        owner: this.hostName,
+        runtimeContainer: this.runtimeContainer,
         sharedContext: this.sharedContext,
-        configuration: extensionConfiguration,
-        extensionPoints,
-        events: this as Emits,
+        url,
       });
       this.guests.set(id, guest);
     }
+
     this.emit("guestbeforeload", { guest, host: this });
     try {
       await guest.load();
@@ -487,11 +502,13 @@ export class Host extends Emitter<HostEvents> {
       const error = new Error(
         `Guest ${guest.id} failed to load: at ${guest.url}: ${
           e instanceof Error ? e.stack : String(e)
-        }`
+        }`,
       );
-      this.emit("error", { host: this, guest, error });
+
+      this.emit("error", { error, guest, host: this });
       return guest;
     }
+
     // this new guest might have new capabilities, so the identities of the
     // cached capability sets will need to change, to alert subscribers
     this.cachedCapabilityLists = new WeakMap();
@@ -499,14 +516,16 @@ export class Host extends Emitter<HostEvents> {
     return guest;
   }
   private getLoadedGuestsWith<Apis extends GuestApis>(
-    capabilities: CapabilitySpec<Apis>
+    capabilities: CapabilitySpec<Apis>,
   ) {
     if (this.cachedCapabilityLists.has(capabilities)) {
       return this.cachedCapabilityLists.get(capabilities);
     }
+
     const guestsWithCapabilities = this.getLoadedGuests((guest) =>
-      guest.hasCapabilities(capabilities)
+      guest.hasCapabilities(capabilities),
     );
+
     this.cachedCapabilityLists.set(capabilities, guestsWithCapabilities);
     return guestsWithCapabilities;
   }

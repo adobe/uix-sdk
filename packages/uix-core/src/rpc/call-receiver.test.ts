@@ -1,10 +1,10 @@
-import { wait } from "../promises/wait";
 import EventEmitter from "eventemitter3";
-import { RemoteSubject } from "../remote-subject";
-import { receiveCalls } from "./call-receiver";
 import { FakeFinalizationRegistry } from "../__mocks__/mock-finalization-registry";
 import { FakeWeakRef } from "../__mocks__/mock-weak-ref";
 import { ObjectSimulator } from "../object-simulator";
+import { wait } from "../promises/wait";
+import type { RemoteSubject } from "../remote-subject";
+import { receiveCalls } from "./call-receiver";
 
 describe("a listener for remote calls to a local function", () => {
   const MURMURS = ["baa", "moo", "ahoy"];
@@ -16,6 +16,7 @@ describe("a listener for remote calls to a local function", () => {
   let emitter: EventEmitter;
   let subject: RemoteSubject;
   let simulator: ObjectSimulator;
+
   beforeEach(() => {
     village.mockClear();
     jest.spyOn(console, "error").mockImplementation(() => {});
@@ -30,6 +31,7 @@ describe("a listener for remote calls to a local function", () => {
       ...villageTicket,
       callId: 4,
     };
+
     subject.onRespond(call4Ticket, responder);
     subject.send({
       ...call4Ticket,
@@ -41,7 +43,7 @@ describe("a listener for remote calls to a local function", () => {
         ...call4Ticket,
         status: "resolve",
         value: expect.arrayContaining(["baa", "moo", "ahoy"]),
-      })
+      }),
     );
   });
   it("sends events notifying of rejections", async () => {
@@ -50,6 +52,7 @@ describe("a listener for remote calls to a local function", () => {
       ...villageTicket,
       callId: 500,
     };
+
     subject.onRespond(call500Ticket, responder);
     village.mockRejectedValueOnce(new Error("what is that infernal noise"));
     subject.send({
@@ -61,9 +64,9 @@ describe("a listener for remote calls to a local function", () => {
     expect(responder).toHaveBeenCalledWith(
       expect.objectContaining({
         ...call500Ticket,
-        status: "reject",
         error: expect.any(Error),
-      })
+        status: "reject",
+      }),
     );
   });
   it.skip("unsubscribes itself when receiving a cleanup event", async () => {
@@ -72,6 +75,7 @@ describe("a listener for remote calls to a local function", () => {
       ...villageTicket,
       callId: 76,
     };
+
     subject.onRespond(call76Ticket, responder);
     village.mockRejectedValueOnce(new Error("what is that infernal noise"));
 

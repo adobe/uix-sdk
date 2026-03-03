@@ -14,8 +14,9 @@ governing permissions and limitations under the License.
  * Adapter to attach console logging listeners to a Guest running in a frame/
  * @internal @preapproved
  */
-import { debugEmitter, Emits, EmitterDebugLogger } from "@adobe/uix-core";
-import { GuestEvents } from "./guest";
+import type { Emits, EmitterDebugLogger } from "@adobe/uix-core";
+import { debugEmitter } from "@adobe/uix-core";
+import type { GuestEvents } from "./guest";
 
 export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
   return debugEmitter(guest, {
@@ -36,7 +37,7 @@ export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
         "❌ Failed to connect! %s",
         (error as Error).message,
         guest,
-        error
+        error,
       );
     });
 }
