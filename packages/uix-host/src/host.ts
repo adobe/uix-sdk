@@ -453,7 +453,8 @@ export class Host extends Emitter<HostEvents> {
       };
 
       const isExtensionObject = isExtension(extension);
-      const extensionUrl = isExtensionObject ? extension.url : extension;
+      const extensionUrl =
+        (isExtensionObject ? extension.url : extension) || "";
       const extensionConfiguration = isExtensionObject
         ? extension.configuration
         : undefined;
@@ -462,7 +463,10 @@ export class Host extends Emitter<HostEvents> {
         ? extension.extensionPoints
         : [];
 
-      const url = new URL(extensionUrl);
+      const readyExtUrl = extensionUrl.startsWith("http")
+        ? extensionUrl
+        : `https://${extensionUrl}`;
+      const url = new URL(readyExtUrl);
       guest = new Port({
         owner: this.hostName,
         id,

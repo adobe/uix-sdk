@@ -99,7 +99,10 @@ export const GuestUIFrame = ({
     return null;
   }
   const guest = host.guests.get(guestId);
-  const frameUrl = new URL(src, guest.url.href);
+  const readyUrl = src.startsWith("http") ? src : `https://${src}`;
+  const { href } = guest.url;
+  const readyHref = href.startsWith("http") ? href : `https://${href}`;
+  const frameUrl = new URL(readyUrl, readyHref);
 
   useEffect(() => {
     if (ref.current) {
