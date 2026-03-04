@@ -176,7 +176,8 @@ export function buildExtensionManagerUrl(
  * @ignore
  */
 export async function fetchExtensionsFromExtensionManager(
-  config: ExtensionManagerConfig
+  config: ExtensionManagerConfig,
+  signal?: AbortSignal
 ): Promise<ExtensionManagerExtension[]> {
   const resp: Response = await fetch(buildExtensionManagerUrl(config), {
     headers: {
@@ -184,6 +185,7 @@ export async function fetchExtensionsFromExtensionManager(
       "x-api-key": config.apiKey,
       "x-org-id": config.imsOrg,
     },
+    signal,
   });
 
   if (resp.status !== 200) {
@@ -251,7 +253,8 @@ async function getExtensionManagerExtensions(
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
+  signal?: AbortSignal
 ): Promise<InstalledExtensions> {
   const config = {
     apiKey: authConfig.apiKey,
@@ -285,10 +288,13 @@ async function getExtensionManagerExtensions(
   } as ExtensionManagerConfig;
   const [appRegistryExtensions, extensionManagerExtensions] = await Promise.all(
     [
-      appRegistryExtensionsProvider(),
+      appRegistryExtensionsProvider(signal),
       providerConfig.disableExtensionManager
         ? []
-        : fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
+        : fetchExtensionsFromExtensionManager(
+            extensionManagerConfiguration,
+            signal
+          ),
     ]
   );
 
@@ -313,12 +319,13 @@ export function createExtensionManagerExtensionsProvider(
   providerConfig: ExtensionProviderConfig,
   extensionPointId: ExtensionPointId
 ): ExtensionsProvider {
-  return () => {
+  return (signal?: AbortSignal) => {
     return getExtensionManagerExtensions(
       discoveryConfig,
       authConfig,
       providerConfig,
-      extensionPointId
+      extensionPointId,
+      signal
     );
   };
 }

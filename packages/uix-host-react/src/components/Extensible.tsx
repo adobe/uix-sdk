@@ -129,8 +129,13 @@ export function Extensible({
     useState<boolean>(false);
   const prevSharedContext = useRef(JSON.stringify(sharedContext));
   useEffect(() => {
-    extensionsProvider()
+    const abortController = new AbortController();
+    let isMounted = true;
+
+    extensionsProvider(abortController.signal)
       .then((loaded: InstalledExtensions) => {
+        if (!isMounted) return;
+
         setExtensions((prev) => {
           let newExtensions = loaded;
 
@@ -148,11 +153,23 @@ export function Extensible({
         });
       })
       .catch((e: Error | unknown) => {
+        // Don't log errors if the fetch was aborted (component unmounted or deps changed)
+        if (!isMounted || abortController.signal.aborted) {
+          return;
+        }
         console.error("Fetching list of extensions failed!", e);
       })
       .finally(() => {
-        setExtensionListFetched(true);
+        if (isMounted) {
+          setExtensionListFetched(true);
+        }
       });
+
+    // Cleanup function: abort the fetch if component unmounts or dependencies change
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, [extensionsProvider, extensionsListCallback]);
 
   const [host, setHost] = useState<Host>();

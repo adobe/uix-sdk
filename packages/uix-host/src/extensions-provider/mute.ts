@@ -21,9 +21,9 @@ import { ExtensionsProvider } from "../host.js";
 export function mutedProvider(
   provider: ExtensionsProvider
 ): ExtensionsProvider {
-  return async () => {
+  return async (signal?: AbortSignal) => {
     try {
-      return await provider();
+      return await provider(signal);
     } catch (error) {
       console.error(`Extension provider has failed: ${error.message}`, {
         error,
