@@ -76,7 +76,7 @@ governing permissions and limitations under the License.
 import type { Guest, GuestConfig, AppConnection } from "./guest.js";
 import { GuestUI } from "./guest-ui.js";
 import { GuestServer } from "./guest-server.js";
-import { GuestApis, GuestMetadata, HostMethodAddress } from "@adobe/uix-core";
+import { GuestApis, GuestMetadata, VirtualApi } from "@adobe/uix-core";
 export type { AppConnection } from "./guest";
 /**
  * {@inheritdoc GuestConfig}
@@ -109,8 +109,8 @@ export function createGuest(config: GuestConfig) {
  *
  * @public
  */
-export async function attach(config: GuestConfig) {
-  const guest = new GuestUI(config);
+export async function attach<T extends VirtualApi>(config: GuestConfig) {
+  const guest = new GuestUI<T>(config);
   await guest._connect();
   return guest;
 }
