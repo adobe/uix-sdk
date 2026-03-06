@@ -92,7 +92,8 @@ function ensureProtocolSpecified(url: string) {
 }
 
 export async function fetchExtensionsFromRegistry(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
+  signal?: AbortSignal
 ): Promise<Array<ExtensionDefinition>> {
   const workspaceParam = config.workspace
     ? `&workspace=${config.workspace}`
@@ -109,6 +110,7 @@ export async function fetchExtensionsFromRegistry(
         Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
         "X-Api-Key": config.apiKey,
       },
+      signal,
     }
   );
 
@@ -127,10 +129,11 @@ export async function fetchExtensionsFromRegistry(
  * @deprecated
  */
 function extensionRegistryExtensionsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
+  signal?: AbortSignal
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
-  return fetchExtensionsFromRegistry(config).then((out) =>
+  return fetchExtensionsFromRegistry(config, signal).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (e.status !== "PUBLISHED") {
         return a;
@@ -151,10 +154,11 @@ function extensionRegistryExtensionsProvider(
  * Fetch & return published extension objects from registry
  */
 function extensionRegistryExtensionsAsObjectsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
+  signal?: AbortSignal
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
-  return fetchExtensionsFromRegistry(config).then((out) =>
+  return fetchExtensionsFromRegistry(config, signal).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (config.filter && typeof config.filter === "function") {
         if (!config.filter(e)) {
@@ -184,8 +188,8 @@ function extensionRegistryExtensionsAsObjectsProvider(
 export function createExtensionRegistryProvider(
   config: ExtensionRegistryConfig
 ): ExtensionsProvider {
-  return function () {
-    return extensionRegistryExtensionsProvider(config);
+  return function (signal?: AbortSignal) {
+    return extensionRegistryExtensionsProvider(config, signal);
   };
 }
 
@@ -196,7 +200,7 @@ export function createExtensionRegistryProvider(
 export function createExtensionRegistryAsObjectsProvider(
   config: ExtensionRegistryConfig
 ): ExtensionsProvider {
-  return function () {
-    return extensionRegistryExtensionsAsObjectsProvider(config);
+  return function (signal?: AbortSignal) {
+    return extensionRegistryExtensionsAsObjectsProvider(config, signal);
   };
 }

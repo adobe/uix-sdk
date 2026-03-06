@@ -87,8 +87,13 @@ export type InstalledExtensions = Record<
 /** @public */
 export type ExtensionsArray = Array<[string, Extension | string]>;
 
-/** @public */
-export type ExtensionsProvider = () => Promise<InstalledExtensions>;
+/**
+ * @public
+ * @param signal - Optional AbortSignal to cancel the fetch operation
+ */
+export type ExtensionsProvider = (
+  signal?: AbortSignal
+) => Promise<InstalledExtensions>;
 
 /**
  * Values for shared context. Must be a plain object, serializable to JSON.
