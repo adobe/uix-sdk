@@ -287,6 +287,13 @@ async function start() {
 
 ## Development
 
+### Code Review
+
+This repository uses GitHub Copilot code review to help maintain code quality. All pull requests to `main` require:
+- At least 1 approving review
+- All conversation threads resolved
+- Linear history (squash or rebase merges only)
+
 ### Quick Start
 
 #### Dev Mode
