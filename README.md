@@ -287,6 +287,13 @@ async function start() {
 
 ## Development
 
+### Code Review
+
+This repository uses GitHub Copilot code review to help maintain code quality. All pull requests to `main` require:
+- At least 1 approving review
+- All conversation threads resolved
+- Linear history (squash or rebase merges only)
+
 ### Quick Start
 
 #### Dev Mode
@@ -396,6 +403,17 @@ Use the `--dry-run` option to see what commands would be run first; the script w
 
 ### Release Script
 
+**Standard releases are handled via GitHub Actions workflows:**
+
+- **Manual Release**: Navigate to Actions → "npm-publish-manual" workflow in GitHub and trigger via workflow_dispatch with desired version bump (major/minor/patch/prerelease)
+- **Nightly Prerelease**: Automated nightly builds run at 11 PM UTC and publish to NPM under the `nightly` tag
+
+Both workflows use GitHub secrets (`ADOBE_BOT_NPM_TOKEN`, `GITHUB_TOKEN`) for authentication and run the release script in the CI/CD environment.
+
+**Advanced: Local Script Usage**
+
+For local testing or special cases, the release script can be run manually:
+
 ```sh
 node scripts/release.mjs <major|minor|patch|prerelease> [--no-version] [--no-git] [--no-publish] [--registry=https://example.com]
 ```
@@ -419,8 +437,6 @@ Adjust this functionality with command line arguments:
 - `--no-publish` to skip NPM publish
 - `--registry=<registry url>` to override the default NPM repositories. Multiple `--registry=` arguments will publish to multiple repositories.
 - `--dry-run` to see what commands would be run first; the script will show the commands but not execute them.
-
-:information: **Warning: Must be working in an office or on the VPN for the Git push and NPM publish to work.**
 
 ## SDKs
 
