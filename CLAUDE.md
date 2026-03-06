@@ -118,7 +118,16 @@ E2E tests are in `e2e/` directories and run via GitHub Actions workflows.
 
 ## Release Process
 
-**Important**: Must be on VPN for Git push and NPM publish to work.
+Releases are automated via GitHub Actions workflows:
+
+- **Manual Release** (`.github/workflows/npm-publish-manual.yml`): Trigger via workflow_dispatch in GitHub Actions UI to create major/minor/patch/prerelease versions
+- **Nightly Prerelease** (`.github/workflows/npm-prerelease-nightly.yml`): Automated nightly builds at 11 PM UTC, published to NPM under the `nightly` tag
+
+Both workflows use GitHub secrets (`ADOBE_BOT_NPM_TOKEN`, `GITHUB_TOKEN`) and call `scripts/release.mjs` internally in the CI/CD environment.
+
+### Advanced: Local Release Script
+
+For local testing or special cases, the release script can be run manually:
 
 ```bash
 # Standard release (updates versions, commits, tags, pushes, publishes)
@@ -136,8 +145,6 @@ Release script validates:
 - On `main` branch with clean working directory
 - All packages have matching version strings
 - Updates versions across all packages and interdependencies
-
-Nightly builds are published automatically to NPM under the `nightly` tag.
 
 ## Code Conventions
 
