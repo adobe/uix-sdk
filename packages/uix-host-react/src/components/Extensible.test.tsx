@@ -167,7 +167,7 @@ describe("Extensible", () => {
       });
     });
 
-    it("should unload old host before creating a new one when debug changes", async () => {
+    it("should not unload or recreate host when only debug changes", async () => {
       const mockExtensions: InstalledExtensions = {
         "ext-1": { id: "ext-1", url: "https://example.com/ext1" },
       };
