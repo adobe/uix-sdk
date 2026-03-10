@@ -313,11 +313,9 @@ describe("Extensible", () => {
     });
 
     it("should not log error for cancelled fetch", async () => {
-      let firstResolve: (value: never) => void;
       let firstReject: (reason: Error) => void;
       const firstProviderPromise = new Promise<InstalledExtensions>(
-        (resolve, reject) => {
-          firstResolve = resolve;
+        (_resolve, reject) => {
           firstReject = reject;
         }
       );
