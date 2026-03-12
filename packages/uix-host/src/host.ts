@@ -420,7 +420,7 @@ export class Host extends Emitter<HostEvents> {
   /**
    * Unload and remove a specific extension by its ID.
    */
-  async removeGuest(id: string, extension: Extension): Promise<void> {
+  async removeGuest(id: string, _: Extension): Promise<void> {
     const guest = this.guests.get(id);
 
     if (guest) {
@@ -454,6 +454,7 @@ export class Host extends Emitter<HostEvents> {
     document.body.appendChild(container);
     return container;
   }
+  // eslint-disable-next-line max-statements
   private async loadOneGuest<T = unknown>(
     id: string,
     extension: string | Extension,
@@ -462,6 +463,7 @@ export class Host extends Emitter<HostEvents> {
     let guest = this.guests.get(id);
 
     if (!guest) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isExtension = (item: any): item is Extension =>
         typeof item === "object" && item !== null && "url" in item;
 

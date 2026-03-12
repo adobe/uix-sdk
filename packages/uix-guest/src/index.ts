@@ -95,11 +95,11 @@ type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
  * that resolve once the guest is connected.
  * @public
  */
-export function createGuest(config: GuestConfig) {
+export const createGuest = (config: GuestConfig) => {
   const guest = new GuestServer(config);
 
   return guest;
-}
+};
 
 /**
  * Connect to a running {@link GuestServer} to share its context and render UI.
@@ -111,12 +111,12 @@ export function createGuest(config: GuestConfig) {
  *
  * @public
  */
-export async function attach(config: GuestConfig) {
+export const attach = async (config: GuestConfig) => {
   const guest = new GuestUI(config);
 
   await guest._connect();
   return guest;
-}
+};
 
 /**
  * Initiate a connection to the host app and its extension points.
@@ -127,14 +127,14 @@ export async function attach(config: GuestConfig) {
  *
  * @public
  */
-export async function register<App extends AppConnection>(
+export const register = async <App extends AppConnection>(
   config: GuestConfigWithMethods<App["outgoing"]>,
-) {
+) => {
   const guest = new GuestServer<App>(config);
 
   guest.register(config.methods, config.metadata);
   return guest;
-}
+};
 
 // backwards compatibility
 export {

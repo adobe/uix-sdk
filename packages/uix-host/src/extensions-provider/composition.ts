@@ -18,12 +18,10 @@ import type { ExtensionsProvider, InstalledExtensions } from "../host.js";
  * providers into one namespaced object.
  * @public
  */
-export function combineExtensionsFromProviders(
-  ...providers: Array<ExtensionsProvider>
-): ExtensionsProvider {
-  return () =>
+export const combineExtensionsFromProviders =
+  (...providers: Array<ExtensionsProvider>): ExtensionsProvider =>
+  () =>
     Promise.all(providers.map((ep: ExtensionsProvider) => ep())).then(
       (extensionsBatches: Array<InstalledExtensions>) =>
-        Object.assign({}, ...extensionsBatches),
+        Object.assign({}, ...extensionsBatches) as InstalledExtensions,
     );
-}

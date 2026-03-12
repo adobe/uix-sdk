@@ -59,6 +59,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   ) => InstalledExtensions;
 }
 
+// eslint-disable-next-line max-lines-per-function
 export const ExtensibleWrapper = ({
   appName,
   children,

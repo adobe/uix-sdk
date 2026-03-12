@@ -84,6 +84,7 @@ describe("tunnel negotiation message factory", () => {
       expect(messenger.isHandshake("")).toBeFalsy();
       expect(messenger.isHandshake(true)).toBeFalsy();
       expect(fakeConsole.error).toHaveBeenCalledTimes(3);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.error.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
@@ -110,6 +111,7 @@ describe("tunnel negotiation message factory", () => {
           [NS_ROOT]: 5,
         }),
       ).toBeFalsy();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.error.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
@@ -159,6 +161,7 @@ describe("tunnel negotiation message factory", () => {
       expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("bad-version"))).toBeTruthy();
       expect(fakeConsole.warn).toHaveBeenCalledTimes(3);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.warn.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [

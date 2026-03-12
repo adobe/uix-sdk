@@ -76,7 +76,11 @@ describe("Guest.invokeAwaiter()", () => {
     // invokeChecker never resolves — simulates the host method not existing
     jest
       .spyOn(guest as unknown as GuestPrivate, "invokeChecker")
-      .mockReturnValue(new Promise(() => {}));
+      .mockReturnValue(
+        new Promise(() => {
+          /* noop */
+        }),
+      );
 
     let isSettled = false;
 

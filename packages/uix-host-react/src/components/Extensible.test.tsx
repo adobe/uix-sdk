@@ -42,7 +42,9 @@ describe("Extensible", () => {
         }) as unknown as Host,
     );
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
   });
 
   afterEach(() => {
@@ -404,6 +406,7 @@ describe("Extensible", () => {
       const firstProvider = jest.fn().mockReturnValue(firstProviderPromise);
       const secondProvider = jest.fn().mockResolvedValue(secondExtensions);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const extensionsListCallback = jest.fn((exts) => exts);
 
       const { rerender } = render(
@@ -417,6 +420,7 @@ describe("Extensible", () => {
       );
 
       // Change the callback (which is a dependency)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const newCallback = jest.fn((exts) => exts);
 
       rerender(

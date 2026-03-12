@@ -42,10 +42,10 @@ import type { RemoteMethodInvoker } from "./types.js";
  *
  * @param invoke - Callback that receives address
  */
-export function makeNamespaceProxy<ProxiedApi extends object>(
+export const makeNamespaceProxy = <ProxiedApi extends object>(
   invoke: RemoteMethodInvoker<unknown>,
   path: string[] = [],
-): ProxiedApi {
+): ProxiedApi => {
   const handler: ProxyHandler<Record<string, any>> = {
     get: (target, prop) => {
       if (typeof prop === "string") {
@@ -84,4 +84,4 @@ export function makeNamespaceProxy<ProxiedApi extends object>(
       return target(...args);
     },
   }) as unknown as typeof target;
-}
+};

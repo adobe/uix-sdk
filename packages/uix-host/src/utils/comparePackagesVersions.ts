@@ -1,4 +1,4 @@
-export function compareVersions(v1: string, v2: string): number {
+export const compareVersions = (v1: string, v2: string): number => {
   const versionToArray = (v: string) => v.split(".").map((x) => Number(x) || 0);
   const v1Array = versionToArray(v1);
   const v2Array = versionToArray(v2);
@@ -18,4 +18,4 @@ export function compareVersions(v1: string, v2: string): number {
   }
 
   return 0;
-}
+};

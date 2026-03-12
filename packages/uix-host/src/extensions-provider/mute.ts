@@ -18,10 +18,9 @@ import type { ExtensionsProvider } from "../host.js";
  * any return an empty array of extensions.
  * @public
  */
-export function mutedProvider(
-  provider: ExtensionsProvider,
-): ExtensionsProvider {
-  return async () => {
+export const mutedProvider =
+  (provider: ExtensionsProvider): ExtensionsProvider =>
+  async () => {
     try {
       return await provider();
     } catch (error) {
@@ -31,4 +30,3 @@ export function mutedProvider(
       return {};
     }
   };
-}

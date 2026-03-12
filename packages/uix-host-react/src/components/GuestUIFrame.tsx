@@ -84,6 +84,7 @@ const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
  * delivered by the Extension server.
  * @public
  */
+// eslint-disable-next-line max-lines-per-function
 export const GuestUIFrame = ({
   guestId,
   src = "",

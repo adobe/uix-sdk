@@ -14,6 +14,7 @@ describe("an proxy representing a function in the other realm", () => {
   let simulator: ObjectSimulator;
   let emitter;
   let subject: RemoteSubject;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let remoteAlpenhorn: ((...args: any[]) => Promise<unknown>) | (() => any);
 
   beforeEach(() => {
@@ -25,7 +26,9 @@ describe("an proxy representing a function in the other realm", () => {
       { fnId: alpenhornId },
       new FakeWeakRef(subject),
     );
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
   });
   it("resolves through the emitter", async () => {
     subject.onCall(

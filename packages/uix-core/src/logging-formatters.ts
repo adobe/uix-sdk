@@ -21,7 +21,7 @@ import { isFunction, isIterable, isPrimitive } from "./value-assertions";
  * should only be done when debugging or in error conditions.
  * @internal
  */
-export function formatHostMethodArgument(argument: unknown): string {
+export const formatHostMethodArgument = (argument: unknown): string => {
   try {
     return JSON.stringify(argument, null, 2);
     // eslint-disable-next-line sonarjs/no-ignored-exceptions
@@ -34,9 +34,10 @@ export function formatHostMethodArgument(argument: unknown): string {
       return `${argument}`;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return Object.prototype.toString.call(argument);
   }
-}
+};
 
 /**
  * Try and format a remote method call as it would appear during debugging.
@@ -49,7 +50,7 @@ export function formatHostMethodArgument(argument: unknown): string {
  * such callbacks.
  * @internal
  */
-export function formatHostMethodAddress(address: HostMethodAddress) {
+export const formatHostMethodAddress = (address: HostMethodAddress) => {
   const path =
     address.path?.length < 1
       ? "<Missing method path!>"
@@ -58,4 +59,4 @@ export function formatHostMethodAddress(address: HostMethodAddress) {
   const args = address.args?.map(formatHostMethodArgument).join(",");
 
   return `host.${path}.${name}(${args})`;
-}
+};

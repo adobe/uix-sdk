@@ -21,6 +21,7 @@ import type { HostEvents } from "./host.js";
 
 type EventPayload = {
   event: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any;
 };
 
@@ -63,6 +64,7 @@ class MetricsWrapper {
   /**
    * Tracks an event using the metrics instance, or adds it to the event pool if no instance is set.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public event(event: string, args: any): void {
     if (this.metricsInstance) {
       this.metricsInstance.event(event, args);
@@ -104,7 +106,7 @@ runtimeSpy();
  *
  * @param host - The host emitter to attach the metrics to.
  */
-export function addMetrics(host: Emitter<HostEvents>): void {
+export const addMetrics = (host: Emitter<HostEvents>): void => {
   host.addEventListener("guestload", (evt) => {
     const guest = evt.detail.guest;
 
@@ -113,6 +115,7 @@ export function addMetrics(host: Emitter<HostEvents>): void {
     }
 
     seenGuests.add(guest);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const addGuestId = (payload: any): any => {
       payload["guestId"] = guest.id;
       return payload;
@@ -146,4 +149,4 @@ export function addMetrics(host: Emitter<HostEvents>): void {
   host.addEventListener("error", () => {
     metrics.event("error", {});
   });
-}
+};

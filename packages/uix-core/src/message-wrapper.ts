@@ -4,21 +4,17 @@ import { isPlainObject } from "./value-assertions";
 /** @internal */
 export type WrappedMessage<Message extends object> = { [NS_ROOT]: Message };
 
-export function wrap<Message extends object = object>(
+export const wrap = <Message extends object = object>(
   message: Message,
-): WrappedMessage<Message> {
-  return { [NS_ROOT]: message };
-}
+): WrappedMessage<Message> => ({ [NS_ROOT]: message });
 
-export function unwrap<Message extends object>(
+export const unwrap = <Message extends object>(
   wrappedMessage: WrappedMessage<Message>,
-): Message {
-  return wrappedMessage[NS_ROOT];
-}
+): Message => wrappedMessage[NS_ROOT];
 
-export function isWrapped<Message extends object = object>(
+export const isWrapped = <Message extends object = object>(
   item: unknown,
-): item is WrappedMessage<Message> {
+): item is WrappedMessage<Message> => {
   if (!isPlainObject(item)) {
     return false;
   }
@@ -35,4 +31,4 @@ export function isWrapped<Message extends object = object>(
   }
 
   return hasRoot;
-}
+};

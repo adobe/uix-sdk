@@ -1,4 +1,5 @@
 /* global jest */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CleanupHandler = (heldValue: any) => void;
 const register = jest.fn();
 const unregister = jest.fn();

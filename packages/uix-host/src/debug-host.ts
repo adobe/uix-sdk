@@ -18,7 +18,7 @@ import type { Emits, EmitterDebugLogger, GuestEmitter } from "@adobe/uix-core";
 import { debugEmitter } from "@adobe/uix-core";
 import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
 
-export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
+export const debugHost = (host: Emits<HostEvents>): EmitterDebugLogger => {
   const hostLogger = debugEmitter(host, {
     theme: "blue medium",
     type: "Host",
@@ -75,4 +75,4 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
       log.detach();
     });
   return hostLogger;
-}
+};

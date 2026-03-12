@@ -108,7 +108,7 @@ type LogDecorator = (...args: unknown[]) => unknown[];
 /** @internal */
 type Style = `${string};`;
 
-function memoizeUnary<T, U>(fn: (arg: T) => U): typeof fn {
+const memoizeUnary = <T, U>(fn: (arg: T) => U): typeof fn => {
   const cache: Map<T, U> = new Map();
 
   return (arg) => {
@@ -126,7 +126,7 @@ function memoizeUnary<T, U>(fn: (arg: T) => U): typeof fn {
 
     return cache.get(arg);
   };
-}
+};
 
 const toTheme = memoizeUnary((theme: Theme): ThemeSpec => {
   if (typeof theme === "string") {
@@ -161,11 +161,11 @@ const toBubbleStyle = memoizeUnary((theme: ThemeSpec): string[] => {
   ] as Style[];
 });
 
-function toBubblePrepender(
+const toBubblePrepender = (
   bubbleLeft: string,
   bubbleRight: string,
   theme: ThemeSpec,
-): LogDecorator {
+): LogDecorator => {
   const prefix = `%c${bubbleLeft}%c ${bubbleRight}`;
   const [left, right] = toBubbleStyle(theme);
 
@@ -179,7 +179,7 @@ function toBubblePrepender(
 
     return [...bubbleArgs, ...args];
   };
-}
+};
 
 /** @internal */
 const stateTypes = {
@@ -236,11 +236,11 @@ export interface DebugLogger extends Console {
  * Returns a console whose methods autoformat with bubbles.
  * @internal
  */
-export function _customConsole(
+export const _customConsole = (
   theme: Theme,
   type: string,
   name: string,
-): DebugLogger {
+): DebugLogger => {
   const prepender = toBubblePrepender(`X${type}`, name, toTheme(theme));
   let statePrepender: LogDecorator = identity as LogDecorator;
   const stateStack: DebugState[] = [];
@@ -285,7 +285,7 @@ export function _customConsole(
   ) as DebugLogger;
 
   return customConsole;
-}
+};
 
 /**
  * @internal

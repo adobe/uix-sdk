@@ -11,14 +11,16 @@ class DisconnectionError extends Error {
   }
 }
 
-// eslint-disable-next-line max-params
-function dispatch(
+const dispatch = (
   subject: RemoteSubject,
   callTicket: CallArgsTicket,
   rejectionPool: RejectionPool,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: { (value: unknown): void; (arg0: any): void },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: { (reason?: string): void; (arg0: any): void },
-) {
+  // eslint-disable-next-line max-params
+) => {
   subject.onRespond(callTicket, (responseTicket) => {
     rejectionPool.delete(reject);
 
@@ -29,12 +31,12 @@ function dispatch(
     }
   });
   subject.send(callTicket);
-}
+};
 
-export function makeCallSender(
+export const makeCallSender = (
   { fnId }: DefTicket,
   subjectRef: WeakRef<RemoteSubject>,
-) {
+) => {
   let callCounter = 0;
   const rejectionPool: RejectionPool = new Set();
 
@@ -78,4 +80,4 @@ export function makeCallSender(
 
   Object.defineProperty(facade, "name", { value: fnId });
   return facade;
-}
+};

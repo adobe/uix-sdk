@@ -19,7 +19,9 @@ describe("a listener for remote calls to a local function", () => {
 
   beforeEach(() => {
     village.mockClear();
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
     emitter = new EventEmitter();
     simulator = ObjectSimulator.create(emitter, FakeFinalizationRegistry);
     subject = simulator.subject;

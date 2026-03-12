@@ -73,13 +73,11 @@ export interface ExtensionRegistryConnection {
 export interface ExtensionRegistryConfig
   extends ExtensionRegistryExtensionRegistration, ExtensionRegistryConnection {}
 
-function buildEndpointPath(
+const buildEndpointPath = (
   config: ExtensionRegistryEndpointRegistration,
-): string {
-  return `${config.service}/${config.extensionPoint}/${config.version}`;
-}
+): string => `${config.service}/${config.extensionPoint}/${config.version}`;
 
-function ensureProtocolSpecified(url: string) {
+const ensureProtocolSpecified = (url: string) => {
   if (url.startsWith("https://")) {
     return url;
   }
@@ -89,11 +87,11 @@ function ensureProtocolSpecified(url: string) {
   }
 
   return `https://${url}`;
-}
+};
 
-export async function fetchExtensionsFromRegistry(
+export const fetchExtensionsFromRegistry = async (
   config: ExtensionRegistryConfig,
-): Promise<Array<ExtensionDefinition>> {
+): Promise<Array<ExtensionDefinition>> => {
   const workspaceParam = config.workspace
     ? `&workspace=${config.workspace}`
     : "";
@@ -106,6 +104,7 @@ export async function fetchExtensionsFromRegistry(
     {
       headers: {
         Accept: "application/json",
+        // eslint-disable-next-line sonarjs/todo-tag
         Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
         "X-Api-Key": config.apiKey,
       },
@@ -120,15 +119,16 @@ export async function fetchExtensionsFromRegistry(
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return await resp.json();
-}
+};
 
 /**
  * @deprecated
  */
-function extensionRegistryExtensionsProvider(
+const extensionRegistryExtensionsProvider = (
   config: ExtensionRegistryConfig,
-): Promise<InstalledExtensions> {
+): Promise<InstalledExtensions> => {
   const erEndpoint = buildEndpointPath(config);
 
   return fetchExtensionsFromRegistry(config).then((out) =>
@@ -139,6 +139,7 @@ function extensionRegistryExtensionsProvider(
 
       return {
         ...a,
+        // eslint-disable-next-line sonarjs/todo-tag
         // todo: make safer way to extract href
         [e.name]: e.endpoints[erEndpoint].view[0].href,
       };
@@ -146,14 +147,14 @@ function extensionRegistryExtensionsProvider(
   );
 
   return Promise.resolve({});
-}
+};
 
 /**
  * Fetch & return published extension objects from registry
  */
-function extensionRegistryExtensionsAsObjectsProvider(
+const extensionRegistryExtensionsAsObjectsProvider = (
   config: ExtensionRegistryConfig,
-): Promise<InstalledExtensions> {
+): Promise<InstalledExtensions> => {
   const erEndpoint = buildEndpointPath(config);
 
   return fetchExtensionsFromRegistry(config).then((out) =>
@@ -176,30 +177,24 @@ function extensionRegistryExtensionsAsObjectsProvider(
       };
     }, {}),
   );
-}
+};
 
 /**
  * Create a callback that fetches extensions from the registry.
  * @public
  * @deprecated use `createExtensionRegistryAsObjectsProvider()`
  */
-export function createExtensionRegistryProvider(
-  config: ExtensionRegistryConfig,
-): ExtensionsProvider {
-  return function () {
+export const createExtensionRegistryProvider =
+  (config: ExtensionRegistryConfig): ExtensionsProvider =>
+  () =>
     // eslint-disable-next-line sonarjs/deprecation
-    return extensionRegistryExtensionsProvider(config);
-  };
-}
+    extensionRegistryExtensionsProvider(config);
 
 /**
  * Create a callback that fetches extensions as objects from the registry.
  * @public
  */
-export function createExtensionRegistryAsObjectsProvider(
-  config: ExtensionRegistryConfig,
-): ExtensionsProvider {
-  return function () {
-    return extensionRegistryExtensionsAsObjectsProvider(config);
-  };
-}
+export const createExtensionRegistryAsObjectsProvider =
+  (config: ExtensionRegistryConfig): ExtensionsProvider =>
+  () =>
+    extensionRegistryExtensionsAsObjectsProvider(config);

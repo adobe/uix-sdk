@@ -10,12 +10,15 @@ describe("function simulator exchanges functions and tickets", () => {
   let objectSimulator: ObjectSimulator;
 
   beforeEach(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
     const emitter = new EventEmitter();
 
     objectSimulator = ObjectSimulator.create(emitter, FakeFinalizationRegistry);
   });
   it("turns an object with functions into an object with tickets", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const invokeIt = (blorp: CallableFunction) => blorp();
     const gnorf = {
       slorf: {
@@ -342,7 +345,9 @@ describe("function simulator exchanges functions and tickets", () => {
   });
 
   it("notifies remote when FinalizationRegistry calls cleanup handler", async () => {
-    const willBeGCed = objectSimulator.simulate(() => {}) as DefMessage;
+    const willBeGCed = objectSimulator.simulate(() => {
+      /* noop */
+    }) as DefMessage;
 
     objectSimulator.materialize(willBeGCed);
     const { subject } = objectSimulator;

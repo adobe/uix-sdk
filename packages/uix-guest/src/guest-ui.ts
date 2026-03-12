@@ -93,6 +93,7 @@ import { Guest } from "./guest";
  *
  * @public
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * {@inheritDoc Guest."constructor"}
@@ -123,6 +124,7 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * @internal
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private calculateChildrenMargin(elems: NodeListOf<any>): number {
     let margin = 0;
 

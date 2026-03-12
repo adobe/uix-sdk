@@ -7,15 +7,17 @@ import { TunnelMessenger } from "./tunnel-messenger";
 /**
  * Child iframe will send offer messages to parent at this frequency until one
  * is accepted or the attempt times out.
- * TODO: make configurable if ever necessary
  */
+// eslint-disable-next-line sonarjs/todo-tag
+// TODO: make configurable if ever necessary
 const RETRY_MS = 100;
 
 /**
  * Child iframe may unexpectedly close or detach from DOM. It emits no event
  * when this happens, so we must poll it and destroy the tunnel when necessary.
- * TODO: make configurable if ever necessary
  */
+// eslint-disable-next-line sonarjs/todo-tag
+// TODO: make configurable if ever necessary
 const STATUSCHECK_MS = 5000;
 
 /**
@@ -55,11 +57,11 @@ const badTimeout = "\n - timeout value must be a number of milliseconds";
 const badTargetOrigin =
   "\n - targetOrigin must be a valid URL origin or '*' for any origin";
 
-function isFromOrigin(
+const isFromOrigin = (
   event: MessageEvent,
   source: WindowProxy,
   targetOrigin: string,
-) {
+) => {
   try {
     return (
       source === event.source &&
@@ -69,7 +71,7 @@ function isFromOrigin(
   } catch (_) {
     return false;
   }
-}
+};
 
 const { emit: emitOn } = EventEmitter.prototype;
 
@@ -113,6 +115,7 @@ export class Tunnel extends EventEmitter {
    * @alpha
    */
 
+  // eslint-disable-next-line max-lines-per-function, max-statements
   static toIframe(
     target: HTMLIFrameElement,
     options: Partial<TunnelConfig>,
@@ -228,6 +231,7 @@ export class Tunnel extends EventEmitter {
    *
    * @alpha
    */
+  // eslint-disable-next-line max-statements
   static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel {
     let timedOut = false;
     const key = makeKey();
@@ -343,6 +347,7 @@ export class Tunnel extends EventEmitter {
     const context = e ? [e] : [];
 
     this.emitLocal("destroyed", ...context);
+    // eslint-disable-next-line sonarjs/todo-tag
     // this.removeAllListeners(); // TODO: maybe necessary for memory leaks
   }
 
@@ -356,7 +361,7 @@ export class Tunnel extends EventEmitter {
   }
 
   emitLocal = (type: string | symbol, payload?: unknown) =>
-    emitOn.call(this, type, payload);
+    emitOn.call(this, type, payload); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
   // #endregion Public Methods
 

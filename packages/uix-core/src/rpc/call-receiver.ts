@@ -1,11 +1,11 @@
 import type { RemoteSubject } from "../remote-subject";
 import type { CallArgsTicket, DefTicket } from "../tickets";
 
-export function receiveCalls(
+export const receiveCalls = (
   fn: CallableFunction,
   ticket: DefTicket,
   remote: WeakRef<RemoteSubject>,
-) {
+) => {
   const responder = async ({ fnId, callId, args }: CallArgsTicket) => {
     /* istanbul ignore next: should never happen */
     try {
@@ -28,4 +28,4 @@ export function receiveCalls(
   };
 
   return remote.deref().onCall(ticket, responder);
-}
+};

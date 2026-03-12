@@ -25,6 +25,7 @@ export type Asynced<T> = T extends (...args: infer A) => infer R
   : {
       [K in ExtractKeys<
         T,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ((...args: unknown[]) => unknown) | object | any[] | [any, any]
       >]: T[K] extends (...args: unknown[]) => PromiseLike<unknown>
         ? T[K]
@@ -62,12 +63,13 @@ export type Simulated<T> = {
 export const NOT_TRANSFORMED = Symbol.for("NOT_TRANSFORMED");
 export const CIRCULAR = "[[Circular]]";
 
-export function transformRecursive<To>(
+// eslint-disable-next-line max-statements
+export const transformRecursive = <To>(
   transform: (source: unknown, parent?: object) => To | typeof NOT_TRANSFORMED,
   value: unknown,
   parent?: object,
   _refs: WeakSet<object> = new WeakSet(),
-): To {
+): To => {
   if (isPrimitive(value)) {
     return value as To;
   }
@@ -151,4 +153,4 @@ export function transformRecursive<To>(
   }
 
   throw new Error(`Bad value! ${Object.prototype.toString.call(value)}`);
-}
+};

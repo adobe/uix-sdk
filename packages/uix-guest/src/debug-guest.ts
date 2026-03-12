@@ -18,8 +18,8 @@ import type { Emits, EmitterDebugLogger } from "@adobe/uix-core";
 import { debugEmitter } from "@adobe/uix-core";
 import type { GuestEvents } from "./guest";
 
-export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
-  return debugEmitter(guest, {
+export const debugGuest = (guest: Emits<GuestEvents>): EmitterDebugLogger =>
+  debugEmitter(guest, {
     theme: "yellow medium",
     type: "Guest",
   })
@@ -40,4 +40,3 @@ export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
         error,
       );
     });
-}

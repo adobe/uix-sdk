@@ -112,6 +112,7 @@ const areExtensionsDifferent = (
  *
  * @public
  */
+// eslint-disable-next-line max-lines-per-function
 export const Extensible = ({
   appName,
   children,
@@ -176,7 +177,9 @@ export const Extensible = ({
   useEffect(
     () => () => {
       if (hostRef.current) {
-        hostRef.current.unload().catch(() => {});
+        hostRef.current.unload().catch(() => {
+          /* noop */
+        });
         hostRef.current = undefined;
       }
     },
@@ -209,7 +212,9 @@ export const Extensible = ({
 
     if (!host || sharedContextChanged) {
       if (hostRef.current) {
-        hostRef.current.unload().catch(() => {});
+        hostRef.current.unload().catch(() => {
+          /* noop */
+        });
       }
 
       const newHost = new Host({

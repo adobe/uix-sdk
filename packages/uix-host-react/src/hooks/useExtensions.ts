@@ -175,7 +175,9 @@ export const useExtensions = <
   const subscribe = useCallback(
     (handler: EventListener) => {
       if (!host) {
-        return () => {};
+        return () => {
+          /* noop */
+        };
       }
 
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
@@ -191,7 +193,9 @@ export const useExtensions = <
   const subscribeToUnload = useCallback(
     (handler: EventListener) => {
       if (!host) {
-        return () => {};
+        return () => {
+          /* noop */
+        };
       }
 
       host.addEventListener("guestunload", handler);
@@ -283,6 +287,7 @@ const getAllExtensionPointsFromGuest = (guest: Port<GuestApis>): string[] => {
       ...(guestExtensionPointsFromMetadata || []),
     ];
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return allExtensionPoints;
   } catch {
     console.error(

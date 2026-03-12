@@ -8,9 +8,8 @@ import { makeCallSender, receiveCalls } from "./rpc";
 import type { DefTicket } from "./tickets";
 import { hasProp } from "./value-assertions";
 
-function isDefMessage(value: unknown): value is DefMessage {
-  return isWrapped(value) && hasProp(unwrap(value), "fnId");
-}
+const isDefMessage = (value: unknown): value is DefMessage =>
+  isWrapped(value) && hasProp(unwrap(value), "fnId");
 
 const bindAll = <T>(inst: T, methods: (keyof T)[]) => {
   for (const methodName of methods) {
@@ -25,7 +24,9 @@ const bindAll = <T>(inst: T, methods: (keyof T)[]) => {
 interface CleanupNotifier {
   // #region Public Methods
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register(obj: any, heldValue: string, ref?: any): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   unregister(ref: any): void;
 
   // #endregion Public Methods

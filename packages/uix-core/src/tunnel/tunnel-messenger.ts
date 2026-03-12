@@ -28,7 +28,7 @@ const VERSION_CORRECTED = {
   "0.8.0": "0.8.1",
 };
 
-function getVersionParts(version: string): ParsedVersion {
+const getVersionParts = (version: string): ParsedVersion => {
   const realVersion = Object.prototype.hasOwnProperty.call(
     VERSION_CORRECTED,
     version,
@@ -39,7 +39,7 @@ function getVersionParts(version: string): ParsedVersion {
   const [patch, prerelease = ""] = suffix.split("-");
 
   return { major, minor, patch, prerelease };
-}
+};
 
 const thisVersion = getVersionParts(VERSION);
 

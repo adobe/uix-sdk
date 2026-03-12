@@ -6,6 +6,7 @@ import { Port } from "./port";
 jest.mock("@adobe/uix-core", () => {
   const actual = jest.requireActual("@adobe/uix-core");
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...actual,
     connectIframe: jest.fn(),
@@ -21,7 +22,7 @@ const mockConnectIframe = connectIframe as jest.MockedFunction<
   typeof connectIframe
 >;
 
-function createMockConnectIframe(guestVersion: string) {
+const createMockConnectIframe = (guestVersion: string) => {
   const fakeRemoteApi = {
     apis: {},
     emit: jest.fn(),
@@ -29,6 +30,7 @@ function createMockConnectIframe(guestVersion: string) {
   };
   const fakeCrossRealmObject = {
     getRemoteApi: () => fakeRemoteApi,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as unknown as CrossRealmObject<any>;
 
   mockConnectIframe.mockImplementation(
@@ -40,11 +42,11 @@ function createMockConnectIframe(guestVersion: string) {
       return fakeCrossRealmObject;
     },
   );
-}
+};
 
 let containers: HTMLElement[] = [];
 
-function createPort(options?: { timeout?: number }) {
+const createPort = (options?: { timeout?: number }) => {
   const container = document.createElement("div");
 
   document.body.appendChild(container);
@@ -63,7 +65,7 @@ function createPort(options?: { timeout?: number }) {
   });
 
   return { container, port };
-}
+};
 
 describe("Port", () => {
   beforeEach(() => {

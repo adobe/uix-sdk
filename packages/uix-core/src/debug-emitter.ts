@@ -35,14 +35,14 @@ export interface EmitterDebugLogger extends DebugLogger {
  * Adapter to attach console logging listeners to all events on an emitter.
  * @internal
  */
-export function debugEmitter(
+export const debugEmitter = (
   emitter: Emits,
   opts: {
     theme: Theme;
     type?: string;
     id?: string;
   },
-): EmitterDebugLogger {
+): EmitterDebugLogger => {
   const logger = _customConsole(
     opts.theme,
     opts.type ||
@@ -71,17 +71,17 @@ export function debugEmitter(
   /**
    * Listens and passes a logger to callbacks
    */
-  function listen(
+  const listen = (
     type: string,
     listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown,
-  ) {
+  ) => {
     subscriptions.push(
       emitter.addEventListener(type, (event) => listener(logger, event)),
     );
     return logger;
-  }
+  };
 
   logger.listen = listen;
 
   return logger;
-}
+};

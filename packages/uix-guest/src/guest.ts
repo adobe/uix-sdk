@@ -211,6 +211,7 @@ export class Guest<
           10000,
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return result;
       } catch (e) {
         const error =
@@ -225,7 +226,7 @@ export class Guest<
   /**
    * @internal
    */
-  private async invokeChecker<T>(
+  private async invokeChecker(
     invoker: RemoteMethodInvoker<unknown>,
     address: HostMethodAddress<unknown[]>,
   ): Promise<unknown> {
@@ -234,7 +235,7 @@ export class Guest<
 
       return Promise.resolve(res);
       // eslint-disable-next-line sonarjs/no-ignored-exceptions -- intentional retry on error
-    } catch (e) {
+    } catch (_) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       return this.invokeChecker(invoker, address);
     }
@@ -258,6 +259,7 @@ export class Guest<
       return resolve(res);
     }).catch((e) => {
       clearTimeout(final);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return e;
     });
   }
@@ -290,6 +292,7 @@ export class Guest<
   /**
    * @internal
    */
+  // eslint-disable-next-line max-statements
   async _connect() {
     this.emit("beforeconnect", { guest: this });
     try {

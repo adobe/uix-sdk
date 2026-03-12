@@ -157,7 +157,8 @@ const isWrapperFunction = (v: unknown): v is WrappedFunction =>
  * something we should review.
  * @public
  */
-export class Port<GuestApi = unknown>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class Port<_GuestApi = unknown>
   extends Emitter<GuestConnectionEvents>
   implements GuestConnection
 {
@@ -397,6 +398,7 @@ export class Port<GuestApi = unknown>
    * Recursive method that wraps every function in apis object and adds
    * an event
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private addApiMiddleware(subject: any, path: string[] = []): VirtualApi {
     if (typeof subject === "object") {
       for (const [key, value] of Object.entries(subject)) {
@@ -406,6 +408,7 @@ export class Port<GuestApi = unknown>
           // Remote function is already wrapped. Nothing to do...
           continue;
         } else if (isFunction(value)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const wrapper = async (...args: any) => {
             this.emit("beforecallguestmethod", {
               args,
@@ -427,6 +430,7 @@ export class Port<GuestApi = unknown>
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return subject;
   }
 
@@ -483,6 +487,7 @@ export class Port<GuestApi = unknown>
     );
   }
 
+  // eslint-disable-next-line max-statements
   private async connect() {
     let timeoutId: ReturnType<typeof setTimeout>;
     const serverFrame =
@@ -567,7 +572,8 @@ export class Port<GuestApi = unknown>
     }
   }
 
-  private getHostMethodCallee<T = unknown>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getHostMethodCallee<_T = unknown>(
     { name, path }: HostMethodAddress,
     methodSource: VirtualApi,
   ): VirtualApi {
@@ -615,7 +621,7 @@ export class Port<GuestApi = unknown>
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
         // eslint-disable-next-line sonarjs/no-ignored-exceptions
-      } catch (e) {
+      } catch (_) {
         // private method not found, continue and try other way of accessing it
       }
     }
