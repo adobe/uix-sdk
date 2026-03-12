@@ -21,6 +21,7 @@ import type {
 } from "@adobe/uix-host";
 import { Host } from "@adobe/uix-host";
 import { ExtensionContext } from "../extension-context.js";
+import { ExtensibleStateProvider } from "./ExtensibleState";
 
 /** @public */
 export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
@@ -234,7 +235,7 @@ export function Extensible({
         extensionListFetched: extensionListFetched,
       }}
     >
-      {children}
+      <ExtensibleStateProvider>{children}</ExtensibleStateProvider>
     </ExtensionContext.Provider>
   );
 }
