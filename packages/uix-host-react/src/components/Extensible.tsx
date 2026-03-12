@@ -137,6 +137,7 @@ export const Extensible = ({
         if (cancelled) {
           return;
         }
+
         setExtensions((prev) => {
           let newExtensions = loaded;
 
@@ -172,14 +173,15 @@ export const Extensible = ({
   const [host, setHost] = useState<Host>();
   const hostRef = useRef<Host>();
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (hostRef.current) {
         hostRef.current.unload().catch(() => {});
         hostRef.current = undefined;
       }
-    };
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     const logError = (msg: string) => (e: Error | unknown) => {
@@ -209,12 +211,14 @@ export const Extensible = ({
       if (hostRef.current) {
         hostRef.current.unload().catch(() => {});
       }
+
       const newHost = new Host({
         debug,
         hostName,
         runtimeContainer,
         sharedContext,
       });
+
       hostRef.current = newHost;
       setHost(newHost);
       loadExtensions(newHost);

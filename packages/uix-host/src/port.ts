@@ -529,9 +529,11 @@ export class Port<GuestApi = unknown>
               })`,
             );
             this.isGuestReady = true;
+
             if (this.logger) {
               this.logger.info(`Guest ${this.id} reported ready status`);
             }
+
             this.emit("guestready", { guestPort: this });
 
             window.removeEventListener("message", handleMessage);

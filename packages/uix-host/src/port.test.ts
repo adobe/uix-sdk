@@ -1,10 +1,11 @@
-import { Port } from "./port";
 import type { CrossRealmObject, Emits } from "@adobe/uix-core";
-import { Emitter } from "@adobe/uix-core";
+import { connectIframe, Emitter } from "@adobe/uix-core";
+import { Port } from "./port";
 
 // Mock connectIframe from uix-core
 jest.mock("@adobe/uix-core", () => {
   const actual = jest.requireActual("@adobe/uix-core");
+
   return {
     ...actual,
     connectIframe: jest.fn(),
@@ -16,7 +17,6 @@ jest.mock("./dom-utils", () => ({
   normalizeIframe: jest.fn(),
 }));
 
-import { connectIframe } from "@adobe/uix-core";
 const mockConnectIframe = connectIframe as jest.MockedFunction<
   typeof connectIframe
 >;
@@ -24,8 +24,8 @@ const mockConnectIframe = connectIframe as jest.MockedFunction<
 function createMockConnectIframe(guestVersion: string) {
   const fakeRemoteApi = {
     apis: {},
-    metadata: {},
     emit: jest.fn(),
+    metadata: {},
   };
   const fakeCrossRealmObject = {
     getRemoteApi: () => fakeRemoteApi,
@@ -36,6 +36,7 @@ function createMockConnectIframe(guestVersion: string) {
       if (versionCallback) {
         versionCallback(guestVersion);
       }
+
       return fakeCrossRealmObject;
     },
   );
@@ -45,22 +46,23 @@ let containers: HTMLElement[] = [];
 
 function createPort(options?: { timeout?: number }) {
   const container = document.createElement("div");
+
   document.body.appendChild(container);
   containers.push(container);
   const events = new Emitter("test-events") as unknown as Emits;
 
   const port = new Port({
-    owner: "test-owner",
-    id: "test-extension",
-    url: new URL("https://example.com/extension"),
-    runtimeContainer: container,
-    options: { timeout: options?.timeout ?? 20000 },
-    sharedContext: {},
-    extensionPoints: ["test-ep"],
     events,
+    extensionPoints: ["test-ep"],
+    id: "test-extension",
+    options: { timeout: options?.timeout ?? 20000 },
+    owner: "test-owner",
+    runtimeContainer: container,
+    sharedContext: {},
+    url: new URL("https://example.com/extension"),
   });
 
-  return { port, container };
+  return { container, port };
 }
 
 describe("Port", () => {
@@ -74,6 +76,7 @@ describe("Port", () => {
     for (const c of containers) {
       c.remove();
     }
+
     containers = [];
   });
 
@@ -109,9 +112,10 @@ describe("Port", () => {
       // Get the iframe from OUR container (not other tests' iframes)
       const iframe = container.querySelector("iframe") as HTMLIFrameElement;
       const fakeEvent = new MessageEvent("message", {
-        data: { type: "guest-ready", guestId: "test-extension" },
+        data: { guestId: "test-extension", type: "guest-ready" },
         source: iframe.contentWindow,
       });
+
       window.dispatchEvent(fakeEvent);
 
       await loadPromise;

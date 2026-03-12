@@ -11,15 +11,16 @@ governing permissions and limitations under the License.
 */
 
 import React from "react";
-import { render, waitFor, cleanup } from "@testing-library/react";
-import { Extensible } from "./Extensible";
-import { Host } from "@adobe/uix-host";
 import type { InstalledExtensions } from "@adobe/uix-host";
+import { Host } from "@adobe/uix-host";
+import { cleanup, render, waitFor } from "@testing-library/react";
+import { Extensible } from "./Extensible";
 
 jest.mock("@adobe/uix-host");
 
 const MockedHost = Host as jest.MockedClass<typeof Host>;
 
+// eslint-disable-next-line max-lines-per-function
 describe("Extensible", () => {
   let mockUnload: jest.Mock;
   let mockLoad: jest.Mock;
@@ -34,10 +35,10 @@ describe("Extensible", () => {
     MockedHost.mockImplementation(
       () =>
         ({
-          unload: mockUnload,
-          load: mockLoad,
           addEventListener: jest.fn(),
+          load: mockLoad,
           removeEventListener: jest.fn(),
+          unload: mockUnload,
         }) as unknown as Host,
     );
 
@@ -417,6 +418,7 @@ describe("Extensible", () => {
 
       // Change the callback (which is a dependency)
       const newCallback = jest.fn((exts) => exts);
+
       rerender(
         <Extensible
           appName="test-app"
