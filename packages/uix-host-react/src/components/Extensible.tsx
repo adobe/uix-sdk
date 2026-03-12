@@ -130,8 +130,13 @@ export const Extensible = ({
   const prevSharedContext = useRef(JSON.stringify(sharedContext));
 
   useEffect(() => {
+    let cancelled = false;
+
     extensionsProvider()
       .then((loaded: InstalledExtensions) => {
+        if (cancelled) {
+          return;
+        }
         setExtensions((prev) => {
           let newExtensions = loaded;
 
@@ -149,14 +154,32 @@ export const Extensible = ({
         });
       })
       .catch((e: Error | unknown) => {
-        console.error("Fetching list of extensions failed!", e);
+        if (!cancelled) {
+          console.error("Fetching list of extensions failed!", e);
+        }
       })
       .finally(() => {
-        setExtensionListFetched(true);
+        if (!cancelled) {
+          setExtensionListFetched(true);
+        }
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, [extensionsProvider, extensionsListCallback]);
 
   const [host, setHost] = useState<Host>();
+  const hostRef = useRef<Host>();
+
+  useEffect(() => {
+    return () => {
+      if (hostRef.current) {
+        hostRef.current.unload().catch(() => {});
+        hostRef.current = undefined;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const logError = (msg: string) => (e: Error | unknown) => {
@@ -183,13 +206,16 @@ export const Extensible = ({
     }
 
     if (!host || sharedContextChanged) {
+      if (hostRef.current) {
+        hostRef.current.unload().catch(() => {});
+      }
       const newHost = new Host({
         debug,
         hostName,
         runtimeContainer,
         sharedContext,
       });
-
+      hostRef.current = newHost;
       setHost(newHost);
       loadExtensions(newHost);
     } else {
