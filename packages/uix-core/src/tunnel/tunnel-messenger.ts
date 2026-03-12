@@ -66,7 +66,7 @@ export class TunnelMessenger {
   }
   isHandshakeAccepting(
     message: unknown,
-    id: string
+    id: string,
   ): message is HandshakeAccepted {
     return (
       this.isHandshake(message) &&
@@ -93,7 +93,7 @@ export class TunnelMessenger {
       return false;
     }
     const tunnelData: Handshake = unwrap<Handshake>(
-      message as HandshakeMessage
+      message as HandshakeMessage,
     );
     if (
       !isPlainObject(tunnelData) ||
@@ -110,7 +110,7 @@ export class TunnelMessenger {
     ) {
       this.versionWarnings.add(version);
       this.logger.warn(
-        `SDK version mismatch. ${this.myOrigin} is using v${VERSION}, but received message from ${this.remoteOrigin} using SDK v${version}. Extensions may be broken or unresponsive.`
+        `SDK version mismatch. ${this.myOrigin} is using v${VERSION}, but received message from ${this.remoteOrigin} using SDK v${version}. Extensions may be broken or unresponsive.`,
       );
     }
     return true;
@@ -129,7 +129,7 @@ export class TunnelMessenger {
     this.logger.error(
       `Malformed tunnel message sent from SDK at ${this.remoteOrigin} to ${this.myOrigin}:
 ${inspectedMessage}
-Message must be an object with "${NS_ROOT}" property, which must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`
+Message must be an object with "${NS_ROOT}" property, which must be an object with a "version" string and an either an "accepts" or "offers" property containing an ID string.`,
     );
   }
 }

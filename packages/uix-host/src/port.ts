@@ -262,7 +262,7 @@ export class Port<GuestApi = unknown>
         await this.guestServer
           .getRemoteApi()
           .emit("contextchange", { context: this.sharedContext });
-      })
+      }),
     );
   }
 
@@ -276,7 +276,7 @@ export class Port<GuestApi = unknown>
    */
   public attachUI<T = unknown>(
     iframe: HTMLIFrameElement,
-    privateMethods: VirtualApi
+    privateMethods: VirtualApi,
   ): Promise<CrossRealmObject<T>> {
     return this.attachFrame(iframe, {
       onIframeResize: (dimensions: { height: number; width: number }) => {
@@ -301,7 +301,7 @@ export class Port<GuestApi = unknown>
     return (
       this.apis &&
       Object.entries(requiredCapabilities).every(([apiName, methodNames]) =>
-        this.hasCapability(apiName, methodNames as string[])
+        this.hasCapability(apiName, methodNames as string[]),
       )
     );
   }
@@ -429,18 +429,18 @@ export class Port<GuestApi = unknown>
       api &&
       methodNames.every(
         (methodName: keyof typeof api) =>
-          Reflect.has(api, methodName) && typeof api[methodName] === "function"
+          Reflect.has(api, methodName) && typeof api[methodName] === "function",
       )
     );
   }
 
   private assert(
     condition: boolean,
-    errorMessage: () => string
+    errorMessage: () => string,
   ): asserts condition {
     if (!condition) {
       throw new Error(
-        `Error in guest extension "${this.id}": ${errorMessage()}`
+        `Error in guest extension "${this.id}": ${errorMessage()}`,
       );
     }
   }
@@ -451,7 +451,7 @@ export class Port<GuestApi = unknown>
 
   private attachFrame<T = unknown>(
     iframe: HTMLIFrameElement,
-    addedMethods: object = {}
+    addedMethods: object = {},
   ) {
     // at least this is necessary
     normalizeIframe(iframe);
@@ -475,7 +475,7 @@ export class Port<GuestApi = unknown>
       },
       (version: string) => {
         this.guestVersion = version;
-      }
+      },
     );
   }
 
@@ -491,7 +491,7 @@ export class Port<GuestApi = unknown>
     if (this.logger) {
       this.logger.info(
         `Guest ${this.id} attached iframe of ${this.url.href}`,
-        this
+        this,
       );
     }
     try {
@@ -499,7 +499,7 @@ export class Port<GuestApi = unknown>
     } catch (error) {
       this.logger?.error(
         `Failed to attach guest server for ${this.id}:`,
-        error
+        error,
       );
       clearTimeout(timeoutId);
     }
@@ -518,7 +518,7 @@ export class Port<GuestApi = unknown>
             this.logger?.log(
               `[Port ${this.id}] Received guest-ready from our iframe (guest: ${
                 event.data.guestId || "unknown"
-              })`
+              })`,
             );
             this.isGuestReady = true;
             if (this.logger) {
@@ -536,8 +536,8 @@ export class Port<GuestApi = unknown>
           window.removeEventListener("message", handleMessage);
           reject(
             new Error(
-              `Guest ${this.id} did not send ready message within ${this.timeout}ms`
-            )
+              `Guest ${this.id} did not send ready message within ${this.timeout}ms`,
+            ),
           );
         }, this.timeout);
 
@@ -551,49 +551,49 @@ export class Port<GuestApi = unknown>
       this.logger.info(
         `Guest ${this.id} established connection, received methods, and reported ready`,
         this.apis,
-        this
+        this,
       );
     }
   }
 
   private getHostMethodCallee<T = unknown>(
     { name, path }: HostMethodAddress,
-    methodSource: VirtualApi
+    methodSource: VirtualApi,
   ): VirtualApi {
     const dots = (level: number) => `host.${path.slice(0, level).join(".")}`;
     const methodCallee = path.reduce((current, prop, level) => {
       this.assert(
         Reflect.has(current, prop),
-        () => `${dots(level)} has no property "${prop}"`
+        () => `${dots(level)} has no property "${prop}"`,
       );
       const next = current[prop];
       this.assert(
         typeof next === "object",
         () =>
           `${dots(
-            level
-          )}.${prop} is not an object; namespaces must be objects with methods`
+            level,
+          )}.${prop} is not an object; namespaces must be objects with methods`,
       );
       return next as VirtualApi;
     }, methodSource);
     this.assert(
       typeof methodCallee[name] === "function" &&
         Reflect.has(methodCallee, name),
-      () => `"${dots(path.length - 1)}.${name}" is not a function`
+      () => `"${dots(path.length - 1)}.${name}" is not a function`,
     );
     return methodCallee;
   }
 
   private invokeHostMethod<T = unknown>(
     address: HostMethodAddress,
-    privateMethods?: VirtualApi
+    privateMethods?: VirtualApi,
   ): T {
     const { name, path, args = [] } = address;
     this.assert(name && typeof name === "string", () => "Method name required");
     this.assert(
       path.length > 0,
       () =>
-        `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`
+        `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`,
     );
     let methodCallee;
     if (privateMethods) {

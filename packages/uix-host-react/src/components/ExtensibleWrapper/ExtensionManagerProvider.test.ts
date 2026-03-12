@@ -41,8 +41,8 @@ describe("Utility Functions", () => {
         ok: true,
         status: 200,
         json: () => Promise.resolve(mockResponse),
-      })
-    ) as jest.Mock
+      }),
+    ) as jest.Mock,
   );
   it("should correctly extract programId and envId from repo", () => {
     const repo = "p123-e456";
@@ -53,25 +53,25 @@ describe("Utility Functions", () => {
   it("should throw error if repo is invalid", () => {
     const repo = "invalid-repo";
     expect(() => extractProgramIdEnvId(repo)).toThrow(
-      "Error parsing a repo value"
+      "Error parsing a repo value",
     );
   });
 
   it("should return the correct extension registry base URL for prod", () => {
     expect(getExtensionRegistryBaseUrl("prod", null)).toBe(
-      "https://appregistry.adobe.io"
+      "https://appregistry.adobe.io",
     );
   });
 
   it("should return the correct extension registry base URL for stage", () => {
     expect(getExtensionRegistryBaseUrl("stage", null)).toBe(
-      "https://appregistry-stage.adobe.io"
+      "https://appregistry-stage.adobe.io",
     );
   });
 
   it("should use default stage URL if registry is null", () => {
     expect(getExtensionRegistryBaseUrl(undefined, null)).toBe(
-      "https://appregistry-stage.adobe.io"
+      "https://appregistry-stage.adobe.io",
     );
   });
 
@@ -87,7 +87,7 @@ describe("Utility Functions", () => {
     };
     const url = buildExtensionManagerUrl(config);
     expect(url).toBe(
-      "https://extension-manager.adobe.io/v2/extensions?extensionPoints=service%2Fpoint%2F1.0"
+      "https://extension-manager.adobe.io/v2/extensions?extensionPoints=service%2Fpoint%2F1.0",
     );
   });
 
@@ -138,7 +138,7 @@ describe("Utility Functions", () => {
     const mergedExtensions = mergeExtensions(
       appRegistryExtensions,
       extensionManagerExtensions,
-      extensionPointId
+      extensionPointId,
     );
     expect(mergedExtensions.ext1).toEqual({
       id: "ext1",
@@ -180,7 +180,7 @@ describe("Utility Functions", () => {
     const mergedExtensions = mergeExtensions(
       appRegistryExtensions,
       extensionManagerExtensions,
-      extensionPointId
+      extensionPointId,
     );
     expect(mergedExtensions).toEqual({});
   });
@@ -205,7 +205,7 @@ describe("Utility Functions", () => {
       discoveryConfig,
       authConfig,
       providerConfig,
-      extensionPointId
+      extensionPointId,
     );
 
     const extensions = await provider();

@@ -29,22 +29,22 @@ export type Asynced<T> = T extends (...args: infer A) => infer R
       >]: T[K] extends (...args: any) => PromiseLike<any>
         ? T[K]
         : T[K] extends [infer U, infer V]
-        ? [Asynced<U>, Asynced<V>]
-        : T[K] extends (infer U)[]
-        ? Asynced<U>[]
-        : T[K] extends (...args: infer A) => infer R
-        ? (...args: A) => Promise<R>
-        : Asynced<T[K]>;
+          ? [Asynced<U>, Asynced<V>]
+          : T[K] extends (infer U)[]
+            ? Asynced<U>[]
+            : T[K] extends (...args: infer A) => infer R
+              ? (...args: A) => Promise<R>
+              : Asynced<T[K]>;
     };
 
 /** @internal */
 export type Materialized<T> = T extends Primitive
   ? T
   : // : T extends (...args: infer A) => infer R
-  // ? (...args: A) => Promise<R>
-  T extends Simulated<infer U>
-  ? Asynced<U>
-  : Asynced<T>;
+    // ? (...args: A) => Promise<R>
+    T extends Simulated<infer U>
+    ? Asynced<U>
+    : Asynced<T>;
 
 /** @internal */
 export type DefMessage = WrappedMessage<DefTicket>;
@@ -65,7 +65,7 @@ export function transformRecursive<To>(
   transform: (source: unknown, parent?: Object) => To | typeof NOT_TRANSFORMED,
   value: unknown,
   parent?: Object,
-  _refs: WeakSet<object> = new WeakSet()
+  _refs: WeakSet<object> = new WeakSet(),
 ): To {
   if (isPrimitive(value)) {
     return value as To;
@@ -91,7 +91,12 @@ export function transformRecursive<To>(
       Reflect.set(
         outObj,
         key,
-        transformRecursive(transform, Reflect.get(value, key), undefined, _refs)
+        transformRecursive(
+          transform,
+          Reflect.get(value, key),
+          undefined,
+          _refs,
+        ),
       );
     }
     return outObj as To;
@@ -122,7 +127,7 @@ export function transformRecursive<To>(
       Reflect.set(
         outObj,
         key,
-        transformRecursive(transform, Reflect.get(value, key), value, _refs)
+        transformRecursive(transform, Reflect.get(value, key), value, _refs),
       );
     }
     return outObj as To;

@@ -22,7 +22,7 @@ describe("an proxy representing a function in the other realm", () => {
     subject = simulator.subject;
     remoteAlpenhorn = makeCallSender(
       { fnId: alpenhornId },
-      new FakeWeakRef(subject)
+      new FakeWeakRef(subject),
     );
     jest.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -39,7 +39,7 @@ describe("an proxy representing a function in the other realm", () => {
           status: "resolve",
           value: FARAWAY_SOUND,
         });
-      }
+      },
     );
     await expect(remoteAlpenhorn()).resolves.toBe(FARAWAY_SOUND);
   });

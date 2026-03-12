@@ -12,6 +12,7 @@ governing permissions and limitations under the License.
 
 import { InstalledExtensions, ExtensionsProvider } from "../host.js";
 
+/** @internal */
 interface ExtensionDefinition {
   name: string;
   title: string;
@@ -23,23 +24,28 @@ interface ExtensionDefinition {
   status: string;
 }
 
+/** @internal */
 type EndpointDefinition = Record<string, Array<OperationDefinition>>;
 
+/** @internal */
 interface ExtensionInfo {
   supportEmail: string;
   appId: string;
 }
 
+/** @internal */
 interface OperationDefinition {
   href: string;
   metadata: OperationMetadata;
 }
 
+/** @internal */
 interface OperationMetadata {
   services: Array<object>;
   profile: OperationProfile;
 }
 
+/** @internal */
 interface OperationProfile {
   client_id: string;
   scope: string;
@@ -53,8 +59,7 @@ export interface ExtensionRegistryEndpointRegistration {
 }
 
 /** @public */
-export interface ExtensionRegistryExtensionRegistration
-  extends ExtensionRegistryEndpointRegistration {
+export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistryEndpointRegistration {
   imsOrg: string;
 }
 
@@ -72,11 +77,10 @@ export interface ExtensionRegistryConnection {
 
 /** @public */
 export interface ExtensionRegistryConfig
-  extends ExtensionRegistryExtensionRegistration,
-    ExtensionRegistryConnection {}
+  extends ExtensionRegistryExtensionRegistration, ExtensionRegistryConnection {}
 
 function buildEndpointPath(
-  config: ExtensionRegistryEndpointRegistration
+  config: ExtensionRegistryEndpointRegistration,
 ): string {
   return `${config.service}/${config.extensionPoint}/${config.version}`;
 }
@@ -91,17 +95,18 @@ function ensureProtocolSpecified(url: string) {
   return `https://${url}`;
 }
 
+/** @public */
 export async function fetchExtensionsFromRegistry(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<Array<ExtensionDefinition>> {
   const workspaceParam = config.workspace
     ? `&workspace=${config.workspace}`
     : "";
   const resp = await fetch(
     `${ensureProtocolSpecified(
-      config.baseUrl || "appregistry.adobe.io"
+      config.baseUrl || "appregistry.adobe.io",
     )}/myxchng/v1/org/${encodeURIComponent(
-      config.imsOrg
+      config.imsOrg,
     )}/xtn/${buildEndpointPath(config)}?auth=true${workspaceParam}`,
     {
       headers: {
@@ -109,14 +114,14 @@ export async function fetchExtensionsFromRegistry(
         Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
         "X-Api-Key": config.apiKey,
       },
-    }
+    },
   );
 
   if (resp.status != 200) {
     throw new Error(
       `extension registry returned non-200 response (${
         resp.status
-      }): ${await resp.text()}`
+      }): ${await resp.text()}`,
     );
   }
 
@@ -127,7 +132,7 @@ export async function fetchExtensionsFromRegistry(
  * @deprecated
  */
 function extensionRegistryExtensionsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
   return fetchExtensionsFromRegistry(config).then((out) =>
@@ -141,7 +146,7 @@ function extensionRegistryExtensionsProvider(
         // todo: make safer way to extract href
         [e.name]: e.endpoints[erEndpoint].view[0].href,
       };
-    }, {})
+    }, {}),
   );
 
   return Promise.resolve({});
@@ -151,7 +156,7 @@ function extensionRegistryExtensionsProvider(
  * Fetch & return published extension objects from registry
  */
 function extensionRegistryExtensionsAsObjectsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): Promise<InstalledExtensions> {
   const erEndpoint = buildEndpointPath(config);
   return fetchExtensionsFromRegistry(config).then((out) =>
@@ -172,7 +177,7 @@ function extensionRegistryExtensionsAsObjectsProvider(
           extensionPoints: [erEndpoint],
         },
       };
-    }, {})
+    }, {}),
   );
 }
 
@@ -182,7 +187,7 @@ function extensionRegistryExtensionsAsObjectsProvider(
  * @deprecated use `createExtensionRegistryAsObjectsProvider()`
  */
 export function createExtensionRegistryProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): ExtensionsProvider {
   return function () {
     return extensionRegistryExtensionsProvider(config);
@@ -194,7 +199,7 @@ export function createExtensionRegistryProvider(
  * @public
  */
 export function createExtensionRegistryAsObjectsProvider(
-  config: ExtensionRegistryConfig
+  config: ExtensionRegistryConfig,
 ): ExtensionsProvider {
   return function () {
     return extensionRegistryExtensionsAsObjectsProvider(config);

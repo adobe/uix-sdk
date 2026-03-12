@@ -14,10 +14,55 @@ load(extensions: InstalledExtensions, options?: PortOptions): Promise<void>;
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  extensions | [InstalledExtensions](./uix-host.installedextensions.md) | List of extension descriptors. Normally, the Host should receive this value from an [ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->. |
-|  options | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ Custom options to be used as defaults for each [Port](./uix-host.port.md) object created for each guest. |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+extensions
+
+
+</td><td>
+
+[InstalledExtensions](./uix-host.installedextensions.md)
+
+
+</td><td>
+
+List of extension descriptors. Normally, the Host should receive this value from an [ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+options
+
+
+</td><td>
+
+[PortOptions](./uix-host.portoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Custom options to be used as defaults for each [Port](./uix-host.port.md) object created for each guest.
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

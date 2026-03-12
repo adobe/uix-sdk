@@ -23,42 +23,431 @@ When a Host creates a Guest, it must create an `<iframe>` element to contain the
 
 ## Events
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [contextchange](./uix-host.host.contextchange.md) |  | [HostEventContextChange](./uix-host.hosteventcontextchange.md) | Shared context has been set or updated; all guests receive this event too. |
-|  [error](./uix-host.host.error.md) |  | [HostEventError](./uix-host.hosteventerror.md) | An error has occurred during loading or unloading of guests. |
-|  [guestbeforeload](./uix-host.host.guestbeforeload.md) |  | [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"beforeload"&gt; | About to attempt to load and connect to a Guest. |
-|  [guestbeforeunload](./uix-host.host.guestbeforeunload.md) |  | [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"beforeunload"&gt; | About to unload a guest and remove its [GuestServer](./uix-guest.guestserver.md) instance as well as all its [GuestUI](./uix-guest.guestui.md) instances. |
-|  [guestload](./uix-host.host.guestload.md) |  | [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"load"&gt; | One guest has loaded. |
-|  [guestunload](./uix-host.host.guestunload.md) |  | [HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"unload"&gt; | Unloaded a guest and removed its [GuestServer](./uix-guest.guestserver.md) instance as well as all its [GuestUI](./uix-guest.guestui.md) instances. |
-|  [loadallguests](./uix-host.host.loadallguests.md) |  | [HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md) | All guests requested by host have been loaded and connected. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[contextchange](./uix-host.host.contextchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostEventContextChange](./uix-host.hosteventcontextchange.md)
+
+
+</td><td>
+
+Shared context has been set or updated; all guests receive this event too.
+
+
+</td></tr>
+<tr><td>
+
+[error](./uix-host.host.error.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostEventError](./uix-host.hosteventerror.md)
+
+
+</td><td>
+
+An error has occurred during loading or unloading of guests.
+
+
+</td></tr>
+<tr><td>
+
+[guestbeforeload](./uix-host.host.guestbeforeload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"beforeload"&gt;
+
+
+</td><td>
+
+About to attempt to load and connect to a Guest.
+
+
+</td></tr>
+<tr><td>
+
+[guestbeforeunload](./uix-host.host.guestbeforeunload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"beforeunload"&gt;
+
+
+</td><td>
+
+About to unload a guest and remove its [GuestServer](./uix-guest.guestserver.md) instance as well as all its [GuestUI](./uix-guest.guestui.md) instances.
+
+
+</td></tr>
+<tr><td>
+
+[guestload](./uix-host.host.guestload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"load"&gt;
+
+
+</td><td>
+
+One guest has loaded.
+
+
+</td></tr>
+<tr><td>
+
+[guestunload](./uix-host.host.guestunload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostGuestEvent](./uix-host.hostguestevent.md)<!-- -->&lt;"unload"&gt;
+
+
+</td><td>
+
+Unloaded a guest and removed its [GuestServer](./uix-guest.guestserver.md) instance as well as all its [GuestUI](./uix-guest.guestui.md) instances.
+
+
+</td></tr>
+<tr><td>
+
+[loadallguests](./uix-host.host.loadallguests.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md)
+
+
+</td><td>
+
+All guests requested by host have been loaded and connected.
+
+
+</td></tr>
+</tbody></table>
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(config)](./uix-host.host._constructor_.md) |  | Constructs a new instance of the <code>Host</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(config)](./uix-host.host._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `Host` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [guests](./uix-host.host.guests.md) |  | [PortMap](./uix-host.portmap.md) | A Map of of the loaded guests. |
-|  [hostName](./uix-host.host.hostname.md) |  | string | Unique string identifying the Host object. |
-|  [loading](./uix-host.host.loading.md) |  | boolean | <code>true</code> if any extension in [Host.guests](./uix-host.host.guests.md) has created a [GuestServer](./uix-guest.guestserver.md)<!-- -->, but the Guest has not yet loaded. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[guests](./uix-host.host.guests.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PortMap](./uix-host.portmap.md)
+
+
+</td><td>
+
+A Map of of the loaded guests.
+
+
+</td></tr>
+<tr><td>
+
+[hostName](./uix-host.host.hostname.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Unique string identifying the Host object.
+
+
+</td></tr>
+<tr><td>
+
+[loading](./uix-host.host.loading.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+`true` if any extension in [Host.guests](./uix-host.host.guests.md) has created a [GuestServer](./uix-guest.guestserver.md)<!-- -->, but the Guest has not yet loaded.
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [addLoadsNewGuests(extensions, options)](./uix-host.host.addloadsnewguests.md) |  |  |
-|  [getLoadedGuests()](./uix-host.host.getloadedguests.md) |  | Return all loaded guests. |
-|  [getLoadedGuests(filter)](./uix-host.host.getloadedguests_1.md) |  | Return loaded guests which satisfy the passed test function. |
-|  [getLoadedGuests(capabilities)](./uix-host.host.getloadedguests_2.md) |  | Return loaded guests which expose the provided [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->. |
-|  [load(extensions, options)](./uix-host.host.load.md) |  | Load extension into host application from provided extension description. Returned promise resolves when all extensions are loaded and registered. |
-|  [removeGuest(id, extension)](./uix-host.host.removeguest.md) |  | Unload and remove a specific extension by its ID. |
-|  [shareContext(context)](./uix-host.host.sharecontext.md) |  | Set the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This overwrites any previous object. |
-|  [shareContext(setter)](./uix-host.host.sharecontext_1.md) |  | Update the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This method takes a callback which receives the previous context and may return an entirely new context, or new values merged with the old context. |
-|  [shareContext(setter)](./uix-host.host.sharecontext_2.md) |  |  |
-|  [unload()](./uix-host.host.unload.md) |  | Unload all extensions and remove their frames/workers. Use this to unmount a UI or when switching to a different extensible UI. |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[addLoadsNewGuests(extensions, options)](./uix-host.host.addloadsnewguests.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getLoadedGuests()](./uix-host.host.getloadedguests.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Return all loaded guests.
+
+
+</td></tr>
+<tr><td>
+
+[getLoadedGuests(filter)](./uix-host.host.getloadedguests_1.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Return loaded guests which satisfy the passed test function.
+
+
+</td></tr>
+<tr><td>
+
+[getLoadedGuests(capabilities)](./uix-host.host.getloadedguests_2.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Return loaded guests which expose the provided [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[load(extensions, options)](./uix-host.host.load.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Load extension into host application from provided extension description. Returned promise resolves when all extensions are loaded and registered.
+
+
+</td></tr>
+<tr><td>
+
+[removeGuest(id, extension)](./uix-host.host.removeguest.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Unload and remove a specific extension by its ID.
+
+
+</td></tr>
+<tr><td>
+
+[shareContext(context)](./uix-host.host.sharecontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Set the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This overwrites any previous object.
+
+
+</td></tr>
+<tr><td>
+
+[shareContext(setter)](./uix-host.host.sharecontext_1.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Update the object of shared values that all Guests can access via [GuestServer.sharedContext](./uix-guest.guestserver.sharedcontext.md)<!-- -->. This method takes a callback which receives the previous context and may return an entirely new context, or new values merged with the old context.
+
+
+</td></tr>
+<tr><td>
+
+[shareContext(setter)](./uix-host.host.sharecontext_2.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[unload()](./uix-host.host.unload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Unload all extensions and remove their frames/workers. Use this to unmount a UI or when switching to a different extensible UI.
+
+
+</td></tr>
+</tbody></table>
 

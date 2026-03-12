@@ -28,7 +28,7 @@ export interface ExtensionsDifference {
 
 export function compareExtensions(
   extensions1: InstalledExtensions,
-  extensions2: InstalledExtensions
+  extensions2: InstalledExtensions,
 ): ExtensionsDifference {
   const result: ExtensionsDifference = {
     added: {},
@@ -70,7 +70,7 @@ export function compareExtensions(
 
 function areExtensionsEqual(
   ext1: Extension["url"] | Extension,
-  ext2: Extension["url"] | Extension
+  ext2: Extension["url"] | Extension,
 ): boolean {
   if (typeof ext1 !== typeof ext2) {
     return false;
@@ -135,7 +135,7 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
     if (
       !deepEqual(
         (obj1 as Record<string, unknown>)[key],
-        (obj2 as Record<string, unknown>)[key]
+        (obj2 as Record<string, unknown>)[key],
       )
     ) {
       return false;
@@ -147,7 +147,7 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
 
 export function areExtensionsDifferent(
   extensions1: InstalledExtensions,
-  extensions2: InstalledExtensions
+  extensions2: InstalledExtensions,
 ): boolean {
   return compareExtensions(extensions1, extensions2).hasChanges;
 }

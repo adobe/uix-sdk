@@ -16,9 +16,83 @@ export interface TunnelConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [logger](./uix-core.tunnelconfig.logger.md) |  | Console | **_(ALPHA)_** Logger instance to use for debugging tunnel connection. |
-|  [targetOrigin](./uix-core.tunnelconfig.targetorigin.md) |  | string | **_(ALPHA)_** To ensure secure communication, target origin must be specified, so the tunnel can't connect to an unauthorized domain. Can be '\*' to disable origin checks, but this is discouraged! |
-|  [timeout](./uix-core.tunnelconfig.timeout.md) |  | number | **_(ALPHA)_** A Promise for a tunnel will reject if not connected within timeout (ms). |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[logger](./uix-core.tunnelconfig.logger.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Console
+
+
+</td><td>
+
+**_(ALPHA)_** Logger instance to use for debugging tunnel connection.
+
+
+</td></tr>
+<tr><td>
+
+[targetOrigin](./uix-core.tunnelconfig.targetorigin.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+**_(ALPHA)_** To ensure secure communication, target origin must be specified, so the tunnel can't connect to an unauthorized domain. Can be '\*' to disable origin checks, but this is discouraged!
+
+
+</td></tr>
+<tr><td>
+
+[timeout](./uix-core.tunnelconfig.timeout.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+**_(ALPHA)_** A Promise for a tunnel will reject if not connected within timeout (ms).
+
+
+</td></tr>
+</tbody></table>
 

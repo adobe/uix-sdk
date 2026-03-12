@@ -104,7 +104,7 @@ export interface GuestApis {
     [k: string]: GuestApiNS;
 }
 
-// @internal (undocumented)
+// @internal
 export interface GuestConnection {
     // (undocumented)
     attachUI(frame: HTMLIFrameElement, privateMethods?: VirtualApi): Promise<unknown>;

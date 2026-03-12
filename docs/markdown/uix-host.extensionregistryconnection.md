@@ -13,11 +13,117 @@ export interface ExtensionRegistryConnection
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [apiKey](./uix-host.extensionregistryconnection.apikey.md) |  | string |  |
-|  [auth](./uix-host.extensionregistryconnection.auth.md) |  | { schema: "Basic" \| "Bearer"; imsToken: string; } |  |
-|  [baseUrl?](./uix-host.extensionregistryconnection.baseurl.md) |  | string | _(Optional)_ |
-|  [filter?](./uix-host.extensionregistryconnection.filter.md) |  | (extension: [ExtensionDefinition](./uix-host.extensiondefinition.md)<!-- -->) =&gt; boolean | _(Optional)_ |
-|  [workspace?](./uix-host.extensionregistryconnection.workspace.md) |  | string | _(Optional)_ |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[apiKey](./uix-host.extensionregistryconnection.apikey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[auth](./uix-host.extensionregistryconnection.auth.md)
+
+
+</td><td>
+
+
+</td><td>
+
+{ schema: "Basic" \| "Bearer"; imsToken: string; }
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[baseUrl?](./uix-host.extensionregistryconnection.baseurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[filter?](./uix-host.extensionregistryconnection.filter.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(extension: ExtensionDefinition) =&gt; boolean
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[workspace?](./uix-host.extensionregistryconnection.workspace.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 

@@ -123,7 +123,7 @@ export function addMetrics(host: Emitter<HostEvents>): void {
         "callguestmethod",
         addGuestId({
           path: (path as string[]).join("."),
-        })
+        }),
       );
     });
     guest.addEventListener("beforecallhostmethod", (callDetails) => {
@@ -133,7 +133,7 @@ export function addMetrics(host: Emitter<HostEvents>): void {
         "callhostmethod",
         addGuestId({
           path: (path as string[]).join("."),
-        })
+        }),
       );
     });
   });

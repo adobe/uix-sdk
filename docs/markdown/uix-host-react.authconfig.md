@@ -14,9 +14,83 @@ export interface AuthConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [apiKey](./uix-host-react.authconfig.apikey.md) |  | string | API key |
-|  [imsOrg](./uix-host-react.authconfig.imsorg.md) |  | string | IMS Org ID |
-|  [imsToken](./uix-host-react.authconfig.imstoken.md) |  | string | Access token for the user |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[apiKey](./uix-host-react.authconfig.apikey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+API key
+
+
+</td></tr>
+<tr><td>
+
+[imsOrg](./uix-host-react.authconfig.imsorg.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+IMS Org ID
+
+
+</td></tr>
+<tr><td>
+
+[imsToken](./uix-host-react.authconfig.imstoken.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Access token for the user
+
+
+</td></tr>
+</tbody></table>
 

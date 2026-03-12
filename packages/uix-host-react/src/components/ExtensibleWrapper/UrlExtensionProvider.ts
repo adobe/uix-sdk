@@ -19,6 +19,7 @@ import { Extension } from "@adobe/uix-core";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
 const EXT_PARAM_PREFIX = "ext";
 
+/** @public */
 export interface ExtUrlParams {
   [key: string]: string;
 }
@@ -27,6 +28,7 @@ export interface ExtUrlParams {
  * Validates if a URL is safe and only allows HTTP/HTTPS protocols
  * @param url - The URL string to validate
  * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
+ * @public
  */
 export function isValidHttpUrl(url: string): boolean {
   try {
@@ -40,10 +42,10 @@ export function isValidHttpUrl(url: string): boolean {
 
 /**
  * Extracts extension URLs from the query string
- * @ignore
+ * @internal
  */
 export function extractExtUrlParams(
-  queryString: string | undefined
+  queryString: string | undefined,
 ): ExtUrlParams {
   if (!queryString) {
     return {};
@@ -59,7 +61,7 @@ export function extractExtUrlParams(
 
 /**
  * Generates an extension ID from the extension URL
- * @ignore
+ * @internal
  */
 export function generateExtensionId(extensionUrl: string): string {
   return extensionUrl.replace(/\W/g, "_");
@@ -67,11 +69,11 @@ export function generateExtensionId(extensionUrl: string): string {
 
 /**
  * Creates an ExtensionsProvider that provides extensions from the URL
- * @ignore
+ * @internal
  */
 export function createUrlExtensionsProvider(
   extensionPointId: ExtensionPointId,
-  queryString: string | undefined
+  queryString: string | undefined,
 ): ExtensionsProvider {
   const extUrlParams: ExtUrlParams = extractExtUrlParams(queryString);
 
@@ -80,7 +82,7 @@ export function createUrlExtensionsProvider(
       (extParam) =>
         extParam === EXT_PARAM_PREFIX ||
         extParam ===
-          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
+          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
     )
     .flatMap((extParam) => {
       const paramValue = extUrlParams[extParam];

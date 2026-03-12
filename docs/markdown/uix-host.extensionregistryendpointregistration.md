@@ -13,9 +13,77 @@ export interface ExtensionRegistryEndpointRegistration
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [extensionPoint](./uix-host.extensionregistryendpointregistration.extensionpoint.md) |  | string |  |
-|  [service](./uix-host.extensionregistryendpointregistration.service.md) |  | string |  |
-|  [version](./uix-host.extensionregistryendpointregistration.version.md) |  | string |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[extensionPoint](./uix-host.extensionregistryendpointregistration.extensionpoint.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[service](./uix-host.extensionregistryendpointregistration.service.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[version](./uix-host.extensionregistryendpointregistration.version.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

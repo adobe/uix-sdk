@@ -13,9 +13,83 @@ export interface UseExtensionsConfig<Incoming extends GuestApis, Outgoing extend
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [provides?](./uix-host-react.useextensionsconfig.provides.md) |  | Outgoing | _(Optional)_ A namespaced object of methods which extensions will be able to call. |
-|  [requires?](./uix-host-react.useextensionsconfig.requires.md) |  | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Required&lt;Incoming&gt;&gt; | _(Optional)_ A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced methods extensions must implement to be used by this component. |
-|  [updateOn?](./uix-host-react.useextensionsconfig.updateon.md) |  | "each" \| "all" | _(Optional)_ Sets when re-render is triggered on extension load. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[provides?](./uix-host-react.useextensionsconfig.provides.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Outgoing
+
+
+</td><td>
+
+_(Optional)_ A namespaced object of methods which extensions will be able to call.
+
+
+</td></tr>
+<tr><td>
+
+[requires?](./uix-host-react.useextensionsconfig.requires.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Required&lt;Incoming&gt;&gt;
+
+
+</td><td>
+
+_(Optional)_ A [CapabilitySpec](./uix-host.capabilityspec.md) describing the namespaced methods extensions must implement to be used by this component.
+
+
+</td></tr>
+<tr><td>
+
+[updateOn?](./uix-host-react.useextensionsconfig.updateon.md)
+
+
+</td><td>
+
+
+</td><td>
+
+"each" \| "all"
+
+
+</td><td>
+
+_(Optional)_ Sets when re-render is triggered on extension load.
+
+
+</td></tr>
+</tbody></table>
 

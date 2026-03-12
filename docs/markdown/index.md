@@ -6,10 +6,58 @@
 
 ## Packages
 
-|  Package | Description |
-|  --- | --- |
-|  [@adobe/uix-core](./uix-core.md) | Core utilities, types and contracts for the Adobe UIX SDK. |
-|  [@adobe/uix-guest](./uix-guest.md) | Tools for UI Extensions meant to run inside extensible apps. Connects Extensions running in their own window contexts with the host app, allowing the host and guest to exchange method, events, and signals. |
-|  [@adobe/uix-host](./uix-host.md) | Tools for a web app to become a UI Extensibility Host. Use this library to create a  object, which is your interface to declare extension points, instantiate [GuestServer](./uix-guest.guestserver.md) objects, connect to them and communicate with them. |
-|  [@adobe/uix-host-react](./uix-host-react.md) |  |
+<table><thead><tr><th>
+
+Package
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[@adobe/uix-core](./uix-core.md)
+
+
+</td><td>
+
+Core utilities, types and contracts for the Adobe UIX SDK.
+
+
+</td></tr>
+<tr><td>
+
+[@adobe/uix-guest](./uix-guest.md)
+
+
+</td><td>
+
+Tools for UI Extensions meant to run inside extensible apps. Connects Extensions running in their own window contexts with the host app, allowing the host and guest to exchange method, events, and signals.
+
+
+</td></tr>
+<tr><td>
+
+[@adobe/uix-host](./uix-host.md)
+
+
+</td><td>
+
+Tools for a web app to become a UI Extensibility Host. Use this library to create a  object, which is your interface to declare extension points, instantiate [GuestServer](./uix-guest.guestserver.md) objects, connect to them and communicate with them.
+
+
+</td></tr>
+<tr><td>
+
+[@adobe/uix-host-react](./uix-host-react.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

@@ -33,7 +33,7 @@ export type PortMap = Map<string, Port>;
 /** @public */
 export type HostEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = NamedEvent<Type, Detail & Record<string, unknown> & { host: Host }>;
 /** @public */
 type HostGuestEvent<Type extends string> = HostEvent<
@@ -267,10 +267,10 @@ export class Host extends Emitter<HostEvents> {
    * Return loaded guests which expose the provided {@link CapabilitySpec}.
    */
   getLoadedGuests<Apis extends GuestApis>(
-    capabilities: CapabilitySpec<Apis>
+    capabilities: CapabilitySpec<Apis>,
   ): Port<GuestApis>[];
   getLoadedGuests<Apis extends GuestApis = never>(
-    filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter
+    filterOrCapabilities?: CapabilitySpec<Apis> | GuestFilter,
   ): Port<GuestApis>[] {
     if (typeof filterOrCapabilities === "object") {
       return this.getLoadedGuestsWith<Apis>(filterOrCapabilities);
@@ -330,15 +330,15 @@ export class Host extends Emitter<HostEvents> {
    * ```
    */
   shareContext(
-    setter: (context: SharedContextValues) => SharedContextValues
+    setter: (context: SharedContextValues) => SharedContextValues,
   ): void;
   shareContext(
-    setter: (context: SharedContextValues) => SharedContextValues
+    setter: (context: SharedContextValues) => SharedContextValues,
   ): void;
   shareContext(
     setterOrContext:
       | ((context: SharedContextValues) => SharedContextValues)
-      | SharedContextValues
+      | SharedContextValues,
   ) {
     if (typeof setterOrContext === "function") {
       this.sharedContext = setterOrContext(this.sharedContext);
@@ -360,7 +360,7 @@ export class Host extends Emitter<HostEvents> {
    */
   async load(
     extensions: InstalledExtensions,
-    options?: PortOptions
+    options?: PortOptions,
   ): Promise<void> {
     this.runtimeContainer =
       this.runtimeContainer || this.createRuntimeContainer(window);
@@ -371,7 +371,7 @@ export class Host extends Emitter<HostEvents> {
     if (result.hasChanges && extensionsToAdd.length > 0) {
       this.logger.log(
         `Host ${this.hostName} loading extensions:`,
-        extensionsToAdd
+        extensionsToAdd,
       );
       await this.addLoadsNewGuests(result.added, options);
     }
@@ -379,7 +379,7 @@ export class Host extends Emitter<HostEvents> {
     if (result.hasChanges && extensionsToRemove.length > 0) {
       this.logger.log(
         `Host ${this.hostName} removing extensions:`,
-        extensionsToRemove
+        extensionsToRemove,
       );
       extensionsToRemove.forEach(async ([id, ext]) => {
         if (typeof ext === "object" && ext !== null && "url" in ext) {
@@ -391,7 +391,7 @@ export class Host extends Emitter<HostEvents> {
 
   async addLoadsNewGuests(
     extensions: InstalledExtensions,
-    options?: PortOptions
+    options?: PortOptions,
   ): Promise<void> {
     const failed: Port[] = [];
     const loaded: Port[] = [];
@@ -400,7 +400,7 @@ export class Host extends Emitter<HostEvents> {
       Object.entries(extensions).map(async ([id, extension]) => {
         const port = await this.loadOneGuest(id, extension, options);
         (port.error ? failed : loaded).push(port);
-      })
+      }),
     );
     this.loading = false;
     this.emit("loadallguests", { host: this, failed, loaded });
@@ -444,7 +444,7 @@ export class Host extends Emitter<HostEvents> {
   private async loadOneGuest<T = unknown>(
     id: string,
     extension: string | Extension,
-    options: PortOptions = {}
+    options: PortOptions = {},
   ): Promise<Port<T>> {
     let guest = this.guests.get(id);
     if (!guest) {
@@ -487,7 +487,7 @@ export class Host extends Emitter<HostEvents> {
       const error = new Error(
         `Guest ${guest.id} failed to load: at ${guest.url}: ${
           e instanceof Error ? e.stack : String(e)
-        }`
+        }`,
       );
       this.emit("error", { host: this, guest, error });
       return guest;
@@ -499,13 +499,13 @@ export class Host extends Emitter<HostEvents> {
     return guest;
   }
   private getLoadedGuestsWith<Apis extends GuestApis>(
-    capabilities: CapabilitySpec<Apis>
+    capabilities: CapabilitySpec<Apis>,
   ) {
     if (this.cachedCapabilityLists.has(capabilities)) {
       return this.cachedCapabilityLists.get(capabilities);
     }
     const guestsWithCapabilities = this.getLoadedGuests((guest) =>
-      guest.hasCapabilities(capabilities)
+      guest.hasCapabilities(capabilities),
     );
     this.cachedCapabilityLists.set(capabilities, guestsWithCapabilities);
     return guestsWithCapabilities;

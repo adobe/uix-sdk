@@ -15,7 +15,7 @@ export function timeoutPromise<T>(
   describe: string | (() => string),
   promise: Promise<T>,
   ms: number,
-  onReject?: (e: Error) => void
+  onReject?: (e: Error) => void,
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const cleanupAndReject = async (e: Error) => {
@@ -32,8 +32,8 @@ export function timeoutPromise<T>(
         new Error(
           `${
             typeof describe === "function" ? describe() : describe
-          } timed out after ${ms}ms`
-        )
+          } timed out after ${ms}ms`,
+        ),
       );
     }, ms);
     promise

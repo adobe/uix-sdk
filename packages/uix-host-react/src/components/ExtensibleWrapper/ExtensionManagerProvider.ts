@@ -31,10 +31,12 @@ const APP_REGISTRY_URL_STAGE = "https://appregistry-stage.adobe.io";
 // in the "extensionPoints" array of objects of the following "ExtensionPoint" type
 // where "extensionPoint" is the name of the extension point, for example, "aem/assets/details/1"
 // "url" is the extension url for the specified extension point
+/** @internal */
 type ExtensionPoint = {
   extensionPoint: string;
   url: string;
 };
+/** @public */
 export type ExtensionManagerExtension = {
   id: string;
   name: string;
@@ -49,10 +51,12 @@ export type ExtensionManagerExtension = {
   configuration?: Record<string, unknown>;
 };
 
+/** @internal */
 type AuthEMConfig = {
   schema: "Bearer" | "Basic";
   imsToken: string;
 };
+/** @public */
 export interface ExtensionManagerConfig {
   apiKey: string;
   auth: AuthEMConfig;
@@ -64,7 +68,10 @@ export interface ExtensionManagerConfig {
   scope?: Record<string, string>;
 }
 
-/** Authentication configuration, including IMS Org ID, access token, and API key */
+/**
+ * Authentication configuration, including IMS Org ID, access token, and API key
+ * @public
+ */
 export interface AuthConfig {
   /** IMS Org ID */
   imsOrg: string;
@@ -74,14 +81,20 @@ export interface AuthConfig {
   apiKey: string;
 }
 
-/** Discovery configuration, including environment and repo Id */
+/**
+ * Discovery configuration, including environment and repo Id
+ * @public
+ */
 export interface DiscoveryConfig {
   /** Environment level for backend Extension resolution services */
   experienceShellEnvironment?: "prod" | "stage";
   scope?: Record<string, string>;
 }
 
-/** Extension point ID */
+/**
+ * Extension point ID
+ * @public
+ */
 export interface ExtensionPointId {
   /** Service name */
   service: string;
@@ -95,6 +108,7 @@ export interface ExtensionPointId {
  * Sets up new ExtensionsProvider with authentication and discovery information needed to fetch the list of
  * Extensions from AppRegistry and Extension Manager service, along with the query string portion of URL
  * to extract the information about development Extensions
+ * @public
  */
 export interface ExtensionsProviderConfig {
   /** Discovery configuration */
@@ -106,32 +120,35 @@ export interface ExtensionsProviderConfig {
   providerConfig: ExtensionProviderConfig;
 }
 
+/** @public */
 export interface ExtensionProviderConfig {
   extensionManagerUrl?: string;
   appRegistryUrl?: string;
   disableExtensionManager?: boolean;
 }
+/** @internal */
 export const getExtensionRegistryBaseUrl = (
   environment: "prod" | "stage" | undefined,
-  registry: string | null
+  registry: string | null,
 ): string =>
   environment === "prod"
     ? APP_REGISTRY_URL_PROD
-    : registry ?? APP_REGISTRY_URL_STAGE;
+    : (registry ?? APP_REGISTRY_URL_STAGE);
 
+/** @internal */
 export const getExtensionManagerBaseUrl = (
   environment: "prod" | "stage" | undefined,
-  extensionManager: string | null
+  extensionManager: string | null,
 ): string =>
   environment === "prod"
     ? EXTENSION_MANAGER_URL_PROD
-    : extensionManager ?? EXTENSION_MANAGER_URL_STAGE;
+    : (extensionManager ?? EXTENSION_MANAGER_URL_STAGE);
 
 /**
  * Extracts programId and envId from the repo value
  * @param repo - the repo value
  * @returns object with programId and envId
- * @ignore
+ * @internal
  */
 export function extractProgramIdEnvId(repo: string): {
   programId: string;
@@ -153,14 +170,14 @@ export function extractProgramIdEnvId(repo: string): {
  * Builds the URL for fetching extensions from the Extension Manager service
  * @param config - the Extension Manager configuration
  * @returns the URL for fetching extensions
- * @ignore
+ * @internal
  */
 export function buildExtensionManagerUrl(
-  config: ExtensionManagerConfig
+  config: ExtensionManagerConfig,
 ): string {
   const scope = config.scope
     ? Object.fromEntries(
-        Object.entries(config.scope).map(([k, v]) => [`scope.${k}`, v])
+        Object.entries(config.scope).map(([k, v]) => [`scope.${k}`, v]),
       )
     : {};
   const extensionPoints: string = `${config.service}/${config.extensionPoint}/${config.version}`;
@@ -173,10 +190,10 @@ export function buildExtensionManagerUrl(
 }
 
 /**
- * @ignore
+ * @internal
  */
 export async function fetchExtensionsFromExtensionManager(
-  config: ExtensionManagerConfig
+  config: ExtensionManagerConfig,
 ): Promise<ExtensionManagerExtension[]> {
   const resp: Response = await fetch(buildExtensionManagerUrl(config), {
     headers: {
@@ -190,7 +207,7 @@ export async function fetchExtensionsFromExtensionManager(
     throw new Error(
       `Extension Manager returned non-200 response (${
         resp.status
-      }): ${await resp.text()}`
+      }): ${await resp.text()}`,
     );
   }
 
@@ -202,16 +219,16 @@ export async function fetchExtensionsFromExtensionManager(
  * merges them into a list of Extensions. If an extension is disabled in the Extension Manager, it is removed from
  * the list.
  * Extension list from the App Registry is used as a base.
- * @ignore
+ * @internal
  */
 export function mergeExtensions(
   appRegistryExtensions: InstalledExtensions,
   extensionManagerExtensions: ExtensionManagerExtension[],
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
 ): InstalledExtensions {
   const mergedExtensions: InstalledExtensions = Object.assign(
     appRegistryExtensions,
-    {}
+    {},
   );
   extensionManagerExtensions.forEach((extension: ExtensionManagerExtension) => {
     if (extension.disabled) {
@@ -222,7 +239,7 @@ export function mergeExtensions(
         extension.extensionPoints.find(
           (_extensionPoint: ExtensionPoint) =>
             _extensionPoint.extensionPoint ===
-            `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
+            `${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
         );
       if (extPoint) {
         // add a new extension record or replace the existing one by an extension record from Extension Manager
@@ -232,13 +249,13 @@ export function mergeExtensions(
           url: extPoint.url,
           configuration: extension.configuration,
           extensionPoints: extension.extensionPoints.map(
-            (point) => point.extensionPoint
+            (point) => point.extensionPoint,
           ),
         };
       } else {
         //this should never happen because we query Extension Manager service for our specific extension point
         console.warn(
-          `Extension point ${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version} not found for extension ${extension.name}`
+          `Extension point ${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version} not found for extension ${extension.name}`,
         );
       }
     }
@@ -251,7 +268,7 @@ async function getExtensionManagerExtensions(
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
 ): Promise<InstalledExtensions> {
   const config = {
     apiKey: authConfig.apiKey,
@@ -270,7 +287,7 @@ async function getExtensionManagerExtensions(
     ...config,
     baseUrl: getExtensionRegistryBaseUrl(
       discoveryConfig.experienceShellEnvironment,
-      providerConfig.appRegistryUrl
+      providerConfig.appRegistryUrl,
     ),
   } as ExtensionManagerConfig;
   const appRegistryExtensionsProvider: ExtensionsProvider =
@@ -280,7 +297,7 @@ async function getExtensionManagerExtensions(
     ...config,
     baseUrl: getExtensionManagerBaseUrl(
       discoveryConfig.experienceShellEnvironment,
-      providerConfig.extensionManagerUrl
+      providerConfig.extensionManagerUrl,
     ),
   } as ExtensionManagerConfig;
   const [appRegistryExtensions, extensionManagerExtensions] = await Promise.all(
@@ -289,7 +306,7 @@ async function getExtensionManagerExtensions(
       providerConfig.disableExtensionManager
         ? []
         : fetchExtensionsFromExtensionManager(extensionManagerConfiguration),
-    ]
+    ],
   );
 
   if (providerConfig.disableExtensionManager) {
@@ -298,27 +315,27 @@ async function getExtensionManagerExtensions(
     return mergeExtensions(
       appRegistryExtensions,
       extensionManagerExtensions,
-      extensionPointId
+      extensionPointId,
     );
   }
 }
 
 /**
  * Creates an extension manager extension provider
- * @ignore
+ * @internal
  */
 export function createExtensionManagerExtensionsProvider(
   discoveryConfig: DiscoveryConfig,
   authConfig: AuthConfig,
   providerConfig: ExtensionProviderConfig,
-  extensionPointId: ExtensionPointId
+  extensionPointId: ExtensionPointId,
 ): ExtensionsProvider {
   return () => {
     return getExtensionManagerExtensions(
       discoveryConfig,
       authConfig,
       providerConfig,
-      extensionPointId
+      extensionPointId,
     );
   };
 }

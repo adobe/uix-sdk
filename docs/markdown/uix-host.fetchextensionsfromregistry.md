@@ -4,6 +4,7 @@
 
 ## fetchExtensionsFromRegistry() function
 
+
 **Signature:**
 
 ```typescript
@@ -12,11 +13,39 @@ export declare function fetchExtensionsFromRegistry(config: ExtensionRegistryCon
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md) |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+config
+
+
+</td><td>
+
+[ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 
-Promise&lt;Array&lt;[ExtensionDefinition](./uix-host.extensiondefinition.md)<!-- -->&gt;&gt;
+Promise&lt;Array&lt;ExtensionDefinition&gt;&gt;
 

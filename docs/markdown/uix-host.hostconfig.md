@@ -13,12 +13,142 @@ export interface HostConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [debug?](./uix-host.hostconfig.debug.md) |  | boolean | _(Optional)_ Copiously log lifecycle events. |
-|  [disableMetrics?](./uix-host.hostconfig.disablemetrics.md) |  | boolean | _(Optional)_ Disables built-in metrics of UIX SDK |
-|  [guestOptions?](./uix-host.hostconfig.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | <p>_(Optional)_ Default options to use for every guest Port.</p><p>If <code>config.debug</code> is true, then the guest options will have <code>debug: true</code> unless <code>debug: false</code> is explicitly passed in <code>guestOptions</code>.</p> |
-|  [hostName](./uix-host.hostconfig.hostname.md) |  | string | Human-readable "slug" name of the extensible area--often an entire app. This string serves as a namespace for extension points within the area. |
-|  [runtimeContainer?](./uix-host.hostconfig.runtimecontainer.md) |  | HTMLElement | _(Optional)_ A DOM element \_outside\_ of the React root. This is necessary to preserve the lifetime of the iframes which are running extension objects; if they live inside the React root, then React could unexpectedly re-render the iframe tags themselves at any time, causing a reload of the frame. |
-|  [sharedContext?](./uix-host.hostconfig.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | _(Optional)_ A read-only dictionary of values that the host will supply to all the guests. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[debug?](./uix-host.hostconfig.debug.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Copiously log lifecycle events.
+
+
+</td></tr>
+<tr><td>
+
+[disableMetrics?](./uix-host.hostconfig.disablemetrics.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Disables built-in metrics of UIX SDK
+
+
+</td></tr>
+<tr><td>
+
+[guestOptions?](./uix-host.hostconfig.guestoptions.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PortOptions](./uix-host.portoptions.md)
+
+
+</td><td>
+
+_(Optional)_ Default options to use for every guest Port.
+
+If `config.debug` is true, then the guest options will have `debug: true` unless `debug: false` is explicitly passed in `guestOptions`<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[hostName](./uix-host.hostconfig.hostname.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Human-readable "slug" name of the extensible area--often an entire app. This string serves as a namespace for extension points within the area.
+
+
+</td></tr>
+<tr><td>
+
+[runtimeContainer?](./uix-host.hostconfig.runtimecontainer.md)
+
+
+</td><td>
+
+
+</td><td>
+
+HTMLElement
+
+
+</td><td>
+
+_(Optional)_ A DOM element \_outside\_ of the React root. This is necessary to preserve the lifetime of the iframes which are running extension objects; if they live inside the React root, then React could unexpectedly re-render the iframe tags themselves at any time, causing a reload of the frame.
+
+
+</td></tr>
+<tr><td>
+
+[sharedContext?](./uix-host.hostconfig.sharedcontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[SharedContextValues](./uix-host.sharedcontextvalues.md)
+
+
+</td><td>
+
+_(Optional)_ A read-only dictionary of values that the host will supply to all the guests.
+
+
+</td></tr>
+</tbody></table>
 

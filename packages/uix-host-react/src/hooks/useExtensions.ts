@@ -28,8 +28,9 @@ import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 /**
  * @internal
  */
-export interface TypedGuestConnection<T extends GuestApis>
-  extends GuestConnection {
+export interface TypedGuestConnection<
+  T extends GuestApis,
+> extends GuestConnection {
   id: GuestConnection["id"];
   apis: RemoteGuestApis<T>;
 }
@@ -37,7 +38,7 @@ export interface TypedGuestConnection<T extends GuestApis>
 /** @public */
 export interface UseExtensionsConfig<
   Incoming extends GuestApis,
-  Outgoing extends VirtualApi
+  Outgoing extends VirtualApi,
 > {
   /**
    * A {@link @adobe/uix-host#CapabilitySpec} describing the namespaced methods
@@ -109,10 +110,10 @@ const NO_EXTENSIONS: [] = [];
  */
 export function useExtensions<
   Incoming extends GuestApis,
-  Outgoing extends VirtualApi
+  Outgoing extends VirtualApi,
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
-  deps: unknown[] = []
+  deps: unknown[] = [],
 ): UseExtensionsResult<Incoming> {
   const { host, error } = useHost();
   if (error) {
@@ -130,7 +131,7 @@ export function useExtensions<
       extensionPoint,
       version,
     }: ExtensionRegistryEndpointRegistration) =>
-      `${service}/${extensionPoint}/${version}`
+      `${service}/${extensionPoint}/${version}`,
   );
   const baseDeps = [host, ...deps];
   const {
@@ -154,7 +155,7 @@ export function useExtensions<
         !allExtensionPoints.length ||
         isGuestExtensionPointInBoundary(
           boundryExtensionPointsAsString,
-          allExtensionPoints
+          allExtensionPoints,
         )
       ) {
         newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
@@ -172,7 +173,7 @@ export function useExtensions<
         host.removeEventListener(eventName, handler);
       };
     },
-    [...baseDeps, updateOn]
+    [...baseDeps, updateOn],
   );
 
   const subscribeToUnload = useCallback((handler: EventListener) => {
@@ -196,7 +197,7 @@ export function useExtensions<
     if (guest && guest.id) {
       setExtensions((prevExtensions) => {
         const filtered = prevExtensions.filter(
-          (ext) => ext.id !== guest.id || ext.url !== guest.url
+          (ext) => ext.id !== guest.id || ext.url !== guest.url,
         );
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
@@ -220,9 +221,9 @@ export function useExtensions<
       host.addEventListener(
         "error",
         (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error)
+          setHostError(event.detail.error),
       ),
-    baseDeps
+    baseDeps,
   );
 
   return {
@@ -243,7 +244,7 @@ export function useExtensions<
 function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
   try {
     const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
-      (extension: { extensionPoint: string }) => extension?.extensionPoint
+      (extension: { extensionPoint: string }) => extension?.extensionPoint,
     );
     const allExtensionPoints = [
       ...(guest.extensionPoints || []),
@@ -252,7 +253,7 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
     return allExtensionPoints;
   } catch {
     console.error(
-      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective."
+      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective.",
     );
     return [];
   }
@@ -260,13 +261,13 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
 
 function isGuestExtensionPointInBoundary(
   boundryExtensionPointsAsString: string[],
-  guestExtensionPoints: string[]
+  guestExtensionPoints: string[],
 ) {
   return (
     boundryExtensionPointsAsString?.length &&
     guestExtensionPoints?.length &&
     guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint)
+      boundryExtensionPointsAsString.includes(extensionPoint),
     )
   );
 }

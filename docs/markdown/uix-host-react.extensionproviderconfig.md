@@ -4,6 +4,7 @@
 
 ## ExtensionProviderConfig interface
 
+
 **Signature:**
 
 ```typescript
@@ -12,9 +13,83 @@ export interface ExtensionProviderConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [appRegistryUrl?](./uix-host-react.extensionproviderconfig.appregistryurl.md) |  | string | _(Optional)_ |
-|  [disableExtensionManager?](./uix-host-react.extensionproviderconfig.disableextensionmanager.md) |  | boolean | _(Optional)_ |
-|  [extensionManagerUrl?](./uix-host-react.extensionproviderconfig.extensionmanagerurl.md) |  | string | _(Optional)_ |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[appRegistryUrl?](./uix-host-react.extensionproviderconfig.appregistryurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[disableExtensionManager?](./uix-host-react.extensionproviderconfig.disableextensionmanager.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[extensionManagerUrl?](./uix-host-react.extensionproviderconfig.extensionmanagerurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 

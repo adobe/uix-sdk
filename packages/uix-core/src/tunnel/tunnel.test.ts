@@ -33,7 +33,7 @@ type TunnelHarness = { tunnel: Tunnel; port: MessagePort };
 const openPorts: MessagePort[] = [];
 function tunnelHarness(
   port: MessagePort,
-  config = defaultTunnelConfig
+  config = defaultTunnelConfig,
 ): TunnelHarness {
   const tunnel = new Tunnel(config);
   openPorts.push(port);
@@ -205,7 +205,7 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       await wait(100);
       window.postMessage(
         messenger.makeOffered("iframe-test-1"),
-        loadedFrame.src
+        loadedFrame.src,
       );
       // fireEvent(
       //   window,
@@ -220,7 +220,7 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       const acceptEvent = acceptListener.mock.lastCall[0];
       expect(acceptEvent).toHaveProperty(
         "data",
-        messenger.makeAccepted("iframe-test-1")
+        messenger.makeAccepted("iframe-test-1"),
       );
       expect(acceptEvent.ports).toHaveLength(1);
       remoteTunnel = new Tunnel(defaultTunnelConfig);

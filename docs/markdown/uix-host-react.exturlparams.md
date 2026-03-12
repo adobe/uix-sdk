@@ -4,6 +4,7 @@
 
 ## ExtUrlParams interface
 
+
 **Signature:**
 
 ```typescript

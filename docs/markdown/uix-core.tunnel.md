@@ -18,15 +18,117 @@ export declare class Tunnel extends EventEmitter
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(config)](./uix-core.tunnel._constructor_.md) |  | **_(ALPHA)_** Constructs a new instance of the <code>Tunnel</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(config)](./uix-core.tunnel._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+**_(ALPHA)_** Constructs a new instance of the `Tunnel` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [config](./uix-core.tunnel.config.md) |  | [TunnelConfig](./uix-core.tunnelconfig.md) | **_(ALPHA)_** |
-|  [emitLocal](./uix-core.tunnel.emitlocal.md) |  | (type: string \| symbol, payload?: unknown) =&gt; any | **_(ALPHA)_** |
-|  [isConnected](./uix-core.tunnel.isconnected.md) |  | boolean | **_(ALPHA)_** |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[config](./uix-core.tunnel.config.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[TunnelConfig](./uix-core.tunnelconfig.md)
+
+
+</td><td>
+
+**_(ALPHA)_**
+
+
+</td></tr>
+<tr><td>
+
+[emitLocal](./uix-core.tunnel.emitlocal.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(type: string \| symbol, payload?: unknown) =&gt; any
+
+
+</td><td>
+
+**_(ALPHA)_**
+
+
+</td></tr>
+<tr><td>
+
+[isConnected](./uix-core.tunnel.isconnected.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+**_(ALPHA)_**
+
+
+</td></tr>
+</tbody></table>
 

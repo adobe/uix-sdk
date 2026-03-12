@@ -34,20 +34,129 @@ The `FizzBuzzEmitter` class will now type check its events and event listeners, 
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(id)](./uix-core.emitter._constructor_.md) |  | Constructs a new instance of the <code>Emitter</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(id)](./uix-core.emitter._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `Emitter` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [id](./uix-core.emitter.id.md) |  | string | An arbitrary string to uniquely identify this emitter and its events. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[id](./uix-core.emitter.id.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+An arbitrary string to uniquely identify this emitter and its events.
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [addEventListener(type, listener)](./uix-core.emitter.addeventlistener.md) |  | Subscribe to an event and receive an unsubscribe callback. |
-|  [emit(type, detail)](./uix-core.emitter.emit.md) | <code>protected</code> | Convenience method to construct and dispatch custom events. |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[addEventListener(type, listener)](./uix-core.emitter.addeventlistener.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Subscribe to an event and receive an unsubscribe callback.
+
+
+</td></tr>
+<tr><td>
+
+[emit(type, detail)](./uix-core.emitter.emit.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+Convenience method to construct and dispatch custom events.
+
+
+</td></tr>
+</tbody></table>
 

@@ -13,9 +13,83 @@ export interface GuestConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [debug?](./uix-guest.guestconfig.debug.md) |  | boolean | _(Optional)_ Set debug flags on all libraries that have them, and add loggers to SDK objects. Log a lot to the console. |
-|  [id](./uix-guest.guestconfig.id.md) |  | string | String slug identifying extension. This may need to use IDs from an external system in the future. |
-|  [timeout?](./uix-guest.guestconfig.timeout.md) |  | number | _(Optional)_ Time out and stop trying to reach the host after this many milliseconds |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[debug?](./uix-guest.guestconfig.debug.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+_(Optional)_ Set debug flags on all libraries that have them, and add loggers to SDK objects. Log a lot to the console.
+
+
+</td></tr>
+<tr><td>
+
+[id](./uix-guest.guestconfig.id.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+String slug identifying extension. This may need to use IDs from an external system in the future.
+
+
+</td></tr>
+<tr><td>
+
+[timeout?](./uix-guest.guestconfig.timeout.md)
+
+
+</td><td>
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_ Time out and stop trying to reach the host after this many milliseconds
+
+
+</td></tr>
+</tbody></table>
 

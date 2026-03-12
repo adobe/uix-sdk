@@ -18,10 +18,102 @@ This interface is likely to expand. As the metadata from the extension registry 
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [configuration?](./uix-core.extension.configuration.md) |  | Record&lt;string, unknown&gt; | _(Optional)_ An extension configuration |
-|  [extensionPoints?](./uix-core.extension.extensionpoints.md) |  | string\[\] | _(Optional)_ extension points for this extension |
-|  [id](./uix-core.extension.id.md) |  | string | Unique ID of the extension. Must be unique across entire app |
-|  [url](./uix-core.extension.url.md) |  | string | Location of the document to load for the [GuestServer](./uix-guest.guestserver.md) |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[configuration?](./uix-core.extension.configuration.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, unknown&gt;
+
+
+</td><td>
+
+_(Optional)_ An extension configuration
+
+
+</td></tr>
+<tr><td>
+
+[extensionPoints?](./uix-core.extension.extensionpoints.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+_(Optional)_ extension points for this extension
+
+
+</td></tr>
+<tr><td>
+
+[id](./uix-core.extension.id.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Unique ID of the extension. Must be unique across entire app
+
+
+</td></tr>
+<tr><td>
+
+[url](./uix-core.extension.url.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Location of the document to load for the [GuestServer](./uix-guest.guestserver.md)
+
+
+</td></tr>
+</tbody></table>
 

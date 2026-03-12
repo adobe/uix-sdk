@@ -14,11 +14,121 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName">
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [appName?](./uix-host-react.extensibleprops.appname.md) |  | string | _(Optional)_ Unique name for identifying this extensible app. May be used as metadata in extension registry in the future. |
-|  [extensionsListCallback?](./uix-host-react.extensibleprops.extensionslistcallback.md) |  | (extensions: [InstalledExtensions](./uix-host.installedextensions.md)<!-- -->) =&gt; [InstalledExtensions](./uix-host.installedextensions.md) | _(Optional)_ |
-|  [extensionsProvider](./uix-host-react.extensibleprops.extensionsprovider.md) |  | [ExtensionsProvider](./uix-host.extensionsprovider.md) | Function which returns a promise for the full list of extensions. |
-|  [guestOptions?](./uix-host-react.extensibleprops.guestoptions.md) |  | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ |
-|  [sharedContext?](./uix-host-react.extensibleprops.sharedcontext.md) |  | [SharedContextValues](./uix-host.sharedcontextvalues.md) | _(Optional)_ |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[appName?](./uix-host-react.extensibleprops.appname.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+_(Optional)_ Unique name for identifying this extensible app. May be used as metadata in extension registry in the future.
+
+
+</td></tr>
+<tr><td>
+
+[extensionsListCallback?](./uix-host-react.extensibleprops.extensionslistcallback.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(extensions: [InstalledExtensions](./uix-host.installedextensions.md)<!-- -->) =&gt; [InstalledExtensions](./uix-host.installedextensions.md)
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[extensionsProvider](./uix-host-react.extensibleprops.extensionsprovider.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ExtensionsProvider](./uix-host.extensionsprovider.md)
+
+
+</td><td>
+
+Function which returns a promise for the full list of extensions.
+
+
+</td></tr>
+<tr><td>
+
+[guestOptions?](./uix-host-react.extensibleprops.guestoptions.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[PortOptions](./uix-host.portoptions.md)
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[sharedContext?](./uix-host-react.extensibleprops.sharedcontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[SharedContextValues](./uix-host.sharedcontextvalues.md)
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 

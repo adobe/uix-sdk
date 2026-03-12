@@ -35,7 +35,7 @@ import { debugGuest } from "./debug-guest.js";
  */
 export type GuestEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = NamedEvent<
   Type,
   Detail &
@@ -139,7 +139,7 @@ export class SharedContext<T> {
  * @internal
  */
 export class Guest<
-  App extends AppConnection
+  App extends AppConnection,
   //Incoming extends object = VirtualApi
 > extends Emitter<GuestEvents> {
   /**
@@ -204,9 +204,9 @@ export class Guest<
           () => `Calling ${formatHostMethodAddress(address)}`,
           this.invokeAwaiter(
             this.hostConnection.getRemoteApi().invokeHostMethod,
-            address
+            address,
           ),
-          10000
+          10000,
         );
         return result;
       } catch (e) {
@@ -215,7 +215,7 @@ export class Guest<
         this.logger.error(error);
         throw error;
       }
-    }
+    },
   );
 
   /**
@@ -223,7 +223,7 @@ export class Guest<
    */
   private async invokeChecker<T>(
     invoker: RemoteMethodInvoker<unknown>,
-    address: HostMethodAddress<unknown[]>
+    address: HostMethodAddress<unknown[]>,
   ): Promise<unknown> {
     try {
       const res = await invoker(address);
@@ -239,11 +239,11 @@ export class Guest<
    */
   private async invokeAwaiter(
     invoker: RemoteMethodInvoker<unknown>,
-    address: HostMethodAddress<unknown[]>
+    address: HostMethodAddress<unknown[]>,
   ): Promise<any> {
     const final = setTimeout(() => {
       return new Promise((resolve, reject) =>
-        reject(`${address} doesn't exist`)
+        reject(`${address} doesn't exist`),
       );
     }, 20000);
     const res = await this.invokeChecker(invoker, address);
@@ -293,7 +293,7 @@ export class Guest<
           timeout: this.timeout,
           logger: this.logger,
         },
-        this.getLocalMethods()
+        this.getLocalMethods(),
       );
 
       this.hostConnectionPromise = hostConnectionPromise;
@@ -306,7 +306,7 @@ export class Guest<
     }
     try {
       this.sharedContext = new SharedContext(
-        await this.hostConnection.getRemoteApi().getSharedContext()
+        await this.hostConnection.getRemoteApi().getSharedContext(),
       );
     } catch (e) {
       this.emit("error", { guest: this, error: e });

@@ -16,10 +16,55 @@ addEventListener<Type extends Events["type"], Event extends Extract<Events, {
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  type | Type | Event type |
-|  listener | (ev: Event) =&gt; unknown | Event handler |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+type
+
+
+</td><td>
+
+Type
+
+
+</td><td>
+
+Event type
+
+
+</td></tr>
+<tr><td>
+
+listener
+
+
+</td><td>
+
+(ev: Event) =&gt; unknown
+
+
+</td><td>
+
+Event handler
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

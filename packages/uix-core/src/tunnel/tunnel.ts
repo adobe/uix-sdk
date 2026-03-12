@@ -57,7 +57,7 @@ const badTargetOrigin =
 function isFromOrigin(
   event: MessageEvent,
   source: WindowProxy,
-  targetOrigin: string
+  targetOrigin: string,
 ) {
   try {
     return (
@@ -114,13 +114,13 @@ export class Tunnel extends EventEmitter {
   static toIframe(
     target: HTMLIFrameElement,
     options: Partial<TunnelConfig>,
-    versionCallback?: (version: string) => void
+    versionCallback?: (version: string) => void,
   ): Tunnel {
     if (!isIframe(target)) {
       throw new Error(
         `Provided tunnel target is not an iframe! ${Object.prototype.toString.call(
-          target
-        )}`
+          target,
+        )}`,
       );
     }
 
@@ -136,23 +136,23 @@ export class Tunnel extends EventEmitter {
       config.logger.log(
         `Tunnel to iframe at ${config.targetOrigin} destroyed!`,
         tunnel,
-        target
-      )
+        target,
+      ),
     );
     tunnel.on("connected", () =>
       config.logger.log(
         `Tunnel to iframe at ${config.targetOrigin} connected!`,
         tunnel,
-        target
-      )
+        target,
+      ),
     );
     tunnel.on("error", (e) =>
       config.logger.log(
         `Tunnel to iframe at ${config.targetOrigin} error!`,
         tunnel,
         target,
-        e
-      )
+        e,
+      ),
     );
     let frameStatusCheck: number;
     let timeout: number;
@@ -183,8 +183,8 @@ export class Tunnel extends EventEmitter {
     timeout = window.setTimeout(() => {
       tunnel.abort(
         new Error(
-          `Timed out awaiting initial message from target iframe after ${config.timeout}ms`
-        )
+          `Timed out awaiting initial message from target iframe after ${config.timeout}ms`,
+        ),
       );
     }, config.timeout);
 
@@ -200,7 +200,7 @@ export class Tunnel extends EventEmitter {
         cleanup();
         if (tunnel.isConnected) {
           const frameDisconnectError = new Error(
-            `Tunnel target iframe at ${tunnel.config.targetOrigin} was disconnected from the document!`
+            `Tunnel target iframe at ${tunnel.config.targetOrigin} was disconnected from the document!`,
           );
           Object.assign(frameDisconnectError, { target });
           tunnel.abort(frameDisconnectError);
@@ -234,13 +234,13 @@ export class Tunnel extends EventEmitter {
     const config = Tunnel._normalizeConfig(opts);
     const tunnel = new Tunnel(config);
     tunnel.on("destroyed", () =>
-      config.logger.log(`Tunnel ${key} to parent window destroyed!`, tunnel)
+      config.logger.log(`Tunnel ${key} to parent window destroyed!`, tunnel),
     );
     tunnel.on("connected", () =>
-      config.logger.log(`Tunnel ${key} to parent window connected!`, tunnel)
+      config.logger.log(`Tunnel ${key} to parent window connected!`, tunnel),
     );
     tunnel.on("error", (e) =>
-      config.logger.log(`Tunnel ${key} to parent window error!`, tunnel, e)
+      config.logger.log(`Tunnel ${key} to parent window error!`, tunnel, e),
     );
     const messenger = new TunnelMessenger({
       myOrigin: window.location.origin,
@@ -256,7 +256,7 @@ export class Tunnel extends EventEmitter {
         cleanup();
         if (!event.ports || !event.ports.length) {
           const portError = new Error(
-            "Received handshake accept message, but it did not include a MessagePort to establish tunnel"
+            "Received handshake accept message, but it did not include a MessagePort to establish tunnel",
           );
           tunnel.emitLocal("error", portError);
           return;
@@ -275,8 +275,8 @@ export class Tunnel extends EventEmitter {
         timedOut = true;
         tunnel.abort(
           new Error(
-            `Timed out waiting for initial response from parent after ${config.timeout}ms`
-          )
+            `Timed out waiting for initial response from parent after ${config.timeout}ms`,
+          ),
         );
       }
     }, config.timeout);
@@ -353,7 +353,7 @@ export class Tunnel extends EventEmitter {
   // #region Private Static Methods
 
   private static _normalizeConfig(
-    options: Partial<TunnelConfig> = {}
+    options: Partial<TunnelConfig> = {},
   ): TunnelConfig {
     let errorMessage = "";
     const config: Partial<TunnelConfig> = {

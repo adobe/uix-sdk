@@ -36,7 +36,7 @@ export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
         "❌ Failed to connect! %s",
         (error as Error).message,
         guest,
-        error
+        error,
       );
     });
 }

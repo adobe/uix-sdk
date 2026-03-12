@@ -62,7 +62,7 @@ export class ObjectSimulator implements Simulator {
 
   static create(
     emitter: EventEmitter,
-    Cleanup: CleanupNotifierConstructor
+    Cleanup: CleanupNotifierConstructor,
   ): ObjectSimulator {
     let simulator: Simulator;
     // proxy simulator, so as not to have cyclic dependency
@@ -103,7 +103,7 @@ export class ObjectSimulator implements Simulator {
       const cleanup = receiveCalls(
         boundFunction,
         fnTicket,
-        new WeakRef(this.subject)
+        new WeakRef(this.subject),
       );
       this.subject.onOutOfScope(fnTicket, cleanup);
       this.receiverTicketCache.set(boundFunction, fnTicket);
@@ -130,14 +130,14 @@ export class ObjectSimulator implements Simulator {
   materialize<T>(simulated: T) {
     return transformRecursive<CallableFunction>(
       this.makeSender,
-      simulated
+      simulated,
     ) as Materialized<T>;
   }
 
   simulate<T>(localObject: T) {
     return transformRecursive<DefMessage>(
       this.makeReceiver,
-      localObject
+      localObject,
     ) as Simulated<T>;
   }
 

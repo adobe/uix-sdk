@@ -156,7 +156,7 @@ const toBubbleStyle = memoizeUnary((theme: ThemeSpec): string[] => {
 function toBubblePrepender(
   bubbleLeft: string,
   bubbleRight: string,
-  theme: ThemeSpec
+  theme: ThemeSpec,
 ): LogDecorator {
   const prefix = `%c${bubbleLeft}%c ${bubbleRight}`;
   const [left, right] = toBubbleStyle(theme);
@@ -227,7 +227,7 @@ export interface DebugLogger extends Console {
 export function _customConsole(
   theme: Theme,
   type: string,
-  name: string
+  name: string,
 ): DebugLogger {
   const prepender = toBubblePrepender(`X${type}`, name, toTheme(theme));
   let statePrepender: LogDecorator = identity as LogDecorator;
@@ -269,7 +269,7 @@ export function _customConsole(
         },
       };
       return out;
-    }, loggerProto)
+    }, loggerProto),
   ) as DebugLogger;
   return customConsole;
 }

@@ -79,7 +79,7 @@ describe("function simulator exchanges functions and tickets", () => {
     expect(() =>
       objectSimulator.simulate({
         lol: Symbol("lol"),
-      })
+      }),
     ).toThrowError("Bad value");
   });
   it("passes through tickets when unexpected", () => {
@@ -96,12 +96,12 @@ describe("function simulator exchanges functions and tickets", () => {
     expect(() =>
       objectSimulator.simulate({
         lol: Symbol("lol"),
-      })
+      }),
     ).toThrowError("Bad value");
     expect(() =>
       objectSimulator.simulate({
         [Symbol("lol")]: "lol",
-      })
+      }),
     ).not.toThrowError();
   });
   it("can handle root functions", async () => {
@@ -238,8 +238,8 @@ describe("function simulator exchanges functions and tickets", () => {
     expect(
       Reflect.has(
         await (await (await unticketed.getPa()).getPa()).getPa(),
-        "getPa"
-      )
+        "getPa",
+      ),
     ).toBeTruthy();
   });
   it("Supports classes wrapped in other classes", async () => {

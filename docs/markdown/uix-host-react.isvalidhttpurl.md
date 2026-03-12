@@ -14,9 +14,39 @@ export declare function isValidHttpUrl(url: string): boolean;
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  url | string | The URL string to validate |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+url
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+The URL string to validate
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

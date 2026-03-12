@@ -14,10 +14,53 @@ export declare function useExtensions<Incoming extends GuestApis, Outgoing exten
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  configFactory | (host: [Host](./uix-host.host.md)<!-- -->) =&gt; [UseExtensionsConfig](./uix-host-react.useextensionsconfig.md)<!-- -->&lt;Incoming, Outgoing&gt; |  |
-|  deps | unknown\[\] | _(Optional)_ |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+configFactory
+
+
+</td><td>
+
+(host: [Host](./uix-host.host.md)<!-- -->) =&gt; [UseExtensionsConfig](./uix-host-react.useextensionsconfig.md)<!-- -->&lt;Incoming, Outgoing&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+deps
+
+
+</td><td>
+
+unknown\[\]
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

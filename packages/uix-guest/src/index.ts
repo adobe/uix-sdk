@@ -125,7 +125,7 @@ export async function attach(config: GuestConfig) {
  * @public
  */
 export async function register<App extends AppConnection>(
-  config: GuestConfigWithMethods<App["outgoing"]>
+  config: GuestConfigWithMethods<App["outgoing"]>,
 ) {
   const guest = new GuestServer<App>(config);
   guest.register(config.methods, config.metadata);
