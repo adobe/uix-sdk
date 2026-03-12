@@ -15,7 +15,11 @@ import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
 import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
-import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
+import {
+  makeSandboxAttrs,
+  requiredIframeProps,
+  isValidHttpUrl,
+} from "@adobe/uix-host";
 
 /**
  * @internal
@@ -98,11 +102,44 @@ export const GuestUIFrame = ({
   if (!host) {
     return null;
   }
+
   const guest = host.guests.get(guestId);
-  const readyUrl = src.startsWith("http") ? src : `https://${src}`;
-  const { href } = guest.url;
-  const readyHref = href.startsWith("http") ? href : `https://${href}`;
-  const frameUrl = new URL(readyUrl, readyHref);
+
+  // If guest failed to load (including URL validation failure), don't render
+  if (guest?.error) {
+    console.error(
+      `[UIX SDK] GuestUIFrame: Cannot render guest "${guestId}" - guest failed to load:`,
+      guest.error
+    );
+    return null;
+  }
+
+  // Validate and prepare src prop
+  let validSrc = src || "";
+  if (!isValidHttpUrl(validSrc)) {
+    // Try prepending https:// for convenience (e.g., "localhost:3000" → "https://localhost:3000")
+    const withHttps = `https://${validSrc}`;
+    if (!isValidHttpUrl(withHttps)) {
+      console.error(
+        `[UIX SDK] GuestUIFrame: Invalid src URL for guest "${guestId}": "${src}". ` +
+          `Only http:// and https:// protocols are allowed.`
+      );
+      return null;
+    }
+    validSrc = withHttps;
+  }
+
+  // Construct frame URL (guest.url.href is already validated in Host.loadOneGuest)
+  let frameUrl: URL;
+  try {
+    frameUrl = new URL(validSrc, guest.url.href);
+  } catch (error) {
+    console.error(
+      `[UIX SDK] GuestUIFrame: Failed to construct URL for guest "${guestId}":`,
+      error
+    );
+    return null;
+  }
 
   useEffect(() => {
     if (ref.current) {

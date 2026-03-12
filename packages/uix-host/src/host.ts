@@ -23,6 +23,7 @@ import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
 import { compareExtensions } from "./utils/compareExtensions.js";
+import { isValidHttpUrl } from "./utils/url-validation.js";
 
 /**
  * Dictionary of {@link Port} objects by extension ID.
@@ -463,10 +464,42 @@ export class Host extends Emitter<HostEvents> {
         ? extension.extensionPoints
         : [];
 
-      const readyExtUrl = extensionUrl.startsWith("http")
-        ? extensionUrl
-        : `https://${extensionUrl}`;
-      const url = new URL(readyExtUrl);
+      // Validate URL protocol before attempting to create URL object
+      if (!isValidHttpUrl(extensionUrl)) {
+        const error = new Error(
+          `Invalid extension URL for "${id}": "${extensionUrl}". Only http:// and https:// protocols are allowed.`
+        );
+
+        // Log to console for developer visibility (always visible, not just in debug mode)
+        console.error(`[UIX SDK] ${error.message}`);
+
+        // Create a Port with error set (so it's tracked as failed in the "failed" array)
+        guest = new Port({
+          owner: this.hostName,
+          id,
+          url: new URL("about:blank"), // Safe fallback URL since Port requires URL object
+          runtimeContainer: this.runtimeContainer,
+          options: {
+            ...this.guestOptions,
+            ...options,
+          },
+          logger: this.logger,
+          sharedContext: this.sharedContext,
+          configuration: extensionConfiguration,
+          extensionPoints,
+          events: this as Emits,
+        });
+        guest.error = error;
+        this.guests.set(id, guest);
+
+        // Emit error event (consistent with existing error handling at line 496)
+        this.emit("error", { host: this, guest, error });
+
+        // Return the failed port (don't throw - allow other extensions to load)
+        return guest;
+      }
+
+      const url = new URL(extensionUrl);
       guest = new Port({
         owner: this.hostName,
         id,

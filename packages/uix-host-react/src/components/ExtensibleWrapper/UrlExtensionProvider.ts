@@ -14,28 +14,17 @@
  * is strictly forbidden unless prior written permission is obtained
  * from Adobe.
  **************************************************************************/
-import { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
+import {
+  ExtensionsProvider,
+  InstalledExtensions,
+  isValidHttpUrl,
+} from "@adobe/uix-host";
 import { Extension } from "@adobe/uix-core";
 import { ExtensionPointId } from "./ExtensionManagerProvider";
 const EXT_PARAM_PREFIX = "ext";
 
 export interface ExtUrlParams {
   [key: string]: string;
-}
-
-/**
- * Validates if a URL is safe and only allows HTTP/HTTPS protocols
- * @param url - The URL string to validate
- * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
- */
-export function isValidHttpUrl(url: string): boolean {
-  try {
-    const parsedUrl = new URL(url);
-
-    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 /**
