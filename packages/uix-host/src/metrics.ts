@@ -10,19 +10,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import { Emitter } from "@adobe/uix-core";
-import type { HostEvents } from "./host.js";
 import type { Metrics } from "@adobe/exc-app/metrics";
 import MetricsApi from "@adobe/exc-app/metrics";
+import type { Emitter } from "@adobe/uix-core";
+import type { HostEvents } from "./host.js";
 
 type EventPayload = {
   event: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any;
 };
 
@@ -31,7 +30,7 @@ type EventPayload = {
  */
 class MetricsWrapper {
   private eventPool: EventPayload[] = [];
-  private metricsInstance?: Readonly<Metrics> | undefined = undefined;
+  private metricsInstance: Readonly<Metrics> | undefined = undefined;
 
   /**
    * Sends collected events to the metrics instance.
@@ -65,11 +64,12 @@ class MetricsWrapper {
   /**
    * Tracks an event using the metrics instance, or adds it to the event pool if no instance is set.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public event(event: string, args: any): void {
     if (this.metricsInstance) {
       this.metricsInstance.event(event, args);
     } else {
-      this.eventPool.push({ event, args });
+      this.eventPool.push({ args, event });
     }
   }
 }
@@ -90,12 +90,15 @@ const runtimeSpy = () => {
     // Timeout, time to hang up
     return;
   }
+
   if ("exc-module-runtime" in window) {
     metrics.mertricsInstance = createMetricsInstance();
     return;
   }
+
   setTimeout(runtimeSpy, 1000);
 };
+
 runtimeSpy();
 
 /**
@@ -103,13 +106,16 @@ runtimeSpy();
  *
  * @param host - The host emitter to attach the metrics to.
  */
-export function addMetrics(host: Emitter<HostEvents>): void {
+export const addMetrics = (host: Emitter<HostEvents>): void => {
   host.addEventListener("guestload", (evt) => {
     const guest = evt.detail.guest;
+
     if (seenGuests.has(guest)) {
       return;
     }
+
     seenGuests.add(guest);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const addGuestId = (payload: any): any => {
       payload["guestId"] = guest.id;
       return payload;
@@ -119,21 +125,23 @@ export function addMetrics(host: Emitter<HostEvents>): void {
 
     guest.addEventListener("beforecallguestmethod", (callDetails) => {
       const { path } = callDetails.detail;
+
       metrics.event(
         "callguestmethod",
         addGuestId({
           path: (path as string[]).join("."),
-        })
+        }),
       );
     });
     guest.addEventListener("beforecallhostmethod", (callDetails) => {
       const { path, name } = callDetails.detail;
+
       path.push(name);
       metrics.event(
         "callhostmethod",
         addGuestId({
           path: (path as string[]).join("."),
-        })
+        }),
       );
     });
   });
@@ -141,4 +149,4 @@ export function addMetrics(host: Emitter<HostEvents>): void {
   host.addEventListener("error", () => {
     metrics.event("error", {});
   });
-}
+};

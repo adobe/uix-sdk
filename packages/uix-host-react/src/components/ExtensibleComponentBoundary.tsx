@@ -13,13 +13,14 @@ governing permissions and limitations under the License.
 /**
  * @hidden
  */
-import React, { createContext } from "react";
 import type { PropsWithChildren } from "react";
-import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
+import React, { createContext } from "react";
+import type { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 
 /**
  * @internal
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const ExtensibleComponentBoundaryContext = createContext<
   ExtensionRegistryEndpointRegistration[]
 >(null as ExtensionRegistryEndpointRegistration[]);
@@ -37,10 +38,8 @@ export type ExtensibleComponentProps = PropsWithChildren<{
 export const ExtensibleComponentBoundary = ({
   extensionPoints,
   children,
-}: ExtensibleComponentProps) => {
-  return (
-    <ExtensibleComponentBoundaryContext.Provider value={extensionPoints}>
-      {children}
-    </ExtensibleComponentBoundaryContext.Provider>
-  );
-};
+}: ExtensibleComponentProps) => (
+  <ExtensibleComponentBoundaryContext.Provider value={extensionPoints}>
+    {children}
+  </ExtensibleComponentBoundaryContext.Provider>
+);

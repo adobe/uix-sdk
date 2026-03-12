@@ -11,18 +11,16 @@ governing permissions and limitations under the License.
 */
 
 import { useContext } from "react";
-import {
-  ExtensionContext,
-  ExtensibilityContext,
-} from "../extension-context.js";
+import type { ExtensibilityContext } from "../extension-context.js";
+import { ExtensionContext } from "../extension-context.js";
 
 /**
  * Indicates if external extensions provider was processed. Returns true after passing extension list to the Host.
  *
  * @beta
  */
-export function useExtensionListFetched(): boolean {
+export const useExtensionListFetched = (): boolean => {
   const extensionsInfo = useContext<ExtensibilityContext>(ExtensionContext);
 
   return extensionsInfo.extensionListFetched;
-}
+};

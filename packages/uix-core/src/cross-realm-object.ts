@@ -42,18 +42,19 @@ export interface CrossRealmObject<ExpectedApi> {
   getRemoteApi(): Asynced<ExpectedApi>;
 }
 
-async function setupApiExchange<T>(
+const setupApiExchange = async <T>(
   tunnel: Tunnel,
-  apiToSend: unknown
-): Promise<CrossRealmObject<T>> {
+  apiToSend: unknown,
+): Promise<CrossRealmObject<T>> => {
   let done = false;
   let remoteApi!: Asynced<T>;
   const xrObject: CrossRealmObject<T> = {
-    tunnel,
     getRemoteApi(): Asynced<T> {
       return remoteApi;
     },
+    tunnel,
   };
+
   return timeoutPromise(
     "Initial API exchange",
     new Promise((resolve, reject) => {
@@ -62,61 +63,71 @@ async function setupApiExchange<T>(
       const sendApi = simulator.makeSender(INIT_MESSAGE);
       const apiCallback = (api: Asynced<T>) => {
         remoteApi = api;
+
         if (!done) {
           done = true;
           resolve(xrObject);
         }
       };
+
       tunnel.on("api", apiCallback);
 
       const unsubscribe = receiveCalls(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         (api: Asynced<T>) => tunnel.emitLocal("api", api),
         INIT_TICKET,
-        new WeakRef(simulator.subject)
+        new WeakRef(simulator.subject),
       );
       const destroy = (e: Error) => {
         unsubscribe();
+
         if (!done) {
           done = true;
+
           if (e) {
             reject(e);
           }
         }
       };
+
       tunnel.on("destroyed", destroy);
       tunnel.on("connected", () =>
-        (sendApi as Function)(apiToSend).catch(destroy)
+        (sendApi as (...args: unknown[]) => Promise<unknown>)(apiToSend).catch(
+          destroy,
+        ),
       );
     }),
     tunnel.config.timeout,
     (e) => {
       tunnel.abort(e);
-    }
+    },
   );
-}
+};
 
 /**
  * Create a CrossRealmObject in an iframe, simulating objects from the parent window.
  * @alpha
  */
-export async function connectParentWindow<Expected>(
+export const connectParentWindow = async <Expected>(
   tunnelOptions: Partial<TunnelConfig>,
-  apiToSend: unknown
-): Promise<CrossRealmObject<Expected>> {
+  apiToSend: unknown,
+): Promise<CrossRealmObject<Expected>> => {
   const tunnel = Tunnel.toParent(window.parent, tunnelOptions);
+
   return setupApiExchange<Expected>(tunnel, apiToSend);
-}
+};
 
 /**
  * Create a CrossRealmObject simulating objects from the provided iframe runtime.
  * @alpha
  */
-export async function connectIframe<Expected>(
+export const connectIframe = async <Expected>(
   frame: HTMLIFrameElement,
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown,
-  versionCallback?: (version: string) => void
-): Promise<CrossRealmObject<Expected>> {
+  versionCallback?: (version: string) => void,
+): Promise<CrossRealmObject<Expected>> => {
   const tunnel = Tunnel.toIframe(frame, tunnelOptions, versionCallback);
+
   return setupApiExchange<Expected>(tunnel, apiToSend);
-}
+};

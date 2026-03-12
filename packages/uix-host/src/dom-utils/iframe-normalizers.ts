@@ -10,8 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { HTMLAttributeReferrerPolicy } from "react";
-import { AttrTokens, mergeAttrValues } from "./attribute-normalizers";
+import type { HTMLAttributeReferrerPolicy } from "react";
+import type { AttrTokens } from "./attribute-normalizers";
+import { mergeAttrValues } from "./attribute-normalizers";
 
 /**
  * Sandbox permissions that guest iframes are allowed to have.
@@ -49,8 +50,8 @@ export const requiredIframeProps = {
   // must not require this until app builder supports CSP
   // csp: "frame-ancestors 'self'",
   "data-uix-guest": "true",
-  role: "presentation",
   referrerPolicy: "strict-origin" as HTMLAttributeReferrerPolicy,
+  role: "presentation",
 };
 
 const requiredIframeAttrEntries = Object.entries(requiredIframeProps);

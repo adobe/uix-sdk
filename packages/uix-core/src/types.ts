@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
  * Extract keys of T whose values are are assignable to U.
  * @internal
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ExtractKeys<T, U> = {
   [P in keyof T]: T[P] extends U ? P : never;
 }[keyof T];
@@ -187,7 +188,7 @@ export type UIHostConnection<T = unknown> = HostConnection<T> & UIHostMethods;
 /** @public */
 export type GuestConnectionEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = NamedEvent<
   Type,
   Detail &
@@ -198,7 +199,7 @@ export type GuestConnectionEvent<
 
 /** @public */
 export type GuestConnectionEvents<
-  HostApi extends Record<string, unknown> = Record<string, unknown>
+  HostApi extends Record<string, unknown> = Record<string, unknown>,
 > =
   | GuestConnectionEvent<"hostprovide">
   | GuestConnectionEvent<"unload">
@@ -219,7 +220,7 @@ export interface GuestConnection {
   url: URL;
   attachUI(
     frame: HTMLIFrameElement,
-    privateMethods?: VirtualApi
+    privateMethods?: VirtualApi,
   ): Promise<unknown>;
   load(): Promise<unknown>;
   error?: Error;
@@ -251,7 +252,7 @@ export type Unsubscriber = () => void;
  */
 export type NamedEvent<
   Type extends string = string,
-  Detail = Record<string, unknown>
+  Detail = Record<string, unknown>,
 > = CustomEvent<Detail> & {
   readonly type: Type;
 };
@@ -260,21 +261,22 @@ export type NamedEvent<
  * Typed EventTarget
  * @internal
  */
-export interface Emits<Events extends NamedEvent = NamedEvent>
-  extends EventTarget {
+export interface Emits<
+  Events extends NamedEvent = NamedEvent,
+> extends EventTarget {
   id: string;
   /**
    * Same as EventTarget.addEventListener but returns an unsubscribe callback.
    */
   addEventListener<Type extends Events["type"]>(
     type: Type,
-    listener: (ev: Extract<Events, { type: Type }>) => unknown
+    listener: (ev: Extract<Events, { type: Type }>) => unknown,
   ): () => void;
   /**
    * Same as EventTarget.removeEventListener but typed.
    */
   removeEventListener<Type extends Events["type"]>(
     type: Type,
-    listener: (ev: Extract<Events, { type: Type }>) => unknown
+    listener: (ev: Extract<Events, { type: Type }>) => unknown,
   ): void;
 }

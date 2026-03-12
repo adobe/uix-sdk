@@ -11,13 +11,13 @@
  *
  * @internal
  */
-export function timeoutPromise<T>(
+export const timeoutPromise = <T>(
   describe: string | (() => string),
   promise: Promise<T>,
   ms: number,
-  onReject?: (e: Error) => void
-): Promise<T> {
-  return new Promise((resolve, reject) => {
+  onReject?: (e: Error) => void,
+): Promise<T> =>
+  new Promise((resolve, reject) => {
     const cleanupAndReject = async (e: Error) => {
       try {
         if (onReject) {
@@ -27,15 +27,17 @@ export function timeoutPromise<T>(
         reject(e);
       }
     };
+
     const timeout = setTimeout(() => {
       cleanupAndReject(
         new Error(
           `${
             typeof describe === "function" ? describe() : describe
-          } timed out after ${ms}ms`
-        )
+          } timed out after ${ms}ms`,
+        ),
       );
     }, ms);
+
     promise
       .then((result) => {
         clearTimeout(timeout);
@@ -46,4 +48,3 @@ export function timeoutPromise<T>(
         cleanupAndReject(e);
       });
   });
-}

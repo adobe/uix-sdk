@@ -6,16 +6,17 @@ describe("makeSandboxAttrs", () => {
       makeSandboxAttrs(
         "allow-scripts allow-popups",
         ["allow-downloads", "allow-orientation-lock", "allow-scripts"],
-        "allow-orientation-lock"
-      ).join(" ")
+        "allow-orientation-lock",
+      ).join(" "),
     ).toEqual(
-      "allow-scripts allow-popups allow-downloads allow-orientation-lock"
+      "allow-scripts allow-popups allow-downloads allow-orientation-lock",
     ));
 });
 
 describe("normalizeIframe", () => {
   it("applies required attributes and default sandbox to iframe", () => {
     const frame = document.createElement("iframe");
+
     normalizeIframe(frame);
     expect(frame).toMatchInlineSnapshot(`
       <iframe

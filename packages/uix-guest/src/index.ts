@@ -73,10 +73,11 @@ governing permissions and limitations under the License.
  * ```
  *
  */
-import type { Guest, GuestConfig, AppConnection } from "./guest.js";
-import { GuestUI } from "./guest-ui.js";
+import type { GuestApis, GuestMetadata } from "@adobe/uix-core";
+import type { AppConnection, Guest, GuestConfig } from "./guest.js";
 import { GuestServer } from "./guest-server.js";
-import { GuestApis, GuestMetadata, HostMethodAddress } from "@adobe/uix-core";
+import { GuestUI } from "./guest-ui.js";
+
 export type { AppConnection } from "./guest";
 /**
  * {@inheritdoc GuestConfig}
@@ -94,10 +95,11 @@ type GuestConfigWithMethods<Outgoing extends GuestApis> = GuestConfig & {
  * that resolve once the guest is connected.
  * @public
  */
-export function createGuest(config: GuestConfig) {
+export const createGuest = (config: GuestConfig) => {
   const guest = new GuestServer(config);
+
   return guest;
-}
+};
 
 /**
  * Connect to a running {@link GuestServer} to share its context and render UI.
@@ -109,11 +111,12 @@ export function createGuest(config: GuestConfig) {
  *
  * @public
  */
-export async function attach(config: GuestConfig) {
+export const attach = async (config: GuestConfig) => {
   const guest = new GuestUI(config);
+
   await guest._connect();
   return guest;
-}
+};
 
 /**
  * Initiate a connection to the host app and its extension points.
@@ -124,13 +127,14 @@ export async function attach(config: GuestConfig) {
  *
  * @public
  */
-export async function register<App extends AppConnection>(
-  config: GuestConfigWithMethods<App["outgoing"]>
-) {
+export const register = async <App extends AppConnection>(
+  config: GuestConfigWithMethods<App["outgoing"]>,
+) => {
   const guest = new GuestServer<App>(config);
+
   guest.register(config.methods, config.metadata);
   return guest;
-}
+};
 
 // backwards compatibility
 export {

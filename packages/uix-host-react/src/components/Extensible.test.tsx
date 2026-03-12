@@ -11,15 +11,16 @@ governing permissions and limitations under the License.
 */
 
 import React from "react";
-import { render, waitFor, cleanup } from "@testing-library/react";
-import { Extensible } from "./Extensible";
-import { Host } from "@adobe/uix-host";
 import type { InstalledExtensions } from "@adobe/uix-host";
+import { Host } from "@adobe/uix-host";
+import { cleanup, render, waitFor } from "@testing-library/react";
+import { Extensible } from "./Extensible";
 
 jest.mock("@adobe/uix-host");
 
 const MockedHost = Host as jest.MockedClass<typeof Host>;
 
+// eslint-disable-next-line max-lines-per-function
 describe("Extensible", () => {
   let mockUnload: jest.Mock;
   let mockLoad: jest.Mock;
@@ -34,14 +35,16 @@ describe("Extensible", () => {
     MockedHost.mockImplementation(
       () =>
         ({
-          unload: mockUnload,
-          load: mockLoad,
           addEventListener: jest.fn(),
+          load: mockLoad,
           removeEventListener: jest.fn(),
-        } as unknown as Host)
+          unload: mockUnload,
+        }) as unknown as Host,
     );
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
   });
 
   afterEach(() => {
@@ -60,7 +63,7 @@ describe("Extensible", () => {
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Wait for extensions to load and host to be created
@@ -89,7 +92,7 @@ describe("Extensible", () => {
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       await waitFor(() => {
@@ -110,7 +113,7 @@ describe("Extensible", () => {
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       unmount();
@@ -141,7 +144,7 @@ describe("Extensible", () => {
           sharedContext={{ theme: "light" }}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Wait for initial host creation
@@ -157,7 +160,7 @@ describe("Extensible", () => {
           sharedContext={{ theme: "dark" }}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Wait for old host to be unloaded and new host to be created
@@ -181,7 +184,7 @@ describe("Extensible", () => {
           debug={false}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       await waitFor(() => {
@@ -198,7 +201,7 @@ describe("Extensible", () => {
           debug={true}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Since debug is in the dependency array, the effect should re-run
@@ -233,7 +236,7 @@ describe("Extensible", () => {
           sharedContext={{ theme: "light" }}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       await waitFor(() => {
@@ -249,8 +252,8 @@ describe("Extensible", () => {
             sharedContext={{ theme: "dark" }}
           >
             <div>Test Child</div>
-          </Extensible>
-        )
+          </Extensible>,
+        ),
       ).not.toThrow();
 
       await waitFor(() => {
@@ -274,7 +277,7 @@ describe("Extensible", () => {
       const firstProviderPromise = new Promise<InstalledExtensions>(
         (resolve) => {
           firstResolve = resolve;
-        }
+        },
       );
 
       const firstProvider = jest.fn().mockReturnValue(firstProviderPromise);
@@ -283,14 +286,14 @@ describe("Extensible", () => {
       const { rerender } = render(
         <Extensible appName="test-app" extensionsProvider={firstProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Change the provider before the first one resolves
       rerender(
         <Extensible appName="test-app" extensionsProvider={secondProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Now resolve the first provider (after deps have changed)
@@ -317,7 +320,7 @@ describe("Extensible", () => {
       const firstProviderPromise = new Promise<InstalledExtensions>(
         (_resolve, reject) => {
           firstReject = reject;
-        }
+        },
       );
 
       const secondExtensions: InstalledExtensions = {
@@ -330,14 +333,14 @@ describe("Extensible", () => {
       const { rerender } = render(
         <Extensible appName="test-app" extensionsProvider={firstProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Change the provider before the first one completes
       rerender(
         <Extensible appName="test-app" extensionsProvider={secondProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Reject the first provider (simulating an error)
@@ -351,7 +354,7 @@ describe("Extensible", () => {
       // Console.error should not be called for the cancelled fetch
       expect(consoleErrorSpy).not.toHaveBeenCalledWith(
         "Fetching list of extensions failed!",
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -366,7 +369,7 @@ describe("Extensible", () => {
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Unmount before the promise resolves
@@ -397,12 +400,13 @@ describe("Extensible", () => {
       const firstProviderPromise = new Promise<InstalledExtensions>(
         (resolve) => {
           firstResolve = resolve;
-        }
+        },
       );
 
       const firstProvider = jest.fn().mockReturnValue(firstProviderPromise);
       const secondProvider = jest.fn().mockResolvedValue(secondExtensions);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const extensionsListCallback = jest.fn((exts) => exts);
 
       const { rerender } = render(
@@ -412,11 +416,13 @@ describe("Extensible", () => {
           extensionsListCallback={extensionsListCallback}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Change the callback (which is a dependency)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const newCallback = jest.fn((exts) => exts);
+
       rerender(
         <Extensible
           appName="test-app"
@@ -424,7 +430,7 @@ describe("Extensible", () => {
           extensionsListCallback={newCallback}
         >
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Resolve the first provider after deps changed
@@ -449,13 +455,13 @@ describe("Extensible", () => {
       const providers = Array.from({ length: 5 }, (_, i) =>
         jest.fn().mockResolvedValue({
           [`ext-${i}`]: { id: `ext-${i}`, url: `https://example.com/ext${i}` },
-        })
+        }),
       );
 
       const { rerender } = render(
         <Extensible appName="test-app" extensionsProvider={providers[0]}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Rapidly change providers
@@ -463,7 +469,7 @@ describe("Extensible", () => {
         rerender(
           <Extensible appName="test-app" extensionsProvider={providers[i]}>
             <div>Test Child</div>
-          </Extensible>
+          </Extensible>,
         );
       }
 
@@ -494,7 +500,7 @@ describe("Extensible", () => {
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
           <div>Test Child</div>
-        </Extensible>
+        </Extensible>,
       );
 
       // Unmount while fetch is still pending

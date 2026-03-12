@@ -1,4 +1,3 @@
-import { fireEvent } from "@testing-library/dom";
 import { wait } from "../promises/wait";
 import { Tunnel } from "./tunnel";
 import { TunnelMessenger } from "./tunnel-messenger";
@@ -25,26 +24,29 @@ const fakeConsole = {
 } as unknown as jest.Mocked<Console>;
 
 const defaultTunnelConfig = {
+  logger: fakeConsole,
   targetOrigin: "*",
   timeout: 4000,
-  logger: fakeConsole,
 };
 type TunnelHarness = { tunnel: Tunnel; port: MessagePort };
 const openPorts: MessagePort[] = [];
-function tunnelHarness(
+
+const tunnelHarness = (
   port: MessagePort,
-  config = defaultTunnelConfig
-): TunnelHarness {
+  config = defaultTunnelConfig,
+): TunnelHarness => {
   const tunnel = new Tunnel(config);
+
   openPorts.push(port);
   return {
-    tunnel,
     port,
+    tunnel,
   };
-}
+};
 
-async function testEventExchange(local: Tunnel, remote: Tunnel) {
+const testEventExchange = async (local: Tunnel, remote: Tunnel) => {
   const replyHandler = jest.fn();
+
   remote.on("outgoing", replyHandler);
   local.on("incoming", (data) => {
     local.emit("outgoing", {
@@ -57,13 +59,15 @@ async function testEventExchange(local: Tunnel, remote: Tunnel) {
   expect(replyHandler.mock.lastCall[0]).toMatchObject({
     reply: "Who goes there? It is I!",
   });
-}
+};
 
 describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   let local: TunnelHarness;
   let remote: TunnelHarness;
+
   beforeEach(() => {
     const channel = new MessageChannel();
+
     local = tunnelHarness(channel.port1);
     remote = tunnelHarness(channel.port2);
   });
@@ -71,6 +75,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     local.tunnel.connect(local.port);
     remote.tunnel.connect(remote.port);
   };
+
   afterEach(() => {
     while (openPorts.length > 0) {
       openPorts.pop().close();
@@ -78,13 +83,14 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   });
   it("receives MessageEvents and emits local events to listeners", async () => {
     const test1Handler = jest.fn();
+
     local.tunnel.on("test1", test1Handler);
     connectTunnels();
     remote.port.postMessage({
-      type: "test1",
       payload: {
         test1Payload: true,
       },
+      type: "test1",
     });
     await wait(100);
     expect(test1Handler).toHaveBeenCalled();
@@ -93,6 +99,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   it("exchanges connect events", async () => {
     const localConnectHandler = jest.fn();
     const remoteConnectHandler = jest.fn();
+
     local.tunnel.on("connected", localConnectHandler);
     remote.tunnel.on("connected", remoteConnectHandler);
     connectTunnels();
@@ -102,6 +109,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
   });
   it("#emitRemote() sends remote events after connect", async () => {
     const messageListener = jest.fn();
+
     remote.port.addEventListener("message", messageListener);
     connectTunnels();
     local.tunnel.emit("test2", { test2Payload: true });
@@ -109,30 +117,36 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     await wait(10);
     expect(messageListener).toHaveBeenCalledTimes(2);
     const test2MessageEvent = messageListener.mock.calls[0][0];
+
     expect(test2MessageEvent).toHaveProperty("data", {
-      type: "test2",
       payload: {
         test2Payload: true,
       },
+      type: "test2",
     });
     const test3MessageEvent = messageListener.mock.calls[1][0];
+
     expect(test3MessageEvent).toHaveProperty("data", {
-      type: "test3",
       payload: {
         test3Payload: true,
       },
+      type: "test3",
     });
   });
   it("exchanges events between two emitters sharing ports", async () => {
     connectTunnels();
     await testEventExchange(local.tunnel, remote.tunnel);
   });
+  // eslint-disable-next-line max-statements
   it("#connect(port) accepts a new messageport", async () => {
     const connectHandler = jest.fn();
+
     local.tunnel.on("connected", connectHandler);
     const confirmHandler = jest.fn();
+
     local.tunnel.on("confirm", confirmHandler);
     const dispelHandler = jest.fn();
+
     remote.tunnel.on("dispel", dispelHandler);
     connectTunnels();
     local.tunnel.emit("dispel", { dispelled: 1 });
@@ -142,6 +156,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     expect(dispelHandler).toHaveBeenCalledTimes(1);
 
     const replacementChannel = new MessageChannel();
+
     local.tunnel.connect(replacementChannel.port2);
 
     // this event should wait until remote connects port1;
@@ -174,6 +189,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
 describe("static Tunnel.toIframe(iframe, options)", () => {
   let localTunnel: Tunnel;
   let remoteTunnel: Tunnel;
+
   afterEach(() => {
     localTunnel && localTunnel.destroy();
     remoteTunnel && remoteTunnel.destroy();
@@ -184,12 +200,13 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
    * https://github.com/jsdom/jsdom/blob/22f7c3c51829a6f14387f7a99e5cdf087f72e685/lib/jsdom/living/post-message.js#L31-L37
    */
   describe.skip("creates a Tunnel connected to an iframe", () => {
+    // eslint-disable-next-line max-statements
     it("listens for handshakes from the frame window", async () => {
-      let remoteTunnel: Tunnel;
       const connectMessageHandler = jest.fn();
       const acceptListener = jest.fn();
       const targetOrigin = "https://example.com:4001";
       const loadedFrame = new FakeIframe() as unknown as HTMLIFrameElement;
+
       loadedFrame.src = targetOrigin;
       loadedFrame.contentWindow.addEventListener("message", acceptListener);
       const localTunnel = Tunnel.toIframe(loadedFrame, {
@@ -197,33 +214,29 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
         timeout: 9999,
       });
       const messenger = new TunnelMessenger({
+        logger: fakeConsole,
         myOrigin: "https://example.com",
         targetOrigin,
-        logger: fakeConsole,
       });
+
       localTunnel.on("connected", connectMessageHandler);
       await wait(100);
       window.postMessage(
         messenger.makeOffered("iframe-test-1"),
-        loadedFrame.src
+        loadedFrame.src,
       );
-      // fireEvent(
-      //   window,
-      //   new MessageEvent("message", {
-      //     data: messenger.makeOffered("iframe-test-1"),
-      //     origin: loadedFrame.src,
-      //     source: loadedFrame.contentWindow,
-      //   })
-      // );
       await wait(100);
       expect(acceptListener).toHaveBeenCalled();
       const acceptEvent = acceptListener.mock.lastCall[0];
+
       expect(acceptEvent).toHaveProperty(
         "data",
-        messenger.makeAccepted("iframe-test-1")
+        messenger.makeAccepted("iframe-test-1"),
       );
       expect(acceptEvent.ports).toHaveLength(1);
-      remoteTunnel = new Tunnel(defaultTunnelConfig);
+
+      const remoteTunnel = new Tunnel(defaultTunnelConfig);
+
       remoteTunnel.connect(acceptEvent.ports[0]);
       await wait(100);
       expect(connectMessageHandler).toHaveBeenCalledTimes(1);
