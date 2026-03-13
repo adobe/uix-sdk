@@ -9,14 +9,56 @@ Declares an extensible area in an app, and provides host and extension objects t
 **Signature:**
 
 ```typescript
-export declare function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }: PropsWithChildren<ExtensibleProps>): React.JSX.Element;
+export declare function Extensible(input: PropsWithChildren<ExtensibleProps>): React.JSX.Element;
 ```
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  { appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, } | PropsWithChildren&lt;[ExtensibleProps](./uix-host-react.extensibleprops.md)<!-- -->&gt; |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+{ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
+
+
+</td><td>
+
+PropsWithChildren&lt;[ExtensibleProps](./uix-host-react.extensibleprops.md)<!-- -->&gt;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

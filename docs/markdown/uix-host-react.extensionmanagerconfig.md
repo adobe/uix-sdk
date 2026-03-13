@@ -4,6 +4,7 @@
 
 ## ExtensionManagerConfig interface
 
+
 **Signature:**
 
 ```typescript
@@ -12,14 +13,164 @@ export interface ExtensionManagerConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [apiKey](./uix-host-react.extensionmanagerconfig.apikey.md) |  | string |  |
-|  [auth](./uix-host-react.extensionmanagerconfig.auth.md) |  | [AuthEMConfig](./uix-host-react.authemconfig.md) |  |
-|  [baseUrl](./uix-host-react.extensionmanagerconfig.baseurl.md) |  | string |  |
-|  [extensionPoint](./uix-host-react.extensionmanagerconfig.extensionpoint.md) |  | string |  |
-|  [imsOrg](./uix-host-react.extensionmanagerconfig.imsorg.md) |  | string |  |
-|  [scope?](./uix-host-react.extensionmanagerconfig.scope.md) |  | Record&lt;string, string&gt; | _(Optional)_ |
-|  [service](./uix-host-react.extensionmanagerconfig.service.md) |  | string |  |
-|  [version](./uix-host-react.extensionmanagerconfig.version.md) |  | string |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[apiKey](./uix-host-react.extensionmanagerconfig.apikey.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[auth](./uix-host-react.extensionmanagerconfig.auth.md)
+
+
+</td><td>
+
+
+</td><td>
+
+AuthEMConfig
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[baseUrl](./uix-host-react.extensionmanagerconfig.baseurl.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[extensionPoint](./uix-host-react.extensionmanagerconfig.extensionpoint.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[imsOrg](./uix-host-react.extensionmanagerconfig.imsorg.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[scope?](./uix-host-react.extensionmanagerconfig.scope.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Record&lt;string, string&gt;
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[service](./uix-host-react.extensionmanagerconfig.service.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[version](./uix-host-react.extensionmanagerconfig.version.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

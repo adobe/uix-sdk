@@ -6,58 +6,323 @@
 
 ## Classes
 
-|  Class | Description |
-|  --- | --- |
-|  [OutsideOfExtensionContextError](./uix-host-react.outsideofextensioncontexterror.md) |  |
+<table><thead><tr><th>
+
+Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[OutsideOfExtensionContextError](./uix-host-react.outsideofextensioncontexterror.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 
 ## Functions
 
-|  Function | Description |
-|  --- | --- |
-|  [buildExtensionManagerUrl(config)](./uix-host-react.buildextensionmanagerurl.md) | Builds the URL for fetching extensions from the Extension Manager service |
-|  [createExtensionManagerExtensionsProvider(discoveryConfig, authConfig, providerConfig, extensionPointId)](./uix-host-react.createextensionmanagerextensionsprovider.md) | Creates an extension manager extension provider  |
-|  [createUrlExtensionsProvider(extensionPointId, queryString)](./uix-host-react.createurlextensionsprovider.md) | Creates an ExtensionsProvider that provides extensions from the URL  |
-|  [Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, })](./uix-host-react.extensible.md) | Declares an extensible area in an app, and provides host and extension objects to all descendents. The [useExtensions()](./uix-host-react.useextensions.md) hook can only be called in a descendent of this component. |
-|  [ExtensibleComponentBoundary({ extensionPoints, children, })](./uix-host-react.extensiblecomponentboundary.md) | Wrapper that adds an extension point context to subcomponent tree. |
-|  [ExtensibleWrapper({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, })](./uix-host-react.extensiblewrapper.md) |  |
-|  [extractExtUrlParams(queryString)](./uix-host-react.extractexturlparams.md) | Extracts extension URLs from the query string  |
-|  [extractProgramIdEnvId(repo)](./uix-host-react.extractprogramidenvid.md) | Extracts programId and envId from the repo value |
-|  [fetchExtensionsFromExtensionManager(config)](./uix-host-react.fetchextensionsfromextensionmanager.md) |  |
-|  [generateExtensionId(extensionUrl)](./uix-host-react.generateextensionid.md) | Generates an extension ID from the extension URL  |
-|  [getExtensionManagerBaseUrl(environment, extensionManager)](./uix-host-react.getextensionmanagerbaseurl.md) |  |
-|  [getExtensionRegistryBaseUrl(environment, registry)](./uix-host-react.getextensionregistrybaseurl.md) |  |
-|  [GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps })](./uix-host-react.guestuiframe.md) | An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server. |
-|  [isValidHttpUrl(url)](./uix-host-react.isvalidhttpurl.md) | Validates if a URL is safe and only allows HTTP/HTTPS protocols |
-|  [mergeExtensions(appRegistryExtensions, extensionManagerExtensions, extensionPointId)](./uix-host-react.mergeextensions.md) | Takes an array of extensions from the App Registry, an array of extensions from the Extension Manager, and merges them into a list of Extensions. If an extension is disabled in the Extension Manager, it is removed from the list. Extension list from the App Registry is used as a base.  |
-|  [useExtensionListFetched()](./uix-host-react.useextensionlistfetched.md) | **_(BETA)_** Indicates if external extensions provider was processed. Returns true after passing extension list to the Host. |
-|  [useExtensions(configFactory, deps)](./uix-host-react.useextensions.md) | Fetch extensions which implement an API, provide them methods, and use them. |
-|  [useHost()](./uix-host-react.usehost.md) | **_(BETA)_** Retrieve the [Host](./uix-host.host.md) object hosting all extensions inside the current parent provider. |
+<table><thead><tr><th>
+
+Function
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }, input)](./uix-host-react.extensible.md)
+
+
+</td><td>
+
+Declares an extensible area in an app, and provides host and extension objects to all descendents. The [useExtensions()](./uix-host-react.useextensions.md) hook can only be called in a descendent of this component.
+
+
+</td></tr>
+<tr><td>
+
+[ExtensibleComponentBoundary({ extensionPoints, children, }, input)](./uix-host-react.extensiblecomponentboundary.md)
+
+
+</td><td>
+
+Wrapper that adds an extension point context to subcomponent tree.
+
+
+</td></tr>
+<tr><td>
+
+[ExtensibleWrapper({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }, input)](./uix-host-react.extensiblewrapper.md)
+
+
+</td><td>
+
+ExtensibleWrapper component that provides extension support to React applications.
+
+
+</td></tr>
+<tr><td>
+
+[GuestUIFrame({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }, input)](./uix-host-react.guestuiframe.md)
+
+
+</td><td>
+
+An iframe that attaches to a running GuestServer, to display visible UI pages delivered by the Extension server.
+
+
+</td></tr>
+<tr><td>
+
+[isValidHttpUrl(url)](./uix-host-react.isvalidhttpurl.md)
+
+
+</td><td>
+
+Validates if a URL is safe and only allows HTTP/HTTPS protocols
+
+
+</td></tr>
+<tr><td>
+
+[useExtensionListFetched()](./uix-host-react.useextensionlistfetched.md)
+
+
+</td><td>
+
+**_(BETA)_** Indicates if external extensions provider was processed. Returns true after passing extension list to the Host.
+
+
+</td></tr>
+<tr><td>
+
+[useExtensions(configFactory, deps)](./uix-host-react.useextensions.md)
+
+
+</td><td>
+
+Fetch extensions which implement an API, provide them methods, and use them.
+
+
+</td></tr>
+<tr><td>
+
+[useHost()](./uix-host-react.usehost.md)
+
+
+</td><td>
+
+**_(BETA)_** Retrieve the [Host](./uix-host.host.md) object hosting all extensions inside the current parent provider.
+
+
+</td></tr>
+</tbody></table>
 
 ## Interfaces
 
-|  Interface | Description |
-|  --- | --- |
-|  [AuthConfig](./uix-host-react.authconfig.md) | Authentication configuration, including IMS Org ID, access token, and API key |
-|  [DiscoveryConfig](./uix-host-react.discoveryconfig.md) | Discovery configuration, including environment and repo Id |
-|  [ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md) |  |
-|  [ExtensibleProps](./uix-host-react.extensibleprops.md) |  |
-|  [ExtensionManagerConfig](./uix-host-react.extensionmanagerconfig.md) |  |
-|  [ExtensionPointId](./uix-host-react.extensionpointid.md) | Extension point ID |
-|  [ExtensionProviderConfig](./uix-host-react.extensionproviderconfig.md) |  |
-|  [ExtensionsProviderConfig](./uix-host-react.extensionsproviderconfig.md) | Sets up new ExtensionsProvider with authentication and discovery information needed to fetch the list of Extensions from AppRegistry and Extension Manager service, along with the query string portion of URL to extract the information about development Extensions |
-|  [ExtUrlParams](./uix-host-react.exturlparams.md) |  |
-|  [GuestUIProps](./uix-host-react.guestuiprops.md) |  |
-|  [UseExtensionsConfig](./uix-host-react.useextensionsconfig.md) |  |
-|  [UseExtensionsResult](./uix-host-react.useextensionsresult.md) |  |
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[AuthConfig](./uix-host-react.authconfig.md)
+
+
+</td><td>
+
+Authentication configuration, including IMS Org ID, access token, and API key
+
+
+</td></tr>
+<tr><td>
+
+[DiscoveryConfig](./uix-host-react.discoveryconfig.md)
+
+
+</td><td>
+
+Discovery configuration, including environment and repo Id
+
+
+</td></tr>
+<tr><td>
+
+[ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensibleProps](./uix-host-react.extensibleprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionManagerConfig](./uix-host-react.extensionmanagerconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionPointId](./uix-host-react.extensionpointid.md)
+
+
+</td><td>
+
+Extension point ID
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionProviderConfig](./uix-host-react.extensionproviderconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionsProviderConfig](./uix-host-react.extensionsproviderconfig.md)
+
+
+</td><td>
+
+Sets up new ExtensionsProvider with authentication and discovery information needed to fetch the list of Extensions from AppRegistry and Extension Manager service, along with the query string portion of URL to extract the information about development Extensions
+
+
+</td></tr>
+<tr><td>
+
+[ExtUrlParams](./uix-host-react.exturlparams.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestUIProps](./uix-host-react.guestuiprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[UseExtensionsConfig](./uix-host-react.useextensionsconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[UseExtensionsResult](./uix-host-react.useextensionsresult.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 
 ## Type Aliases
 
-|  Type Alias | Description |
-|  --- | --- |
-|  [AuthEMConfig](./uix-host-react.authemconfig.md) |  |
-|  [ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md) |  |
-|  [ExtensionManagerExtension](./uix-host-react.extensionmanagerextension.md) |  |
-|  [ExtensionPoint](./uix-host-react.extensionpoint.md) |  |
-|  [FrameProps](./uix-host-react.frameprops.md) |  |
-|  [UseHostResponse](./uix-host-react.usehostresponse.md) |  |
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionManagerExtension](./uix-host-react.extensionmanagerextension.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[FrameProps](./uix-host-react.frameprops.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[UseHostResponse](./uix-host-react.usehostresponse.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 

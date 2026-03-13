@@ -41,7 +41,7 @@ describe("Extension Registry", () => {
           },
           status: "DRAFT",
         },
-      ])
+      ]),
     );
 
     const config = {

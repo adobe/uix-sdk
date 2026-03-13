@@ -41,7 +41,7 @@ describe("createUrlExtensionsProvider", () => {
       "ext=http://example1.com&ext.service1/name1/version1=http://example2.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
@@ -50,7 +50,7 @@ describe("createUrlExtensionsProvider", () => {
     expect(extensions).toHaveProperty("http___example2_com");
     expect(extensions["http___example2_com"]).toHaveProperty(
       "url",
-      "http://example2.com"
+      "http://example2.com",
     );
   });
 
@@ -58,7 +58,7 @@ describe("createUrlExtensionsProvider", () => {
     const queryString = "foo=bar&baz=qux";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
@@ -70,7 +70,7 @@ describe("createUrlExtensionsProvider", () => {
       "ext.service1/name1/version1=http://example1.com&ext.service2/name2/version2=https://www.test.";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();
@@ -81,7 +81,7 @@ describe("createUrlExtensionsProvider", () => {
     const queryString = "ext.service2.name2.version2=http://example1.com";
     const provider = createUrlExtensionsProvider(
       mockExtensionPointId,
-      queryString
+      queryString,
     );
 
     const extensions = await provider();

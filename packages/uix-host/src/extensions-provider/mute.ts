@@ -19,7 +19,7 @@ import { ExtensionsProvider } from "../host.js";
  * @public
  */
 export function mutedProvider(
-  provider: ExtensionsProvider
+  provider: ExtensionsProvider,
 ): ExtensionsProvider {
   return async () => {
     try {

@@ -61,7 +61,7 @@ export class Emitter<Events extends NamedEvent>
    */
   protected emit<Event extends Events>(
     type: Event["type"],
-    detail: Event["detail"]
+    detail: Event["detail"],
   ): void {
     const event = new CustomEvent<typeof detail>(type, { detail });
     this.dispatchEvent(event);
@@ -82,7 +82,7 @@ export class Emitter<Events extends NamedEvent>
    */
   addEventListener<
     Type extends Events["type"],
-    Event extends Extract<Events, { type: Type }>
+    Event extends Extract<Events, { type: Type }>,
   >(type: Type, listener: (ev: Event) => unknown): Unsubscriber {
     super.addEventListener(type, listener);
     return () => super.removeEventListener(type, listener);

@@ -56,53 +56,334 @@ A React binding is currently available. See [Extensible()](./uix-host-react.exte
 
 ## Classes
 
-|  Class | Description |
-|  --- | --- |
-|  [Host](./uix-host.host.md) | Manager object for connecting to [GuestServers](./uix-guest.guestserver.md) and [GuestUIs](./uix-guest.guestui.md)<!-- -->, providing and receiving their APIs, and providing them to the app for interacting with UI. |
-|  [Port](./uix-host.port.md) | A Port is the Host-maintained object representing an extension running as a guest. It exposes methods registered by the Guest, and can provide Host methods back to the guest. |
+<table><thead><tr><th>
+
+Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[Host](./uix-host.host.md)
+
+
+</td><td>
+
+Manager object for connecting to [GuestServers](./uix-guest.guestserver.md) and [GuestUIs](./uix-guest.guestui.md)<!-- -->, providing and receiving their APIs, and providing them to the app for interacting with UI.
+
+
+</td></tr>
+<tr><td>
+
+[Port](./uix-host.port.md)
+
+
+</td><td>
+
+A Port is the Host-maintained object representing an extension running as a guest. It exposes methods registered by the Guest, and can provide Host methods back to the guest.
+
+
+</td></tr>
+</tbody></table>
 
 ## Functions
 
-|  Function | Description |
-|  --- | --- |
-|  [combineExtensionsFromProviders(providers)](./uix-host.combineextensionsfromproviders.md) | Combine multiple [ExtensionsProvider](./uix-host.extensionsprovider.md) callbacks into a single callback, which aggregates and dedupes all extensions from all providers into one namespaced object. |
-|  [createExtensionRegistryAsObjectsProvider(config)](./uix-host.createextensionregistryasobjectsprovider.md) | Create a callback that fetches extensions as objects from the registry. |
-|  [createExtensionRegistryProvider(config)](./uix-host.createextensionregistryprovider.md) | Create a callback that fetches extensions from the registry. |
-|  [fetchExtensionsFromRegistry(config)](./uix-host.fetchextensionsfromregistry.md) |  |
-|  [mutedProvider(provider)](./uix-host.mutedprovider.md) | Mute any errors produced by provider. This function would execute given provider and return its results as is, if any error occurs this provider will log it any return an empty array of extensions. |
+<table><thead><tr><th>
+
+Function
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[combineExtensionsFromProviders(providers)](./uix-host.combineextensionsfromproviders.md)
+
+
+</td><td>
+
+Combine multiple [ExtensionsProvider](./uix-host.extensionsprovider.md) callbacks into a single callback, which aggregates and dedupes all extensions from all providers into one namespaced object.
+
+
+</td></tr>
+<tr><td>
+
+[createExtensionRegistryAsObjectsProvider(config)](./uix-host.createextensionregistryasobjectsprovider.md)
+
+
+</td><td>
+
+Create a callback that fetches extensions as objects from the registry.
+
+
+</td></tr>
+<tr><td>
+
+[createExtensionRegistryProvider(config)](./uix-host.createextensionregistryprovider.md)
+
+
+</td><td>
+
+Create a callback that fetches extensions from the registry.
+
+
+</td></tr>
+<tr><td>
+
+[fetchExtensionsFromRegistry(config)](./uix-host.fetchextensionsfromregistry.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[mutedProvider(provider)](./uix-host.mutedprovider.md)
+
+
+</td><td>
+
+Mute any errors produced by provider. This function would execute given provider and return its results as is, if any error occurs this provider will log it any return an empty array of extensions.
+
+
+</td></tr>
+</tbody></table>
 
 ## Interfaces
 
-|  Interface | Description |
-|  --- | --- |
-|  [ExtensionDefinition](./uix-host.extensiondefinition.md) |  |
-|  [ExtensionInfo](./uix-host.extensioninfo.md) |  |
-|  [ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md) |  |
-|  [ExtensionRegistryConnection](./uix-host.extensionregistryconnection.md) |  |
-|  [ExtensionRegistryEndpointRegistration](./uix-host.extensionregistryendpointregistration.md) |  |
-|  [ExtensionRegistryExtensionRegistration](./uix-host.extensionregistryextensionregistration.md) |  |
-|  [HostConfig](./uix-host.hostconfig.md) |  |
-|  [OperationDefinition](./uix-host.operationdefinition.md) |  |
-|  [OperationMetadata](./uix-host.operationmetadata.md) |  |
-|  [OperationProfile](./uix-host.operationprofile.md) |  |
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionRegistryConnection](./uix-host.extensionregistryconnection.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionRegistryEndpointRegistration](./uix-host.extensionregistryendpointregistration.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionRegistryExtensionRegistration](./uix-host.extensionregistryextensionregistration.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[HostConfig](./uix-host.hostconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 
 ## Type Aliases
 
-|  Type Alias | Description |
-|  --- | --- |
-|  [CapabilitySpec](./uix-host.capabilityspec.md) | A specifier for methods to be expected on a remote interface. |
-|  [EndpointDefinition](./uix-host.endpointdefinition.md) |  |
-|  [ExtensionsArray](./uix-host.extensionsarray.md) |  |
-|  [ExtensionsProvider](./uix-host.extensionsprovider.md) |  |
-|  [GuestFilter](./uix-host.guestfilter.md) | Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-host.host.getloadedguests_1.md) |
-|  [HostEvent](./uix-host.hostevent.md) |  |
-|  [HostEventContextChange](./uix-host.hosteventcontextchange.md) | Shared context has been set or updated; all guests receive this event too. |
-|  [HostEventError](./uix-host.hosteventerror.md) | An error has occurred during loading or unloading of guests. |
-|  [HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md) | All guests requested by host have been loaded and connected. |
-|  [HostEvents](./uix-host.hostevents.md) |  |
-|  [HostGuestEvent](./uix-host.hostguestevent.md) |  |
-|  [InstalledExtensions](./uix-host.installedextensions.md) |  |
-|  [PortMap](./uix-host.portmap.md) | Dictionary of [Port](./uix-host.port.md) objects by extension ID. |
-|  [PortOptions](./uix-host.portoptions.md) |  |
-|  [SharedContextValues](./uix-host.sharedcontextvalues.md) | Values for shared context. Must be a plain object, serializable to JSON. |
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[CapabilitySpec](./uix-host.capabilityspec.md)
+
+
+</td><td>
+
+A specifier for methods to be expected on a remote interface.
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionsArray](./uix-host.extensionsarray.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[ExtensionsProvider](./uix-host.extensionsprovider.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestFilter](./uix-host.guestfilter.md)
+
+
+</td><td>
+
+Callback to use to filter the list returned from [Host.getLoadedGuests()](./uix-host.host.getloadedguests_1.md)
+
+
+</td></tr>
+<tr><td>
+
+[HostEvent](./uix-host.hostevent.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[HostEventContextChange](./uix-host.hosteventcontextchange.md)
+
+
+</td><td>
+
+Shared context has been set or updated; all guests receive this event too.
+
+
+</td></tr>
+<tr><td>
+
+[HostEventError](./uix-host.hosteventerror.md)
+
+
+</td><td>
+
+An error has occurred during loading or unloading of guests.
+
+
+</td></tr>
+<tr><td>
+
+[HostEventLoadAllGuests](./uix-host.hosteventloadallguests.md)
+
+
+</td><td>
+
+All guests requested by host have been loaded and connected.
+
+
+</td></tr>
+<tr><td>
+
+[HostEvents](./uix-host.hostevents.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[HostGuestEvent](./uix-host.hostguestevent.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[InstalledExtensions](./uix-host.installedextensions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[PortMap](./uix-host.portmap.md)
+
+
+</td><td>
+
+Dictionary of [Port](./uix-host.port.md) objects by extension ID.
+
+
+</td></tr>
+<tr><td>
+
+[PortOptions](./uix-host.portoptions.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[SharedContextValues](./uix-host.sharedcontextvalues.md)
+
+
+</td><td>
+
+Values for shared context. Must be a plain object, serializable to JSON.
+
+
+</td></tr>
+</tbody></table>
 

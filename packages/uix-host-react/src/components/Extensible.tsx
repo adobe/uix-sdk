@@ -42,13 +42,13 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
    */
   sharedContext?: SharedContextValues;
   extensionsListCallback?: (
-    extensions: InstalledExtensions
+    extensions: InstalledExtensions,
   ) => InstalledExtensions;
 }
 
 function areExtensionsDifferent(
   set1: InstalledExtensions,
-  set2: InstalledExtensions
+  set2: InstalledExtensions,
 ) {
   const ids1 = Object.keys(set1).sort();
   const ids2 = Object.keys(set2).sort();

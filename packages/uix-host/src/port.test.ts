@@ -37,7 +37,7 @@ function createMockConnectIframe(guestVersion: string) {
         versionCallback(guestVersion);
       }
       return fakeCrossRealmObject;
-    }
+    },
   );
 }
 
@@ -134,7 +134,7 @@ describe("Port", () => {
       jest.advanceTimersByTime(6000);
 
       await expect(loadPromise).rejects.toThrow(
-        "did not send ready message within 5000ms"
+        "did not send ready message within 5000ms",
       );
     });
   });

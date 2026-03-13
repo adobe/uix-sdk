@@ -29,7 +29,7 @@ describe("promise wrappers", () => {
         "should not fail",
         wait(50).then(finish),
         100,
-        cleanup
+        cleanup,
       );
       jest.advanceTimersByTime(75);
       await expect(makesIt).resolves.toBe(DONE);
@@ -40,11 +40,11 @@ describe("promise wrappers", () => {
         "took too long",
         wait(200).then(finish),
         100,
-        cleanup
+        cleanup,
       );
       jest.advanceTimersByTime(200);
       await expect(makesIt).rejects.toThrowError(
-        "took too long timed out after 100ms"
+        "took too long timed out after 100ms",
       );
       expect(cleanup).toHaveBeenCalled();
     });
@@ -53,7 +53,7 @@ describe("promise wrappers", () => {
         "not a chance",
         Promise.reject(new Error("loool")),
         100,
-        cleanup
+        cleanup,
       );
       jest.advanceTimersByTime(50);
       await expect(ngmi).rejects.toThrowError("loool");

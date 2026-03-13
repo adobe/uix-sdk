@@ -14,15 +14,195 @@ export interface GuestUIProps extends FrameProps
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [guestId](./uix-host-react.guestuiprops.guestid.md) |  | string |  |
-|  [methods?](./uix-host-react.guestuiprops.methods.md) |  | VirtualApi | _(Optional)_ Host methods to provide only to the guest inside all iframes. |
-|  [onConnect?](./uix-host-react.guestuiprops.onconnect.md) |  | () =&gt; void | _(Optional)_ Receives the Penpal context when the frame is mounted. |
-|  [onConnectionError?](./uix-host-react.guestuiprops.onconnectionerror.md) |  | (error: Error) =&gt; void | _(Optional)_ Called when the connection process throws an exception |
-|  [onDisconnect?](./uix-host-react.guestuiprops.ondisconnect.md) |  | () =&gt; void | _(Optional)_ Called when the frame disconnects and unmounts. |
-|  [onResize?](./uix-host-react.guestuiprops.onresize.md) |  | (dimensions: UIFrameRect) =&gt; void | _(Optional)_ Called when the document in the iframe changes size. |
-|  [privateMethods?](./uix-host-react.guestuiprops.privatemethods.md) |  | VirtualApi | _(Optional)_ Host methods to provide only to the guest inside this iframe. |
-|  [sandbox?](./uix-host-react.guestuiprops.sandbox.md) |  | AttrTokens&lt;SandboxToken&gt; | _(Optional)_ Additional sandbox attributes GuestUIFrame might need. |
-|  [src](./uix-host-react.guestuiprops.src.md) |  | string | Optional custom URL or path. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[guestId](./uix-host-react.guestuiprops.guestid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[methods?](./uix-host-react.guestuiprops.methods.md)
+
+
+</td><td>
+
+
+</td><td>
+
+VirtualApi
+
+
+</td><td>
+
+_(Optional)_ Host methods to provide only to the guest inside all iframes.
+
+
+</td></tr>
+<tr><td>
+
+[onConnect?](./uix-host-react.guestuiprops.onconnect.md)
+
+
+</td><td>
+
+
+</td><td>
+
+() =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Receives the Penpal context when the frame is mounted.
+
+
+</td></tr>
+<tr><td>
+
+[onConnectionError?](./uix-host-react.guestuiprops.onconnectionerror.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(error: Error) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when the connection process throws an exception
+
+
+</td></tr>
+<tr><td>
+
+[onDisconnect?](./uix-host-react.guestuiprops.ondisconnect.md)
+
+
+</td><td>
+
+
+</td><td>
+
+() =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when the frame disconnects and unmounts.
+
+
+</td></tr>
+<tr><td>
+
+[onResize?](./uix-host-react.guestuiprops.onresize.md)
+
+
+</td><td>
+
+
+</td><td>
+
+(dimensions: UIFrameRect) =&gt; void
+
+
+</td><td>
+
+_(Optional)_ Called when the document in the iframe changes size.
+
+
+</td></tr>
+<tr><td>
+
+[privateMethods?](./uix-host-react.guestuiprops.privatemethods.md)
+
+
+</td><td>
+
+
+</td><td>
+
+VirtualApi
+
+
+</td><td>
+
+_(Optional)_ Host methods to provide only to the guest inside this iframe.
+
+
+</td></tr>
+<tr><td>
+
+[sandbox?](./uix-host-react.guestuiprops.sandbox.md)
+
+
+</td><td>
+
+
+</td><td>
+
+AttrTokens&lt;SandboxToken&gt;
+
+
+</td><td>
+
+_(Optional)_ Additional sandbox attributes GuestUIFrame might need.
+
+
+</td></tr>
+<tr><td>
+
+[src](./uix-host-react.guestuiprops.src.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Optional custom URL or path.
+
+
+</td></tr>
+</tbody></table>
 

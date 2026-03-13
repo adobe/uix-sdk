@@ -96,12 +96,12 @@ const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
   ({
     requires: {},
     provides: {},
-  } as UseExtensionsConfig<GuestApis, VirtualApi>);
+  }) as UseExtensionsConfig<GuestApis, VirtualApi>;
 
 describe("useExtension hook", () => {
   test("returns all extensions when no ExtensibleComponentBoundaryContext value is provided", () => {
     const { result } = renderHook(() =>
-      useExtensions<GuestApis, VirtualApi>(configFactory, [])
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
     );
     expect(result.current.extensions.length).toBe(5);
   });
@@ -123,7 +123,7 @@ describe("useExtension hook", () => {
 
     const { result } = renderHook(
       () => useExtensions<GuestApis, VirtualApi>(configFactory, []),
-      { wrapper }
+      { wrapper },
     );
 
     expect(result.current.extensions.length).toBe(3);
@@ -146,7 +146,7 @@ describe("useExtension hook", () => {
 
     const { result } = renderHook(
       () => useExtensions<GuestApis, VirtualApi>(configFactory, []),
-      { wrapper }
+      { wrapper },
     );
 
     expect(result.current.extensions.length).toBe(2);

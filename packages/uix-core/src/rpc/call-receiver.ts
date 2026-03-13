@@ -4,7 +4,7 @@ import type { RemoteSubject } from "../remote-subject";
 export function receiveCalls(
   fn: CallableFunction,
   ticket: DefTicket,
-  remote: WeakRef<RemoteSubject>
+  remote: WeakRef<RemoteSubject>,
 ) {
   const responder = async ({ fnId, callId, args }: CallArgsTicket) => {
     /* istanbul ignore next: should never happen */

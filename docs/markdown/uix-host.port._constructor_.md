@@ -25,7 +25,35 @@ constructor(config: {
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | { owner: string; id: string; url: URL; runtimeContainer: HTMLElement; options: [PortOptions](./uix-host.portoptions.md)<!-- -->; logger?: Console; sharedContext: Record&lt;string, unknown&gt;; configuration?: Record&lt;string, unknown&gt;; extensionPoints?: string\[\]; events: Emits; } |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+config
+
+
+</td><td>
+
+{ owner: string; id: string; url: URL; runtimeContainer: HTMLElement; options: [PortOptions](./uix-host.portoptions.md)<!-- -->; logger?: Console; sharedContext: Record&lt;string, unknown&gt;; configuration?: Record&lt;string, unknown&gt;; extensionPoints?: string\[\]; events: Emits; }
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

@@ -145,25 +145,25 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
    * {@inheritDoc Guest.contextchange}
    * @eventProperty
    */
-  public declare contextchange: GuestEventContextChange;
+  declare public contextchange: GuestEventContextChange;
   /**
    * {@inheritDoc Guest.beforeconnect}
    * @eventProperty
    */
-  public declare beforeconnect: GuestEventBeforeConnect;
+  declare public beforeconnect: GuestEventBeforeConnect;
   /**
    * {@inheritDoc Guest.connected}
    * @eventProperty
    */
-  public declare connected: GuestEventConnected;
+  declare public connected: GuestEventConnected;
   /**
    * {@inheritDoc Guest.error}
    * @eventProperty
    */
-  public declare error: GuestEventError;
+  declare public error: GuestEventError;
   /**
    * {@inheritDoc Guest.host}
    */
   declare host: IHost;
-  protected declare hostConnection: CrossRealmObject<UIHostConnection>;
+  declare protected hostConnection: CrossRealmObject<UIHostConnection>;
 }

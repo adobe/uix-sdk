@@ -70,7 +70,7 @@ export function debugHost(host: Emits<HostEvents>): EmitterDebugLogger {
           log.error("%d guests failed to load!", failed.length);
         }
         log.info("%d guests loaded", loaded.length, host);
-      }
+      },
     )
     .listen("unload", (log) => {
       log.info("Unloaded guest and container.");

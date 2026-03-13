@@ -30,5 +30,5 @@ export type ExtensibilityContext = {
  * @internal
  */
 export const ExtensionContext = createContext<ExtensibilityContext>(
-  {} as unknown as ExtensibilityContext
+  {} as unknown as ExtensibilityContext,
 );

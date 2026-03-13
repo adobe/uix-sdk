@@ -17,10 +17,51 @@ export declare function connectParentWindow<Expected>(tunnelOptions: Partial<Tun
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  tunnelOptions | Partial&lt;[TunnelConfig](./uix-core.tunnelconfig.md)<!-- -->&gt; |  |
-|  apiToSend | unknown |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+tunnelOptions
+
+
+</td><td>
+
+Partial&lt;[TunnelConfig](./uix-core.tunnelconfig.md)<!-- -->&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+apiToSend
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

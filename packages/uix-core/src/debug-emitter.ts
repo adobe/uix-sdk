@@ -24,7 +24,7 @@ export interface EmitterDebugLogger extends DebugLogger {
    */
   listen(
     type: string,
-    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown,
   ): this;
 }
 
@@ -40,13 +40,13 @@ export function debugEmitter(
     theme: Theme;
     type?: string;
     id?: string;
-  }
+  },
 ): EmitterDebugLogger {
   const logger = _customConsole(
     opts.theme,
     opts.type ||
       (Object.getPrototypeOf(emitter) as typeof emitter).constructor.name,
-    opts.id || emitter.id
+    opts.id || emitter.id,
   ) as EmitterDebugLogger;
   const oldDispatch = emitter.dispatchEvent;
   emitter.dispatchEvent = (event) => {
@@ -69,10 +69,10 @@ export function debugEmitter(
    */
   function listen(
     type: string,
-    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown
+    listener: (logger: EmitterDebugLogger, ev: CustomEvent) => unknown,
   ) {
     subscriptions.push(
-      emitter.addEventListener(type, (event) => listener(logger, event))
+      emitter.addEventListener(type, (event) => listener(logger, event)),
     );
     return logger;
   }

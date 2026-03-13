@@ -33,13 +33,69 @@ guest.sharedContext.get('someAuthToken') === 'abc'
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(values)](./uix-guest.sharedcontext._constructor_.md) |  | Constructs a new instance of the <code>SharedContext</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(values)](./uix-guest.sharedcontext._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `SharedContext` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [get(key)](./uix-guest.sharedcontext.get.md) |  | Retrieve a copy of a value from the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object. \*Note that this is not a reference to any actual objects from the parent. If the parent updates an "inner object" inside the SharedContext, that change will not be reflected in the Guest!\* |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[get(key)](./uix-guest.sharedcontext.get.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Retrieve a copy of a value from the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object. \*Note that this is not a reference to any actual objects from the parent. If the parent updates an "inner object" inside the SharedContext, that change will not be reflected in the Guest!\*
+
+
+</td></tr>
+</tbody></table>
 

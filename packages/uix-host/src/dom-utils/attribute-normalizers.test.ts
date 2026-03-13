@@ -20,7 +20,7 @@ describe("mergeAttrValues", () => {
         "blue red",
         "fish",
         ["two", "fish"],
-        joined
-      )
+        joined,
+      ),
     ).toEqual(list.concat("fish")));
 });

@@ -6,7 +6,7 @@ type RejectionPool = Set<(e: Error) => unknown>;
 class DisconnectionError extends Error {
   constructor() {
     super(
-      "Function belongs to a simulated remote object which has been disconnected! The tunnel may have been destroyed by page navigation or reload."
+      "Function belongs to a simulated remote object which has been disconnected! The tunnel may have been destroyed by page navigation or reload.",
     );
   }
 }
@@ -16,7 +16,7 @@ function dispatch(
   callTicket: CallArgsTicket,
   rejectionPool: RejectionPool,
   resolve: { (value: unknown): void; (arg0: any): void },
-  reject: { (reason?: string): void; (arg0: any): void }
+  reject: { (reason?: string): void; (arg0: any): void },
 ) {
   subject.onRespond(callTicket, (responseTicket) => {
     rejectionPool.delete(reject);
@@ -31,7 +31,7 @@ function dispatch(
 
 export function makeCallSender(
   { fnId }: DefTicket,
-  subjectRef: WeakRef<RemoteSubject>
+  subjectRef: WeakRef<RemoteSubject>,
 ) {
   let callCounter = 0;
   const rejectionPool: RejectionPool = new Set();
@@ -49,7 +49,7 @@ export function makeCallSender(
         callTicket,
         rejectionPool,
         resolve,
-        reject
+        reject,
       );
     });
   };

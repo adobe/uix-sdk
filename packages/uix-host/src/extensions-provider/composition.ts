@@ -25,6 +25,6 @@ export function combineExtensionsFromProviders(
     Promise.all(providers.map((ep: ExtensionsProvider) => ep())).then(
       (extensionsBatches: Array<InstalledExtensions>) => {
         return Object.assign({}, ...extensionsBatches);
-      }
+      },
     );
 }

@@ -14,10 +14,55 @@ protected emit<Event extends Events>(type: Event["type"], detail: Event["detail"
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  type | Event\["type"\] | Name of one of the allowed events this can emit |
-|  detail | Event\["detail"\] | Object to expose in the [CustomEvent\#detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) property. |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+type
+
+
+</td><td>
+
+Event\["type"\]
+
+
+</td><td>
+
+Name of one of the allowed events this can emit
+
+
+</td></tr>
+<tr><td>
+
+detail
+
+
+</td><td>
+
+Event\["detail"\]
+
+
+</td><td>
+
+Object to expose in the [CustomEvent\#detail](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) property.
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

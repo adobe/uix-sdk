@@ -4,6 +4,7 @@
 
 ## ExtensionManagerExtension type
 
+
 **Signature:**
 
 ```typescript
@@ -21,5 +22,3 @@ export type ExtensionManagerExtension = {
     configuration?: Record<string, unknown>;
 };
 ```
-**References:** [ExtensionPoint](./uix-host-react.extensionpoint.md)
-

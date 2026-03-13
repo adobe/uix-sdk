@@ -56,10 +56,14 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
-    extensions: InstalledExtensions
+    extensions: InstalledExtensions,
   ) => InstalledExtensions;
 }
 
+/**
+ * ExtensibleWrapper component that provides extension support to React applications.
+ * @public
+ */
 export const ExtensibleWrapper = ({
   appName,
   children,
@@ -108,12 +112,12 @@ export const ExtensibleWrapper = ({
         },
         authConfig,
         providerConfig,
-        extensionPointId
+        extensionPointId,
       );
 
     const extenstions = combineExtensionsFromProviders(
       urlExtensionsProvider,
-      mutedProvider(extensionManagerExtensionsProvider)
+      mutedProvider(extensionManagerExtensionsProvider),
     );
 
     return extenstions;

@@ -14,9 +14,37 @@ export declare function combineExtensionsFromProviders(...providers: Array<Exten
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  providers | Array&lt;[ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->&gt; |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+providers
+
+
+</td><td>
+
+Array&lt;[ExtensionsProvider](./uix-host.extensionsprovider.md)<!-- -->&gt;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

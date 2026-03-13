@@ -14,7 +14,35 @@ constructor(config: GuestConfig);
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [GuestConfig](./uix-guest.guestconfig.md) |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+config
+
+
+</td><td>
+
+[GuestConfig](./uix-guest.guestconfig.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

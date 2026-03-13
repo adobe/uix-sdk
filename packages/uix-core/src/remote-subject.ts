@@ -108,7 +108,7 @@ export class RemoteSubject {
 
   onCall(ticket: DefTicket, handler: (ticket: CallArgsTicket) => void) {
     return this.subscribe(`${ticket.fnId}_c`, (ticket: CallArgsTicket) =>
-      handler(this.processCallTicket(ticket, this.simulator.materialize))
+      handler(this.processCallTicket(ticket, this.simulator.materialize)),
     );
   }
 
@@ -127,7 +127,7 @@ export class RemoteSubject {
   onRespond(ticket: CallTicket, handler: (ticket: RespondTicket) => void) {
     const fnAndCall = `${ticket.fnId}${ticket.callId}`;
     return this.subscribeOnce(`${fnAndCall}_r`, (ticket: RespondTicket) =>
-      handler(this.processResponseTicket(ticket, this.simulator.materialize))
+      handler(this.processResponseTicket(ticket, this.simulator.materialize)),
     );
   }
 
@@ -135,14 +135,14 @@ export class RemoteSubject {
     const fnAndCall = `${ticket.fnId}${ticket.callId}`;
     return this.emitter.emit(
       `${fnAndCall}_r`,
-      this.processResponseTicket(ticket, this.simulator.simulate)
+      this.processResponseTicket(ticket, this.simulator.simulate),
     );
   }
 
   send(ticket: CallArgsTicket) {
     return this.emitter.emit(
       `${ticket.fnId}_c`,
-      this.processCallTicket(ticket, this.simulator.simulate)
+      this.processCallTicket(ticket, this.simulator.simulate),
     );
   }
 
@@ -152,7 +152,7 @@ export class RemoteSubject {
 
   private processCallTicket(
     { args, ...ticket }: CallArgsTicket,
-    mapper: Mapper
+    mapper: Mapper,
   ) {
     return {
       ...ticket,

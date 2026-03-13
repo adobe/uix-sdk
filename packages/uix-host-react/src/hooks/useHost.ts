@@ -42,7 +42,7 @@ export function useHost(): UseHostResponse {
 
   if (!(extensionsInfo.host instanceof Host)) {
     const error = new OutsideOfExtensionContextError(
-      "Attempt to use extensions outside of ExtensionContext. Wrap extensible part of application with Extensible component."
+      "Attempt to use extensions outside of ExtensionContext. Wrap extensible part of application with Extensible component.",
     );
     return {
       host: undefined,

@@ -30,7 +30,7 @@ export function hasProp(value: unknown, prop: string) {
 }
 
 export function isTunnelSource(
-  value: unknown
+  value: unknown,
 ): value is Window | ServiceWorker {
   return (
     value instanceof Window ||
@@ -48,7 +48,7 @@ export function isIframe(value: unknown): value is HTMLIFrameElement {
 }
 
 export function isObjectWithPrototype<T>(
-  value: unknown
+  value: unknown,
 ): value is T & { [key: string | symbol]: unknown } {
   if (!value || typeof value !== "object") {
     return false;

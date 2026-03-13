@@ -41,7 +41,7 @@ describe("a listener for remote calls to a local function", () => {
         ...call4Ticket,
         status: "resolve",
         value: expect.arrayContaining(["baa", "moo", "ahoy"]),
-      })
+      }),
     );
   });
   it("sends events notifying of rejections", async () => {
@@ -63,7 +63,7 @@ describe("a listener for remote calls to a local function", () => {
         ...call500Ticket,
         status: "reject",
         error: expect.any(Error),
-      })
+      }),
     );
   });
   it.skip("unsubscribes itself when receiving a cleanup event", async () => {

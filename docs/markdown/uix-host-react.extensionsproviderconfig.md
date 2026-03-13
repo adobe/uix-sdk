@@ -14,10 +14,100 @@ export interface ExtensionsProviderConfig
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [authConfig](./uix-host-react.extensionsproviderconfig.authconfig.md) |  | [AuthConfig](./uix-host-react.authconfig.md) | Authentication configuration |
-|  [discoveryConfig](./uix-host-react.extensionsproviderconfig.discoveryconfig.md) |  | [DiscoveryConfig](./uix-host-react.discoveryconfig.md) | Discovery configuration |
-|  [extensionPointId](./uix-host-react.extensionsproviderconfig.extensionpointid.md) |  | [ExtensionPointId](./uix-host-react.extensionpointid.md) | Extension point ID |
-|  [providerConfig](./uix-host-react.extensionsproviderconfig.providerconfig.md) |  | [ExtensionProviderConfig](./uix-host-react.extensionproviderconfig.md) |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[authConfig](./uix-host-react.extensionsproviderconfig.authconfig.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[AuthConfig](./uix-host-react.authconfig.md)
+
+
+</td><td>
+
+Authentication configuration
+
+
+</td></tr>
+<tr><td>
+
+[discoveryConfig](./uix-host-react.extensionsproviderconfig.discoveryconfig.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[DiscoveryConfig](./uix-host-react.discoveryconfig.md)
+
+
+</td><td>
+
+Discovery configuration
+
+
+</td></tr>
+<tr><td>
+
+[extensionPointId](./uix-host-react.extensionsproviderconfig.extensionpointid.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ExtensionPointId](./uix-host-react.extensionpointid.md)
+
+
+</td><td>
+
+Extension point ID
+
+
+</td></tr>
+<tr><td>
+
+[providerConfig](./uix-host-react.extensionsproviderconfig.providerconfig.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[ExtensionProviderConfig](./uix-host-react.extensionproviderconfig.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

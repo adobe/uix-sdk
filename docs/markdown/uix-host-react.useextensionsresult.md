@@ -13,9 +13,83 @@ export interface UseExtensionsResult<T extends GuestApis>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [error?](./uix-host-react.useextensionsresult.error.md) |  | Error | _(Optional)_ Populated with an Error if there were any problems during the load process. |
-|  [extensions](./uix-host-react.useextensionsresult.extensions.md) |  | TypedGuestConnection&lt;T&gt;\[\] | A list of loaded guests which implement the methods specified in <code>requires</code>, represented as [Port](./uix-host.port.md) objects which present methods to be called. |
-|  [loading](./uix-host-react.useextensionsresult.loading.md) |  | boolean | This is <code>true</code> until all extensions are loaded. Use for rendering spinners or other intermediate UI. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[error?](./uix-host-react.useextensionsresult.error.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Error
+
+
+</td><td>
+
+_(Optional)_ Populated with an Error if there were any problems during the load process.
+
+
+</td></tr>
+<tr><td>
+
+[extensions](./uix-host-react.useextensionsresult.extensions.md)
+
+
+</td><td>
+
+
+</td><td>
+
+TypedGuestConnection&lt;T&gt;\[\]
+
+
+</td><td>
+
+A list of loaded guests which implement the methods specified in `requires`<!-- -->, represented as [Port](./uix-host.port.md) objects which present methods to be called.
+
+
+</td></tr>
+<tr><td>
+
+[loading](./uix-host-react.useextensionsresult.loading.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+This is `true` until all extensions are loaded. Use for rendering spinners or other intermediate UI.
+
+
+</td></tr>
+</tbody></table>
 

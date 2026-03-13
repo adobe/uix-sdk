@@ -124,7 +124,7 @@ export const GuestUIFrame = ({
             const frameError = new Error(
               `GuestUIFrame connection failed: ${
                 (error && error.stack) || error
-              }`
+              }`,
             );
             Object.assign(frameError, {
               original: error,
@@ -153,7 +153,7 @@ export const GuestUIFrame = ({
           if (guestPort.id === guest.id && iframe === currentFrame) {
             onResize(dimensions);
           }
-        }
+        },
       );
     }
   }, [ref.current, guest.id, onResize]);

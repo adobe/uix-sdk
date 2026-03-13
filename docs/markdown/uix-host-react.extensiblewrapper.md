@@ -4,17 +4,61 @@
 
 ## ExtensibleWrapper() function
 
+ExtensibleWrapper component that provides extension support to React applications.
+
 **Signature:**
 
 ```typescript
-ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement
+ExtensibleWrapper: (input: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement
 ```
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  { appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, } | PropsWithChildren&lt;[ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md)<!-- -->&gt; |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+{ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
+
+
+</td><td>
+
+PropsWithChildren&lt;[ExtensibleDefaultProps](./uix-host-react.extensibledefaultprops.md)<!-- -->&gt;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

@@ -44,7 +44,7 @@ import { RemoteMethodInvoker } from "./types.js";
  */
 export function makeNamespaceProxy<ProxiedApi extends object>(
   invoke: RemoteMethodInvoker<unknown>,
-  path: string[] = []
+  path: string[] = [],
 ): ProxiedApi {
   const handler: ProxyHandler<Record<string, any>> = {
     get: (target, prop) => {
@@ -56,7 +56,7 @@ export function makeNamespaceProxy<ProxiedApi extends object>(
         return Reflect.get(target, prop) as unknown;
       } else {
         throw new Error(
-          `Cannot look up a symbol ${String(prop)} on a host connection proxy.`
+          `Cannot look up a symbol ${String(prop)} on a host connection proxy.`,
         );
       }
     },

@@ -14,13 +14,77 @@ export declare class OutsideOfExtensionContextError extends Error
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(msg)](./uix-host-react.outsideofextensioncontexterror._constructor_.md) |  | Constructs a new instance of the <code>OutsideOfExtensionContextError</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(msg)](./uix-host-react.outsideofextensioncontexterror._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `OutsideOfExtensionContextError` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [outsideOfExtensionContext](./uix-host-react.outsideofextensioncontexterror.outsideofextensioncontext.md) |  | boolean |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[outsideOfExtensionContext](./uix-host-react.outsideofextensioncontexterror.outsideofextensioncontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+boolean
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

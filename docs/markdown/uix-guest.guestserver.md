@@ -19,16 +19,127 @@ This is the Guest object returned from [register()](./uix-guest.register.md)<!--
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [host](./uix-guest.guestserver.host.md) |  | Guest&lt;App&gt;\["host"\] | Proxy object for calling methods on the host. |
-|  [metadata](./uix-guest.guestserver.metadata.md) |  | GuestMetadata |  |
-|  [sharedContext](./uix-guest.guestserver.sharedcontext.md) |  | [SharedContext](./uix-guest.sharedcontext.md)<!-- -->&lt;App\["sharedContext"\]&gt; |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[host](./uix-guest.guestserver.host.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Guest&lt;App&gt;\["host"\]
+
+
+</td><td>
+
+Proxy object for calling methods on the host.
+
+
+</td></tr>
+<tr><td>
+
+[metadata](./uix-guest.guestserver.metadata.md)
+
+
+</td><td>
+
+
+</td><td>
+
+GuestMetadata
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[sharedContext](./uix-guest.guestserver.sharedcontext.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[SharedContext](./uix-guest.sharedcontext.md)<!-- -->&lt;App\["sharedContext"\]&gt;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [getLocalMethods()](./uix-guest.guestserver.getlocalmethods.md) | <code>protected</code> |  |
-|  [register(implementedMethods, metadata)](./uix-guest.guestserver.register.md) |  | Pass an interface of methods which Host may call as callbacks. |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[getLocalMethods()](./uix-guest.guestserver.getlocalmethods.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[register(implementedMethods, metadata)](./uix-guest.guestserver.register.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Pass an interface of methods which Host may call as callbacks.
+
+
+</td></tr>
+</tbody></table>
 

@@ -14,10 +14,51 @@ register(implementedMethods: App["outgoing"], metadata: GuestMetadata): Promise<
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  implementedMethods | App\["outgoing"\] |  |
-|  metadata | GuestMetadata |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+implementedMethods
+
+
+</td><td>
+
+App\["outgoing"\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+metadata
+
+
+</td><td>
+
+GuestMetadata
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 
