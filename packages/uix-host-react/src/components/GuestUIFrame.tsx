@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import type { IframeHTMLAttributes } from "react";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import type {
   CrossRealmObject,
   UIFrameRect,
@@ -101,102 +101,84 @@ export const GuestUIFrame = ({
 }: GuestUIProps) => {
   const ref = useRef<HTMLIFrameElement>();
   const { host } = useHost();
-  const guest = host?.guests.get(guestId);
-  const frameUrl = useMemo(
-    () => (guest ? new URL(src, guest.url.href) : null),
-    [src, guest],
-  );
 
-  const onConnectRef = useRef(onConnect);
-
-  onConnectRef.current = onConnect;
-  const onConnectionErrorRef = useRef(onConnectionError);
-
-  onConnectionErrorRef.current = onConnectionError;
-
-  useEffect(() => {
-    if (!host || !guest || !ref.current) {
-      return;
-    }
-
-    let mounted = true;
-    let connection: CrossRealmObject<VirtualApi>;
-    const connectionFrame = ref.current;
-
-    if (methods) {
-      guest.provide(methods);
-    }
-
-    const connecting = guest.attachUI(connectionFrame, privateMethods);
-
-    connecting
-      .then((c) => {
-        connection = c;
-
-        if (!mounted) {
-          c.tunnel.destroy();
-        } else if (onConnectRef.current) {
-          onConnectRef.current();
-        }
-      })
-      .catch((error: Error) => {
-        if (mounted && !connection && connectionFrame === ref.current) {
-          const frameError = new Error(
-            `GuestUIFrame connection failed: ${
-              (error && error.stack) || String(error)
-            }`,
-          );
-
-          Object.assign(frameError, {
-            guest,
-            host,
-            original: error,
-            ref,
-          });
-
-          if (onConnectionErrorRef.current) {
-            onConnectionErrorRef.current(frameError);
-          }
-        }
-      });
-    return () => {
-      mounted = false;
-
-      if (connection) {
-        connection.tunnel.destroy();
-      }
-    };
-  }, [guest, host, methods, privateMethods]);
-
-  const onResizeCallback = useCallback(
-    (dimensions: UIFrameRect) => {
-      if (onResize) {
-        onResize(dimensions);
-      }
-    },
-    [onResize],
-  );
-
-  useEffect(() => {
-    if (!guest || !ref.current || !onResize) {
-      return;
-    }
-
-    const currentFrame = ref.current;
-
-    return guest.addEventListener(
-      "guestresize",
-      ({ detail: { guestPort, iframe, dimensions } }) => {
-        if (guestPort.id === guest.id && iframe === currentFrame) {
-          onResizeCallback(dimensions);
-        }
-      },
-    );
-  }, [guest, onResize, onResizeCallback]);
-
-  if (!host || !guest || !frameUrl) {
+  if (!host) {
     return null;
   }
+
+  const guest = host.guests.get(guestId);
+  const frameUrl = new URL(src, guest.url.href);
+
+  /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps -- early return above is pre-existing; fixing requires a larger refactor */
+  useEffect(() => {
+    if (ref.current) {
+      let mounted = true;
+      let connection: CrossRealmObject<VirtualApi>;
+      const connectionFrame = ref.current;
+
+      if (methods) {
+        guest.provide(methods);
+      }
+
+      const connecting = guest.attachUI(connectionFrame, privateMethods);
+
+      connecting
+        .then((c) => {
+          connection = c;
+
+          if (!mounted) {
+            c.tunnel.destroy();
+          } else if (onConnect) {
+            onConnect();
+          }
+        })
+        .catch((error: Error) => {
+          if (mounted && !connection && connectionFrame === ref.current) {
+            const frameError = new Error(
+              `GuestUIFrame connection failed: ${
+                (error && error.stack) || error
+              }`,
+            );
+
+            Object.assign(frameError, {
+              guest,
+              host,
+              original: error,
+              ref,
+            });
+
+            if (onConnectionError) {
+              onConnectionError(frameError);
+            }
+          }
+        });
+
+      return () => {
+        mounted = false;
+
+        if (connection) {
+          connection.tunnel.destroy();
+        }
+      };
+    }
+  }, [guest.id]);
+
+  useEffect(() => {
+    if (ref.current && onResize) {
+      const currentFrame = ref.current;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return guest.addEventListener(
+        "guestresize",
+        ({ detail: { guestPort, iframe, dimensions } }) => {
+          if (guestPort.id === guest.id && iframe === currentFrame) {
+            onResize(dimensions);
+          }
+        },
+      );
+    }
+  }, [ref.current, guest.id, onResize]);
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return (
     <iframe

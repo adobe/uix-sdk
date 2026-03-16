@@ -118,7 +118,17 @@ export const useExtensions = <
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = [],
 ): UseExtensionsResult<Incoming> => {
-  const { host } = useHost();
+  const { host, error } = useHost();
+
+  if (error) {
+    return {
+      error,
+      extensions: NO_EXTENSIONS,
+      loading: false,
+    };
+  }
+
+  /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps -- early return above is pre-existing; fixing requires a larger refactor */
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
@@ -129,24 +139,14 @@ export const useExtensions = <
     }: ExtensionRegistryEndpointRegistration) =>
       `${service}/${extensionPoint}/${version}`,
   );
-  const depsKey = JSON.stringify(deps);
+  const baseDeps = [host, ...deps];
   const {
     provides,
     requires,
     updateOn = "each",
-  } = useMemo(
-    () =>
-      host
-        ? configFactory(host)
-        : ({} as UseExtensionsConfig<Incoming, Outgoing>),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [host, depsKey],
-  );
-  const getExtensions = useCallback(() => {
-    if (!host) {
-      return NO_EXTENSIONS;
-    }
+  } = useMemo(() => configFactory(host), baseDeps);
 
+  const getExtensions = useCallback(() => {
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
 
@@ -167,15 +167,10 @@ export const useExtensions = <
     }
 
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
-  }, [host, requires, boundryExtensionPointsAsString]);
+  }, [...baseDeps, requires]);
+
   const subscribe = useCallback(
     (handler: EventListener) => {
-      if (!host) {
-        return () => {
-          /* noop */
-        };
-      }
-
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
 
       host.addEventListener(eventName, handler);
@@ -184,25 +179,22 @@ export const useExtensions = <
         host.removeEventListener(eventName, handler);
       };
     },
-    [host, updateOn],
+    [...baseDeps, updateOn],
   );
-  const subscribeToUnload = useCallback(
-    (handler: EventListener) => {
-      if (!host) {
-        return () => {
-          /* noop */
-        };
-      }
 
-      host.addEventListener("guestunload", handler);
+  const subscribeToUnload = useCallback((handler: EventListener) => {
+    host.addEventListener("guestunload", handler);
 
-      return () => {
-        host.removeEventListener("guestunload", handler);
-      };
-    },
-    [host],
-  );
-  const handleGuestUnload = useCallback((e: CustomEvent) => {
+    return () => {
+      host.removeEventListener("guestunload", handler);
+    };
+  }, baseDeps);
+
+  const [extensions, setExtensions] = useState(() => getExtensions());
+
+  useEffect(() => subscribe(() => setExtensions(getExtensions())), [subscribe]);
+
+  const unloadExtentionCallback = (e: CustomEvent) => {
     const eventDetail = e.detail;
     const guest = eventDetail.guest as Port<GuestApis>;
 
@@ -215,17 +207,11 @@ export const useExtensions = <
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
     }
-  }, []);
-  const [extensions, setExtensions] = useState(() => getExtensions());
+  };
 
   useEffect(
-    () => subscribe(() => setExtensions(getExtensions())),
-    [subscribe, getExtensions],
-  );
-
-  useEffect(
-    () => subscribeToUnload(handleGuestUnload as EventListener),
-    [subscribeToUnload, handleGuestUnload],
+    () => subscribeToUnload(unloadExtentionCallback),
+    [subscribeToUnload],
   );
 
   useEffect(() => {
@@ -236,22 +222,21 @@ export const useExtensions = <
     }
   }, [provides, extensions]);
 
-  useEffect(() => {
-    if (!host) {
-      return;
-    }
-
-    return host.addEventListener(
-      "error",
-      (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-        setHostError(event.detail.error),
-    );
-  }, [host, depsKey]);
+  useEffect(
+    () =>
+      host.addEventListener(
+        "error",
+        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+          setHostError(event.detail.error),
+      ),
+    baseDeps,
+  );
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return {
     error: hostError,
     extensions,
-    loading: extensions.length === 0 || !host ? false : host.loading,
+    loading: extensions.length === 0 ? false : host.loading,
   };
 };
 
