@@ -430,7 +430,6 @@ export class Port<_GuestApi = unknown>
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return subject;
   }
 

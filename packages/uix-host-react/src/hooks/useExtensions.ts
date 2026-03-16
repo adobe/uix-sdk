@@ -118,7 +118,7 @@ export const useExtensions = <
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = [],
 ): UseExtensionsResult<Incoming> => {
-  const { host, error } = useHost();
+  const { host } = useHost();
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
@@ -184,7 +184,7 @@ export const useExtensions = <
         host.removeEventListener(eventName, handler);
       };
     },
-    [...baseDeps, updateOn],
+    [host, updateOn],
   );
   const subscribeToUnload = useCallback(
     (handler: EventListener) => {
@@ -211,17 +211,10 @@ export const useExtensions = <
         const filtered = prevExtensions.filter(
           (ext) => ext.id !== guest.id || ext.url !== guest.url,
         );
+
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
     }
-
-    setExtensions((prevExtensions) => {
-      const filtered = prevExtensions.filter(
-        (ext) => ext.id !== guest.id || ext.url !== guest.url,
-      );
-
-      return filtered.length === 0 ? NO_EXTENSIONS : filtered;
-    });
   }, []);
   const [extensions, setExtensions] = useState(() => getExtensions());
 
@@ -243,15 +236,17 @@ export const useExtensions = <
     }
   }, [provides, extensions]);
 
-  useEffect(
-    () =>
-      host.addEventListener(
-        "error",
-        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error),
-      ),
-    baseDeps,
-  );
+  useEffect(() => {
+    if (!host) {
+      return;
+    }
+
+    return host.addEventListener(
+      "error",
+      (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+        setHostError(event.detail.error),
+    );
+  }, [host, depsKey]);
 
   return {
     error: hostError,
@@ -292,11 +287,9 @@ const getAllExtensionPointsFromGuest = (guest: Port<GuestApis>): string[] => {
 const isGuestExtensionPointInBoundary = (
   boundryExtensionPointsAsString: string[],
   guestExtensionPoints: string[],
-) {
-  return (
-    boundryExtensionPointsAsString?.length &&
-    guestExtensionPoints?.length &&
-    guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint),
-    )
+) =>
+  boundryExtensionPointsAsString?.length &&
+  guestExtensionPoints?.length &&
+  guestExtensionPoints.some((extensionPoint) =>
+    boundryExtensionPointsAsString.includes(extensionPoint),
   );

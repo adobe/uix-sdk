@@ -197,65 +197,6 @@ export const GuestUIFrame = ({
   if (!host || !guest || !frameUrl) {
     return null;
   }
-  const guest = host.guests.get(guestId);
-  const frameUrl = new URL(src, guest.url.href);
-
-  useEffect(() => {
-    if (ref.current) {
-      let mounted = true;
-      let connection: CrossRealmObject<VirtualApi>;
-      const connectionFrame = ref.current;
-      if (methods) {
-        guest.provide(methods);
-      }
-      const connecting = guest.attachUI(connectionFrame, privateMethods);
-      connecting
-        .then((c) => {
-          connection = c;
-          if (!mounted) {
-            c.tunnel.destroy();
-          } else if (onConnect) {
-            onConnect();
-          }
-        })
-        .catch((error: Error) => {
-          if (mounted && !connection && connectionFrame === ref.current) {
-            const frameError = new Error(
-              `GuestUIFrame connection failed: ${
-                (error && error.stack) || error
-              }`,
-            );
-            Object.assign(frameError, {
-              original: error,
-              ref,
-              guest,
-              host,
-            });
-            if (onConnectionError) onConnectionError(frameError);
-          }
-        });
-      return () => {
-        mounted = false;
-        if (connection) {
-          connection.tunnel.destroy();
-        }
-      };
-    }
-  }, [guest.id]);
-
-  useEffect(() => {
-    if (ref.current && onResize) {
-      const currentFrame = ref.current;
-      return guest.addEventListener(
-        "guestresize",
-        ({ detail: { guestPort, iframe, dimensions } }) => {
-          if (guestPort.id === guest.id && iframe === currentFrame) {
-            onResize(dimensions);
-          }
-        },
-      );
-    }
-  }, [ref.current, guest.id, onResize]);
 
   return (
     <iframe

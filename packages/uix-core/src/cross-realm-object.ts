@@ -92,7 +92,7 @@ const setupApiExchange = async <T>(
 
       tunnel.on("destroyed", destroy);
       tunnel.on("connected", () =>
-        (sendApi as Function)(apiToSend).catch(destroy),
+        (sendApi as (api: unknown) => Promise<void>)(apiToSend).catch(destroy),
       );
     }),
     tunnel.config.timeout,
@@ -109,11 +109,7 @@ const setupApiExchange = async <T>(
 export const connectParentWindow = async <Expected>(
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown,
-<<<<<<< HEAD
 ): Promise<CrossRealmObject<Expected>> => {
-=======
-): Promise<CrossRealmObject<Expected>> {
->>>>>>> main
   const tunnel = Tunnel.toParent(window.parent, tunnelOptions);
 
   return setupApiExchange<Expected>(tunnel, apiToSend);
@@ -128,11 +124,7 @@ export const connectIframe = async <Expected>(
   tunnelOptions: Partial<TunnelConfig>,
   apiToSend: unknown,
   versionCallback?: (version: string) => void,
-<<<<<<< HEAD
 ): Promise<CrossRealmObject<Expected>> => {
-=======
-): Promise<CrossRealmObject<Expected>> {
->>>>>>> main
   const tunnel = Tunnel.toIframe(frame, tunnelOptions, versionCallback);
 
   return setupApiExchange<Expected>(tunnel, apiToSend);

@@ -36,11 +36,7 @@ const dispatch = (
 export const makeCallSender = (
   { fnId }: DefTicket,
   subjectRef: WeakRef<RemoteSubject>,
-<<<<<<< HEAD
 ) => {
-=======
-) {
->>>>>>> main
   let callCounter = 0;
   const rejectionPool: RejectionPool = new Set();
 

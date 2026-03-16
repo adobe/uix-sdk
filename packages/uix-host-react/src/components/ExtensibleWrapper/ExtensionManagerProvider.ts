@@ -33,6 +33,7 @@ type ExtensionPoint = {
   extensionPoint: string;
   url: string;
 };
+
 /** @public */
 export type ExtensionManagerExtension = {
   id: string;
@@ -53,6 +54,7 @@ type AuthEMConfig = {
   schema: "Bearer" | "Basic";
   imsToken: string;
 };
+
 /** @public */
 export interface ExtensionManagerConfig {
   apiKey: string;
@@ -192,9 +194,9 @@ export const buildExtensionManagerUrl = (
 /**
  * @internal
  */
-export async function fetchExtensionsFromExtensionManager(
+export const fetchExtensionsFromExtensionManager = async (
   config: ExtensionManagerConfig,
-): Promise<ExtensionManagerExtension[]> {
+): Promise<ExtensionManagerExtension[]> => {
   const resp: Response = await fetch(buildExtensionManagerUrl(config), {
     headers: {
       Authorization: `Bearer ${config.auth.imsToken}`,

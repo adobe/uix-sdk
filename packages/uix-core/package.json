@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsup",
     "build:esm": "tsup --format esm,cjs",
-    "lint": "eslint src",
+    "lint": "eslint src --fix",
     "watch": "tsup --watch --silent"
   },
   "browserslist": [
