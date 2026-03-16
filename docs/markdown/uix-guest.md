@@ -67,36 +67,217 @@ if (!saved) {
 
 ## Classes
 
-|  Class | Description |
-|  --- | --- |
-|  [GuestServer](./uix-guest.guestserver.md) | A Guest to be used in the "main" or primary frame of an extension, the frame the Host loads first. |
-|  [GuestUI](./uix-guest.guestui.md) | A Guest to be used in an extension-controlled frame, usually to display UI. |
-|  [SharedContext](./uix-guest.sharedcontext.md) | A <code>Map</code> representing the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object. |
+<table><thead><tr><th>
+
+Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[GuestServer](./uix-guest.guestserver.md)
+
+
+</td><td>
+
+A Guest to be used in the "main" or primary frame of an extension, the frame the Host loads first.
+
+
+</td></tr>
+<tr><td>
+
+[GuestUI](./uix-guest.guestui.md)
+
+
+</td><td>
+
+A Guest to be used in an extension-controlled frame, usually to display UI.
+
+
+</td></tr>
+<tr><td>
+
+[SharedContext](./uix-guest.sharedcontext.md)
+
+
+</td><td>
+
+A `Map` representing the [HostConfig.sharedContext](./uix-host.hostconfig.sharedcontext.md) object.
+
+
+</td></tr>
+</tbody></table>
 
 ## Functions
 
-|  Function | Description |
-|  --- | --- |
-|  [attach(config)](./uix-guest.attach.md) | Connect to a running [GuestServer](./uix-guest.guestserver.md) to share its context and render UI. |
-|  [createGuest(config)](./uix-guest.createguest.md) | Create and immediately return a [GuestServer](./uix-guest.guestserver.md)<!-- -->. |
-|  [register(config)](./uix-guest.register.md) | Initiate a connection to the host app and its extension points. |
+<table><thead><tr><th>
+
+Function
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[attach(config)](./uix-guest.attach.md)
+
+
+</td><td>
+
+Connect to a running [GuestServer](./uix-guest.guestserver.md) to share its context and render UI.
+
+
+</td></tr>
+<tr><td>
+
+[createGuest(config)](./uix-guest.createguest.md)
+
+
+</td><td>
+
+Create and immediately return a [GuestServer](./uix-guest.guestserver.md)<!-- -->.
+
+
+</td></tr>
+<tr><td>
+
+[register(config)](./uix-guest.register.md)
+
+
+</td><td>
+
+Initiate a connection to the host app and its extension points.
+
+
+</td></tr>
+</tbody></table>
 
 ## Interfaces
 
-|  Interface | Description |
-|  --- | --- |
-|  [GuestConfig](./uix-guest.guestconfig.md) |  |
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[GuestConfig](./uix-guest.guestconfig.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 
 ## Type Aliases
 
-|  Type Alias | Description |
-|  --- | --- |
-|  [AppConnection](./uix-guest.appconnection.md) |  |
-|  [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md) |  |
-|  [GuestEvent](./uix-guest.guestevent.md) |  |
-|  [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md) |  |
-|  [GuestEventConnected](./uix-guest.guesteventconnected.md) |  |
-|  [GuestEventContextChange](./uix-guest.guesteventcontextchange.md) |  |
-|  [GuestEventError](./uix-guest.guesteventerror.md) |  |
-|  [GuestEvents](./uix-guest.guestevents.md) |  |
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[AppConnection](./uix-guest.appconnection.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEvent](./uix-guest.guestevent.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEventConnected](./uix-guest.guesteventconnected.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEventContextChange](./uix-guest.guesteventcontextchange.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEventError](./uix-guest.guesteventerror.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestEvents](./uix-guest.guestevents.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 

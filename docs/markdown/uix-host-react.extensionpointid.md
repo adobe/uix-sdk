@@ -14,9 +14,83 @@ export interface ExtensionPointId
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [name](./uix-host-react.extensionpointid.name.md) |  | string | Extension point name |
-|  [service](./uix-host-react.extensionpointid.service.md) |  | string | Service name |
-|  [version](./uix-host-react.extensionpointid.version.md) |  | string | Extension point version |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[name](./uix-host-react.extensionpointid.name.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Extension point name
+
+
+</td></tr>
+<tr><td>
+
+[service](./uix-host-react.extensionpointid.service.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Service name
+
+
+</td></tr>
+<tr><td>
+
+[version](./uix-host-react.extensionpointid.version.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+Extension point version
+
+
+</td></tr>
+</tbody></table>
 

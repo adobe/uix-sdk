@@ -20,6 +20,7 @@ import type { ExtensionPointId } from "./ExtensionManagerProvider";
 
 const EXT_PARAM_PREFIX = "ext";
 
+/** @public */
 export interface ExtUrlParams {
   [key: string]: string;
 }
@@ -28,6 +29,7 @@ export interface ExtUrlParams {
  * Validates if a URL is safe and only allows HTTP/HTTPS protocols
  * @param url - The URL string to validate
  * @returns true if the URL is valid and uses HTTP/HTTPS protocol, false otherwise
+ * @public
  */
 export const isValidHttpUrl = (url: string): boolean => {
   try {
@@ -41,7 +43,7 @@ export const isValidHttpUrl = (url: string): boolean => {
 
 /**
  * Extracts extension URLs from the query string
- * @ignore
+ * @internal
  */
 export const extractExtUrlParams = (
   queryString: string | undefined,
@@ -63,14 +65,14 @@ export const extractExtUrlParams = (
 
 /**
  * Generates an extension ID from the extension URL
- * @ignore
+ * @internal
  */
 export const generateExtensionId = (extensionUrl: string): string =>
   extensionUrl.replace(/\W/g, "_");
 
 /**
  * Creates an ExtensionsProvider that provides extensions from the URL
- * @ignore
+ * @internal
  */
 export const createUrlExtensionsProvider = (
   extensionPointId: ExtensionPointId,

@@ -248,10 +248,11 @@ export class Guest<
     invoker: RemoteMethodInvoker<unknown>,
     address: HostMethodAddress<unknown[]>,
   ): Promise<any> {
-    const final = setTimeout(
-      () => Promise.reject(`${address} doesn't exist`),
-      20000,
-    );
+    const final = setTimeout(() => {
+      return new Promise((resolve, reject) =>
+        reject(`${address} doesn't exist`),
+      );
+    }, 20000);
     const res = await this.invokeChecker(invoker, address);
 
     return new Promise((resolve) => {

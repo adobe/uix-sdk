@@ -68,23 +68,199 @@ export default function PopupOverlay(props) {
 
 ## Events
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [beforeconnect](./uix-guest.guestui.beforeconnect.md) |  | [GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md) | About to attempt connection to the host. |
-|  [connected](./uix-guest.guestui.connected.md) |  | [GuestEventConnected](./uix-guest.guesteventconnected.md) | Host connection has been established. |
-|  [contextchange](./uix-guest.guestui.contextchange.md) |  | [GuestEventContextChange](./uix-guest.guesteventcontextchange.md) | Shared context has been set or updated. |
-|  [error](./uix-guest.guestui.error.md) |  | [GuestEventError](./uix-guest.guesteventerror.md) | Host connection has failed. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[beforeconnect](./uix-guest.guestui.beforeconnect.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[GuestEventBeforeConnect](./uix-guest.guesteventbeforeconnect.md)
+
+
+</td><td>
+
+About to attempt connection to the host.
+
+
+</td></tr>
+<tr><td>
+
+[connected](./uix-guest.guestui.connected.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[GuestEventConnected](./uix-guest.guesteventconnected.md)
+
+
+</td><td>
+
+Host connection has been established.
+
+
+</td></tr>
+<tr><td>
+
+[contextchange](./uix-guest.guestui.contextchange.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[GuestEventContextChange](./uix-guest.guesteventcontextchange.md)
+
+
+</td><td>
+
+Shared context has been set or updated.
+
+
+</td></tr>
+<tr><td>
+
+[error](./uix-guest.guestui.error.md)
+
+
+</td><td>
+
+
+</td><td>
+
+[GuestEventError](./uix-guest.guesteventerror.md)
+
+
+</td><td>
+
+Host connection has failed.
+
+
+</td></tr>
+</tbody></table>
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(config)](./uix-guest.guestui._constructor_.md) |  | Constructs a new instance of the <code>GuestUI</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(config)](./uix-guest.guestui._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `GuestUI` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [host](./uix-guest.guestui.host.md) |  | IHost | Proxy object for calling methods on the host. |
-|  [hostConnection](./uix-guest.guestui.hostconnection.md) | <code>protected</code> | [CrossRealmObject](./uix-core.crossrealmobject.md)<!-- -->&lt;UIHostConnection&gt; |  |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[host](./uix-guest.guestui.host.md)
+
+
+</td><td>
+
+
+</td><td>
+
+IHost
+
+
+</td><td>
+
+Proxy object for calling methods on the host.
+
+
+</td></tr>
+<tr><td>
+
+[hostConnection](./uix-guest.guestui.hostconnection.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+[CrossRealmObject](./uix-core.crossrealmobject.md)<!-- -->&lt;UIHostConnection&gt;
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

@@ -98,7 +98,6 @@ jest.mocked(useHost).mockReturnValue({
 const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
   ({
     provides: {},
-    requires: {},
   }) as UseExtensionsConfig<GuestApis, VirtualApi>;
 
 describe("useExtension hook", () => {

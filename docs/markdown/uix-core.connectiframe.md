@@ -17,12 +17,81 @@ export declare function connectIframe<Expected>(frame: HTMLIFrameElement, tunnel
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  frame | HTMLIFrameElement |  |
-|  tunnelOptions | Partial&lt;[TunnelConfig](./uix-core.tunnelconfig.md)<!-- -->&gt; |  |
-|  apiToSend | unknown |  |
-|  versionCallback | (version: string) =&gt; void | _(Optional)_ |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+frame
+
+
+</td><td>
+
+HTMLIFrameElement
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+tunnelOptions
+
+
+</td><td>
+
+Partial&lt;[TunnelConfig](./uix-core.tunnelconfig.md)<!-- -->&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+apiToSend
+
+
+</td><td>
+
+unknown
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+versionCallback
+
+
+</td><td>
+
+(version: string) =&gt; void
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

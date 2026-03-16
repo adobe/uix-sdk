@@ -21,28 +21,257 @@ When the Host object loads extensions via [Host.load()](./uix-host.host.load.md)
 
 ## Constructors
 
-|  Constructor | Modifiers | Description |
-|  --- | --- | --- |
-|  [(constructor)(config)](./uix-host.port._constructor_.md) |  | Constructs a new instance of the <code>Port</code> class |
+<table><thead><tr><th>
+
+Constructor
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[(constructor)(config)](./uix-host.port._constructor_.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Constructs a new instance of the `Port` class
+
+
+</td></tr>
+</tbody></table>
 
 ## Properties
 
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [apis](./uix-host.port.apis.md) | <code>readonly</code> | VirtualApi |  |
-|  [error?](./uix-host.port.error.md) |  | Error | _(Optional)_ If any errors occurred during the loading of guests, this property will contain the error that was raised. |
-|  [extensionPoints](./uix-host.port.extensionpoints.md) |  | string\[\] |  |
-|  [metadata](./uix-host.port.metadata.md) | <code>readonly</code> | GuestMetadata |  |
-|  [url](./uix-host.port.url.md) |  | URL | The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads. |
+<table><thead><tr><th>
+
+Property
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[apis](./uix-host.port.apis.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+VirtualApi
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[error?](./uix-host.port.error.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Error
+
+
+</td><td>
+
+_(Optional)_ If any errors occurred during the loading of guests, this property will contain the error that was raised.
+
+
+</td></tr>
+<tr><td>
+
+[extensionPoints](./uix-host.port.extensionpoints.md)
+
+
+</td><td>
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[metadata](./uix-host.port.metadata.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+GuestMetadata
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[url](./uix-host.port.url.md)
+
+
+</td><td>
+
+
+</td><td>
+
+URL
+
+
+</td><td>
+
+The URL of the guest provided by the extension registry. The Host will load this URL in the background, in the invisible the bootstrap frame, so this URL must point to a page that calls [register()](./uix-guest.register.md) when it loads.
+
+
+</td></tr>
+</tbody></table>
 
 ## Methods
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [attachUI(iframe, privateMethods)](./uix-host.port.attachui.md) |  | Connect an iframe element which is displaying another page in the extension with the extension's bootstrap frame, so they can share context and events. |
-|  [hasCapabilities(requiredCapabilities)](./uix-host.port.hascapabilities.md) |  | Returns true if the guest has registered methods matching the provided capability spec. A capability spec is simply an object whose properties are declared in an array of keys, description the names of the functions and methods that the Port will expose. |
-|  [isReady()](./uix-host.port.isready.md) |  | True when all extensions have loaded. |
-|  [load()](./uix-host.port.load.md) |  | Loads the extension. Returns a promise which resolves when the extension has loaded. The Host calls this method after retrieving extensions. |
-|  [provide(apis)](./uix-host.port.provide.md) |  | The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. Merges at the first level, the API level. Overwrites a deeper levels. |
-|  [unload()](./uix-host.port.unload.md) |  | Disconnect from the extension. |
+<table><thead><tr><th>
+
+Method
+
+
+</th><th>
+
+Modifiers
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[attachUI(iframe, privateMethods)](./uix-host.port.attachui.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Connect an iframe element which is displaying another page in the extension with the extension's bootstrap frame, so they can share context and events.
+
+
+</td></tr>
+<tr><td>
+
+[hasCapabilities(requiredCapabilities)](./uix-host.port.hascapabilities.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Returns true if the guest has registered methods matching the provided capability spec. A capability spec is simply an object whose properties are declared in an array of keys, description the names of the functions and methods that the Port will expose.
+
+
+</td></tr>
+<tr><td>
+
+[isReady()](./uix-host.port.isready.md)
+
+
+</td><td>
+
+
+</td><td>
+
+True when all extensions have loaded.
+
+
+</td></tr>
+<tr><td>
+
+[load()](./uix-host.port.load.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Loads the extension. Returns a promise which resolves when the extension has loaded. The Host calls this method after retrieving extensions.
+
+
+</td></tr>
+<tr><td>
+
+[provide(apis)](./uix-host.port.provide.md)
+
+
+</td><td>
+
+
+</td><td>
+
+The host-side equivalent of [register()](./uix-guest.register.md)<!-- -->. Pass a set of methods down to the guest as proxies. Merges at the first level, the API level. Overwrites a deeper levels.
+
+
+</td></tr>
+<tr><td>
+
+[unload()](./uix-host.port.unload.md)
+
+
+</td><td>
+
+
+</td><td>
+
+Disconnect from the extension.
+
+
+</td></tr>
+</tbody></table>
 

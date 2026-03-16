@@ -14,7 +14,35 @@ constructor(config: HostConfig);
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [HostConfig](./uix-host.hostconfig.md) |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+config
+
+
+</td><td>
+
+[HostConfig](./uix-host.hostconfig.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 

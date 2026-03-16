@@ -14,9 +14,37 @@ provide(apis: VirtualApi): void;
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  apis | VirtualApi |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+apis
+
+
+</td><td>
+
+VirtualApi
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

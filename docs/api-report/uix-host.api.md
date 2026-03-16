@@ -157,7 +157,7 @@ export type HostEvents = HostGuestEvent<"beforeload"> | HostGuestEvent<"load"> |
 export type InstalledExtensions = Record<Extension["id"], Extension["url"] | Extension>;
 
 // @internal
-export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-presentation" | "allow-same-origin" | "allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
+export const makeSandboxAttrs: (...sandboxes: AttrTokens<SandboxToken>[]) => ("allow-downloads" | "allow-orientation-lock" | "allow-pointer-lock" | "allow-popups" | "allow-presentation" | "allow-same-origin" | "allow-scripts" | "allow-storage-access-by-user-activation" | "allow-top-navigation-by-user-activation")[];
 
 // @internal
 export const mergeAttrValues: <T>(...tokenLists: AttrTokens<T>[]) => T[];
@@ -227,10 +227,10 @@ export const tokenizeAttrValues: <T>(tokens: AttrTokens<T>) => T[];
 
 // Warnings were encountered during analysis:
 //
-// src/extensions-provider/extension-registry.ts:21:3 - (ae-forgotten-export) The symbol "EndpointDefinition" needs to be exported by the entry point index.d.ts
-// src/extensions-provider/extension-registry.ts:22:3 - (ae-forgotten-export) The symbol "ExtensionInfo" needs to be exported by the entry point index.d.ts
-// src/extensions-provider/extension-registry.ts:26:1 - (ae-forgotten-export) The symbol "OperationDefinition" needs to be exported by the entry point index.d.ts
-// src/extensions-provider/extension-registry.ts:35:3 - (ae-forgotten-export) The symbol "OperationMetadata" needs to be exported by the entry point index.d.ts
-// src/extensions-provider/extension-registry.ts:40:3 - (ae-forgotten-export) The symbol "OperationProfile" needs to be exported by the entry point index.d.ts
+// src/extensions-provider/extension-registry.ts:22:3 - (ae-forgotten-export) The symbol "EndpointDefinition" needs to be exported by the entry point index.d.ts
+// src/extensions-provider/extension-registry.ts:23:3 - (ae-forgotten-export) The symbol "ExtensionInfo" needs to be exported by the entry point index.d.ts
+// src/extensions-provider/extension-registry.ts:28:1 - (ae-forgotten-export) The symbol "OperationDefinition" needs to be exported by the entry point index.d.ts
+// src/extensions-provider/extension-registry.ts:39:3 - (ae-forgotten-export) The symbol "OperationMetadata" needs to be exported by the entry point index.d.ts
+// src/extensions-provider/extension-registry.ts:45:3 - (ae-forgotten-export) The symbol "OperationProfile" needs to be exported by the entry point index.d.ts
 
 ```

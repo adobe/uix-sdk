@@ -9,14 +9,56 @@ An iframe that attaches to a running GuestServer, to display visible UI pages de
 **Signature:**
 
 ```typescript
-GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => React.JSX.Element
+GuestUIFrame: (input: GuestUIProps) => React.JSX.Element
 ```
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  { guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps } | [GuestUIProps](./uix-host-react.guestuiprops.md) |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+{ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }
+
+
+</td><td>
+
+(not declared)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+input
+
+
+</td><td>
+
+[GuestUIProps](./uix-host-react.guestuiprops.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 

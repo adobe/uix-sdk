@@ -12,6 +12,7 @@ governing permissions and limitations under the License.
 
 import type { ExtensionsProvider, InstalledExtensions } from "../host.js";
 
+/** @internal */
 interface ExtensionDefinition {
   name: string;
   title: string;
@@ -23,23 +24,28 @@ interface ExtensionDefinition {
   status: string;
 }
 
+/** @internal */
 type EndpointDefinition = Record<string, Array<OperationDefinition>>;
 
+/** @internal */
 interface ExtensionInfo {
   supportEmail: string;
   appId: string;
 }
 
+/** @internal */
 interface OperationDefinition {
   href: string;
   metadata: OperationMetadata;
 }
 
+/** @internal */
 interface OperationMetadata {
   services: Array<object>;
   profile: OperationProfile;
 }
 
+/** @internal */
 interface OperationProfile {
   client_id: string;
   scope: string;

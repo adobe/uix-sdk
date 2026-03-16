@@ -8,30 +8,160 @@ Core utilities, types and contracts for the Adobe UIX SDK.
 
 ## Classes
 
-|  Class | Description |
-|  --- | --- |
-|  [Emitter](./uix-core.emitter.md) | <p>Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) whose [Emitter.addEventListener()](./uix-core.emitter.addeventlistener.md) method returns an anonymous function which unsubscribes the original handler.</p><p>Also provides typed events via generics. You can create or extend this class to define custom emitters with known event names and signatures.</p> |
-|  [Tunnel](./uix-core.tunnel.md) | **_(ALPHA)_** An EventEmitter across two documents. It emits events on the remote document and takes subscribers from the local document. |
+<table><thead><tr><th>
+
+Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[Emitter](./uix-core.emitter.md)
+
+
+</td><td>
+
+Browser-native [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget) whose [Emitter.addEventListener()](./uix-core.emitter.addeventlistener.md) method returns an anonymous function which unsubscribes the original handler.
+
+Also provides typed events via generics. You can create or extend this class to define custom emitters with known event names and signatures.
+
+
+</td></tr>
+<tr><td>
+
+[Tunnel](./uix-core.tunnel.md)
+
+
+</td><td>
+
+**_(ALPHA)_** An EventEmitter across two documents. It emits events on the remote document and takes subscribers from the local document.
+
+
+</td></tr>
+</tbody></table>
 
 ## Functions
 
-|  Function | Description |
-|  --- | --- |
-|  [connectIframe(frame, tunnelOptions, apiToSend, versionCallback)](./uix-core.connectiframe.md) | **_(ALPHA)_** Create a CrossRealmObject simulating objects from the provided iframe runtime. |
-|  [connectParentWindow(tunnelOptions, apiToSend)](./uix-core.connectparentwindow.md) | **_(ALPHA)_** Create a CrossRealmObject in an iframe, simulating objects from the parent window. |
+<table><thead><tr><th>
+
+Function
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[connectIframe(frame, tunnelOptions, apiToSend, versionCallback)](./uix-core.connectiframe.md)
+
+
+</td><td>
+
+**_(ALPHA)_** Create a CrossRealmObject simulating objects from the provided iframe runtime.
+
+
+</td></tr>
+<tr><td>
+
+[connectParentWindow(tunnelOptions, apiToSend)](./uix-core.connectparentwindow.md)
+
+
+</td><td>
+
+**_(ALPHA)_** Create a CrossRealmObject in an iframe, simulating objects from the parent window.
+
+
+</td></tr>
+</tbody></table>
 
 ## Interfaces
 
-|  Interface | Description |
-|  --- | --- |
-|  [CrossRealmObject](./uix-core.crossrealmobject.md) | **_(ALPHA)_** Representation of an object on the other side of an iframe/window divide between JS runtimes. |
-|  [Extension](./uix-core.extension.md) | An individual UI extension retrieved from the registry. |
-|  [TunnelConfig](./uix-core.tunnelconfig.md) | **_(ALPHA)_** |
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[CrossRealmObject](./uix-core.crossrealmobject.md)
+
+
+</td><td>
+
+**_(ALPHA)_** Representation of an object on the other side of an iframe/window divide between JS runtimes.
+
+
+</td></tr>
+<tr><td>
+
+[Extension](./uix-core.extension.md)
+
+
+</td><td>
+
+An individual UI extension retrieved from the registry.
+
+
+</td></tr>
+<tr><td>
+
+[TunnelConfig](./uix-core.tunnelconfig.md)
+
+
+</td><td>
+
+**_(ALPHA)_**
+
+
+</td></tr>
+</tbody></table>
 
 ## Type Aliases
 
-|  Type Alias | Description |
-|  --- | --- |
-|  [GuestConnectionEvent](./uix-core.guestconnectionevent.md) |  |
-|  [GuestConnectionEvents](./uix-core.guestconnectionevents.md) |  |
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[GuestConnectionEvent](./uix-core.guestconnectionevent.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+<tr><td>
+
+[GuestConnectionEvents](./uix-core.guestconnectionevents.md)
+
+
+</td><td>
+
+
+
+</td></tr>
+</tbody></table>
 

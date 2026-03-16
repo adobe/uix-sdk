@@ -59,7 +59,10 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   ) => InstalledExtensions;
 }
 
-// eslint-disable-next-line max-lines-per-function
+/**
+ * ExtensibleWrapper component that provides extension support to React applications.
+ * @public
+ */
 export const ExtensibleWrapper = ({
   appName,
   children,

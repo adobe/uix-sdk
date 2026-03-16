@@ -34,13 +34,13 @@ export interface AuthConfig {
     imsToken: string;
 }
 
-// @public
+// @internal
 export function buildExtensionManagerUrl(config: ExtensionManagerConfig): string;
 
-// @public
+// @internal
 export function createExtensionManagerExtensionsProvider(discoveryConfig: DiscoveryConfig, authConfig: AuthConfig, providerConfig: ExtensionProviderConfig, extensionPointId: ExtensionPointId): ExtensionsProvider;
 
-// @public
+// @internal
 export function createUrlExtensionsProvider(extensionPointId: ExtensionPointId, queryString: string | undefined): ExtensionsProvider;
 
 // @public
@@ -57,10 +57,10 @@ export type ExtensibilityContext = {
 };
 
 // @public
-export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
+export function Extensible(input: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
 
 // @public
-export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React_2.JSX.Element;
+export const ExtensibleComponentBoundary: (input: ExtensibleComponentProps) => React_2.JSX.Element;
 
 // @internal (undocumented)
 export const ExtensibleComponentBoundaryContext: React_2.Context<ExtensionRegistryEndpointRegistration[]>;
@@ -121,8 +121,8 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
     sharedContext?: SharedContextValues;
 }
 
-// @public (undocumented)
-export const ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
+// @public
+export const ExtensibleWrapper: (input: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
 
 // @internal (undocumented)
 export const ExtensionContext: Context<ExtensibilityContext>;
@@ -190,10 +190,10 @@ export interface ExtensionsProviderConfig {
     providerConfig: ExtensionProviderConfig;
 }
 
-// @public
+// @internal
 export function extractExtUrlParams(queryString: string | undefined): ExtUrlParams;
 
-// @public
+// @internal
 export function extractProgramIdEnvId(repo: string): {
     programId: string;
     envId: string;
@@ -205,20 +205,20 @@ export interface ExtUrlParams {
     [key: string]: string;
 }
 
-// @public (undocumented)
+// @internal (undocumented)
 export function fetchExtensionsFromExtensionManager(config: ExtensionManagerConfig): Promise<ExtensionManagerExtension[]>;
 
-// @public
+// @internal
 export function generateExtensionId(extensionUrl: string): string;
 
-// @public (undocumented)
+// @internal (undocumented)
 export const getExtensionManagerBaseUrl: (environment: "prod" | "stage" | undefined, extensionManager: string | null) => string;
 
-// @public (undocumented)
+// @internal (undocumented)
 export const getExtensionRegistryBaseUrl: (environment: "prod" | "stage" | undefined, registry: string | null) => string;
 
 // @public
-export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => React_2.JSX.Element;
+export const GuestUIFrame: (input: GuestUIProps) => React_2.JSX.Element;
 
 // Warning: (ae-forgotten-export) The symbol "FrameProps" needs to be exported by the entry point index.d.ts
 //
@@ -239,7 +239,7 @@ export interface GuestUIProps extends FrameProps {
 // @public
 export function isValidHttpUrl(url: string): boolean;
 
-// @public
+// @internal
 export function mergeExtensions(appRegistryExtensions: InstalledExtensions, extensionManagerExtensions: ExtensionManagerExtension[], extensionPointId: ExtensionPointId): InstalledExtensions;
 
 // @public (undocumented)
@@ -288,7 +288,7 @@ export * from "@adobe/uix-host";
 
 // Warnings were encountered during analysis:
 //
-// src/components/ExtensibleWrapper/ExtensionManagerProvider.ts:47:3 - (ae-forgotten-export) The symbol "ExtensionPoint" needs to be exported by the entry point index.d.ts
+// src/components/ExtensibleWrapper/ExtensionManagerProvider.ts:49:3 - (ae-forgotten-export) The symbol "ExtensionPoint" needs to be exported by the entry point index.d.ts
 // src/components/GuestUIFrame.tsx:28:1 - (ae-forgotten-export) The symbol "ReactIframeProps" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)

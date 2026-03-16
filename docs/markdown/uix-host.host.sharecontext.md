@@ -14,9 +14,37 @@ shareContext(context: SharedContextValues): void;
 
 ## Parameters
 
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  context | [SharedContextValues](./uix-host.sharedcontextvalues.md) |  |
+<table><thead><tr><th>
+
+Parameter
+
+
+</th><th>
+
+Type
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+context
+
+
+</td><td>
+
+[SharedContextValues](./uix-host.sharedcontextvalues.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
 
 **Returns:**
 
