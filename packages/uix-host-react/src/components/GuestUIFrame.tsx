@@ -10,15 +10,25 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { IframeHTMLAttributes } from "react";
-import React, { useEffect, useRef } from "react";
 import type {
   CrossRealmObject,
   UIFrameRect,
   VirtualApi,
 } from "@adobe/uix-core";
-import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
-import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
+import {
+  type AttrTokens,
+  makeSandboxAttrs,
+  requiredIframeProps,
+  type SandboxToken,
+} from "@adobe/uix-host";
+import React, {
+  type IframeHTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+
 import { useHost } from "../hooks/useHost.js";
 
 /**

@@ -15,8 +15,11 @@
  * from Adobe.
  **************************************************************************/
 
-import type { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
-import { createExtensionRegistryAsObjectsProvider } from "@adobe/uix-host";
+import {
+  createExtensionRegistryAsObjectsProvider,
+  type ExtensionsProvider,
+  type InstalledExtensions,
+} from "@adobe/uix-host";
 
 const EXTENSION_MANAGER_URL_PROD = "https://aemx-mngr.adobe.io";
 const EXTENSION_MANAGER_URL_STAGE = "https://aemx-mngr-stage.adobe.io";

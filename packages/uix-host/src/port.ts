@@ -10,19 +10,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type {
-  CrossRealmObject,
-  Emits,
-  GuestApis,
-  GuestConnection,
-  GuestConnectionEvents,
-  GuestMetadata,
-  HostMethodAddress,
-  UIHostMethods,
-  Unsubscriber,
-  VirtualApi,
+import {
+  connectIframe,
+  type CrossRealmObject,
+  type Emits,
+  Emitter,
+  type GuestApis,
+  type GuestConnection,
+  type GuestConnectionEvents,
+  type GuestMetadata,
+  type HostMethodAddress,
+  type UIHostMethods,
+  type Unsubscriber,
+  type VirtualApi,
 } from "@adobe/uix-core";
-import { connectIframe, Emitter } from "@adobe/uix-core";
+
 import { normalizeIframe } from "./dom-utils";
 import { compareVersions } from "./utils/comparePackagesVersions";
 

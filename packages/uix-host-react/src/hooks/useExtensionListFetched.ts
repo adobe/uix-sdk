@@ -11,8 +11,11 @@ governing permissions and limitations under the License.
 */
 
 import { useContext } from "react";
-import type { ExtensibilityContext } from "../extension-context.js";
-import { ExtensionContext } from "../extension-context.js";
+
+import {
+  type ExtensibilityContext,
+  ExtensionContext,
+} from "../extension-context.js";
 
 /**
  * Indicates if external extensions provider was processed. Returns true after passing extension list to the Host.

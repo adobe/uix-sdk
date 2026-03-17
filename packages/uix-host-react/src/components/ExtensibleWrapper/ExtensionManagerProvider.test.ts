@@ -11,15 +11,14 @@ governing permissions and limitations under the License.
 */
 
 import type { InstalledExtensions } from "@adobe/uix-host";
-import type {
-  DiscoveryConfig,
-  ExtensionManagerConfig,
-  ExtensionManagerExtension,
-  ExtensionPointId,
-} from "./ExtensionManagerProvider";
+
 import {
   buildExtensionManagerUrl,
   createExtensionManagerExtensionsProvider,
+  type DiscoveryConfig,
+  type ExtensionManagerConfig,
+  type ExtensionManagerExtension,
+  type ExtensionPointId,
   extractProgramIdEnvId,
   fetchExtensionsFromExtensionManager,
   getExtensionRegistryBaseUrl,

@@ -13,9 +13,8 @@ governing permissions and limitations under the License.
 /**
  * @hidden
  */
-import type { PropsWithChildren } from "react";
-import React, { createContext } from "react";
 import type { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
+import React, { createContext, type PropsWithChildren } from "react";
 
 /**
  * @internal

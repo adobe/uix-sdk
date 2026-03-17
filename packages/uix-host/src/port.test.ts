@@ -1,5 +1,10 @@
-import type { CrossRealmObject, Emits } from "@adobe/uix-core";
-import { connectIframe, Emitter } from "@adobe/uix-core";
+import {
+  connectIframe,
+  type CrossRealmObject,
+  type Emits,
+  Emitter,
+} from "@adobe/uix-core";
+
 import { Port } from "./port";
 
 // Mock connectIframe from uix-core

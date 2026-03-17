@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 */
 
 import type { HTMLAttributeReferrerPolicy } from "react";
-import type { AttrTokens } from "./attribute-normalizers";
-import { mergeAttrValues } from "./attribute-normalizers";
+
+import { type AttrTokens, mergeAttrValues } from "./attribute-normalizers";
 
 /**
  * Sandbox permissions that guest iframes are allowed to have.

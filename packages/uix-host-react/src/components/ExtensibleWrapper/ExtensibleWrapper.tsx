@@ -9,8 +9,6 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import type { PropsWithChildren, ReactElement } from "react";
-import React, { useMemo } from "react";
 import type {
   ExtensionsProvider,
   HostConfig,
@@ -19,12 +17,18 @@ import type {
   SharedContextValues,
 } from "@adobe/uix-host";
 import { combineExtensionsFromProviders, mutedProvider } from "@adobe/uix-host";
+import React, {
+  type PropsWithChildren,
+  type ReactElement,
+  useMemo,
+} from "react";
+
 import { Extensible } from "../Extensible";
-import type {
-  ExtensionPointId,
-  ExtensionProviderConfig,
+import {
+  createExtensionManagerExtensionsProvider,
+  type ExtensionPointId,
+  type ExtensionProviderConfig,
 } from "./ExtensionManagerProvider";
-import { createExtensionManagerExtensionsProvider } from "./ExtensionManagerProvider";
 import { createUrlExtensionsProvider } from "./UrlExtensionProvider";
 
 /** @public */

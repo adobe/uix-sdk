@@ -14,8 +14,13 @@ governing permissions and limitations under the License.
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import type { Emits, EmitterDebugLogger, GuestEmitter } from "@adobe/uix-core";
-import { debugEmitter } from "@adobe/uix-core";
+import {
+  debugEmitter,
+  type Emits,
+  type EmitterDebugLogger,
+  type GuestEmitter,
+} from "@adobe/uix-core";
+
 import type { HostEventLoadAllGuests, HostEvents } from "./host.js";
 
 export const debugHost = (host: Emits<HostEvents>): EmitterDebugLogger => {

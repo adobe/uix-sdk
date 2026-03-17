@@ -14,9 +14,9 @@ governing permissions and limitations under the License.
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import type { Metrics } from "@adobe/exc-app/metrics";
-import MetricsApi from "@adobe/exc-app/metrics";
+import MetricsApi, { type Metrics } from "@adobe/exc-app/metrics";
 import type { Emitter } from "@adobe/uix-core";
+
 import type { HostEvents } from "./host.js";
 
 type EventPayload = {

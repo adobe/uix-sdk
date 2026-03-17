@@ -10,16 +10,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { PropsWithChildren } from "react";
-import React, { useEffect, useRef, useState } from "react";
-import type {
-  ExtensionsProvider,
-  HostConfig,
-  InstalledExtensions,
-  PortOptions,
-  SharedContextValues,
+import {
+  type ExtensionsProvider,
+  Host,
+  type HostConfig,
+  type InstalledExtensions,
+  type PortOptions,
+  type SharedContextValues,
 } from "@adobe/uix-host";
-import { Host } from "@adobe/uix-host";
+import React, {
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { ExtensionContext } from "../extension-context.js";
 
 /** @public */

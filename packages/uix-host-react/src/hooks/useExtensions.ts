@@ -10,7 +10,6 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
   GuestApis,
   GuestConnection,
@@ -24,6 +23,8 @@ import type {
   HostEvents,
   Port,
 } from "@adobe/uix-host";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+
 import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
 import { useHost } from "./useHost";
 

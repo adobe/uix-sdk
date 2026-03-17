@@ -10,10 +10,13 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { useContext } from "react";
 import { Host } from "@adobe/uix-host";
-import type { ExtensibilityContext } from "../extension-context";
-import { ExtensionContext } from "../extension-context";
+import { useContext } from "react";
+
+import {
+  type ExtensibilityContext,
+  ExtensionContext,
+} from "../extension-context";
 
 /**
  * @public

@@ -19,7 +19,6 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import importSort from "eslint-plugin-simple-import-sort";
 import sonarjs from "eslint-plugin-sonarjs";
 import sortKeysFix from "eslint-plugin-sort-keys-fix";
-import vitest from "eslint-plugin-vitest";
 import globals from "globals";
 import ts from "typescript-eslint";
 
@@ -70,12 +69,11 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
         "import/no-deprecated": "warn",
         "import/first": "error",
         "import/no-default-export": "error",
-        "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
         "import/no-duplicates": [
           "error",
           {
             considerQueryString: true,
-            "prefer-inline": false,
+            "prefer-inline": true,
           },
         ],
       },
@@ -90,26 +88,10 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
           "error",
           {
             groups: [
-              [
-                "^react",
-                "^react(-.*)?",
-                "^(?!src/|i18n/|tests/|assets/|@aem-sites/|@react-spectrum/|react)(@?\\w.*)$",
-                "^@(aem-sites|react-spectrum)(?!/s2/(icons|illustrations))/.*$",
-                "^src/",
-                "^\\.",
-                "^\\./",
-                "^i18n/",
-                "^tests/",
-                "^\\.\\.?/.*(?<!s?css)$",
-                "^\\.\\.?$",
-                "^@spectrum-icons/.*$",
-                "^@react-spectrum/s2/icons/.*$",
-                "^@react-spectrum/s2/illustrations/.*$",
-                "^assets/",
-                "^\\.\\.?/.*(?<!s?css)$",
-                "^\\.\\.?$",
-                "\\.s?css$",
-              ],
+              ["^\\u0000"],
+              ["^@?\\w"],
+              ["^[^.]"],
+              ["^\\."],
             ],
           },
         ],
@@ -141,8 +123,8 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
         "@typescript-eslint/no-unsafe-return": "warn",
         "@typescript-eslint/no-empty-function": ["warn", { allow: [] }],
         "@typescript-eslint/no-explicit-any": "warn",
-        "@typescript-eslint/no-empty-interface": "error",
-        "@typescript-eslint/no-empty-object-type": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-empty-object-type": "error",
         "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
         "@typescript-eslint/no-unnecessary-template-expression": "error",
         "@typescript-eslint/consistent-type-imports": [
@@ -254,9 +236,8 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
       files: ["**/tests/**/*", "**/*.test.ts", "**/*.test.tsx"],
       languageOptions: {
         globals: {
-          ...vitest.environments?.env?.globals,
+          ...globals.jest,
           global: true,
-          jest: true,
         },
       },
       rules: {
@@ -306,7 +287,7 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
     configs.push(
       // react-refresh
       {
-        files: ["**/*.ts", "**/*.tsx", "**/*.js"],
+        files: ["**/*.tsx"],
         plugins: { "react-refresh": reactRefresh },
         rules: {
           ...reactRefresh.configs.recommended.rules,

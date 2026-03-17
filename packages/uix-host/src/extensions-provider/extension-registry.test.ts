@@ -2,7 +2,7 @@ import fetch, { enableFetchMocks } from "jest-fetch-mock";
 
 const {
   createExtensionRegistryAsObjectsProvider,
-  // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
 } = require("./extension-registry");
 
 enableFetchMocks();
@@ -48,7 +48,7 @@ describe("Extension Registry", () => {
       );
 
       const extensionRegistry =
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("./extension-registry").createExtensionRegistryProvider(
           BASE_CONFIG,
         );
@@ -67,7 +67,7 @@ describe("Extension Registry", () => {
       fetch.mockResponseOnce("Unauthorized", { status: 401 });
 
       const extensionRegistry =
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, no-undef
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("./extension-registry").createExtensionRegistryProvider(
           BASE_CONFIG,
         );

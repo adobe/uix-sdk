@@ -16,6 +16,7 @@
  **************************************************************************/
 import type { Extension } from "@adobe/uix-core";
 import type { ExtensionsProvider, InstalledExtensions } from "@adobe/uix-host";
+
 import type { ExtensionPointId } from "./ExtensionManagerProvider";
 
 const EXT_PARAM_PREFIX = "ext";

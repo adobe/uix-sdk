@@ -10,10 +10,10 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import React from "react";
-import type { InstalledExtensions } from "@adobe/uix-host";
-import { Host } from "@adobe/uix-host";
+import { Host, type InstalledExtensions } from "@adobe/uix-host";
 import { cleanup, render, waitFor } from "@testing-library/react";
+import React from "react";
+
 import { Extensible } from "./Extensible";
 
 jest.mock("@adobe/uix-host");

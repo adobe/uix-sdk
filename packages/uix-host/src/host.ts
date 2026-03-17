@@ -10,18 +10,19 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type {
-  Emits,
-  Extension,
-  GuestApis,
-  GuestEmitter,
-  NamedEvent,
+import {
+  type Emits,
+  Emitter,
+  type Extension,
+  type GuestApis,
+  type GuestEmitter,
+  type NamedEvent,
+  quietConsole,
 } from "@adobe/uix-core";
-import { Emitter, quietConsole } from "@adobe/uix-core";
+
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
-import type { CapabilitySpec, PortOptions } from "./port.js";
-import { Port } from "./port.js";
+import { type CapabilitySpec, Port, type PortOptions } from "./port.js";
 import { compareExtensions } from "./utils/compareExtensions.js";
 
 /**

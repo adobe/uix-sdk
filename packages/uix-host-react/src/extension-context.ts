@@ -13,8 +13,8 @@ governing permissions and limitations under the License.
 /**
  * @hidden
  */
-import { createContext } from "react";
 import type { Host } from "@adobe/uix-host";
+import { createContext } from "react";
 
 /**
  * Context container with Host object and extensions load status.
