@@ -1,13 +1,10 @@
-import type { WrappedMessage } from "./message-wrapper";
-import { wrap } from "./message-wrapper";
+import { wrap, type WrappedMessage } from "./message-wrapper";
 import { ObjectSimulator } from "./object-simulator";
 import type { Asynced } from "./object-walker";
 import { timeoutPromise } from "./promises/timed";
 import { receiveCalls } from "./rpc";
-import type { InitTicket } from "./tickets";
-import { INIT_TICKET } from "./tickets";
-import type { TunnelConfig } from "./tunnel";
-import { Tunnel } from "./tunnel";
+import { INIT_TICKET, type InitTicket } from "./tickets";
+import { Tunnel, type TunnelConfig } from "./tunnel";
 
 const INIT_MESSAGE: WrappedMessage<InitTicket> = wrap(INIT_TICKET);
 

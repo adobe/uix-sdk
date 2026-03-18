@@ -1,4 +1,5 @@
 import EventEmitter from "eventemitter3";
+
 import { FakeFinalizationRegistry } from "../__mocks__/mock-finalization-registry";
 import { FakeWeakRef } from "../__mocks__/mock-weak-ref";
 import { ObjectSimulator } from "../object-simulator";

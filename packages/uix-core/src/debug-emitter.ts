@@ -10,8 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type { DebugLogger, Theme } from "./debuglog.js";
-import { _customConsole } from "./debuglog.js";
+import { _customConsole, type DebugLogger, type Theme } from "./debuglog.js";
 import type { Emits, Unsubscriber } from "./types.js";
 
 /**

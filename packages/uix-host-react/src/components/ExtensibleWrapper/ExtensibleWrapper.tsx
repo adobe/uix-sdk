@@ -9,14 +9,15 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import type {
-  ExtensionsProvider,
-  HostConfig,
-  InstalledExtensions,
-  PortOptions,
-  SharedContextValues,
+import {
+  combineExtensionsFromProviders,
+  type ExtensionsProvider,
+  type HostConfig,
+  type InstalledExtensions,
+  mutedProvider,
+  type PortOptions,
+  type SharedContextValues,
 } from "@adobe/uix-host";
-import { combineExtensionsFromProviders, mutedProvider } from "@adobe/uix-host";
 import React, {
   type PropsWithChildren,
   type ReactElement,

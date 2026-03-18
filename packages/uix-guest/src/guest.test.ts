@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import type { HostMethodAddress, RemoteMethodInvoker } from "@adobe/uix-core";
+
 import { Guest } from "./guest";
 
 const testAddress: HostMethodAddress = {

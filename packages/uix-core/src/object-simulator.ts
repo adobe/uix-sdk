@@ -1,9 +1,14 @@
 import type EventEmitter from "eventemitter3";
+
 import { isWrapped, unwrap, wrap } from "./message-wrapper";
-import type { DefMessage, Materialized, Simulated } from "./object-walker";
-import { NOT_TRANSFORMED, transformRecursive } from "./object-walker";
-import type { Simulator } from "./remote-subject";
-import { RemoteSubject } from "./remote-subject";
+import {
+  type DefMessage,
+  type Materialized,
+  NOT_TRANSFORMED,
+  type Simulated,
+  transformRecursive,
+} from "./object-walker";
+import { RemoteSubject, type Simulator } from "./remote-subject";
 import { makeCallSender, receiveCalls } from "./rpc";
 import type { DefTicket } from "./tickets";
 import { hasProp } from "./value-assertions";

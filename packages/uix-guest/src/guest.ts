@@ -11,22 +11,21 @@ governing permissions and limitations under the License.
 */
 
 /* eslint @typescript-eslint/no-explicit-any: "off" */
-import type {
-  CrossRealmObject,
-  GuestApis,
-  HostConnection,
-  HostMethodAddress,
-  NamedEvent,
-  RemoteMethodInvoker,
-} from "@adobe/uix-core";
 import {
   connectParentWindow,
+  type CrossRealmObject,
   Emitter,
   formatHostMethodAddress,
+  type GuestApis,
+  type HostConnection,
+  type HostMethodAddress,
   makeNamespaceProxy,
+  type NamedEvent,
   quietConsole,
+  type RemoteMethodInvoker,
   timeoutPromise,
 } from "@adobe/uix-core";
+
 import { debugGuest } from "./debug-guest.js";
 
 /**

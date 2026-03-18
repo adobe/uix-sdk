@@ -66,7 +66,7 @@ export interface RejectTicket extends CallTicket {
 }
 export type RespondTicket = ResolveTicket | RejectTicket;
 
-export type CleanupTicket = {};
+export type CleanupTicket = Record<string, never>;
 
 export const INIT_TICKET: InitTicket = {
   fnId: INIT_CALLBACK,

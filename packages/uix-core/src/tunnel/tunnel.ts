@@ -1,4 +1,5 @@
 import EventEmitter from "eventemitter3";
+
 import { quietConsole } from "../debuglog";
 import { unwrap } from "../message-wrapper";
 import { isIframe } from "../value-assertions";

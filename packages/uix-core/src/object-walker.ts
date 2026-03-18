@@ -1,11 +1,11 @@
 import type { WrappedMessage } from "./message-wrapper";
 import type { DefTicket } from "./tickets";
-import type { Primitive } from "./value-assertions";
 import {
   isIterable,
   isObjectWithPrototype,
   isPlainObject,
   isPrimitive,
+  type Primitive,
 } from "./value-assertions";
 
 /**

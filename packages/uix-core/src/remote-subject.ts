@@ -1,4 +1,5 @@
 import type EventEmitter from "eventemitter3";
+
 import type { Materialized, Simulated } from "./object-walker";
 import type {
   CallArgsTicket,

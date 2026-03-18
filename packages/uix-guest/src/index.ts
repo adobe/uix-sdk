@@ -74,6 +74,7 @@ governing permissions and limitations under the License.
  *
  */
 import type { GuestApis, GuestMetadata } from "@adobe/uix-core";
+
 import type { AppConnection, Guest, GuestConfig } from "./guest.js";
 import { GuestServer } from "./guest-server.js";
 import { GuestUI } from "./guest-ui.js";

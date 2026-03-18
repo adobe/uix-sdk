@@ -15,14 +15,15 @@ import type {
   UIHostConnection,
   VirtualApi,
 } from "@adobe/uix-core";
-import type {
-  GuestConfig,
-  GuestEventBeforeConnect,
-  GuestEventConnected,
-  GuestEventContextChange,
-  GuestEventError,
+
+import {
+  Guest,
+  type GuestConfig,
+  type GuestEventBeforeConnect,
+  type GuestEventConnected,
+  type GuestEventContextChange,
+  type GuestEventError,
 } from "./guest";
-import { Guest } from "./guest";
 
 /**
  * A Guest to be used in an extension-controlled frame, usually to display UI.

@@ -1,6 +1,10 @@
 import { NS_ROOT, VERSION } from "../constants";
-import type { WrappedMessage } from "../message-wrapper";
-import { isWrapped, unwrap, wrap } from "../message-wrapper";
+import {
+  isWrapped,
+  unwrap,
+  wrap,
+  type WrappedMessage,
+} from "../message-wrapper";
 import type {
   HandshakeAcceptedTicket,
   HandshakeOfferedTicket,

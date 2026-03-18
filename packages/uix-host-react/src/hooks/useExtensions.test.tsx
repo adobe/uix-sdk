@@ -13,11 +13,10 @@
 import type { GuestApis, VirtualApi } from "@adobe/uix-core";
 import type { Host } from "@adobe/uix-host";
 import { renderHook } from "@testing-library/react-hooks";
-import React from "react";
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 
 import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBoundary";
-import { type UseExtensionsConfig, useExtensions } from "./useExtensions";
+import { useExtensions, type UseExtensionsConfig } from "./useExtensions";
 import { useHost } from "./useHost";
 
 jest.mock("@adobe/uix-host");

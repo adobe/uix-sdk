@@ -21,13 +21,7 @@ import {
   requiredIframeProps,
   type SandboxToken,
 } from "@adobe/uix-host";
-import React, {
-  type IframeHTMLAttributes,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { type IframeHTMLAttributes, useEffect, useRef } from "react";
 
 import { useHost } from "../hooks/useHost.js";
 
@@ -177,7 +171,6 @@ export const GuestUIFrame = ({
     if (ref.current && onResize) {
       const currentFrame = ref.current;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return guest.addEventListener(
         "guestresize",
         ({ detail: { guestPort, iframe, dimensions } }) => {

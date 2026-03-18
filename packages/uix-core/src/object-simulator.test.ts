@@ -1,4 +1,5 @@
 import { EventEmitter } from "eventemitter3";
+
 import { FakeFinalizationRegistry } from "./__mocks__/mock-finalization-registry";
 import { NS_ROOT } from "./constants";
 import { ObjectSimulator } from "./object-simulator";

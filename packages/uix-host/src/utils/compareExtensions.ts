@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 */
 
 import type { Extension } from "@adobe/uix-core";
+
 import type { InstalledExtensions } from "../host";
 
 export interface ExtensionsDifference {
