@@ -108,6 +108,23 @@ const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
   }) as UseExtensionsConfig<GuestApis, VirtualApi>;
 
 describe("useExtension hook", () => {
+  afterEach(() => {
+    // Reset mockHost.loading so a failing assertion in one test
+    // does not poison subsequent tests that depend on its value.
+    (mockHost as unknown as { loading: boolean }).loading = false;
+
+    // Drain all registered listeners so event handlers from one test
+    // do not leak into the next.
+    for (const event of Object.keys(mockListeners)) {
+      mockListeners[event] = [];
+    }
+
+    // Reset guest.provide() call history between tests.
+    for (const guest of guests) {
+      (guest as unknown as { provide: jest.Mock }).provide.mockClear();
+    }
+  });
+
   test("returns all extensions when no ExtensibleComponentBoundaryContext value is provided", () => {
     const { result } = renderHook(() =>
       useExtensions<GuestApis, VirtualApi>(configFactory, []),
@@ -144,7 +161,6 @@ describe("useExtension hook", () => {
       useExtensions<GuestApis, VirtualApi>(configFactory, []),
     );
     expect(result.current.loading).toBe(true);
-    (mockHost as unknown as { loading: boolean }).loading = false;
   });
 
   test("loading becomes false after loadallguests fires", async () => {
@@ -162,7 +178,6 @@ describe("useExtension hook", () => {
     });
 
     expect(result.current.loading).toBe(false);
-    (mockHost as unknown as { loading: boolean }).loading = false;
   });
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
@@ -186,5 +201,103 @@ describe("useExtension hook", () => {
     );
 
     expect(result.current.extensions.length).toBe(2);
+  });
+
+  test("isLoading does not reset to true on a subsequent load cycle", async () => {
+    // Start with host loading
+    (mockHost as unknown as { loading: boolean }).loading = true;
+    const { result, rerender } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.loading).toBe(true);
+
+    // Complete the first load cycle
+    await act(async () => {
+      (mockHost as unknown as { loading: boolean }).loading = false;
+      const listeners = mockListeners["loadallguests"] ?? [];
+      for (const listener of listeners) {
+        listener(new Event("loadallguests"));
+      }
+    });
+    expect(result.current.loading).toBe(false);
+
+    // Simulate a second load cycle starting: host.loading becomes true again.
+    // The implementation only reads host.loading in useState initializer and
+    // in the useEffect that runs when baseDeps change. Since baseDeps (host
+    // reference) have not changed, the effect does not re-run, so isLoading
+    // stays false. This documents the current behavior -- isLoading will NOT
+    // return to true without a host reference change.
+    await act(async () => {
+      (mockHost as unknown as { loading: boolean }).loading = true;
+    });
+    rerender();
+
+    // Current behavior: loading remains false even though host.loading is true,
+    // because the loading useEffect does not re-run when host.loading changes.
+    // This is a potential bug -- consumers cannot rely on `loading` to reflect
+    // subsequent load cycles.
+    expect(result.current.loading).toBe(false);
+  });
+
+  test("guest.provide() is called for each extension when extensions load", async () => {
+    const providedApi = { myMethod: jest.fn() };
+    const configWithProvides = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
+      ({
+        requires: {},
+        provides: providedApi,
+      }) as unknown as UseExtensionsConfig<GuestApis, VirtualApi>;
+
+    renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configWithProvides, []),
+    );
+
+    // The provides effect runs after render. Each loaded guest should
+    // receive the provided API via guest.provide().
+    for (const guest of guests) {
+      expect(
+        (guest as unknown as { provide: jest.Mock }).provide,
+      ).toHaveBeenCalledWith(providedApi);
+    }
+  });
+
+  test("guest.provide() is re-called when extensions list changes", async () => {
+    const providedApi = { myMethod: jest.fn() };
+    const configWithProvides = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
+      ({
+        requires: {},
+        provides: providedApi,
+      }) as unknown as UseExtensionsConfig<GuestApis, VirtualApi>;
+
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configWithProvides, []),
+    );
+
+    // Clear call counts after initial render
+    for (const guest of guests) {
+      (guest as unknown as { provide: jest.Mock }).provide.mockClear();
+    }
+
+    // Simulate a guest loading by firing guestload (the default "each" mode
+    // subscriber). This calls setExtensions(getExtensions()), which returns
+    // a new array reference and triggers the provides effect to re-run.
+    await act(async () => {
+      const listeners = mockListeners["guestload"] ?? [];
+      for (const listener of listeners) {
+        listener(new Event("guestload"));
+      }
+    });
+
+    // The provides effect depends on [provides, extensions]. When
+    // extensions changes (new array reference from getExtensions()),
+    // guest.provide() is called again for each extension. This documents
+    // that provide() is re-invoked on every load event, even if the
+    // provided API has not changed.
+    const extensionCount = result.current.extensions.length;
+    expect(extensionCount).toBeGreaterThan(0);
+    for (const guest of guests) {
+      expect(
+        (guest as unknown as { provide: jest.Mock }).provide,
+      ).toHaveBeenCalledWith(providedApi);
+    }
   });
 });
