@@ -116,15 +116,10 @@ export function useExtensions<
   deps: unknown[] = [],
 ): UseExtensionsResult<Incoming> {
   const { host, error } = useHost();
-  if (error) {
-    return {
-      extensions: NO_EXTENSIONS,
-      loading: false,
-      error,
-    };
-  }
-  const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
+  const [hostError, setHostError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(() => host?.loading ?? false);
+
   const boundryExtensionPointsAsString = extensionPoints?.map(
     ({
       service,
@@ -133,14 +128,19 @@ export function useExtensions<
     }: ExtensionRegistryEndpointRegistration) =>
       `${service}/${extensionPoint}/${version}`,
   );
-  const baseDeps = [host, ...deps];
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const {
     requires,
     provides,
     updateOn = "each",
-  } = useMemo(() => configFactory(host), baseDeps);
+  } = useMemo(
+    () => (host ? configFactory(host) : {}),
+    [host, ...deps], // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const getExtensions = useCallback(() => {
+    if (!host) return NO_EXTENSIONS;
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
 
@@ -162,61 +162,59 @@ export function useExtensions<
       }
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
-  }, [...baseDeps, requires]);
-
-  const subscribe = useCallback(
-    (handler: EventListener) => {
-      const eventName = updateOn === "all" ? "loadallguests" : "guestload";
-      host.addEventListener(eventName, handler);
-
-      return () => {
-        host.removeEventListener(eventName, handler);
-      };
-    },
-    [...baseDeps, updateOn],
-  );
-
-  const subscribeToUnload = useCallback((handler: EventListener) => {
-    host.addEventListener("guestunload", handler);
-
-    return () => {
-      host.removeEventListener("guestunload", handler);
-    };
-  }, baseDeps);
-
-  const [isLoading, setIsLoading] = useState(() => host?.loading ?? false);
+  }, [host, requires]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [extensions, setExtensions] = useState(() => getExtensions());
 
+  // Update extensions list when guests load or all guests have loaded
   useEffect(() => {
-    return subscribe(() => setExtensions(getExtensions()));
-  }, [subscribe]);
+    if (!host) return;
+    const eventName = updateOn === "all" ? "loadallguests" : "guestload";
+    return host.addEventListener(eventName, () =>
+      setExtensions(getExtensions()),
+    );
+  }, [host, updateOn, getExtensions]);
 
+  // Update extensions list when a guest unloads
+  useEffect(() => {
+    if (!host) return;
+    return host.addEventListener("guestunload", (e: CustomEvent) => {
+      const guest = e.detail?.guest as Port<GuestApis>;
+      if (guest?.id) {
+        setExtensions((prevExtensions) => {
+          const filtered = prevExtensions.filter(
+            (ext) => ext.id !== guest.id || ext.url !== guest.url,
+          );
+          return filtered.length === 0 ? NO_EXTENSIONS : filtered;
+        });
+      }
+    });
+  }, [host]);
+
+  // Track loading state. Subscribes to both guestload and loadallguests so that
+  // isLoading correctly resets to true at the start of a subsequent load cycle:
+  // guestload fires while host.loading is still true (before loadallguests), so
+  // checking host.loading there detects when a new load cycle begins.
+  // Known limitation: a reload with zero guests will not flip isLoading to true
+  // because guestload never fires and there is no "load started" event on Host.
   useEffect(() => {
     if (!host) return;
     setIsLoading(host.loading);
-    return host.addEventListener("loadallguests", () => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, baseDeps);
+    const unsubGuestLoad = host.addEventListener("guestload", () => {
+      if (host.loading) setIsLoading(true);
+    });
+    const unsubLoadAll = host.addEventListener("loadallguests", () =>
+      setIsLoading(false),
+    );
+    return () => {
+      unsubGuestLoad();
+      unsubLoadAll();
+    };
+  }, [host]);
 
-  const unloadExtentionCallback = (e: CustomEvent) => {
-    const eventDetail = e.detail;
-    const guest = eventDetail.guest as Port<GuestApis>;
-
-    if (guest && guest.id) {
-      setExtensions((prevExtensions) => {
-        const filtered = prevExtensions.filter(
-          (ext) => ext.id !== guest.id || ext.url !== guest.url,
-        );
-        return filtered.length === 0 ? NO_EXTENSIONS : filtered;
-      });
-    }
-  };
-
-  useEffect(() => {
-    return subscribeToUnload(unloadExtentionCallback);
-  }, [subscribeToUnload]);
-
+  // Provide host APIs to loaded extensions.
+  // Note: Port has no unprovide() API so this effect cannot clean up after
+  // itself; guest.provide() is re-called whenever the extensions list changes.
   useEffect(() => {
     for (const guest of extensions) {
       if (provides) {
@@ -225,15 +223,21 @@ export function useExtensions<
     }
   }, [provides, extensions]);
 
-  useEffect(
-    () =>
-      host.addEventListener(
-        "error",
-        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error),
-      ),
-    baseDeps,
-  );
+  // Forward host errors to consumers
+  useEffect(() => {
+    if (!host) return;
+    return host.addEventListener(
+      "error",
+      (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+        setHostError(event.detail.error),
+    );
+  }, [host]);
+
+  // Early return AFTER all hooks (Rules of Hooks compliance).
+  // host is undefined when error is defined (discriminated union from useHost).
+  if (error) {
+    return { extensions: NO_EXTENSIONS, loading: false, error };
+  }
 
   return {
     extensions,

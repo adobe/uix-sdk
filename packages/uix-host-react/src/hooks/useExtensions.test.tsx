@@ -203,10 +203,10 @@ describe("useExtension hook", () => {
     expect(result.current.extensions.length).toBe(2);
   });
 
-  test("isLoading does not reset to true on a subsequent load cycle", async () => {
+  test("loading resets to true on a subsequent load cycle when a guestload fires", async () => {
     // Start with host loading
     (mockHost as unknown as { loading: boolean }).loading = true;
-    const { result, rerender } = renderHook(() =>
+    const { result } = renderHook(() =>
       useExtensions<GuestApis, VirtualApi>(configFactory, []),
     );
     expect(result.current.loading).toBe(true);
@@ -214,28 +214,29 @@ describe("useExtension hook", () => {
     // Complete the first load cycle
     await act(async () => {
       (mockHost as unknown as { loading: boolean }).loading = false;
-      const listeners = mockListeners["loadallguests"] ?? [];
-      for (const listener of listeners) {
+      for (const listener of mockListeners["loadallguests"] ?? []) {
         listener(new Event("loadallguests"));
       }
     });
     expect(result.current.loading).toBe(false);
 
-    // Simulate a second load cycle starting: host.loading becomes true again.
-    // The implementation only reads host.loading in useState initializer and
-    // in the useEffect that runs when baseDeps change. Since baseDeps (host
-    // reference) have not changed, the effect does not re-run, so isLoading
-    // stays false. This documents the current behavior -- isLoading will NOT
-    // return to true without a host reference change.
+    // Simulate a second load cycle: host.loading flips to true and a guestload
+    // fires (host.loading is checked inside the guestload handler).
     await act(async () => {
       (mockHost as unknown as { loading: boolean }).loading = true;
+      for (const listener of mockListeners["guestload"] ?? []) {
+        listener(new Event("guestload"));
+      }
     });
-    rerender();
+    expect(result.current.loading).toBe(true);
 
-    // Current behavior: loading remains false even though host.loading is true,
-    // because the loading useEffect does not re-run when host.loading changes.
-    // This is a potential bug -- consumers cannot rely on `loading` to reflect
-    // subsequent load cycles.
+    // Complete the second cycle
+    await act(async () => {
+      (mockHost as unknown as { loading: boolean }).loading = false;
+      for (const listener of mockListeners["loadallguests"] ?? []) {
+        listener(new Event("loadallguests"));
+      }
+    });
     expect(result.current.loading).toBe(false);
   });
 
