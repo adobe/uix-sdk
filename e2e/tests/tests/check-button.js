@@ -8,10 +8,9 @@ test("Check if guest is loaded", async (t) => {
   const iframe = Selector(iframeSelector);
   await t.expect(iframe.exists).ok("Iframe should exist", { timeout: 10000 });
 
-  const iframeSrc = await iframe.getAttribute("src");
   await t
     .expect(iframe.getAttribute("src"))
-    .notEql("", "Iframe should have src attribute", { timeout: 10000 });
+    .contains("http://localhost:3002", "Iframe src should point to guest app", { timeout: 10000 });
 });
 
 test("Check response from guest app", async (t) => {

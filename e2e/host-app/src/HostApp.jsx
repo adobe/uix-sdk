@@ -38,6 +38,7 @@ export default function Component() {
   return (
     <>
       <div>
+          <p id="extension-count">{extensions.length}</p>
           <div className="message-box">
             <h2>Test 1: Print message from guest after button click</h2>
             <button id="get-guest-message-button" className="button" onClick={() => apiInteraction()}>

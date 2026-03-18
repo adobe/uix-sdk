@@ -157,6 +157,13 @@ function setupApp(appKey, version) {
     // Re-read the original template (with SDK deps) to know what to inject
     const originalDist = JSON.parse(fs.readFileSync(distTemplatePath, 'utf8'));
     installLocalPackages(appDir, originalDist);
+
+    // Clear webpack/babel caches so the fresh SDK build is always used
+    const cacheDir = path.join(appDir, 'node_modules', '.cache');
+    if (fs.existsSync(cacheDir)) {
+      fs.rmSync(cacheDir, { recursive: true, force: true });
+      log(`  Cleared bundler cache: ${path.relative(ROOT_DIR, cacheDir)}`);
+    }
   }
 
   log(`  [OK] ${appRelDir} ready`);

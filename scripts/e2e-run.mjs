@@ -30,6 +30,7 @@ const TESTS_DIR = path.join(ROOT_DIR, 'e2e', 'tests');
 
 const HOST_PORT = 3000;
 const GUEST_PORT = 3002;
+const GUEST_PORT_2 = 3003;
 const WAIT_TIMEOUT_MS = 120_000;
 const WAIT_INTERVAL_MS = 2_000;
 
@@ -91,6 +92,17 @@ function cleanup(procs) {
   }
 }
 
+/**
+ * Kill any process already listening on the given port (macOS/Linux).
+ */
+function freePort(port) {
+  try {
+    execSync(`lsof -ti tcp:${port} | xargs kill -9`, { stdio: 'ignore' });
+  } catch (_) {
+    // nothing was listening — ignore
+  }
+}
+
 async function main() {
   const procs = [];
 
@@ -98,6 +110,12 @@ async function main() {
   process.on('exit', () => cleanup(procs));
   process.on('SIGINT', () => { cleanup(procs); process.exit(130); });
   process.on('SIGTERM', () => { cleanup(procs); process.exit(143); });
+
+  // Kill any stale servers from previous runs so the new build is always served
+  console.log('\n[e2e] Freeing ports', HOST_PORT, GUEST_PORT, GUEST_PORT_2, '...');
+  freePort(HOST_PORT);
+  freePort(GUEST_PORT);
+  freePort(GUEST_PORT_2);
 
   // 1. Set up e2e apps
   if (!skipSetup) {
@@ -114,13 +132,17 @@ async function main() {
   console.log('[e2e] Starting guest app on port', GUEST_PORT, '...');
   procs.push(startApp(GUEST_APP_DIR, { PORT: String(GUEST_PORT) }));
 
+  console.log('[e2e] Starting second guest app on port', GUEST_PORT_2, '...');
+  procs.push(startApp(GUEST_APP_DIR, { PORT: String(GUEST_PORT_2) }));
+
   // 3. Wait for both servers
   console.log('\n[e2e] Waiting for servers...');
   await Promise.all([
     waitForServer(HOST_PORT, WAIT_TIMEOUT_MS),
     waitForServer(GUEST_PORT, WAIT_TIMEOUT_MS),
+    waitForServer(GUEST_PORT_2, WAIT_TIMEOUT_MS),
   ]);
-  console.log('[e2e] Both servers are ready');
+  console.log('[e2e] All servers are ready');
 
   // 4. Run tests
   console.log('\n[e2e] Running tests...\n');

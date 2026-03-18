@@ -3,13 +3,14 @@ const os = require('os');
 
 const runCommand = () => {
   const platform = os.platform();
-  
+  const port = process.env.PORT || '3002';
+
   let command;
-  
+
   if (platform === 'win32') {
-    command = "set PORT=3002 && react-scripts start";
+    command = `set PORT=${port} && react-scripts start`;
   } else {
-    command = "PORT=3002 react-scripts start";
+    command = `PORT=${port} react-scripts start`;
   }
 
   exec(command, (error, stdout, stderr) => {

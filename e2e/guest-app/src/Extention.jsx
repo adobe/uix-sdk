@@ -4,8 +4,11 @@ import { register } from "@adobe/uix-guest";
 export default function Extension() {
     useEffect(() => {
         const init = async () => {
-            await register({
-                id: "extensionId",
+            const hashSearch = window.location.hash.split('?')[1] || '';
+            const extensionId = new URLSearchParams(hashSearch).get('id') || 'extensionId';
+
+            const connection = await register({
+                id: extensionId,
                 methods: {
                     extensionNamespace: {
                         getMessage: async () => {
@@ -18,6 +21,13 @@ export default function Extension() {
                     }
                 }
             });
+
+            try {
+                const hostInfo = await connection.host.hostNamespace.getHostInfo();
+                localStorage.setItem('host-info', hostInfo);
+            } catch (e) {
+                // host may not provide hostNamespace in all scenarios
+            }
         };
         init();
     }, []);
