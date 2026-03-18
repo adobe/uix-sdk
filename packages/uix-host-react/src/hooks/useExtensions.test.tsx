@@ -261,6 +261,115 @@ describe("useExtension hook", () => {
     }
   });
 
+  test("loading is false on initial mount when host is not loading", () => {
+    (mockHost as unknown as { loading: boolean }).loading = false;
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.loading).toBe(false);
+  });
+
+  test("returns loading:false and error when useHost returns an error", () => {
+    jest.mocked(useHost).mockReturnValueOnce({
+      host: undefined,
+      error: new Error("outside extension context"),
+    });
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.loading).toBe(false);
+    expect(result.current.extensions).toHaveLength(0);
+    expect(result.current.error?.message).toBe("outside extension context");
+  });
+
+  test("extensions update on each guestload in updateOn:each mode (default)", async () => {
+    let callCount = 0;
+    const trackingHost = {
+      ...mockHost,
+      getLoadedGuests() {
+        callCount++;
+        return guests;
+      },
+    } as unknown as Host;
+    jest.mocked(useHost).mockReturnValueOnce({
+      error: undefined,
+      host: trackingHost,
+    });
+
+    renderHook(() => useExtensions<GuestApis, VirtualApi>(configFactory, []));
+    const initialCallCount = callCount;
+
+    await act(async () => {
+      for (const listener of mockListeners["guestload"] ?? []) {
+        listener(new Event("guestload"));
+      }
+    });
+
+    // getLoadedGuests should have been called again after guestload fired
+    expect(callCount).toBeGreaterThan(initialCallCount);
+  });
+
+  test("extensions do not update on guestload in updateOn:all mode", async () => {
+    let callCount = 0;
+    const trackingHost = {
+      ...mockHost,
+      getLoadedGuests() {
+        callCount++;
+        return guests;
+      },
+    } as unknown as Host;
+    jest.mocked(useHost).mockReturnValueOnce({
+      error: undefined,
+      host: trackingHost,
+    });
+
+    const allModeConfig = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
+      ({ updateOn: "all" }) as UseExtensionsConfig<GuestApis, VirtualApi>;
+
+    renderHook(() => useExtensions<GuestApis, VirtualApi>(allModeConfig, []));
+    const initialCallCount = callCount;
+
+    await act(async () => {
+      for (const listener of mockListeners["guestload"] ?? []) {
+        listener(new Event("guestload"));
+      }
+    });
+
+    // guestload should not trigger getLoadedGuests in "all" mode
+    expect(callCount).toBe(initialCallCount);
+
+    await act(async () => {
+      for (const listener of mockListeners["loadallguests"] ?? []) {
+        listener(new Event("loadallguests"));
+      }
+    });
+
+    // loadallguests should trigger getLoadedGuests
+    expect(callCount).toBeGreaterThan(initialCallCount);
+  });
+
+  test("guestunload removes the unloaded guest from extensions", async () => {
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.extensions.length).toBe(5);
+
+    await act(async () => {
+      for (const listener of mockListeners["guestunload"] ?? []) {
+        (listener as unknown as (e: CustomEvent) => void)(
+          new CustomEvent("guestunload", {
+            detail: { guest: guests[0] },
+          }),
+        );
+      }
+    });
+
+    expect(result.current.extensions.length).toBe(4);
+    expect(
+      result.current.extensions.find((e) => e.id === "extension-1"),
+    ).toBeUndefined();
+  });
+
   test("guest.provide() is re-called when extensions list changes", async () => {
     const providedApi = { myMethod: jest.fn() };
     const configWithProvides = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
