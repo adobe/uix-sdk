@@ -4,3 +4,6 @@
 */package.json
 */package-lock.json
 */node_modules/
+
+# TestCafe artifacts
+tests/artifacts/
