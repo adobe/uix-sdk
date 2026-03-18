@@ -1,17 +1,16 @@
 {
-  "name": "uix-guest-app-local-dist",
+  "name": "uix-host-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@adobe/uix-core": "^1.1.4",
-    "@adobe/uix-guest": "^1.1.4",
+    "@adobe/uix-core": "SDK_VERSION",
+    "@adobe/uix-host": "SDK_VERSION",
+    "@adobe/uix-host-react": "SDK_VERSION",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-error-boundary": "^4.1.2",
-    "react-router-dom": "^7.0.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
