@@ -184,11 +184,20 @@ export function useExtensions<
     };
   }, baseDeps);
 
+  const [isLoading, setIsLoading] = useState(() => host?.loading ?? false);
+
   const [extensions, setExtensions] = useState(() => getExtensions());
 
   useEffect(() => {
     return subscribe(() => setExtensions(getExtensions()));
   }, [subscribe]);
+
+  useEffect(() => {
+    if (!host) return;
+    setIsLoading(host.loading);
+    return host.addEventListener("loadallguests", () => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, baseDeps);
 
   const unloadExtentionCallback = (e: CustomEvent) => {
     const eventDetail = e.detail;
@@ -228,7 +237,7 @@ export function useExtensions<
 
   return {
     extensions,
-    loading: extensions.length === 0 ? false : host.loading,
+    loading: isLoading,
     error: hostError,
   };
 }

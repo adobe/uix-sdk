@@ -12,7 +12,7 @@
 
 import { GuestApis, VirtualApi } from "@adobe/uix-core";
 import { Host } from "@adobe/uix-host";
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import React, { ReactNode } from "react";
 import { ExtensibleComponentBoundary } from "../components/ExtensibleComponentBoundary";
 import { UseExtensionsConfig, useExtensions } from "./useExtensions";
@@ -72,24 +72,33 @@ const guests = [
     provide: jest.fn().mockName("guest.provide"),
   },
 ] as unknown as GuestApis[];
+const mockListeners: Record<string, EventListener[]> = {};
+
+const mockHost = {
+  addEventListener(event: string, handler: EventListener): () => void {
+    if (!mockListeners[event]) mockListeners[event] = [];
+    mockListeners[event].push(handler);
+    return function () {
+      mockListeners[event] = mockListeners[event].filter((h) => h !== handler);
+    };
+  },
+  destroy(): null {
+    return null;
+  },
+  getLoadedGuests() {
+    return guests;
+  },
+  loading: false,
+  removeEventListener(event: string, handler: EventListener): void {
+    if (mockListeners[event]) {
+      mockListeners[event] = mockListeners[event].filter((h) => h !== handler);
+    }
+  },
+} as unknown as Host;
+
 jest.mocked(useHost).mockReturnValue({
   error: undefined,
-  host: {
-    addEventListener(): () => void {
-      return function () {
-        //do nothing, since its a mock
-      };
-    },
-    removeEventListener(): void {
-      return null;
-    },
-    getLoadedGuests() {
-      return guests;
-    },
-    destroy(): null {
-      return null;
-    },
-  } as unknown as Host,
+  host: mockHost,
 });
 
 const configFactory = (): UseExtensionsConfig<GuestApis, VirtualApi> =>
@@ -127,6 +136,33 @@ describe("useExtension hook", () => {
     );
 
     expect(result.current.extensions.length).toBe(3);
+  });
+
+  test("loading is true while host.loading is true", () => {
+    (mockHost as unknown as { loading: boolean }).loading = true;
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.loading).toBe(true);
+    (mockHost as unknown as { loading: boolean }).loading = false;
+  });
+
+  test("loading becomes false after loadallguests fires", async () => {
+    (mockHost as unknown as { loading: boolean }).loading = true;
+    const { result } = renderHook(() =>
+      useExtensions<GuestApis, VirtualApi>(configFactory, []),
+    );
+    expect(result.current.loading).toBe(true);
+
+    await act(async () => {
+      const listeners = mockListeners["loadallguests"] ?? [];
+      for (const listener of listeners) {
+        listener(new Event("loadallguests"));
+      }
+    });
+
+    expect(result.current.loading).toBe(false);
+    (mockHost as unknown as { loading: boolean }).loading = false;
   });
 
   test("returns filtered extensions when ExtensibleComponentBoundaryContext with extensionPoints value is provided with different version", () => {
