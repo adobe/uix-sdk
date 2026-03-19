@@ -48,7 +48,7 @@ npm run format        # Prettier auto-fix
 npm run declarations:build
 ```
 
-`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step only runs the Prettier check and fixpack; it does not run ESLint. All three must pass for CI to succeed. Do not skip lint.
+`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step only runs the Prettier check and fixpack; it does not run ESLint. In workflows that invoke `npm test` (and in local pre-publish checks), all three must pass; do not skip the `lint` phase.
 
 **Production build** (used in CI release): `npm run build:production`
 
