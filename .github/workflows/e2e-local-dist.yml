@@ -65,12 +65,19 @@ jobs:
           HOST_PID=$!
           echo "HOST_PID=$HOST_PID" >> $GITHUB_ENV
 
-      - name: Start guest app
+      - name: Start guest app (port 3002)
         working-directory: e2e/guest-app
         run: |
           PORT=3002 npm start &
           GUEST_PID=$!
           echo "GUEST_PID=$GUEST_PID" >> $GITHUB_ENV
+
+      - name: Start second guest app (port 3003)
+        working-directory: e2e/guest-app
+        run: |
+          PORT=3003 npm start &
+          GUEST2_PID=$!
+          echo "GUEST2_PID=$GUEST2_PID" >> $GITHUB_ENV
 
       - name: Wait for applications to be ready
         run: |
@@ -81,13 +88,14 @@ jobs:
           npm install -g wait-on
 
           echo "Waiting for servers to respond..."
-          wait-on http://localhost:3000 http://localhost:3002 --timeout 180000 --interval 3000
-          echo "Both applications are ready!"
+          wait-on http://localhost:3000 http://localhost:3002 http://localhost:3003 --timeout 180000 --interval 3000
+          echo "All applications are ready!"
 
       - name: Verify applications are responding
         run: |
           wget --spider --quiet http://localhost:3000 && echo "Host app responding" || echo "Host app not responding"
-          wget --spider --quiet http://localhost:3002 && echo "Guest app responding" || echo "Guest app not responding"
+          wget --spider --quiet http://localhost:3002 && echo "Guest app (3002) responding" || echo "Guest app (3002) not responding"
+          wget --spider --quiet http://localhost:3003 && echo "Guest app (3003) responding" || echo "Guest app (3003) not responding"
 
       - name: Run E2E tests
         working-directory: e2e/tests
@@ -108,8 +116,12 @@ jobs:
           if [ ! -z "$GUEST_PID" ]; then
             kill $GUEST_PID 2>/dev/null || echo "Guest process already stopped"
           fi
+          if [ ! -z "$GUEST2_PID" ]; then
+            kill $GUEST2_PID 2>/dev/null || echo "Second guest process already stopped"
+          fi
           pkill -f "node.*3000" 2>/dev/null || true
           pkill -f "node.*3002" 2>/dev/null || true
+          pkill -f "node.*3003" 2>/dev/null || true
 
   test-summary:
     name: Test Results Summary
