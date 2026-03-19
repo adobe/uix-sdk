@@ -1,6 +1,6 @@
 # Copilot Instructions for UIX SDK
 
-Trust these instructions. Only search the codebase if information here is incomplete or appears incorrect.
+Treat these instructions as your primary guide, but verify tooling and CI details against `package.json` and relevant workflow files when making or describing changes that depend on them. Search the codebase whenever information here seems incomplete, inconsistent, or out of date.
 
 ## What This Repo Is
 
