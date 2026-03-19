@@ -6,7 +6,7 @@ Treat these instructions as your primary guide, but verify tooling and CI detail
 
 Adobe UIX (UI Extensibility) SDK — a TypeScript monorepo enabling Experience Cloud host apps to define extensible UI areas and guest apps (extensions) to run in isolated iframes and communicate via RPC over `postMessage`.
 
-**Stack:** TypeScript 5.2 · ES2022 target · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
+**Stack:** TypeScript 5.2 · ES2019 TS target (module ES2020) · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
 
 ## Package Structure
 
@@ -19,7 +19,7 @@ Four SDK packages under `packages/`, in dependency order:
 | `@adobe/uix-host` | `packages/uix-host/` | Host-side: `Host` class, extension registry |
 | `@adobe/uix-host-react` | `packages/uix-host-react/` | React bindings: `<Extensible>`, `useExtensions()`, `<GuestUIFrame>` |
 
-Each package entry point is `src/index.ts`. Tests live alongside source as `*.test.ts`.
+Each package entry point is `src/index.ts`. Tests live alongside source as `*.test.ts(x)`.
 
 ## Build & Validate — Exact Command Sequence
 
@@ -65,7 +65,7 @@ Run `npm run format` then `npm run lint` after editing to catch formatting issue
 - **Framework**: Jest 29 (root Jest projects and `uix-host` use `ts-jest`; `uix-host-react` package tests use `@swc/jest`), jsdom environment
 - **Config**: Root `jest.config.ts` (used by `npm run test:unit`) defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project) and uses `ts-jest` for its TypeScript transforms
 - **Test globals** injected automatically: `UIX_SDK_VERSION = "0.0.999"`, `UIX_SDK_BUILDMODE = "test"`
-- **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`)
+- **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`, React components use `.test.tsx`)
 - **uix-core** requires a setup file (`jest.messagechannel.cjs`) — already configured, no action needed
 - Per-package test scripts exist only in `uix-host` and `uix-host-react`; run with `NODE_ENV=test jest` (the `uix-host` package Jest config uses `ts-jest`, while `uix-host-react` uses `@swc/jest` for transforms)
 
@@ -91,6 +91,7 @@ PRs that modify files under `packages/**` or `e2e/local-dist/**` run the `e2e-lo
 There is currently no separate PR workflow that runs `npm run lint` or `npm run test:unit`; run these locally as needed during development.
 
 To approximate CI locally, run the same commands as in `e2e-local-dist.yml` (e.g. `npm ci`, `npm run build`, then the E2E test command defined there) and be aware that docs-only or other non-`packages/**` / `e2e/local-dist/**` changes may not trigger that workflow on PRs.
+
 ## Versioning Rules
 
 All four packages are versioned in lockstep. Every `package.json` (root + all packages) must have the same version string. The release script validates this. Do not change versions manually.
