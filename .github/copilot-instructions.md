@@ -62,12 +62,12 @@ Run `npm run format` then `npm run lint` after editing to catch formatting issue
 
 ## Testing
 
-- **Framework**: Jest 29 with ts-jest, jsdom environment
-- **Config**: `jest.config.ts` at root; defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project)
+- **Framework**: Jest 29 (root Jest projects and `uix-host` use `ts-jest`; `uix-host-react` package tests use `@swc/jest`), jsdom environment
+- **Config**: Root `jest.config.ts` (used by `npm run test:unit`) defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project) and uses `ts-jest` for its TypeScript transforms
 - **Test globals** injected automatically: `UIX_SDK_VERSION = "0.0.999"`, `UIX_SDK_BUILDMODE = "test"`
 - **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`)
 - **uix-core** requires a setup file (`jest.messagechannel.cjs`) — already configured, no action needed
-- Per-package test scripts exist only in `uix-host` and `uix-host-react`; run with `NODE_ENV=test jest`
+- Per-package test scripts exist only in `uix-host` and `uix-host-react`; run with `NODE_ENV=test jest` (the `uix-host` package Jest config uses `ts-jest`, while `uix-host-react` uses `@swc/jest` for transforms)
 
 ## Key Configuration Files
 
