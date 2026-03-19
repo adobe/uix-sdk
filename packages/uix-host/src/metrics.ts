@@ -30,18 +30,18 @@ type EventPayload = {
  */
 class MetricsWrapper {
   private eventPool: EventPayload[] = [];
-  private metricsInstance: Readonly<Metrics> | undefined = undefined;
+  private _metricsInstance: Readonly<Metrics> | undefined = undefined;
 
   /**
    * Sends collected events to the metrics instance.
    */
   private flush(): void {
-    if (!this.metricsInstance) {
+    if (!this._metricsInstance) {
       return;
     }
 
     this.eventPool.forEach((eventPayload) => {
-      this.metricsInstance.event(eventPayload.event, eventPayload.args);
+      this._metricsInstance.event(eventPayload.event, eventPayload.args);
     });
     this.eventPool = [];
   }
@@ -50,15 +50,15 @@ class MetricsWrapper {
    * Gets the current metrics instance.
    */
   public get metricsInstance(): Readonly<Metrics> | undefined {
-    return this.metricsInstance;
+    return this._metricsInstance;
   }
 
   /**
    * Sets the metrics instance and flushes any pending events.
    */
   public set metricsInstance(metrics: Readonly<Metrics>) {
-    this.metricsInstance = metrics;
-    this.metricsInstance && this.flush();
+    this._metricsInstance = metrics;
+    this._metricsInstance && this.flush();
   }
 
   /**
@@ -66,8 +66,8 @@ class MetricsWrapper {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public event(event: string, args: any): void {
-    if (this.metricsInstance) {
-      this.metricsInstance.event(event, args);
+    if (this._metricsInstance) {
+      this._metricsInstance.event(event, args);
     } else {
       this.eventPool.push({ args, event });
     }
