@@ -120,13 +120,17 @@ export function useExtensions<
   const [hostError, setHostError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(() => host?.loading ?? false);
 
-  const boundryExtensionPointsAsString = extensionPoints?.map(
-    ({
-      service,
-      extensionPoint,
-      version,
-    }: ExtensionRegistryEndpointRegistration) =>
-      `${service}/${extensionPoint}/${version}`,
+  const boundryExtensionPointsAsString = useMemo(
+    () =>
+      extensionPoints?.map(
+        ({
+          service,
+          extensionPoint,
+          version,
+        }: ExtensionRegistryEndpointRegistration) =>
+          `${service}/${extensionPoint}/${version}`,
+      ),
+    [extensionPoints],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,7 +166,7 @@ export function useExtensions<
       }
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
-  }, [host, requires]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [host, requires, boundryExtensionPointsAsString]);
 
   const [extensions, setExtensions] = useState(() => getExtensions());
 

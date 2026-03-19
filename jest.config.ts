@@ -24,7 +24,7 @@ const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
 });
 
 const jestConfig = {
-  extensionsToTreatAsEsm: [".ts"],
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
