@@ -144,9 +144,9 @@ running against real webpack-dev-server instances of the host and guest apps.
 - Guest app (`e2e/guest-app/`) uses `?id=<ext-id>` in the URL hash to set its extension ID
 
 **Known pitfalls:**
-- The SDK `package.json` has `"main": "dist/index.js"` but the setup script copies dist files
-  to the package root (not a `dist/` subdirectory). Webpack falls back to `index.js` at root
-  via Node.js module resolution. This is intentional — do not add a `dist/` subdirectory.
+- The setup script copies each SDK package's `dist/` folder into `node_modules/@adobe/<pkg>/dist/`
+  so that the `"main": "dist/index.js"` and `"types": "dist/index.d.ts"` entrypoints in each
+  package.json resolve correctly.
 - webpack and babel-loader caches in `node_modules/.cache/` survive between runs. The setup
   script clears this cache whenever local SDK packages are injected. If you bypass setup,
   you may get stale SDK code silently served by the dev server.

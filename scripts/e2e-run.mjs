@@ -93,9 +93,14 @@ function cleanup(procs) {
 }
 
 /**
- * Kill any process already listening on the given port (macOS/Linux).
+ * Kill any process already listening on the given port.
+ * Uses lsof on macOS/Linux; emits a warning on other platforms.
  */
 function freePort(port) {
+  if (process.platform === 'win32') {
+    console.warn(`[e2e] Warning: cannot free port ${port} automatically on Windows. Kill any process on that port manually if needed.`);
+    return;
+  }
   try {
     execSync(`lsof -ti tcp:${port} | xargs kill -9`, { stdio: 'ignore' });
   } catch (_) {

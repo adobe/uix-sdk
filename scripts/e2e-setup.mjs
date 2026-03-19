@@ -102,9 +102,13 @@ function installLocalPackages(appDir, distJson) {
     const destDir = path.join(appDir, 'node_modules', scope, pkgName);
 
     fs.rmSync(destDir, { recursive: true, force: true });
-    copyDirSync(distDir, destDir);
 
-    // Also copy package.json so the module can be resolved correctly
+    // Copy dist/ into <destDir>/dist/ so package.json entrypoints
+    // (main: "dist/index.js", types: "dist/index.d.ts") resolve correctly.
+    const destDistDir = path.join(destDir, 'dist');
+    copyDirSync(distDir, destDistDir);
+
+    // Copy package.json to the module root so the module can be resolved
     if (fs.existsSync(pkgJsonSrc)) {
       fs.copyFileSync(pkgJsonSrc, path.join(destDir, 'package.json'));
     }

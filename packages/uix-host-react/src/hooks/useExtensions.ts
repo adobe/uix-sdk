@@ -176,7 +176,6 @@ export function useExtensions<
     [...baseDeps, updateOn],
   );
 
-  console.log("subscribeToUnload", host);
   const subscribeToUnload = useCallback((handler: EventListener) => {
     host.addEventListener("guestunload", handler);
 
