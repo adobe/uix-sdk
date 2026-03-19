@@ -38,17 +38,17 @@ npm test
 # 4. Run only unit tests (faster, skips lint)
 npm run test:unit
 
-# 5. Lint only (Prettier check + fixpack, runs in parallel)
+# 5. Lint only (Prettier check + fixpack, runs in parallel; no ESLint)
 npm run lint
 
-# 6. Auto-fix formatting issues before committing
+# 6. Auto-fix formatting issues (Prettier-only) before committing
 npm run format        # Prettier auto-fix
 
 # 7. Build TypeScript declarations
 npm run declarations:build
 ```
 
-`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. All three must pass for CI to succeed. Do not skip lint.
+`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step only runs the Prettier check and fixpack; it does not run ESLint. All three must pass for CI to succeed. Do not skip lint.
 
 **Production build** (used in CI release): `npm run build:production`
 
