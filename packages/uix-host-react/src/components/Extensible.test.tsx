@@ -38,6 +38,7 @@ describe("Extensible", () => {
           addEventListener: jest.fn(),
           load: mockLoad,
           removeEventListener: jest.fn(),
+          unload: mockUnload,
         }) as unknown as Host,
     );
 

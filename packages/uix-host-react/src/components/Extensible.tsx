@@ -235,15 +235,8 @@ export const Extensible = ({
     } else {
       loadExtensions(host);
     }
-  }, [
-    debug,
-    hostName,
-    runtimeContainer,
-    extensions,
-    guestOptions,
-    host,
-    sharedContext,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debug, hostName, runtimeContainer, extensions]);
 
   // skip render before host is initialized
   if (!host) {

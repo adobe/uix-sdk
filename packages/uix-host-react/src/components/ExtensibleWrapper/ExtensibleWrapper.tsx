@@ -57,7 +57,8 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
     imsOrg: string;
     apiKey: string;
   };
-  scope?: Record<string, string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
     extensions: InstalledExtensions,
