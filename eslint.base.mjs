@@ -18,7 +18,6 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import importSort from "eslint-plugin-simple-import-sort";
 import sonarjs from "eslint-plugin-sonarjs";
-import sortKeysFix from "eslint-plugin-sort-keys-fix";
 import globals from "globals";
 import ts from "typescript-eslint";
 
@@ -160,7 +159,7 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
         ],
         complexity: ["error", { max: 15 }],
         "max-params": ["error", { max: 4 }],
-        "max-statements": ["warn", { max: 15 }],
+        "max-statements": "off",
       },
     },
 
@@ -183,51 +182,16 @@ export const createConfig = ({ tsconfigRootDir, includeReact = false }) => {
         "no-useless-concat": ["error"],
         "spaced-comment": ["error", "always", { markers: ["/"] }],
         "prefer-arrow-callback": ["error"],
-        "func-style": ["warn", "expression"],
-        "arrow-body-style": ["error", "as-needed"],
+        "func-style": "off",
+        "arrow-body-style": "off",
         "no-multiple-empty-lines": ["error", { max: 1 }],
         curly: ["error", "all"],
         "padding-line-between-statements": [
           "error",
           { blankLine: "always", prev: "import", next: "*" },
           { blankLine: "any", prev: "import", next: "import" },
-          {
-            blankLine: "always",
-            prev: ["const", "let"],
-            next: [
-              "expression",
-              "block",
-              "block-like",
-              "return",
-              "if",
-              "function",
-              "class",
-              "for",
-              "do",
-              "while",
-              "switch",
-              "try",
-              "with",
-            ],
-          },
-          { blankLine: "any", prev: ["const"], next: ["const"] },
-          { blankLine: "any", prev: ["let"], next: ["let"] },
-          { blankLine: "always", prev: ["block", "block-like"], next: "*" },
-          { blankLine: "always", prev: "*", next: "if" },
-          { blankLine: "always", prev: "if", next: "*" },
-          { blankLine: "always", prev: "*", next: "export" },
-          { blankLine: "any", prev: "export", next: "export" },
         ],
         // comma-dangle is handled by prettier; do not override here
-      },
-    },
-
-    // sort-keys-fix
-    {
-      files: ["src/**/*", "**/src/**/*"],
-      plugins: { "sort-keys-fix": sortKeysFix },
-      rules: {
-        "sort-keys-fix/sort-keys-fix": "warn",
       },
     },
 

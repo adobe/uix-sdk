@@ -487,8 +487,6 @@ export class Port<_GuestApi = unknown>
       },
     );
   }
-
-  // eslint-disable-next-line max-statements
   private async connect() {
     let timeoutId: ReturnType<typeof setTimeout>;
     const serverFrame =

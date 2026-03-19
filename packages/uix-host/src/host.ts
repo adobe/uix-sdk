@@ -455,7 +455,7 @@ export class Host extends Emitter<HostEvents> {
     document.body.appendChild(container);
     return container;
   }
-  // eslint-disable-next-line max-statements
+
   private async loadOneGuest<T = unknown>(
     id: string,
     extension: string | Extension,

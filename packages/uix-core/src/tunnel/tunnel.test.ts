@@ -137,7 +137,7 @@ describe("an EventEmitter dispatching and receiving from a MessagePort", () => {
     connectTunnels();
     await testEventExchange(local.tunnel, remote.tunnel);
   });
-  // eslint-disable-next-line max-statements
+
   it("#connect(port) accepts a new messageport", async () => {
     const connectHandler = jest.fn();
 
@@ -200,7 +200,6 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
    * https://github.com/jsdom/jsdom/blob/22f7c3c51829a6f14387f7a99e5cdf087f72e685/lib/jsdom/living/post-message.js#L31-L37
    */
   describe.skip("creates a Tunnel connected to an iframe", () => {
-    // eslint-disable-next-line max-statements
     it("listens for handshakes from the frame window", async () => {
       const connectMessageHandler = jest.fn();
       const acceptListener = jest.fn();

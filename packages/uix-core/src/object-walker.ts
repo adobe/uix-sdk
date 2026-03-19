@@ -63,7 +63,6 @@ export type Simulated<T> = {
 export const NOT_TRANSFORMED = Symbol.for("NOT_TRANSFORMED");
 export const CIRCULAR = "[[Circular]]";
 
-// eslint-disable-next-line max-statements
 export const transformRecursive = <To>(
   transform: (source: unknown, parent?: object) => To | typeof NOT_TRANSFORMED,
   value: unknown,

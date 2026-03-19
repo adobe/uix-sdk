@@ -291,7 +291,7 @@ export class Guest<
   /**
    * @internal
    */
-  // eslint-disable-next-line max-statements
+
   async _connect() {
     this.emit("beforeconnect", { guest: this });
     try {

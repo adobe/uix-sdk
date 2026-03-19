@@ -116,7 +116,7 @@ export class Tunnel extends EventEmitter {
    * @alpha
    */
 
-  // eslint-disable-next-line max-lines-per-function, max-statements
+  // eslint-disable-next-line max-lines-per-function
   static toIframe(
     target: HTMLIFrameElement,
     options: Partial<TunnelConfig>,
@@ -232,7 +232,7 @@ export class Tunnel extends EventEmitter {
    *
    * @alpha
    */
-  // eslint-disable-next-line max-statements
+
   static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel {
     let timedOut = false;
     const key = makeKey();

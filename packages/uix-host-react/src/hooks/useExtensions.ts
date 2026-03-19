@@ -111,7 +111,7 @@ const NO_EXTENSIONS: [] = [];
  * useExtensions will trigger a re-render when extensions load. You can choose whether it triggers that rerender as each extension loads, or only after all extensions have loaded.
  * @public
  */
-// eslint-disable-next-line max-lines-per-function, max-statements
+// eslint-disable-next-line max-lines-per-function
 export const useExtensions = <
   Incoming extends GuestApis,
   Outgoing extends VirtualApi,
