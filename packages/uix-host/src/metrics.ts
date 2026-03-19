@@ -49,14 +49,14 @@ class MetricsWrapper {
   /**
    * Gets the current metrics instance.
    */
-  public get mertricsInstance(): Readonly<Metrics> | undefined {
+  public get metricsInstance(): Readonly<Metrics> | undefined {
     return this.metricsInstance;
   }
 
   /**
    * Sets the metrics instance and flushes any pending events.
    */
-  public set mertricsInstance(metrics: Readonly<Metrics>) {
+  public set metricsInstance(metrics: Readonly<Metrics>) {
     this.metricsInstance = metrics;
     this.metricsInstance && this.flush();
   }
@@ -92,7 +92,7 @@ const runtimeSpy = () => {
   }
 
   if ("exc-module-runtime" in window) {
-    metrics.mertricsInstance = createMetricsInstance();
+    metrics.metricsInstance = createMetricsInstance();
     return;
   }
 

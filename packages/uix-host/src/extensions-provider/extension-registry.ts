@@ -151,8 +151,6 @@ const extensionRegistryExtensionsProvider = (
       };
     }, {}),
   );
-
-  return Promise.resolve({});
 };
 
 /**
