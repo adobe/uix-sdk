@@ -92,14 +92,14 @@ Run `npm run format` then `npm run lint` after editing to catch issues before co
 
 ## CI Checks (GitHub Actions)
 
-PRs touching `packages/*` trigger:
-1. **Lint** (`npm run lint`) — must pass with no errors (warnings allowed)
-2. **Build** (`npm run build:production`)
-3. **Unit tests** (`npm run test:unit` + per-package `npm test`)
-4. **E2E tests** (`e2e-local-dist.yml`) — runs host/guest example apps and TestCafe tests
+PRs run the `e2e-local-dist.yml` workflow, which:
+1. Installs dependencies (`npm ci`).
+2. Builds the packages (`npm run build`).
+3. Runs the end-to-end test suite against the built distribution (see `e2e-local-dist.yml` for the exact command).
 
-Replicate CI locally with: `npm test` (covers steps 1 and 3). For step 2: `npm run build:production`.
+There is currently no separate PR workflow that runs `npm run lint` or `npm run test:unit`; run these locally as needed during development.
 
+To approximate CI locally, run the same commands as in `e2e-local-dist.yml` (e.g. `npm ci`, `npm run build`, then the E2E test command defined there).
 ## Versioning Rules
 
 All four packages are versioned in lockstep. Every `package.json` (root + all packages) must have the same version string. The release script validates this. Do not change versions manually.
