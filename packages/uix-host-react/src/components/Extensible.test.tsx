@@ -442,6 +442,44 @@ describe("Extensible", () => {
       // The first callback should not be called with cancelled results
       expect(extensionsListCallback).not.toHaveBeenCalled();
     });
+
+    it("should apply extensionsListCallback result when loading extensions", async () => {
+      const allExtensions: InstalledExtensions = {
+        "ext-1": { id: "ext-1", url: "https://example.com/ext1" },
+        "ext-2": { id: "ext-2", url: "https://example.com/ext2" },
+      };
+      const filteredExtensions: InstalledExtensions = {
+        "ext-1": { id: "ext-1", url: "https://example.com/ext1" },
+      };
+
+      const extensionsProvider = jest.fn().mockResolvedValue(allExtensions);
+      // Callback filters out ext-2
+      const extensionsListCallback = jest
+        .fn()
+        .mockReturnValue(filteredExtensions);
+
+      render(
+        <Extensible
+          appName="test-app"
+          extensionsProvider={extensionsProvider}
+          extensionsListCallback={extensionsListCallback}
+        >
+          <div>Test Child</div>
+        </Extensible>,
+      );
+
+      await waitFor(() => {
+        expect(extensionsListCallback).toHaveBeenCalledWith(allExtensions);
+      });
+
+      // host.load must receive the filtered list, not the original
+      await waitFor(() => {
+        expect(mockLoad).toHaveBeenCalled();
+        expect(mockLoad.mock.calls[0][0]).toEqual(filteredExtensions);
+      });
+
+      expect(mockLoad.mock.calls[0][0]).not.toEqual(allExtensions);
+    });
   });
 
   describe("Integration scenarios", () => {

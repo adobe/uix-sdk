@@ -21,7 +21,7 @@ const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
 });
 
 const jestConfig = {
-  extensionsToTreatAsEsm: [".ts"],
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
@@ -32,7 +32,15 @@ const jestConfig = {
       ],
     }),
     sdkProject("host", {}),
-    sdkProject("host-react", {}),
+    sdkProject("host-react", {
+      testMatch: [
+        "<rootDir>/packages/uix-host-react/src/**/*.test.ts",
+        "<rootDir>/packages/uix-host-react/src/**/*.test.tsx",
+      ],
+      moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",
+      },
+    }),
   ],
 };
 
