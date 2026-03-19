@@ -82,15 +82,15 @@ Individual packages support `npm run test` and `npm run test:watch` (run with `-
 
 ### E2E Tests
 ```bash
-npm run build && npm run test:e2e        # Full cycle: rebuild SDK, set up apps, run tests
-npm run test:e2e:skip-setup              # Skip setup (use only if apps are already set up
-                                         # AND servers are running from current build)
+npm run test:e2e                         # Full cycle: rebuild SDK, set up apps, run tests
+npm run test:e2e:skip-setup              # Skip build + setup (use only if apps are already
+                                         # installed and generated from the current build)
 ```
 
-**Important:** Always use `npm run build && npm run test:e2e` when testing SDK source changes.
-Never use `--skip-setup` after modifying SDK source — the setup step both copies the fresh
-dist into e2e app node_modules AND clears the webpack/babel cache, ensuring the new build
-is actually served. Using `--skip-setup` with a stale build will silently run against old code.
+**Important:** Never use `--skip-setup` after modifying SDK source — the setup step both
+copies the fresh dist into e2e app node_modules AND clears the webpack/babel cache, ensuring
+the new build is actually served. Using `--skip-setup` with a stale build will silently run
+against old code.
 
 ### Testing with Local Changes
 ```bash

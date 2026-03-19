@@ -48,6 +48,10 @@ jobs:
         working-directory: e2e/guest-app
         run: PORT=3002 npm start &
 
+      - name: Start Second Guest App
+        working-directory: e2e/guest-app
+        run: PORT=3003 npm start &
+
       - name: Wait for Applications to be Ready
         run: |
           echo "Waiting for services to start..."
@@ -55,7 +59,7 @@ jobs:
           npm install -g wait-on
 
       - name: Wait for servers to start
-        run: wait-on http://localhost:3000 http://localhost:3002 --timeout 60000
+        run: wait-on http://localhost:3000 http://localhost:3002 http://localhost:3003 --timeout 60000
 
       - name: Run E2E Tests with TestCafe
         working-directory: e2e/tests

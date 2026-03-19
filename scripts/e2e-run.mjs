@@ -122,12 +122,15 @@ async function main() {
   freePort(GUEST_PORT);
   freePort(GUEST_PORT_2);
 
-  // 1. Set up e2e apps
+  // 1. Build SDK + set up e2e apps
   if (!skipSetup) {
+    console.log('\n[e2e] Building SDK...');
+    execSync('npm run build', { cwd: ROOT_DIR, stdio: 'inherit' });
+
     console.log('\n[e2e] Setting up apps with local builds...');
     execSync('node scripts/e2e-setup.mjs local', { cwd: ROOT_DIR, stdio: 'inherit' });
   } else {
-    console.log('\n[e2e] Skipping setup (--skip-setup)');
+    console.log('\n[e2e] Skipping build + setup (--skip-setup)');
   }
 
   // 2. Start apps
