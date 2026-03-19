@@ -1,0 +1,104 @@
+# Copilot Instructions for UIX SDK
+
+Treat these instructions as your primary guide, but verify tooling and CI details against `package.json` and relevant workflow files when making or describing changes that depend on them. Search the codebase whenever information here seems incomplete, inconsistent, or out of date.
+
+## What This Repo Is
+
+Adobe UIX (UI Extensibility) SDK — a TypeScript monorepo enabling Experience Cloud host apps to define extensible UI areas and guest apps (extensions) to run in isolated iframes and communicate via RPC over `postMessage`.
+
+**Stack:** TypeScript 5.2 · ES2019 TS target (module ES2020) · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
+
+## Package Structure
+
+Four SDK packages under `packages/`, in dependency order:
+
+| Package | Path | Role |
+|---|---|---|
+| `@adobe/uix-core` | `packages/uix-core/` | RPC layer, tunneling, shared types — no deps |
+| `@adobe/uix-guest` | `packages/uix-guest/` | Extension-side: `register()` / `attach()` |
+| `@adobe/uix-host` | `packages/uix-host/` | Host-side: `Host` class, extension registry |
+| `@adobe/uix-host-react` | `packages/uix-host-react/` | React bindings: `<Extensible>`, `useExtensions()`, `<GuestUIFrame>` |
+
+Each package entry point is `src/index.ts`. Tests live alongside source as `*.test.ts(x)`.
+
+## Build & Validate — Exact Command Sequence
+
+**Always run `npm install` before any build after cloning or cleaning.**
+
+```bash
+# 1. Bootstrap (required once, and after any package.json change)
+npm install
+
+# 2. Build all SDK packages (development mode, includes source maps)
+npm run build
+
+# 3. Run the full test suite (lint → unit tests → per-package tests, sequential)
+npm test
+
+# 4. Run only unit tests (faster, skips lint)
+npm run test:unit
+
+# 5. Lint only (Prettier check + fixpack, runs in parallel; no ESLint)
+npm run lint
+
+# 6. Auto-fix formatting and normalize package.json fields (Prettier + fixpack) before committing
+npm run format        # Runs `format:code` (Prettier --write) + `format:pkg` (fixpack) in parallel; may reorder/normalize package.json. Use `npm run format:code` for Prettier-only fixes.
+
+# 7. Build TypeScript declarations
+npm run declarations:build
+```
+
+`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step only runs the Prettier check and fixpack; it does not run ESLint. In workflows that invoke `npm test` (and in local pre-publish checks), all three must pass; do not skip the `lint` phase.
+
+**Production build** (used in CI release): `npm run build:production`
+
+## ESLint
+
+ESLint is configured via `.eslintrc.cjs` at the root (ESLint v8). It extends `eslint:recommended`, `plugin:@typescript-eslint/recommended`, and `plugin:@typescript-eslint/recommended-requiring-type-checking`. Two unsafe-assignment/unsafe-return rules are turned off; all other recommended TypeScript rules apply.
+
+Note: `npm run lint` does **not** invoke ESLint — it only runs Prettier check and fixpack. To run ESLint manually: `npx eslint .`
+
+Run `npm run format` then `npm run lint` after editing to catch formatting issues before committing.
+
+## Testing
+
+- **Framework**: Jest 29 (root Jest projects and `uix-host` use `ts-jest`; `uix-host-react` package tests use `@swc/jest`), jsdom environment
+- **Config**: Root `jest.config.ts` (used by `npm run test:unit`) defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project) and uses `ts-jest` for its TypeScript transforms
+- **Test globals** injected automatically: `UIX_SDK_VERSION = "0.0.999"`, `UIX_SDK_BUILDMODE = "test"`
+- **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`, React components use `.test.tsx`)
+- **uix-core** requires a setup file (`jest.messagechannel.cjs`) — already configured, no action needed
+- Per-package test scripts exist only in `uix-host` and `uix-host-react`; run with `NODE_ENV=test jest` (the `uix-host` package Jest config uses `ts-jest`, while `uix-host-react` uses `@swc/jest` for transforms)
+
+## Key Configuration Files
+
+| File | Purpose |
+|---|---|
+| `jest.config.ts` | Root Jest config, 3 projects (uix-core, uix-host, uix-host-react) |
+| `tsconfig.json` | Root TypeScript project references |
+| `tsconfig-base.json` | Shared TS settings (target ES2019, module ES2020) |
+| `.eslintrc.cjs` | Root ESLint configuration |
+| `configs/common-tsupconfig.js` | Shared tsup bundler config (note: minification currently disabled) |
+| `scripts/bundler.mjs` | Builds packages in dependency order |
+| `scripts/release.mjs` | Versioning + publish (requires `main` branch + clean working dir) |
+
+## CI Checks (GitHub Actions)
+
+PRs that modify files under `packages/**` or `e2e/local-dist/**` run the `e2e-local-dist.yml` workflow, which:
+1. Installs dependencies (`npm ci`).
+2. Builds the packages (`npm run build`).
+3. Runs the end-to-end test suite against the built distribution (see `e2e-local-dist.yml` for the exact command and path filters).
+
+There is currently no separate PR workflow that runs `npm run lint` or `npm run test:unit`; run these locally as needed during development.
+
+To approximate CI locally, run the same commands as in `e2e-local-dist.yml` (e.g. `npm ci`, `npm run build`, then the E2E test command defined there) and be aware that docs-only or other non-`packages/**` / `e2e/local-dist/**` changes may not trigger that workflow on PRs.
+
+## Versioning Rules
+
+All four packages are versioned in lockstep. Every `package.json` (root + all packages) must have the same version string. The release script validates this. Do not change versions manually.
+
+## Common Pitfalls
+
+- **`npm test` fails on lint**: run `npm run format` first, then re-check with `npm run lint`.
+- **Import errors after adding a file**: ensure the export is added to the package's `src/index.ts`.
+- **Type errors with `.js` extensions in imports**: all internal imports use `.js` extensions (TypeScript ESM requirement) — do not change to `.ts`.
+- **`host` and `guestOptions` are intentionally omitted** from the `useEffect` dep array in `Extensible.tsx` — do not add them; the effect uses a ref (`prevSharedContext`) to track `sharedContext` changes.
