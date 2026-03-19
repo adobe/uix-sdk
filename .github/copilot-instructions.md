@@ -6,7 +6,7 @@ Treat these instructions as your primary guide, but verify tooling and CI detail
 
 Adobe UIX (UI Extensibility) SDK — a TypeScript monorepo enabling Experience Cloud host apps to define extensible UI areas and guest apps (extensions) to run in isolated iframes and communicate via RPC over `postMessage`.
 
-**Stack:** TypeScript 5.2 · ES2022 target · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node ≥ 16 LTS · npm workspaces · tsup bundler · Jest 29 · ESLint 8 with root `.eslintrc.cjs` · Prettier
+**Stack:** TypeScript 5.2 · ES2022 target · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node ≥ 16 LTS · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
 
 ## Package Structure
 
