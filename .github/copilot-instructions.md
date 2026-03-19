@@ -6,7 +6,7 @@ Treat these instructions as your primary guide, but verify tooling and CI detail
 
 Adobe UIX (UI Extensibility) SDK — a TypeScript monorepo enabling Experience Cloud host apps to define extensible UI areas and guest apps (extensions) to run in isolated iframes and communicate via RPC over `postMessage`.
 
-**Stack:** TypeScript 5.2 · ES2022 target · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node ≥ 16 LTS · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
+**Stack:** TypeScript 5.2 · ES2022 target · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
 
 ## Package Structure
 
@@ -42,7 +42,7 @@ npm run test:unit
 npm run lint
 
 # 6. Auto-fix formatting and normalize package.json fields (Prettier + fixpack) before committing
-npm run format        # Prettier + fixpack auto-fix (may reorder/normalize package.json)
+npm run format        # Runs `format:code` (Prettier --write) + `format:pkg` (fixpack) in parallel; may reorder/normalize package.json. Use `npm run format:code` for Prettier-only fixes.
 
 # 7. Build TypeScript declarations
 npm run declarations:build
