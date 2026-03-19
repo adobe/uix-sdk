@@ -74,8 +74,8 @@ npm run demo              # Production build + demo server
 npm test                  # Run all tests (lint + unit tests in all packages)
 npm run test:unit         # Run Jest unit tests only
 npm run test:unit:watch   # Watch mode for unit tests
-npm run lint              # Check formatting and linting
-npm run format            # Auto-fix formatting issues
+npm run lint              # ESLint (--fix), Prettier check, and fixpack — all in parallel
+npm run format            # Auto-fix Prettier formatting and normalize package.json fields
 ```
 
 Individual packages support `npm run test` and `npm run test:watch` (run with `-w packages/<name>`).

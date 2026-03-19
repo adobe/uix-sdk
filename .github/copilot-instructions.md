@@ -6,7 +6,7 @@ Treat these instructions as your primary guide, but verify tooling and CI detail
 
 Adobe UIX (UI Extensibility) SDK — a TypeScript monorepo enabling Experience Cloud host apps to define extensible UI areas and guest apps (extensions) to run in isolated iframes and communicate via RPC over `postMessage`.
 
-**Stack:** TypeScript 5.2 · ES2019 TS target (module ES2020) · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint ^8.21.0 with root `.eslintrc.cjs` (no flat config) · Prettier
+**Stack:** TypeScript 5.2 · ES2019 TS target (module ES2020) · React 17+ (used by `@adobe/uix-host-react`; React is not declared as a peerDependency there) · Node (minimum per `.nvmrc`, with CI currently using Node 18/20 — check workflows for exact versions) · npm workspaces · tsup bundler · Jest 29 · ESLint 9 flat config (`eslint.base.mjs` shared factory; each package has `eslint.config.mjs`) · Prettier 3
 
 ## Package Structure
 
@@ -38,7 +38,7 @@ npm test
 # 4. Run only unit tests (faster, skips lint)
 npm run test:unit
 
-# 5. Lint only (Prettier check + fixpack, runs in parallel; no ESLint)
+# 5. Lint only (ESLint --fix + Prettier check + fixpack, all in parallel)
 npm run lint
 
 # 6. Auto-fix formatting and normalize package.json fields (Prettier + fixpack) before committing
@@ -48,22 +48,31 @@ npm run format        # Runs `format:code` (Prettier --write) + `format:pkg` (fi
 npm run declarations:build
 ```
 
-`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step only runs the Prettier check and fixpack; it does not run ESLint. In workflows that invoke `npm test` (and in local pre-publish checks), all three must pass; do not skip the `lint` phase.
+`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step runs ESLint (with `--fix`), Prettier check, and fixpack in parallel. All three phases must pass; do not skip the `lint` phase.
 
 **Production build** (used in CI release): `npm run build:production`
 
 ## ESLint
 
-ESLint is configured via `.eslintrc.cjs` at the root (ESLint v8). It extends `eslint:recommended`, `plugin:@typescript-eslint/recommended`, and `plugin:@typescript-eslint/recommended-requiring-type-checking`. Two unsafe-assignment/unsafe-return rules are turned off; all other recommended TypeScript rules apply.
+ESLint 9 flat config. The shared factory is in `eslint.base.mjs` at the repo root; each package imports it in its own `eslint.config.mjs`. `npm run lint` runs `lint:eslint` (per-package `eslint src --fix`) in parallel with Prettier and fixpack.
 
-Note: `npm run lint` does **not** invoke ESLint — it only runs Prettier check and fixpack. To run ESLint manually: `npx eslint .`
+Key rules enforced — these are the most common causes of `npm run lint` failures:
 
-Run `npm run format` then `npm run lint` after editing to catch formatting issues before committing.
+- **Import order**: imports must be sorted alphabetically within groups (eslint-plugin-simple-import-sort)
+- **Object key order**: object literal keys must be alphabetically sorted (sort-keys-fix) — use `// eslint-disable-next-line sort-keys-fix/sort-keys-fix` when order is intentional
+- **Function length**: max 75 lines per function (200 in test files)
+- **Parameter count**: max 4 parameters; use an options object for more
+- **No default exports** (except config files like `eslint.config.mjs`)
+- **React hooks**: `exhaustive-deps` enforced — add `// eslint-disable-next-line react-hooks/exhaustive-deps` with a comment when intentionally omitting deps
+- **No circular imports** (eslint-plugin-import)
+- **Prettier formatting** is enforced via eslint-plugin-prettier; run `npm run format` to auto-fix
+
+Run `npm run format` before committing; ESLint auto-fixes style issues when `npm run lint` runs, but Prettier formatting must be clean first.
 
 ## Testing
 
 - **Framework**: Jest 29 (root Jest projects and `uix-host` use `ts-jest`; `uix-host-react` package tests use `@swc/jest`), jsdom environment
-- **Config**: Root `jest.config.ts` (used by `npm run test:unit`) defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project) and uses `ts-jest` for its TypeScript transforms
+- **Config**: Root `jest.config.ts` (used by `npm run test:unit`) defines 4 projects: `uix-core`, `uix-guest`, `uix-host`, `uix-host-react`; uses `ts-jest` for TypeScript transforms
 - **Test globals** injected automatically: `UIX_SDK_VERSION = "0.0.999"`, `UIX_SDK_BUILDMODE = "test"`
 - **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`, React components use `.test.tsx`)
 - **uix-core** requires a setup file (`jest.messagechannel.cjs`) — already configured, no action needed
@@ -73,10 +82,10 @@ Run `npm run format` then `npm run lint` after editing to catch formatting issue
 
 | File | Purpose |
 |---|---|
-| `jest.config.ts` | Root Jest config, 3 projects (uix-core, uix-host, uix-host-react) |
+| `jest.config.ts` | Root Jest config, 4 projects (uix-core, uix-guest, uix-host, uix-host-react) |
 | `tsconfig.json` | Root TypeScript project references |
 | `tsconfig-base.json` | Shared TS settings (target ES2019, module ES2020) |
-| `.eslintrc.cjs` | Root ESLint configuration |
+| `eslint.base.mjs` | Shared ESLint flat config factory (imported by each package's `eslint.config.mjs`) |
 | `configs/common-tsupconfig.js` | Shared tsup bundler config (note: minification currently disabled) |
 | `scripts/bundler.mjs` | Builds packages in dependency order |
 | `scripts/release.mjs` | Versioning + publish (requires `main` branch + clean working dir) |
