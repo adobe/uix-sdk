@@ -120,7 +120,7 @@ export function useExtensions<
   const [hostError, setHostError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(() => host?.loading ?? false);
 
-  const boundryExtensionPointsAsString = useMemo(
+  const boundaryExtensionPointsAsString = useMemo(
     () =>
       extensionPoints?.map(
         ({
@@ -155,10 +155,10 @@ export function useExtensions<
         getAllExtensionPointsFromGuest(guest);
 
       if (
-        !boundryExtensionPointsAsString ||
+        !boundaryExtensionPointsAsString ||
         !allExtensionPoints.length ||
         isGuestExtensionPointInBoundary(
-          boundryExtensionPointsAsString,
+          boundaryExtensionPointsAsString,
           allExtensionPoints,
         )
       ) {
@@ -166,7 +166,7 @@ export function useExtensions<
       }
     }
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
-  }, [host, requires, boundryExtensionPointsAsString]);
+  }, [host, requires, boundaryExtensionPointsAsString]);
 
   const [extensions, setExtensions] = useState(() => getExtensions());
 
@@ -195,23 +195,20 @@ export function useExtensions<
     });
   }, [host]);
 
-  // Track loading state. Subscribes to both guestload and loadallguests so that
-  // isLoading correctly resets to true at the start of a subsequent load cycle:
-  // guestload fires while host.loading is still true (before loadallguests), so
-  // checking host.loading there detects when a new load cycle begins.
-  // Known limitation: a reload with zero guests will not flip isLoading to true
-  // because guestload never fires and there is no "load started" event on Host.
+  // Track loading state. Subscribes to guestbeforeload to detect the start of
+  // every load cycle (including cycles where all guests fail and guestload never
+  // fires), and to loadallguests to clear loading when the cycle completes.
   useEffect(() => {
     if (!host) return;
     setIsLoading(host.loading);
-    const unsubGuestLoad = host.addEventListener("guestload", () => {
-      if (host.loading) setIsLoading(true);
-    });
+    const unsubBeforeLoad = host.addEventListener("guestbeforeload", () =>
+      setIsLoading(true),
+    );
     const unsubLoadAll = host.addEventListener("loadallguests", () =>
       setIsLoading(false),
     );
     return () => {
-      unsubGuestLoad();
+      unsubBeforeLoad();
       unsubLoadAll();
     };
   }, [host]);
@@ -277,14 +274,14 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
 }
 
 function isGuestExtensionPointInBoundary(
-  boundryExtensionPointsAsString: string[],
+  boundaryExtensionPointsAsString: string[],
   guestExtensionPoints: string[],
 ) {
   return (
-    boundryExtensionPointsAsString?.length &&
+    boundaryExtensionPointsAsString?.length &&
     guestExtensionPoints?.length &&
     guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint),
+      boundaryExtensionPointsAsString.includes(extensionPoint),
     )
   );
 }

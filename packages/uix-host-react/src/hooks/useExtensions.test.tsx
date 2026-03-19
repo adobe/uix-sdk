@@ -203,7 +203,7 @@ describe("useExtension hook", () => {
     expect(result.current.extensions.length).toBe(2);
   });
 
-  test("loading resets to true on a subsequent load cycle when a guestload fires", async () => {
+  test("loading resets to true on a subsequent load cycle when guestbeforeload fires", async () => {
     // Start with host loading
     (mockHost as unknown as { loading: boolean }).loading = true;
     const { result } = renderHook(() =>
@@ -220,12 +220,11 @@ describe("useExtension hook", () => {
     });
     expect(result.current.loading).toBe(false);
 
-    // Simulate a second load cycle: host.loading flips to true and a guestload
-    // fires (host.loading is checked inside the guestload handler).
+    // Simulate a second load cycle via guestbeforeload (fires even when all
+    // guests fail to load, unlike guestload which requires at least one success).
     await act(async () => {
-      (mockHost as unknown as { loading: boolean }).loading = true;
-      for (const listener of mockListeners["guestload"] ?? []) {
-        listener(new Event("guestload"));
+      for (const listener of mockListeners["guestbeforeload"] ?? []) {
+        listener(new Event("guestbeforeload"));
       }
     });
     expect(result.current.loading).toBe(true);

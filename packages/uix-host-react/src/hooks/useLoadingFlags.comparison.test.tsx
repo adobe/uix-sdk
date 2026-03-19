@@ -174,12 +174,10 @@ describe("useExtensions().loading vs useExtensionListFetched() comparison", () =
     expect(result.current.extensionListFetched).toBe(true);
     expect(result.current.loading).toBe(false);
 
-    // Simulate a new load cycle starting: host.loading flips to true and a
-    // guestload event fires (host.loading is checked inside that handler).
+    // Simulate a new load cycle starting via guestbeforeload.
     await act(async () => {
-      (mockHost as unknown as { loading: boolean }).loading = true;
-      for (const listener of mockListeners["guestload"] ?? []) {
-        listener(new Event("guestload"));
+      for (const listener of mockListeners["guestbeforeload"] ?? []) {
+        listener(new Event("guestbeforeload"));
       }
     });
 
