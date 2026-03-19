@@ -4,6 +4,7 @@ import HostAppLoadFailure from './HostAppLoadFailure';
 import HostAppMulti from './HostAppMulti';
 import HostAppRequires from './HostAppRequires';
 import HostAppDynamic from './HostAppDynamic';
+import HostAppCallbackAdd from './HostAppCallbackAdd';
 
 function getScenario() {
   const hash = window.location.hash;
@@ -11,6 +12,7 @@ function getScenario() {
   if (hash.startsWith('#/multi')) return 'multi';
   if (hash.startsWith('#/requires')) return 'requires';
   if (hash.startsWith('#/dynamic')) return 'dynamic';
+  if (hash.startsWith('#/callback-add')) return 'callback-add';
   return 'default';
 }
 
@@ -44,6 +46,10 @@ function App() {
 
   if (scenario === 'dynamic') {
     return <HostAppDynamic />;
+  }
+
+  if (scenario === 'callback-add') {
+    return <HostAppCallbackAdd />;
   }
 
   const Component = components[scenario];

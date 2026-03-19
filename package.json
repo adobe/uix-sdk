@@ -29,6 +29,8 @@
     "test": "run-s lint test:unit test:subtests",
     "e2e:host": "npm start --prefix e2e/host-app",
     "e2e:guest": "npm start --prefix e2e/guest-app",
+    "e2e:dev": "node scripts/e2e-dev.mjs",
+    "e2e:dev:skip-setup": "node scripts/e2e-dev.mjs --skip-setup",
     "test:e2e": "node scripts/e2e-run.mjs",
     "test:e2e:skip-setup": "node scripts/e2e-run.mjs --skip-setup",
     "test:subtests": "npm run any test",
