@@ -38,7 +38,7 @@ npm test
 # 4. Run only unit tests (faster, skips lint)
 npm run test:unit
 
-# 5. Lint only (ESLint --fix + Prettier check + fixpack, all in parallel)
+# 5. Lint only (ESLint check, Prettier check, fixpack — all in parallel; does NOT auto-fix)
 npm run lint
 
 # 6. Auto-fix formatting and normalize package.json fields (Prettier + fixpack) before committing
@@ -48,13 +48,13 @@ npm run format        # Runs `format:code` (Prettier --write) + `format:pkg` (fi
 npm run declarations:build
 ```
 
-`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step runs ESLint (with `--fix`), Prettier check, and fixpack in parallel. All three phases must pass; do not skip the `lint` phase.
+`npm test` runs `lint → test:unit → test:subtests` sequentially via `run-s`. The `lint` step runs ESLint (check-only), Prettier check, and fixpack in parallel — it reports errors but does not modify files. All three phases must pass; do not skip the `lint` phase.
 
 **Production build** (used in CI release): `npm run build:production`
 
 ## ESLint
 
-ESLint 9 flat config. The shared factory is in `eslint.base.mjs` at the repo root; each package imports it in its own `eslint.config.mjs`. `npm run lint` runs `lint:eslint` (per-package `eslint src --fix`) in parallel with Prettier and fixpack.
+ESLint 9 flat config. The shared factory is in `eslint.base.mjs` at the repo root; each package imports it in its own `eslint.config.mjs`. `npm run lint` runs `lint:eslint` (per-package `eslint src`, check-only) in parallel with Prettier and fixpack. To auto-fix ESLint violations, run `eslint src --fix` inside the relevant package directory.
 
 Key rules enforced — these are the most common causes of `npm run lint` failures:
 
@@ -67,7 +67,7 @@ Key rules enforced — these are the most common causes of `npm run lint` failur
 - **No circular imports** (eslint-plugin-import)
 - **Prettier formatting** is enforced via eslint-plugin-prettier; run `npm run format` to auto-fix
 
-Run `npm run format` before committing; ESLint auto-fixes style issues when `npm run lint` runs, but Prettier formatting must be clean first.
+Run `npm run format` before committing. `npm run lint` is check-only — it will report ESLint and Prettier violations but will not fix them. To fix ESLint issues: `cd packages/<name> && eslint src --fix`.
 
 ## Testing
 
