@@ -1,11 +1,11 @@
 import type { WrappedMessage } from "./message-wrapper";
 import type { DefTicket } from "./tickets";
 import {
-  Primitive,
-  isPlainObject,
-  isPrimitive,
   isIterable,
   isObjectWithPrototype,
+  isPlainObject,
+  isPrimitive,
+  type Primitive,
 } from "./value-assertions";
 
 /**
@@ -25,8 +25,9 @@ export type Asynced<T> = T extends (...args: infer A) => infer R
   : {
       [K in ExtractKeys<
         T,
-        Function | object | any[] | [any, any]
-      >]: T[K] extends (...args: any) => PromiseLike<any>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ((...args: unknown[]) => unknown) | object | any[] | [any, any]
+      >]: T[K] extends (...args: unknown[]) => PromiseLike<unknown>
         ? T[K]
         : T[K] extends [infer U, infer V]
           ? [Asynced<U>, Asynced<V>]
@@ -51,9 +52,10 @@ export type DefMessage = WrappedMessage<DefTicket>;
 
 /** @internal */
 export type Simulated<T> = {
-  [K in ExtractKeys<T, Function | object>]: T[K] extends (
-    ...args: unknown[]
-  ) => unknown
+  [K in ExtractKeys<
+    T,
+    ((...args: unknown[]) => unknown) | object
+  >]: T[K] extends (...args: unknown[]) => unknown
     ? DefMessage
     : Simulated<T[K]>;
 };
@@ -61,32 +63,40 @@ export type Simulated<T> = {
 export const NOT_TRANSFORMED = Symbol.for("NOT_TRANSFORMED");
 export const CIRCULAR = "[[Circular]]";
 
-export function transformRecursive<To>(
-  transform: (source: unknown, parent?: Object) => To | typeof NOT_TRANSFORMED,
+export const transformRecursive = <To>(
+  transform: (source: unknown, parent?: object) => To | typeof NOT_TRANSFORMED,
   value: unknown,
-  parent?: Object,
+  parent?: object,
   _refs: WeakSet<object> = new WeakSet(),
-): To {
+): To => {
   if (isPrimitive(value)) {
     return value as To;
   }
+
   const transformed = transform(value, parent);
+
   if (transformed !== NOT_TRANSFORMED) {
     return transformed;
   }
+
   if (isIterable(value)) {
     const outArray = [];
+
     for (const item of value) {
       outArray.push(transformRecursive(transform, item, undefined, _refs));
     }
+
     return outArray as To;
   }
+
   if (isPlainObject(value)) {
     if (_refs.has(value)) {
       return CIRCULAR as To;
     }
+
     _refs.add(value);
     const outObj = {};
+
     for (const key of Reflect.ownKeys(value)) {
       Reflect.set(
         outObj,
@@ -99,21 +109,26 @@ export function transformRecursive<To>(
         ),
       );
     }
+
     return outObj as To;
   }
+
   if (isObjectWithPrototype(value)) {
     if (_refs.has(value)) {
       return CIRCULAR as To;
     }
+
     _refs.add(value);
-    const getObjectKeys = (obj: Object): (string | symbol)[] => {
+    const getObjectKeys = (obj: object): (string | symbol)[] => {
       const result: Set<string | symbol> = new Set();
+
       do {
         if (Reflect.getPrototypeOf(obj) !== null) {
           for (const prop of Object.getOwnPropertyNames(obj)) {
             if (prop === "constructor") {
               continue;
             }
+
             result.add(prop);
           }
         }
@@ -121,8 +136,10 @@ export function transformRecursive<To>(
 
       return [...result];
     };
+
     const outObj = {};
     const properties = getObjectKeys(value);
+
     for (const key of properties) {
       Reflect.set(
         outObj,
@@ -130,8 +147,9 @@ export function transformRecursive<To>(
         transformRecursive(transform, Reflect.get(value, key), value, _refs),
       );
     }
+
     return outObj as To;
   }
 
   throw new Error(`Bad value! ${Object.prototype.toString.call(value)}`);
-}
+};

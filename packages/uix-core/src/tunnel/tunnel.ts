@@ -1,21 +1,24 @@
 import EventEmitter from "eventemitter3";
+
+import { quietConsole } from "../debuglog";
+import { unwrap } from "../message-wrapper";
 import { isIframe } from "../value-assertions";
 import { TunnelMessenger } from "./tunnel-messenger";
-import { unwrap } from "../message-wrapper";
-import { quietConsole } from "../debuglog";
 
 /**
  * Child iframe will send offer messages to parent at this frequency until one
  * is accepted or the attempt times out.
- * TODO: make configurable if ever necessary
  */
+// eslint-disable-next-line sonarjs/todo-tag
+// TODO: make configurable if ever necessary
 const RETRY_MS = 100;
 
 /**
  * Child iframe may unexpectedly close or detach from DOM. It emits no event
  * when this happens, so we must poll it and destroy the tunnel when necessary.
- * TODO: make configurable if ever necessary
  */
+// eslint-disable-next-line sonarjs/todo-tag
+// TODO: make configurable if ever necessary
 const STATUSCHECK_MS = 5000;
 
 /**
@@ -25,6 +28,7 @@ const STATUSCHECK_MS = 5000;
 const KEY_BASE = 36;
 const KEY_LENGTH = 8;
 const KEY_EXP = KEY_BASE ** KEY_LENGTH;
+// eslint-disable-next-line sonarjs/pseudo-random
 const makeKey = () => Math.round(Math.random() * KEY_EXP).toString(KEY_BASE);
 
 /** @alpha */
@@ -54,20 +58,21 @@ const badTimeout = "\n - timeout value must be a number of milliseconds";
 const badTargetOrigin =
   "\n - targetOrigin must be a valid URL origin or '*' for any origin";
 
-function isFromOrigin(
+const isFromOrigin = (
   event: MessageEvent,
   source: WindowProxy,
   targetOrigin: string,
-) {
+) => {
   try {
     return (
       source === event.source &&
       (targetOrigin === "*" || targetOrigin === new URL(event.origin).origin)
     );
+    // eslint-disable-next-line sonarjs/no-ignored-exceptions
   } catch (_) {
     return false;
   }
-}
+};
 
 const { emit: emitOn } = EventEmitter.prototype;
 
@@ -111,6 +116,7 @@ export class Tunnel extends EventEmitter {
    * @alpha
    */
 
+  // eslint-disable-next-line max-lines-per-function
   static toIframe(
     target: HTMLIFrameElement,
     options: Partial<TunnelConfig>,
@@ -127,9 +133,9 @@ export class Tunnel extends EventEmitter {
     const config = Tunnel._normalizeConfig(options);
     const tunnel = new Tunnel(config);
     const messenger = new TunnelMessenger({
+      logger: config.logger,
       myOrigin: window.location.origin,
       targetOrigin: config.targetOrigin,
-      logger: config.logger,
     });
 
     tunnel.on("destroyed", () =>
@@ -154,9 +160,6 @@ export class Tunnel extends EventEmitter {
         e,
       ),
     );
-    let frameStatusCheck: number;
-    let timeout: number;
-
     const offerListener = (event: MessageEvent) => {
       if (
         !tunnel.isConnected &&
@@ -165,22 +168,21 @@ export class Tunnel extends EventEmitter {
       ) {
         const { offers, version } = unwrap(event.data);
         const accepted = messenger.makeAccepted(offers);
+
         if (versionCallback) {
           versionCallback(version);
         }
+
         const channel = new MessageChannel();
+
         target.contentWindow.postMessage(accepted, config.targetOrigin, [
           channel.port1,
         ]);
         tunnel.connect(channel.port2);
       }
     };
-    const cleanup = () => {
-      clearTimeout(timeout);
-      clearInterval(frameStatusCheck);
-      window.removeEventListener("message", offerListener);
-    };
-    timeout = window.setTimeout(() => {
+
+    const timeout = window.setTimeout(() => {
       tunnel.abort(
         new Error(
           `Timed out awaiting initial message from target iframe after ${config.timeout}ms`,
@@ -188,20 +190,15 @@ export class Tunnel extends EventEmitter {
       );
     }, config.timeout);
 
-    tunnel.on("destroyed", cleanup);
-    tunnel.on("connected", () => clearTimeout(timeout));
-
-    /**
-     * Check if the iframe has been unexpectedly removed from the DOM (for
-     * example, by React). Unsubscribe event listeners and destroy tunnel.
-     */
-    frameStatusCheck = window.setInterval(() => {
+    const frameStatusCheck = window.setInterval(() => {
       if (!target.isConnected) {
         cleanup();
+
         if (tunnel.isConnected) {
           const frameDisconnectError = new Error(
             `Tunnel target iframe at ${tunnel.config.targetOrigin} was disconnected from the document!`,
           );
+
           Object.assign(frameDisconnectError, { target });
           tunnel.abort(frameDisconnectError);
         } else {
@@ -209,6 +206,15 @@ export class Tunnel extends EventEmitter {
         }
       }
     }, STATUSCHECK_MS);
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      clearInterval(frameStatusCheck);
+      window.removeEventListener("message", offerListener);
+    };
+
+    tunnel.on("destroyed", cleanup);
+    tunnel.on("connected", () => clearTimeout(timeout));
 
     window.addEventListener("message", offerListener);
 
@@ -226,13 +232,13 @@ export class Tunnel extends EventEmitter {
    *
    * @alpha
    */
+
   static toParent(source: WindowProxy, opts: Partial<TunnelConfig>): Tunnel {
-    let retrying: number;
-    let timeout: number;
     let timedOut = false;
     const key = makeKey();
     const config = Tunnel._normalizeConfig(opts);
     const tunnel = new Tunnel(config);
+
     tunnel.on("destroyed", () =>
       config.logger.log(`Tunnel ${key} to parent window destroyed!`, tunnel),
     );
@@ -243,9 +249,9 @@ export class Tunnel extends EventEmitter {
       config.logger.log(`Tunnel ${key} to parent window error!`, tunnel, e),
     );
     const messenger = new TunnelMessenger({
+      logger: config.logger,
       myOrigin: window.location.origin,
       targetOrigin: config.targetOrigin,
-      logger: config.logger,
     });
     const acceptListener = (event: MessageEvent) => {
       if (
@@ -254,23 +260,21 @@ export class Tunnel extends EventEmitter {
         messenger.isHandshakeAccepting(event.data, key)
       ) {
         cleanup();
+
         if (!event.ports || !event.ports.length) {
           const portError = new Error(
             "Received handshake accept message, but it did not include a MessagePort to establish tunnel",
           );
+
           tunnel.emitLocal("error", portError);
           return;
         }
+
         tunnel.connect(event.ports[0]);
       }
     };
-    const cleanup = () => {
-      clearInterval(retrying);
-      clearTimeout(timeout);
-      window.removeEventListener("message", acceptListener);
-    };
 
-    timeout = window.setTimeout(() => {
+    const timeout = window.setTimeout(() => {
       if (!timedOut) {
         timedOut = true;
         tunnel.abort(
@@ -281,14 +285,6 @@ export class Tunnel extends EventEmitter {
       }
     }, config.timeout);
 
-    window.addEventListener("message", acceptListener);
-    tunnel.on("destroyed", () => {
-      cleanup();
-    });
-    tunnel.on("connected", () => {
-      cleanup();
-    });
-
     const sendOffer = () => {
       if (tunnel.isConnected) {
         clearInterval(retrying);
@@ -296,8 +292,24 @@ export class Tunnel extends EventEmitter {
         source.postMessage(messenger.makeOffered(key), config.targetOrigin);
       }
     };
-    retrying = window.setInterval(sendOffer, RETRY_MS);
+
+    const retrying = window.setInterval(sendOffer, RETRY_MS);
+
     sendOffer();
+
+    const cleanup = () => {
+      clearInterval(retrying);
+      clearTimeout(timeout);
+      window.removeEventListener("message", acceptListener);
+    };
+
+    window.addEventListener("message", acceptListener);
+    tunnel.on("destroyed", () => {
+      cleanup();
+    });
+    tunnel.on("connected", () => {
+      cleanup();
+    });
 
     return tunnel;
   }
@@ -311,6 +323,7 @@ export class Tunnel extends EventEmitter {
       this._messagePort.removeEventListener("message", this._emitFromMessage);
       this._messagePort.close();
     }
+
     this._messagePort = remote;
     remote.addEventListener("message", this._emitFromMessage);
     this.emitLocal("connected");
@@ -329,10 +342,13 @@ export class Tunnel extends EventEmitter {
       this._messagePort = null;
       this.isConnected = false;
     }
+
     // don't add the argument to the logging if it doesn't exist; otherwise, on
     // a normal destroy, it logs a confusing "undefined"
     const context = e ? [e] : [];
+
     this.emitLocal("destroyed", ...context);
+    // eslint-disable-next-line sonarjs/todo-tag
     // this.removeAllListeners(); // TODO: maybe necessary for memory leaks
   }
 
@@ -340,13 +356,13 @@ export class Tunnel extends EventEmitter {
     if (!this._messagePort) {
       return false;
     }
-    this._messagePort.postMessage({ type, payload });
+
+    this._messagePort.postMessage({ payload, type });
     return true;
   }
 
-  emitLocal = (type: string | symbol, payload?: unknown) => {
-    return emitOn.call(this, type, payload);
-  };
+  emitLocal = (type: string | symbol, payload?: unknown) =>
+    emitOn.call(this, type, payload); // eslint-disable-line @typescript-eslint/no-unsafe-return
 
   // #endregion Public Methods
 
@@ -363,19 +379,24 @@ export class Tunnel extends EventEmitter {
     };
 
     const timeoutMs = Number(config.timeout);
+
     if (!Number.isSafeInteger(timeoutMs)) {
       errorMessage += badTimeout;
     }
+
     if (config.targetOrigin !== "*") {
       try {
         new URL(config.targetOrigin);
-      } catch (e) {
+        // eslint-disable-next-line sonarjs/no-ignored-exceptions
+      } catch (_) {
         errorMessage += badTargetOrigin;
       }
     }
+
     if (errorMessage) {
       throw new Error(`Invalid tunnel configuration: ${errorMessage}`);
     }
+
     return config as TunnelConfig;
   }
 

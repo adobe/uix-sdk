@@ -10,12 +10,20 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { CrossRealmObject, UIFrameRect, VirtualApi } from "@adobe/uix-core";
-import React, { useEffect, useRef } from "react";
-import type { IframeHTMLAttributes } from "react";
+import type {
+  CrossRealmObject,
+  UIFrameRect,
+  VirtualApi,
+} from "@adobe/uix-core";
+import {
+  type AttrTokens,
+  makeSandboxAttrs,
+  requiredIframeProps,
+  type SandboxToken,
+} from "@adobe/uix-host";
+import React, { type IframeHTMLAttributes, useEffect, useRef } from "react";
+
 import { useHost } from "../hooks/useHost.js";
-import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
-import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
 
 /**
  * @internal
@@ -65,12 +73,12 @@ export interface GuestUIProps extends FrameProps {
 }
 
 const defaultIFrameProps: FrameProps = {
-  width: "100%",
   height: "100%",
   style: {
-    display: "block",
     border: "none",
+    display: "block",
   },
+  width: "100%",
 };
 
 const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
@@ -80,10 +88,12 @@ const defaultSandbox = "allow-scripts allow-forms allow-same-origin";
  * delivered by the Extension server.
  * @public
  */
+// eslint-disable-next-line max-lines-per-function
 export const GuestUIFrame = ({
   guestId,
   src = "",
   onConnect,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onDisconnect,
   onConnectionError,
   onResize,
@@ -95,24 +105,31 @@ export const GuestUIFrame = ({
 }: GuestUIProps) => {
   const ref = useRef<HTMLIFrameElement>();
   const { host } = useHost();
+
   if (!host) {
     return null;
   }
+
   const guest = host.guests.get(guestId);
   const frameUrl = new URL(src, guest.url.href);
 
+  /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps -- early return above is pre-existing; fixing requires a larger refactor */
   useEffect(() => {
     if (ref.current) {
       let mounted = true;
       let connection: CrossRealmObject<VirtualApi>;
       const connectionFrame = ref.current;
+
       if (methods) {
         guest.provide(methods);
       }
+
       const connecting = guest.attachUI(connectionFrame, privateMethods);
+
       connecting
         .then((c) => {
           connection = c;
+
           if (!mounted) {
             c.tunnel.destroy();
           } else if (onConnect) {
@@ -126,17 +143,23 @@ export const GuestUIFrame = ({
                 (error && error.stack) || error
               }`,
             );
+
             Object.assign(frameError, {
-              original: error,
-              ref,
               guest,
               host,
+              original: error,
+              ref,
             });
-            if (onConnectionError) onConnectionError(frameError);
+
+            if (onConnectionError) {
+              onConnectionError(frameError);
+            }
           }
         });
+
       return () => {
         mounted = false;
+
         if (connection) {
           connection.tunnel.destroy();
         }
@@ -147,6 +170,7 @@ export const GuestUIFrame = ({
   useEffect(() => {
     if (ref.current && onResize) {
       const currentFrame = ref.current;
+
       return guest.addEventListener(
         "guestresize",
         ({ detail: { guestPort, iframe, dimensions } }) => {
@@ -157,6 +181,7 @@ export const GuestUIFrame = ({
       );
     }
   }, [ref.current, guest.id, onResize]);
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return (
     <iframe
@@ -179,4 +204,3 @@ export const GuestUIFrame = ({
     />
   );
 };
-export default GuestUIFrame;

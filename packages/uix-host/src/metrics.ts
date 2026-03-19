@@ -10,19 +10,18 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * Adapter to attach console logging listeners to a Host running in an app
  * @hidden
  */
-import { Emitter } from "@adobe/uix-core";
+import MetricsApi, { type Metrics } from "@adobe/exc-app/metrics";
+import type { Emitter } from "@adobe/uix-core";
+
 import type { HostEvents } from "./host.js";
-import type { Metrics } from "@adobe/exc-app/metrics";
-import MetricsApi from "@adobe/exc-app/metrics";
 
 type EventPayload = {
   event: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any;
 };
 
@@ -31,18 +30,18 @@ type EventPayload = {
  */
 class MetricsWrapper {
   private eventPool: EventPayload[] = [];
-  private metricsInstance?: Readonly<Metrics> | undefined = undefined;
+  private _metricsInstance: Readonly<Metrics> | undefined = undefined;
 
   /**
    * Sends collected events to the metrics instance.
    */
   private flush(): void {
-    if (!this.metricsInstance) {
+    if (!this._metricsInstance) {
       return;
     }
 
     this.eventPool.forEach((eventPayload) => {
-      this.metricsInstance.event(eventPayload.event, eventPayload.args);
+      this._metricsInstance.event(eventPayload.event, eventPayload.args);
     });
     this.eventPool = [];
   }
@@ -50,26 +49,27 @@ class MetricsWrapper {
   /**
    * Gets the current metrics instance.
    */
-  public get mertricsInstance(): Readonly<Metrics> | undefined {
-    return this.metricsInstance;
+  public get metricsInstance(): Readonly<Metrics> | undefined {
+    return this._metricsInstance;
   }
 
   /**
    * Sets the metrics instance and flushes any pending events.
    */
-  public set mertricsInstance(metrics: Readonly<Metrics>) {
-    this.metricsInstance = metrics;
-    this.metricsInstance && this.flush();
+  public set metricsInstance(metrics: Readonly<Metrics>) {
+    this._metricsInstance = metrics;
+    this._metricsInstance && this.flush();
   }
 
   /**
    * Tracks an event using the metrics instance, or adds it to the event pool if no instance is set.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public event(event: string, args: any): void {
-    if (this.metricsInstance) {
-      this.metricsInstance.event(event, args);
+    if (this._metricsInstance) {
+      this._metricsInstance.event(event, args);
     } else {
-      this.eventPool.push({ event, args });
+      this.eventPool.push({ args, event });
     }
   }
 }
@@ -90,12 +90,15 @@ const runtimeSpy = () => {
     // Timeout, time to hang up
     return;
   }
+
   if ("exc-module-runtime" in window) {
-    metrics.mertricsInstance = createMetricsInstance();
+    metrics.metricsInstance = createMetricsInstance();
     return;
   }
+
   setTimeout(runtimeSpy, 1000);
 };
+
 runtimeSpy();
 
 /**
@@ -103,13 +106,16 @@ runtimeSpy();
  *
  * @param host - The host emitter to attach the metrics to.
  */
-export function addMetrics(host: Emitter<HostEvents>): void {
+export const addMetrics = (host: Emitter<HostEvents>): void => {
   host.addEventListener("guestload", (evt) => {
     const guest = evt.detail.guest;
+
     if (seenGuests.has(guest)) {
       return;
     }
+
     seenGuests.add(guest);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const addGuestId = (payload: any): any => {
       payload["guestId"] = guest.id;
       return payload;
@@ -119,6 +125,7 @@ export function addMetrics(host: Emitter<HostEvents>): void {
 
     guest.addEventListener("beforecallguestmethod", (callDetails) => {
       const { path } = callDetails.detail;
+
       metrics.event(
         "callguestmethod",
         addGuestId({
@@ -128,6 +135,7 @@ export function addMetrics(host: Emitter<HostEvents>): void {
     });
     guest.addEventListener("beforecallhostmethod", (callDetails) => {
       const { path, name } = callDetails.detail;
+
       path.push(name);
       metrics.event(
         "callhostmethod",
@@ -141,4 +149,4 @@ export function addMetrics(host: Emitter<HostEvents>): void {
   host.addEventListener("error", () => {
     metrics.event("error", {});
   });
-}
+};

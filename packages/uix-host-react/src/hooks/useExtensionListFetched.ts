@@ -11,9 +11,10 @@ governing permissions and limitations under the License.
 */
 
 import { useContext } from "react";
+
 import {
+  type ExtensibilityContext,
   ExtensionContext,
-  ExtensibilityContext,
 } from "../extension-context.js";
 
 /**
@@ -21,8 +22,8 @@ import {
  *
  * @beta
  */
-export function useExtensionListFetched(): boolean {
+export const useExtensionListFetched = (): boolean => {
   const extensionsInfo = useContext<ExtensibilityContext>(ExtensionContext);
 
   return extensionsInfo.extensionListFetched;
-}
+};

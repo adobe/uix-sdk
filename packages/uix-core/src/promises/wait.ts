@@ -3,8 +3,7 @@
  *
  * @internal
  */
-export function wait(ms: number) {
-  return new Promise((resolve) => {
+export const wait = (ms: number) =>
+  new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}

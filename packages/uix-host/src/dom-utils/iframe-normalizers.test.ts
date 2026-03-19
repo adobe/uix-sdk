@@ -16,6 +16,7 @@ describe("makeSandboxAttrs", () => {
 describe("normalizeIframe", () => {
   it("applies required attributes and default sandbox to iframe", () => {
     const frame = document.createElement("iframe");
+
     normalizeIframe(frame);
     expect(frame).toMatchInlineSnapshot(`
       <iframe

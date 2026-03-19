@@ -10,19 +10,21 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import type {
-  Emits,
-  GuestConnection,
-  GuestConnectionEvents,
-  HostMethodAddress,
-  GuestApis,
-  CrossRealmObject,
-  Unsubscriber,
-  VirtualApi,
-  UIHostMethods,
-  GuestMetadata,
+import {
+  connectIframe,
+  type CrossRealmObject,
+  type Emits,
+  Emitter,
+  type GuestApis,
+  type GuestConnection,
+  type GuestConnectionEvents,
+  type GuestMetadata,
+  type HostMethodAddress,
+  type UIHostMethods,
+  type Unsubscriber,
+  type VirtualApi,
 } from "@adobe/uix-core";
-import { Emitter, connectIframe } from "@adobe/uix-core";
+
 import { normalizeIframe } from "./dom-utils";
 import { compareVersions } from "./utils/comparePackagesVersions";
 
@@ -106,8 +108,8 @@ export type PortOptions = {
 };
 
 const defaultOptions = {
-  timeout: 20000,
   debug: false,
+  timeout: 20000,
 };
 
 const WRAPPER_MARKER = "$_UISDK_FN_WRAPPER";
@@ -125,9 +127,8 @@ type WrappedFunction = {
  * @param v
  * @returns boolean
  */
-const isFunction = (v: unknown): v is CallableFunction => {
-  return typeof v === "function";
-};
+const isFunction = (v: unknown): v is CallableFunction =>
+  typeof v === "function";
 
 /**
  * Typeguard for wrapped functions
@@ -135,11 +136,8 @@ const isFunction = (v: unknown): v is CallableFunction => {
  * @param v
  * @returns
  */
-const isWrapperFunction = (v: unknown): v is WrappedFunction => {
-  return (
-    typeof v === "function" && (v as WrappedFunction)[WRAPPER_MARKER] === true
-  );
-};
+const isWrapperFunction = (v: unknown): v is WrappedFunction =>
+  typeof v === "function" && (v as WrappedFunction)[WRAPPER_MARKER] === true;
 
 /**
  * A Port is the Host-maintained object representing an extension running as a
@@ -161,13 +159,15 @@ const isWrapperFunction = (v: unknown): v is WrappedFunction => {
  * something we should review.
  * @public
  */
-export class Port<GuestApi = unknown>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class Port<_GuestApi = unknown>
   extends Emitter<GuestConnectionEvents>
   implements GuestConnection
 {
   public get apis() {
     if (this.isReady() && this.guestServer) {
       const server = this.guestServer.getRemoteApi();
+
       return server && this.addApiMiddleware(server.apis);
     }
   }
@@ -175,6 +175,7 @@ export class Port<GuestApi = unknown>
   public get metadata(): GuestMetadata {
     if (this.isReady() && this.guestServer) {
       const server = this.guestServer.getRemoteApi();
+
       return server && server.metadata;
     }
   }
@@ -244,6 +245,7 @@ export class Port<GuestApi = unknown>
   }) {
     super(config.id);
     const { timeout, debug } = { ...defaultOptions, ...(config.options || {}) };
+
     this.timeout = timeout;
     this.debug = debug;
     this.logger = config.logger;
@@ -283,7 +285,7 @@ export class Port<GuestApi = unknown>
         this.emit("guestresize", {
           dimensions,
           guestPort: this,
-          iframe: iframe,
+          iframe,
         });
       },
       ...privateMethods,
@@ -310,7 +312,9 @@ export class Port<GuestApi = unknown>
     if (!this.guestVersion) {
       return "";
     }
-    const versionMatch = this.guestVersion.match(/\d+(\.\d+)*/);
+
+    const versionMatch = /\d+(\.\d+)*/.exec(this.guestVersion);
+
     return versionMatch ? versionMatch[0] : "";
   }
 
@@ -319,6 +323,7 @@ export class Port<GuestApi = unknown>
    */
   public isReady(): boolean {
     const version = this.getGuestVersion();
+
     if (version) {
       if (compareVersions(version, "1.1.4") >= 0) {
         return this.isLoaded && !this.error && this.isGuestReady;
@@ -326,6 +331,7 @@ export class Port<GuestApi = unknown>
         return this.isLoaded && !this.error;
       }
     }
+
     return false;
   }
 
@@ -355,7 +361,8 @@ export class Port<GuestApi = unknown>
       this.hostApis[apiNamespace] = this.hostApis[apiNamespace] || {};
       Object.assign(this.hostApis[apiNamespace], methods);
     }
-    this.emit("hostprovide", { guestPort: this, apis });
+
+    this.emit("hostprovide", { apis, guestPort: this });
   }
 
   /**
@@ -374,6 +381,7 @@ export class Port<GuestApi = unknown>
         unsubscribe();
       }
     }
+
     this.subscriptions = [];
 
     if (this.guestServerFrame && this.guestServerFrame.parentElement) {
@@ -392,6 +400,7 @@ export class Port<GuestApi = unknown>
    * Recursive method that wraps every function in apis object and adds
    * an event
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private addApiMiddleware(subject: any, path: string[] = []): VirtualApi {
     if (typeof subject === "object") {
       for (const [key, value] of Object.entries(subject)) {
@@ -401,19 +410,22 @@ export class Port<GuestApi = unknown>
           // Remote function is already wrapped. Nothing to do...
           continue;
         } else if (isFunction(value)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const wrapper = async (...args: any) => {
             this.emit("beforecallguestmethod", {
+              args,
               guestPort: this,
               path: [...path, key],
-              args,
             });
             const res = await (value as CallableFunction)(...args);
+
             /*
              * Wraps response in middleware so consequent calls could be intercepted
              * E.g. headerMenu.getButtons().onClick()
              */
             return this.addApiMiddleware(res, [...path, key]);
           };
+
           (wrapper as WrappedFunction)[WRAPPER_MARKER] = true;
           subject[key] = wrapper;
         }
@@ -425,6 +437,7 @@ export class Port<GuestApi = unknown>
 
   private hasCapability(apiName: string, methodNames: string[]) {
     const api = this.apis[apiName];
+
     return (
       api &&
       methodNames.every(
@@ -463,12 +476,8 @@ export class Port<GuestApi = unknown>
         timeout: this.timeout,
       },
       {
-        getSharedContext: () => {
-          return this.sharedContext;
-        },
-        getConfiguration: () => {
-          return this.configuration;
-        },
+        getConfiguration: () => this.configuration,
+        getSharedContext: () => this.sharedContext,
         invokeHostMethod: (address: HostMethodAddress) =>
           this.invokeHostMethod(address, addedMethods as VirtualApi),
         ...addedMethods,
@@ -478,22 +487,24 @@ export class Port<GuestApi = unknown>
       },
     );
   }
-
   private async connect() {
     let timeoutId: ReturnType<typeof setTimeout>;
     const serverFrame =
       this.runtimeContainer.ownerDocument.createElement("iframe");
+
     normalizeIframe(serverFrame);
     serverFrame.setAttribute("aria-hidden", "true");
     serverFrame.setAttribute("src", this.url.href);
     this.guestServerFrame = serverFrame;
     this.runtimeContainer.appendChild(serverFrame);
+
     if (this.logger) {
       this.logger.info(
         `Guest ${this.id} attached iframe of ${this.url.href}`,
         this,
       );
     }
+
     try {
       this.guestServer = await this.attachFrame<GuestProxyWrapper>(serverFrame);
     } catch (error) {
@@ -505,6 +516,7 @@ export class Port<GuestApi = unknown>
     }
 
     const version = this.getGuestVersion();
+
     if (compareVersions(version, "1.1.4") >= 0) {
       // Only create the guest-ready listener for guests >= 1.1.4
       // Older guests never send a guest-ready postMessage
@@ -521,9 +533,11 @@ export class Port<GuestApi = unknown>
               })`,
             );
             this.isGuestReady = true;
+
             if (this.logger) {
               this.logger.info(`Guest ${this.id} reported ready status`);
             }
+
             this.emit("guestready", { guestPort: this });
 
             window.removeEventListener("message", handleMessage);
@@ -547,6 +561,7 @@ export class Port<GuestApi = unknown>
     }
 
     this.isLoaded = true;
+
     if (this.logger) {
       this.logger.info(
         `Guest ${this.id} established connection, received methods, and reported ready`,
@@ -556,7 +571,8 @@ export class Port<GuestApi = unknown>
     }
   }
 
-  private getHostMethodCallee<T = unknown>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private getHostMethodCallee<_T = unknown>(
     { name, path }: HostMethodAddress,
     methodSource: VirtualApi,
   ): VirtualApi {
@@ -567,6 +583,7 @@ export class Port<GuestApi = unknown>
         () => `${dots(level)} has no property "${prop}"`,
       );
       const next = current[prop];
+
       this.assert(
         typeof next === "object",
         () =>
@@ -576,6 +593,7 @@ export class Port<GuestApi = unknown>
       );
       return next as VirtualApi;
     }, methodSource);
+
     this.assert(
       typeof methodCallee[name] === "function" &&
         Reflect.has(methodCallee, name),
@@ -589,6 +607,7 @@ export class Port<GuestApi = unknown>
     privateMethods?: VirtualApi,
   ): T {
     const { name, path, args = [] } = address;
+
     this.assert(name && typeof name === "string", () => "Method name required");
     this.assert(
       path.length > 0,
@@ -596,18 +615,23 @@ export class Port<GuestApi = unknown>
         `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`,
     );
     let methodCallee;
+
     if (privateMethods) {
       try {
         methodCallee = this.getHostMethodCallee(address, privateMethods);
-      } catch (e) {
+        // eslint-disable-next-line sonarjs/no-ignored-exceptions
+      } catch (_) {
         // private method not found, continue and try other way of accessing it
       }
     }
+
     if (!methodCallee) {
       methodCallee = this.getHostMethodCallee(address, this.hostApis);
     }
+
     const method = methodCallee[name] as (...args: unknown[]) => T;
-    this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
+
+    this.emit("beforecallhostmethod", { args, guestPort: this, name, path });
     return method.apply(methodCallee, [
       { id: this.id, url: this.url },
       ...args,

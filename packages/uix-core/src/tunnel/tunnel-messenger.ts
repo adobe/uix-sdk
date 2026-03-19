@@ -1,7 +1,15 @@
 import { NS_ROOT, VERSION } from "../constants";
+import {
+  isWrapped,
+  unwrap,
+  wrap,
+  type WrappedMessage,
+} from "../message-wrapper";
+import type {
+  HandshakeAcceptedTicket,
+  HandshakeOfferedTicket,
+} from "../tickets";
 import { isPlainObject } from "../value-assertions";
-import { WrappedMessage, isWrapped, wrap, unwrap } from "../message-wrapper";
-import { HandshakeAcceptedTicket, HandshakeOfferedTicket } from "../tickets";
 
 type Handshake = HandshakeAcceptedTicket | HandshakeOfferedTicket;
 type HandshakeAccepted = WrappedMessage<HandshakeAcceptedTicket>;
@@ -24,15 +32,21 @@ const VERSION_CORRECTED = {
   "0.8.0": "0.8.1",
 };
 
-function getVersionParts(version: string): ParsedVersion {
-  const realVersion = VERSION_CORRECTED.hasOwnProperty(version)
+const getVersionParts = (version: string): ParsedVersion => {
+  const realVersion = Object.prototype.hasOwnProperty.call(
+    VERSION_CORRECTED,
+    version,
+  )
     ? VERSION_CORRECTED[version as keyof typeof VERSION_CORRECTED]
     : version;
   const [major, minor = "UNKNOWN", suffix = "UNKNOWN"] = realVersion.split(".");
   const [patch, prerelease = ""] = suffix.split("-");
+
   return { major, minor, patch, prerelease };
-}
+};
+
 const thisVersion = getVersionParts(VERSION);
+
 export class TunnelMessenger {
   private myOrigin: string;
   private remoteOrigin: string;
@@ -81,6 +95,7 @@ export class TunnelMessenger {
   }
   isCompatibleVersion(versionString: string) {
     const version = getVersionParts(versionString);
+
     return (
       version.major === thisVersion.major &&
       version.minor === thisVersion.minor &&
@@ -92,9 +107,11 @@ export class TunnelMessenger {
       this.logMalformed(message);
       return false;
     }
+
     const tunnelData: Handshake = unwrap<Handshake>(
       message as HandshakeMessage,
     );
+
     if (
       !isPlainObject(tunnelData) ||
       typeof tunnelData.version !== "string" ||
@@ -103,7 +120,9 @@ export class TunnelMessenger {
       this.logMalformed(message);
       return false;
     }
+
     const { version } = tunnelData;
+
     if (
       !this.isCompatibleVersion(version) &&
       !this.versionWarnings.has(version)
@@ -113,19 +132,24 @@ export class TunnelMessenger {
         `SDK version mismatch. ${this.myOrigin} is using v${VERSION}, but received message from ${this.remoteOrigin} using SDK v${version}. Extensions may be broken or unresponsive.`,
       );
     }
+
     return true;
   }
   private logMalformed(message: unknown) {
     let inspectedMessage: string;
+
     try {
       inspectedMessage = JSON.stringify(message, null, 2);
+      // eslint-disable-next-line sonarjs/no-ignored-exceptions
     } catch (_) {
       try {
         inspectedMessage = message.toString();
-      } catch (e) {
+        // eslint-disable-next-line sonarjs/no-ignored-exceptions
+      } catch (_) {
         inspectedMessage = Object.prototype.toString.call(message);
       }
     }
+
     this.logger.error(
       `Malformed tunnel message sent from SDK at ${this.remoteOrigin} to ${this.myOrigin}:
 ${inspectedMessage}

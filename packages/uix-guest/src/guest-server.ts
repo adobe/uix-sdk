@@ -11,8 +11,8 @@ governing permissions and limitations under the License.
 */
 
 import type { GuestMetadata } from "@adobe/uix-core";
-import type { SharedContext, AppConnection } from "./guest";
-import { Guest } from "./guest";
+
+import { type AppConnection, Guest, type SharedContext } from "./guest";
 
 /**
  * A Guest to be used in the "main" or primary frame of an extension, the frame

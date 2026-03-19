@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { Emits, Unsubscriber, NamedEvent } from "./types.js";
+import type { Emits, NamedEvent, Unsubscriber } from "./types.js";
 
 /**
  * Browser-native {@link https://developer.mozilla.org/en-US/docs/Web/API/EventTarget | EventTarget}
@@ -64,6 +64,7 @@ export class Emitter<Events extends NamedEvent>
     detail: Event["detail"],
   ): void {
     const event = new CustomEvent<typeof detail>(type, { detail });
+
     this.dispatchEvent(event);
   }
   /**

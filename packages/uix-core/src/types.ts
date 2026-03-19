@@ -16,6 +16,7 @@ governing permissions and limitations under the License.
  * Extract keys of T whose values are are assignable to U.
  * @internal
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type ExtractKeys<T, U> = {
   [P in keyof T]: T[P] extends U ? P : never;
 }[keyof T];

@@ -42,6 +42,7 @@ export interface CallTicket extends DefTicket {
 export interface CallArgsTicket extends CallTicket {
   // #region Properties
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args: any[];
 
   // #endregion Properties
@@ -50,6 +51,7 @@ export interface ResolveTicket extends CallTicket {
   // #region Properties
 
   status: "resolve";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 
   // #endregion Properties
@@ -64,7 +66,7 @@ export interface RejectTicket extends CallTicket {
 }
 export type RespondTicket = ResolveTicket | RejectTicket;
 
-export type CleanupTicket = {};
+export type CleanupTicket = Record<string, never>;
 
 export const INIT_TICKET: InitTicket = {
   fnId: INIT_CALLBACK,

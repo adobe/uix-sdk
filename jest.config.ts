@@ -4,6 +4,9 @@ const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
   displayName: `uix-${sdkName}`,
   testMatch: [`<rootDir>/packages/uix-${sdkName}/src/**/*.test.ts`],
   modulePathIgnorePatterns: ["<rootDir>/dist"],
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   testEnvironment: "jsdom",
   transform: {
     "^.+\\.tsx?$": [
@@ -22,15 +25,13 @@ const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
 
 const jestConfig = {
   extensionsToTreatAsEsm: [".ts"],
-  moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-  },
   projects: [
     sdkProject("core", {
       setupFiles: [
         "<rootDir>/packages/uix-core/src/__helpers__/jest.messagechannel.cjs",
       ],
     }),
+    sdkProject("guest", {}),
     sdkProject("host", {}),
     sdkProject("host-react", {}),
   ],

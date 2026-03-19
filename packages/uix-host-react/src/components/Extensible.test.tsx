@@ -10,16 +10,17 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+import { Host, type InstalledExtensions } from "@adobe/uix-host";
+import { cleanup, render, waitFor } from "@testing-library/react";
 import React from "react";
-import { render, waitFor, cleanup } from "@testing-library/react";
+
 import { Extensible } from "./Extensible";
-import { Host } from "@adobe/uix-host";
-import type { InstalledExtensions } from "@adobe/uix-host";
 
 jest.mock("@adobe/uix-host");
 
 const MockedHost = Host as jest.MockedClass<typeof Host>;
 
+// eslint-disable-next-line max-lines-per-function
 describe("Extensible", () => {
   let mockUnload: jest.Mock;
   let mockLoad: jest.Mock;
@@ -34,14 +35,16 @@ describe("Extensible", () => {
     MockedHost.mockImplementation(
       () =>
         ({
-          unload: mockUnload,
-          load: mockLoad,
           addEventListener: jest.fn(),
+          load: mockLoad,
           removeEventListener: jest.fn(),
+          unload: mockUnload,
         }) as unknown as Host,
     );
 
-    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {
+      /* noop */
+    });
   });
 
   afterEach(() => {
@@ -403,6 +406,7 @@ describe("Extensible", () => {
       const firstProvider = jest.fn().mockReturnValue(firstProviderPromise);
       const secondProvider = jest.fn().mockResolvedValue(secondExtensions);
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const extensionsListCallback = jest.fn((exts) => exts);
 
       const { rerender } = render(
@@ -416,7 +420,9 @@ describe("Extensible", () => {
       );
 
       // Change the callback (which is a dependency)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const newCallback = jest.fn((exts) => exts);
+
       rerender(
         <Extensible
           appName="test-app"

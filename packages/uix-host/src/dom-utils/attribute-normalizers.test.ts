@@ -1,4 +1,4 @@
-import { tokenizeAttrValues, mergeAttrValues } from "./attribute-normalizers";
+import { mergeAttrValues, tokenizeAttrValues } from "./attribute-normalizers";
 
 const joined = "one two red blue";
 const list = ["one", "two", "red", "blue"];

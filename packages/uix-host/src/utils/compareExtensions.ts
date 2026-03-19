@@ -10,8 +10,9 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { Extension } from "@adobe/uix-core";
-import { InstalledExtensions } from "../host";
+import type { Extension } from "@adobe/uix-core";
+
+import type { InstalledExtensions } from "../host";
 
 export interface ExtensionsDifference {
   added: Record<string, Extension["url"] | Extension>;
@@ -26,52 +27,82 @@ export interface ExtensionsDifference {
   hasChanges: boolean;
 }
 
-export function compareExtensions(
+interface CompareContext {
+  ext1: InstalledExtensions;
+  ext2: InstalledExtensions;
+  keys1: Set<string>;
+  keys2: Set<string>;
+}
+
+const classifyKey = (
+  result: ExtensionsDifference,
+  key: string,
+  ctx: CompareContext,
+) => {
+  const exists1 = ctx.keys1.has(key);
+  const exists2 = ctx.keys2.has(key);
+
+  if (!exists1 && exists2) {
+    result.added[key] = ctx.ext2[key];
+    result.hasChanges = true;
+  } else if (exists1 && !exists2) {
+    result.removed[key] = ctx.ext1[key];
+    result.hasChanges = true;
+  } else if (
+    exists1 &&
+    exists2 &&
+    !areExtensionsEqual(ctx.ext1[key], ctx.ext2[key])
+  ) {
+    result.modified[key] = { new: ctx.ext2[key], old: ctx.ext1[key] };
+    result.hasChanges = true;
+  }
+};
+
+export const compareExtensions = (
   extensions1: InstalledExtensions,
   extensions2: InstalledExtensions,
-): ExtensionsDifference {
+): ExtensionsDifference => {
   const result: ExtensionsDifference = {
     added: {},
-    removed: {},
-    modified: {},
     hasChanges: false,
+    modified: {},
+    removed: {},
   };
 
   const keys1 = new Set(Object.keys(extensions1));
   const keys2 = new Set(Object.keys(extensions2));
   const allKeys = new Set([...keys1, ...keys2]);
+  const ctx: CompareContext = {
+    ext1: extensions1,
+    ext2: extensions2,
+    keys1,
+    keys2,
+  };
 
   for (const key of allKeys) {
-    const exists1 = keys1.has(key);
-    const exists2 = keys2.has(key);
-
-    if (!exists1 && exists2) {
-      result.added[key] = extensions2[key];
-      result.hasChanges = true;
-    } else if (exists1 && !exists2) {
-      result.removed[key] = extensions1[key];
-      result.hasChanges = true;
-    } else if (exists1 && exists2) {
-      const ext1 = extensions1[key];
-      const ext2 = extensions2[key];
-
-      if (!areExtensionsEqual(ext1, ext2)) {
-        result.modified[key] = {
-          old: ext1,
-          new: ext2,
-        };
-        result.hasChanges = true;
-      }
-    }
+    classifyKey(result, key, ctx);
   }
 
   return result;
-}
+};
 
-function areExtensionsEqual(
+const compareStrings = (a: string, b: string): number => a.localeCompare(b);
+
+const areExtensionPointsEqual = (ep1: string[], ep2: string[]): boolean => {
+  if (ep1.length !== ep2.length) {
+    return false;
+  }
+
+  const sorted1 = [...ep1].sort(compareStrings);
+  const sorted2 = [...ep2].sort(compareStrings);
+
+  return sorted1.every((val, i) => val === sorted2[i]);
+};
+
+const areExtensionsEqual = (
   ext1: Extension["url"] | Extension,
   ext2: Extension["url"] | Extension,
-): boolean {
+): boolean => {
   if (typeof ext1 !== typeof ext2) {
     return false;
   }
@@ -85,29 +116,18 @@ function areExtensionsEqual(
       return false;
     }
 
-    const ep1 = ext1.extensionPoints || [];
-    const ep2 = ext2.extensionPoints || [];
-
-    if (ep1.length !== ep2.length) {
-      return false;
-    }
-
-    const sortedEp1 = [...ep1].sort();
-    const sortedEp2 = [...ep2].sort();
-
-    for (let i = 0; i < sortedEp1.length; i++) {
-      if (sortedEp1[i] !== sortedEp2[i]) {
-        return false;
-      }
-    }
-
-    return deepEqual(ext1.configuration, ext2.configuration);
+    return (
+      areExtensionPointsEqual(
+        ext1.extensionPoints || [],
+        ext2.extensionPoints || [],
+      ) && deepEqual(ext1.configuration, ext2.configuration)
+    );
   }
 
   return false;
-}
+};
 
-function deepEqual(obj1: unknown, obj2: unknown): boolean {
+const deepEqual = (obj1: unknown, obj2: unknown): boolean => {
   if (obj1 === obj2) {
     return true;
   }
@@ -120,34 +140,21 @@ function deepEqual(obj1: unknown, obj2: unknown): boolean {
     return false;
   }
 
-  const keys1 = Object.keys(obj1 as Record<string, unknown>);
-  const keys2 = Object.keys(obj2 as Record<string, unknown>);
+  const record1 = obj1 as Record<string, unknown>;
+  const record2 = obj2 as Record<string, unknown>;
+  const keys1 = Object.keys(record1);
+  const keys2 = Object.keys(record2);
 
   if (keys1.length !== keys2.length) {
     return false;
   }
 
-  for (const key of keys1) {
-    if (!keys2.includes(key)) {
-      return false;
-    }
+  return keys1.every(
+    (key) => keys2.includes(key) && deepEqual(record1[key], record2[key]),
+  );
+};
 
-    if (
-      !deepEqual(
-        (obj1 as Record<string, unknown>)[key],
-        (obj2 as Record<string, unknown>)[key],
-      )
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export function areExtensionsDifferent(
+export const areExtensionsDifferent = (
   extensions1: InstalledExtensions,
   extensions2: InstalledExtensions,
-): boolean {
-  return compareExtensions(extensions1, extensions2).hasChanges;
-}
+): boolean => compareExtensions(extensions1, extensions2).hasChanges;

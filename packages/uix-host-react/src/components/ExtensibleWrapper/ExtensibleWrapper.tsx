@@ -9,22 +9,26 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import type { PropsWithChildren, ReactElement } from "react";
-import React, { useMemo } from "react";
-import { Extensible } from "../Extensible";
 import {
   combineExtensionsFromProviders,
-  InstalledExtensions,
-  mutedProvider,
   type ExtensionsProvider,
   type HostConfig,
+  type InstalledExtensions,
+  mutedProvider,
   type PortOptions,
   type SharedContextValues,
 } from "@adobe/uix-host";
+import React, {
+  type PropsWithChildren,
+  type ReactElement,
+  useMemo,
+} from "react";
+
+import { Extensible } from "../Extensible";
 import {
-  ExtensionPointId,
-  ExtensionProviderConfig,
   createExtensionManagerExtensionsProvider,
+  type ExtensionPointId,
+  type ExtensionProviderConfig,
 } from "./ExtensionManagerProvider";
 import { createUrlExtensionsProvider } from "./UrlExtensionProvider";
 
@@ -53,6 +57,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
     imsOrg: string;
     apiKey: string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
@@ -83,8 +88,8 @@ export const ExtensibleWrapper = ({
 }: PropsWithChildren<ExtensibleDefaultProps>): ReactElement => {
   const defaultExtensionsProvider = useMemo(() => {
     const extensionPointId: ExtensionPointId = {
-      service,
       name: extensionPoint,
+      service,
       version,
     };
     const params: URLSearchParams = new URLSearchParams(queryString ?? "");
@@ -131,6 +136,7 @@ export const ExtensibleWrapper = ({
     authConfig,
     scope,
   ]);
+
   return (
     <Extensible
       extensionsProvider={defaultExtensionsProvider}
@@ -145,5 +151,3 @@ export const ExtensibleWrapper = ({
     </Extensible>
   );
 };
-
-export default ExtensibleWrapper;

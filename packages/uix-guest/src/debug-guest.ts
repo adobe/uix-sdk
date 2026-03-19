@@ -14,11 +14,16 @@ governing permissions and limitations under the License.
  * Adapter to attach console logging listeners to a Guest running in a frame/
  * @internal @preapproved
  */
-import { debugEmitter, Emits, EmitterDebugLogger } from "@adobe/uix-core";
-import { GuestEvents } from "./guest";
+import {
+  debugEmitter,
+  type Emits,
+  type EmitterDebugLogger,
+} from "@adobe/uix-core";
 
-export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
-  return debugEmitter(guest, {
+import type { GuestEvents } from "./guest";
+
+export const debugGuest = (guest: Emits<GuestEvents>): EmitterDebugLogger =>
+  debugEmitter(guest, {
     theme: "yellow medium",
     type: "Guest",
   })
@@ -39,4 +44,3 @@ export function debugGuest(guest: Emits<GuestEvents>): EmitterDebugLogger {
         error,
       );
     });
-}

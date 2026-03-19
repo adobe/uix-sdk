@@ -10,20 +10,23 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type {
-  GuestConnection,
   GuestApis,
+  GuestConnection,
   RemoteGuestApis,
-  RemoteGuestApiNS,
   VirtualApi,
 } from "@adobe/uix-core";
+import type {
+  CapabilitySpec,
+  ExtensionRegistryEndpointRegistration,
+  Host,
+  HostEvents,
+  Port,
+} from "@adobe/uix-host";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-import { Host, HostEvents } from "@adobe/uix-host";
-import type { CapabilitySpec, Port } from "@adobe/uix-host";
-import { useHost } from "./useHost";
 import { ExtensibleComponentBoundaryContext } from "../components/ExtensibleComponentBoundary";
-import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
+import { useHost } from "./useHost";
 
 /**
  * @internal
@@ -108,21 +111,25 @@ const NO_EXTENSIONS: [] = [];
  * useExtensions will trigger a re-render when extensions load. You can choose whether it triggers that rerender as each extension loads, or only after all extensions have loaded.
  * @public
  */
-export function useExtensions<
+// eslint-disable-next-line max-lines-per-function
+export const useExtensions = <
   Incoming extends GuestApis,
   Outgoing extends VirtualApi,
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = [],
-): UseExtensionsResult<Incoming> {
+): UseExtensionsResult<Incoming> => {
   const { host, error } = useHost();
+
   if (error) {
     return {
+      error,
       extensions: NO_EXTENSIONS,
       loading: false,
-      error,
     };
   }
+
+  /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps -- early return above is pre-existing; fixing requires a larger refactor */
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
@@ -135,8 +142,8 @@ export function useExtensions<
   );
   const baseDeps = [host, ...deps];
   const {
-    requires,
     provides,
+    requires,
     updateOn = "each",
   } = useMemo(() => configFactory(host), baseDeps);
 
@@ -144,8 +151,6 @@ export function useExtensions<
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
 
-    // Extension filtering: If the boundary is provided, only return extensions which have extensionPoint
-    // specified in a provided boundry. Otherwise no filtering is done.
     for (const guest of guests) {
       const allExtensionPoints: string[] =
         getAllExtensionPointsFromGuest(guest);
@@ -161,12 +166,14 @@ export function useExtensions<
         newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
       }
     }
+
     return newExtensions.length === 0 ? NO_EXTENSIONS : newExtensions;
   }, [...baseDeps, requires]);
 
   const subscribe = useCallback(
     (handler: EventListener) => {
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
+
       host.addEventListener(eventName, handler);
 
       return () => {
@@ -186,9 +193,7 @@ export function useExtensions<
 
   const [extensions, setExtensions] = useState(() => getExtensions());
 
-  useEffect(() => {
-    return subscribe(() => setExtensions(getExtensions()));
-  }, [subscribe]);
+  useEffect(() => subscribe(() => setExtensions(getExtensions())), [subscribe]);
 
   const unloadExtentionCallback = (e: CustomEvent) => {
     const eventDetail = e.detail;
@@ -199,14 +204,16 @@ export function useExtensions<
         const filtered = prevExtensions.filter(
           (ext) => ext.id !== guest.id || ext.url !== guest.url,
         );
+
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
     }
   };
 
-  useEffect(() => {
-    return subscribeToUnload(unloadExtentionCallback);
-  }, [subscribeToUnload]);
+  useEffect(
+    () => subscribeToUnload(unloadExtentionCallback),
+    [subscribeToUnload],
+  );
 
   useEffect(() => {
     for (const guest of extensions) {
@@ -225,13 +232,14 @@ export function useExtensions<
       ),
     baseDeps,
   );
+  /* eslint-enable react-hooks/rules-of-hooks */
 
   return {
+    error: hostError,
     extensions,
     loading: extensions.length === 0 ? false : host.loading,
-    error: hostError,
   };
-}
+};
 
 /**
  * Each extension/guest can have
@@ -241,7 +249,7 @@ export function useExtensions<
  * @param guest
  * @returns array of extension points as strings
  */
-function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
+const getAllExtensionPointsFromGuest = (guest: Port<GuestApis>): string[] => {
   try {
     const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
       (extension: { extensionPoint: string }) => extension?.extensionPoint,
@@ -250,24 +258,24 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
       ...(guest.extensionPoints || []),
       ...(guestExtensionPointsFromMetadata || []),
     ];
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return allExtensionPoints;
   } catch {
     console.error(
       "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective.",
     );
+
     return [];
   }
-}
+};
 
-function isGuestExtensionPointInBoundary(
+const isGuestExtensionPointInBoundary = (
   boundryExtensionPointsAsString: string[],
   guestExtensionPoints: string[],
-) {
-  return (
-    boundryExtensionPointsAsString?.length &&
-    guestExtensionPoints?.length &&
-    guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint),
-    )
+) =>
+  boundryExtensionPointsAsString?.length &&
+  guestExtensionPoints?.length &&
+  guestExtensionPoints.some((extensionPoint) =>
+    boundryExtensionPointsAsString.includes(extensionPoint),
   );
-}

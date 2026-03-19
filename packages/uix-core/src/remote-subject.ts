@@ -1,14 +1,15 @@
+import type EventEmitter from "eventemitter3";
+
+import type { Materialized, Simulated } from "./object-walker";
 import type {
   CallArgsTicket,
   CallTicket,
+  CleanupTicket,
   DefTicket,
   RejectTicket,
   ResolveTicket,
   RespondTicket,
-  CleanupTicket,
 } from "./tickets";
-import type { Materialized, Simulated } from "./object-walker";
-import EventEmitter from "eventemitter3";
 
 type EvTypeDef = `${string}_f`;
 type EvTypeGC = `${string}_g`;
@@ -126,6 +127,7 @@ export class RemoteSubject {
 
   onRespond(ticket: CallTicket, handler: (ticket: RespondTicket) => void) {
     const fnAndCall = `${ticket.fnId}${ticket.callId}`;
+
     return this.subscribeOnce(`${fnAndCall}_r`, (ticket: RespondTicket) =>
       handler(this.processResponseTicket(ticket, this.simulator.materialize)),
     );
@@ -133,6 +135,7 @@ export class RemoteSubject {
 
   respond(ticket: RespondTicket) {
     const fnAndCall = `${ticket.fnId}${ticket.callId}`;
+
     return this.emitter.emit(
       `${fnAndCall}_r`,
       this.processResponseTicket(ticket, this.simulator.simulate),
@@ -178,6 +181,7 @@ export class RemoteSubject {
       this.emitter.off(type, once);
       handler(arg);
     };
+
     return this.subscribe(type, once);
   }
 

@@ -8,11 +8,12 @@ const fakeConsole = {
 
 describe("tunnel negotiation message factory", () => {
   let messenger: TunnelMessenger;
+
   beforeEach(() => {
     messenger = new TunnelMessenger({
+      logger: fakeConsole,
       myOrigin: "https://me",
       targetOrigin: "https://you",
-      logger: fakeConsole,
     });
     jest.clearAllMocks();
   });
@@ -83,6 +84,7 @@ describe("tunnel negotiation message factory", () => {
       expect(messenger.isHandshake("")).toBeFalsy();
       expect(messenger.isHandshake(true)).toBeFalsy();
       expect(fakeConsole.error).toHaveBeenCalledTimes(3);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.error.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
@@ -109,6 +111,7 @@ describe("tunnel negotiation message factory", () => {
           [NS_ROOT]: 5,
         }),
       ).toBeFalsy();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.error.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
@@ -151,12 +154,14 @@ describe("tunnel negotiation message factory", () => {
         version,
       },
     });
+
     it("warns in console, once for each version", () => {
       expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("999.999.999"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("abc.def.ccc"))).toBeTruthy();
       expect(messenger.isHandshake(withVersion("bad-version"))).toBeTruthy();
       expect(fakeConsole.warn).toHaveBeenCalledTimes(3);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       expect(fakeConsole.warn.mock.calls.map(([msg]) => msg))
         .toMatchInlineSnapshot(`
         [
@@ -168,6 +173,7 @@ describe("tunnel negotiation message factory", () => {
     });
     it("does not warn for only patch version changes", () => {
       const [major, minor, patch] = VERSION.split(".");
+
       expect(
         messenger.isHandshake(
           withVersion(`${major}.${minor}.${Number(patch) + 1}`),

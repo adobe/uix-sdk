@@ -15,13 +15,14 @@ import type {
   UIHostConnection,
   VirtualApi,
 } from "@adobe/uix-core";
+
 import {
   Guest,
-  GuestConfig,
-  GuestEventBeforeConnect,
-  GuestEventConnected,
-  GuestEventContextChange,
-  GuestEventError,
+  type GuestConfig,
+  type GuestEventBeforeConnect,
+  type GuestEventConnected,
+  type GuestEventContextChange,
+  type GuestEventError,
 } from "./guest";
 
 /**
@@ -93,6 +94,7 @@ import {
  *
  * @public
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * {@inheritDoc Guest."constructor"}
@@ -105,6 +107,7 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
         const borderBoxSize = doc.borderBoxSize.length
           ? doc.borderBoxSize[0]
           : (doc.borderBoxSize as unknown as ResizeObserverSize);
+
         this.hostConnection.getRemoteApi().onIframeResize({
           height:
             borderBoxSize.blockSize +
@@ -112,6 +115,7 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
           width: borderBoxSize.inlineSize,
         });
       });
+
       resizeObserver.observe(document.body);
     });
 
@@ -121,6 +125,7 @@ export class GuestUI<IHost extends VirtualApi> extends Guest<any> {
   /**
    * @internal
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private calculateChildrenMargin(elems: NodeListOf<any>): number {
     let margin = 0;
 

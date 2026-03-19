@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import { InstalledExtensions, ExtensionsProvider } from "../host.js";
+import type { ExtensionsProvider, InstalledExtensions } from "../host.js";
 
 /** @internal */
 interface ExtensionDefinition {
@@ -79,26 +79,25 @@ export interface ExtensionRegistryConnection {
 export interface ExtensionRegistryConfig
   extends ExtensionRegistryExtensionRegistration, ExtensionRegistryConnection {}
 
-function buildEndpointPath(
+const buildEndpointPath = (
   config: ExtensionRegistryEndpointRegistration,
-): string {
-  return `${config.service}/${config.extensionPoint}/${config.version}`;
-}
+): string => `${config.service}/${config.extensionPoint}/${config.version}`;
 
-function ensureProtocolSpecified(url: string) {
+const ensureProtocolSpecified = (url: string) => {
   if (url.startsWith("https://")) {
     return url;
   }
+
   if (url.startsWith("http://")) {
     return url;
   }
-  return `https://${url}`;
-}
 
-/** @public */
-export async function fetchExtensionsFromRegistry(
+  return `https://${url}`;
+};
+
+export const fetchExtensionsFromRegistry = async (
   config: ExtensionRegistryConfig,
-): Promise<Array<ExtensionDefinition>> {
+): Promise<Array<ExtensionDefinition>> => {
   const workspaceParam = config.workspace
     ? `&workspace=${config.workspace}`
     : "";
@@ -111,6 +110,7 @@ export async function fetchExtensionsFromRegistry(
     {
       headers: {
         Accept: "application/json",
+        // eslint-disable-next-line sonarjs/todo-tag
         Authorization: `${config.auth.schema} ${config.auth.imsToken}`, // todo: check if auth schema needed (initial implementation was without it)
         "X-Api-Key": config.apiKey,
       },
@@ -125,16 +125,18 @@ export async function fetchExtensionsFromRegistry(
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return await resp.json();
-}
+};
 
 /**
  * @deprecated
  */
-function extensionRegistryExtensionsProvider(
+const extensionRegistryExtensionsProvider = (
   config: ExtensionRegistryConfig,
-): Promise<InstalledExtensions> {
+): Promise<InstalledExtensions> => {
   const erEndpoint = buildEndpointPath(config);
+
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (e.status !== "PUBLISHED") {
@@ -143,22 +145,22 @@ function extensionRegistryExtensionsProvider(
 
       return {
         ...a,
+        // eslint-disable-next-line sonarjs/todo-tag
         // todo: make safer way to extract href
         [e.name]: e.endpoints[erEndpoint].view[0].href,
       };
     }, {}),
   );
-
-  return Promise.resolve({});
-}
+};
 
 /**
  * Fetch & return published extension objects from registry
  */
-function extensionRegistryExtensionsAsObjectsProvider(
+const extensionRegistryExtensionsAsObjectsProvider = (
   config: ExtensionRegistryConfig,
-): Promise<InstalledExtensions> {
+): Promise<InstalledExtensions> => {
   const erEndpoint = buildEndpointPath(config);
+
   return fetchExtensionsFromRegistry(config).then((out) =>
     out.reduce((a, e: ExtensionDefinition) => {
       if (config.filter && typeof config.filter === "function") {
@@ -172,36 +174,31 @@ function extensionRegistryExtensionsAsObjectsProvider(
       return {
         ...a,
         [e.name]: {
+          extensionPoints: [erEndpoint],
           id: e.name,
           url: e.endpoints[erEndpoint].view[0].href,
-          extensionPoints: [erEndpoint],
         },
       };
     }, {}),
   );
-}
+};
 
 /**
  * Create a callback that fetches extensions from the registry.
  * @public
  * @deprecated use `createExtensionRegistryAsObjectsProvider()`
  */
-export function createExtensionRegistryProvider(
-  config: ExtensionRegistryConfig,
-): ExtensionsProvider {
-  return function () {
-    return extensionRegistryExtensionsProvider(config);
-  };
-}
+export const createExtensionRegistryProvider =
+  (config: ExtensionRegistryConfig): ExtensionsProvider =>
+  () =>
+    // eslint-disable-next-line sonarjs/deprecation
+    extensionRegistryExtensionsProvider(config);
 
 /**
  * Create a callback that fetches extensions as objects from the registry.
  * @public
  */
-export function createExtensionRegistryAsObjectsProvider(
-  config: ExtensionRegistryConfig,
-): ExtensionsProvider {
-  return function () {
-    return extensionRegistryExtensionsAsObjectsProvider(config);
-  };
-}
+export const createExtensionRegistryAsObjectsProvider =
+  (config: ExtensionRegistryConfig): ExtensionsProvider =>
+  () =>
+    extensionRegistryExtensionsAsObjectsProvider(config);
