@@ -41,8 +41,8 @@ npm run test:unit
 # 5. Lint only (Prettier check + fixpack, runs in parallel; no ESLint)
 npm run lint
 
-# 6. Auto-fix formatting issues (Prettier-only) before committing
-npm run format        # Prettier auto-fix
+# 6. Auto-fix formatting and normalize package.json fields (Prettier + fixpack) before committing
+npm run format        # Prettier + fixpack auto-fix (may reorder/normalize package.json)
 
 # 7. Build TypeScript declarations
 npm run declarations:build
