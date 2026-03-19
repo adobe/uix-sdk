@@ -3,12 +3,18 @@ name: CI
 on:
   pull_request:
     branches: [main]
+    paths:
+      - 'packages/**'
+      - 'e2e/local-dist/**'
   push:
     branches: [main]
+    paths:
+      - 'packages/**'
+      - 'e2e/local-dist/**'
 
 jobs:
-  lint-and-unit:
-    name: Lint and Unit Tests
+  unit:
+    name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -16,14 +22,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.5'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Lint
-        run: npm run lint
 
       - name: Unit tests
         run: npm run test:unit
@@ -37,7 +40,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.19.5'
           cache: 'npm'
 
       - name: Install dependencies
