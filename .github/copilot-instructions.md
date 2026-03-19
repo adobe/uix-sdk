@@ -52,36 +52,28 @@ npm run declarations:build
 
 **Production build** (used in CI release): `npm run build:production`
 
-## ESLint Rules to Know
+## ESLint
 
-The flat config is in `eslint.base.mjs` (shared) and `eslint.config.mjs` in each package. Rules that commonly cause failures:
+ESLint is configured via `.eslintrc.cjs` at the root (ESLint v8). It extends `eslint:recommended`, `plugin:@typescript-eslint/recommended`, and `plugin:@typescript-eslint/recommended-requiring-type-checking`. Two unsafe-assignment/unsafe-return rules are turned off; all other recommended TypeScript rules apply.
 
-- **Import order**: imports must be sorted (eslint-plugin-simple-import-sort). Group: external, then internal with `../` prefix.
-- **Object key order**: object literal keys must be alphabetically sorted (sort-keys-fix). Use `// eslint-disable-next-line sort-keys-fix/sort-keys-fix` sparingly.
-- **Function length**: max 75 lines per function (200 in test files). Split large functions.
-- **Parameter count**: max 4 parameters. Use an options object for more.
-- **Statement count**: max 15 statements per function.
-- **No default exports** except in config files.
-- **No `any`**: use `// eslint-disable-next-line @typescript-eslint/no-explicit-any` when unavoidable.
-- **React hooks**: exhaustive-deps is enforced. Use `// eslint-disable-next-line react-hooks/exhaustive-deps` with a comment explaining why when the default is intentionally not followed.
-- **No circular imports**: enforced via eslint-plugin-import.
+Note: `npm run lint` does **not** invoke ESLint — it only runs Prettier check and fixpack. To run ESLint manually: `npx eslint .`
 
-Run `npm run format` then `npm run lint` after editing to catch issues before committing.
+Run `npm run format` then `npm run lint` after editing to catch formatting issues before committing.
 
 ## Testing
 
 - **Framework**: Jest 29 with ts-jest, jsdom environment
-- **Config**: `jest.config.ts` at root; covers all four packages
+- **Config**: `jest.config.ts` at root; defines 3 projects: `uix-core`, `uix-host`, `uix-host-react` (uix-guest is **not** included as a Jest project)
 - **Test globals** injected automatically: `UIX_SDK_VERSION = "0.0.999"`, `UIX_SDK_BUILDMODE = "test"`
 - **Pattern**: test files sit next to source (`src/foo.ts` → `src/foo.test.ts`)
 - **uix-core** requires a setup file (`jest.messagechannel.cjs`) — already configured, no action needed
-- Per-package test scripts (`npm test` inside a workspace) use `NODE_ENV=test jest`
+- Per-package test scripts exist only in `uix-host` and `uix-host-react`; run with `NODE_ENV=test jest`
 
 ## Key Configuration Files
 
 | File | Purpose |
 |---|---|
-| `jest.config.ts` | Root Jest config, 4 projects (one per SDK package) |
+| `jest.config.ts` | Root Jest config, 3 projects (uix-core, uix-host, uix-host-react) |
 | `tsconfig.json` | Root TypeScript project references |
 | `tsconfig-base.json` | Shared TS settings (target ES2019, module ES2020) |
 | `.eslintrc.cjs` | Root ESLint configuration |
