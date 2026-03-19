@@ -80,6 +80,18 @@ npm run format            # Auto-fix formatting issues
 
 Individual packages support `npm run test` and `npm run test:watch` (run with `-w packages/<name>`).
 
+### E2E Tests
+```bash
+npm run test:e2e                         # Full cycle: rebuild SDK, set up apps, run tests
+npm run test:e2e:skip-setup              # Skip build + setup (use only if apps are already
+                                         # installed and generated from the current build)
+```
+
+**Important:** Never use `--skip-setup` after modifying SDK source — the setup step both
+copies the fresh dist into e2e app node_modules AND clears the webpack/babel cache, ensuring
+the new build is actually served. Using `--skip-setup` with a stale build will silently run
+against old code.
+
 ### Testing with Local Changes
 ```bash
 # Link local SDK to another project (uses yalc, not npm link)
@@ -114,7 +126,30 @@ Example test file locations:
 - `packages/uix-host/src/extensions-provider/extension-registry.test.ts`
 - `packages/uix-host-react/src/components/ExtensibleWrapper/ExtensionManagerProvider.test.ts`
 
-E2E tests are in `e2e/` directories and run via GitHub Actions workflows.
+### E2E Tests
+
+E2E tests live in `e2e/` and are orchestrated by `scripts/e2e-run.mjs`. They use TestCafe
+running against real webpack-dev-server instances of the host and guest apps.
+
+**How the e2e pipeline works:**
+1. `e2e-setup.mjs local` — generates `package.json` from templates, runs `npm install`,
+   copies local SDK `dist/` into each app's `node_modules`, then **clears the webpack/babel
+   cache** so the fresh build is always picked up
+2. `e2e-run.mjs` — kills any stale processes on ports 3000/3002/3003, starts host and guest
+   app dev servers, waits for them to be ready, runs TestCafe, then tears down
+
+**Adding a new e2e scenario:**
+- Add a host component in `e2e/host-app/src/` and a route in `e2e/host-app/src/App.js`
+- Add a test file in `e2e/tests/tests/` — picked up automatically by the `**/*.js` glob
+- Guest app (`e2e/guest-app/`) uses `?id=<ext-id>` in the URL hash to set its extension ID
+
+**Known pitfalls:**
+- The setup script copies each SDK package's `dist/` folder into `node_modules/@adobe/<pkg>/dist/`
+  so that the `"main": "dist/index.js"` and `"types": "dist/index.d.ts"` entrypoints in each
+  package.json resolve correctly.
+- webpack and babel-loader caches in `node_modules/.cache/` survive between runs. The setup
+  script clears this cache whenever local SDK packages are injected. If you bypass setup,
+  you may get stale SDK code silently served by the dev server.
 
 ## Release Process
 
@@ -209,6 +244,8 @@ Run all examples together: `npm run dev` (starts multi-server)
 
 Custom scripts in `scripts/*.mjs`:
 - `bundler.mjs`: Builds packages in dependency order
+- `e2e-run.mjs`: Orchestrates e2e tests (kill stale servers, setup, start apps, run TestCafe)
+- `e2e-setup.mjs`: Sets up e2e app directories with correct SDK version and clears bundler cache
 - `multi-server.mjs`: Runs dev/demo servers for examples + mock registry
 - `publish-local-to.mjs`: Exports local builds to other projects via yalc
 - `release.mjs`: Automated versioning, Git tagging, NPM publishing
