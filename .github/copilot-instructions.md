@@ -83,14 +83,14 @@ Run `npm run format` then `npm run lint` after editing to catch formatting issue
 
 ## CI Checks (GitHub Actions)
 
-PRs run the `e2e-local-dist.yml` workflow, which:
+PRs that modify files under `packages/**` or `e2e/local-dist/**` run the `e2e-local-dist.yml` workflow, which:
 1. Installs dependencies (`npm ci`).
 2. Builds the packages (`npm run build`).
-3. Runs the end-to-end test suite against the built distribution (see `e2e-local-dist.yml` for the exact command).
+3. Runs the end-to-end test suite against the built distribution (see `e2e-local-dist.yml` for the exact command and path filters).
 
 There is currently no separate PR workflow that runs `npm run lint` or `npm run test:unit`; run these locally as needed during development.
 
-To approximate CI locally, run the same commands as in `e2e-local-dist.yml` (e.g. `npm ci`, `npm run build`, then the E2E test command defined there).
+To approximate CI locally, run the same commands as in `e2e-local-dist.yml` (e.g. `npm ci`, `npm run build`, then the E2E test command defined there) and be aware that docs-only or other non-`packages/**` / `e2e/local-dist/**` changes may not trigger that workflow on PRs.
 ## Versioning Rules
 
 All four packages are versioned in lockstep. Every `package.json` (root + all packages) must have the same version string. The release script validates this. Do not change versions manually.
