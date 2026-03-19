@@ -38,12 +38,11 @@ npm test
 # 4. Run only unit tests (faster, skips lint)
 npm run test:unit
 
-# 5. Lint only (ESLint + Prettier check + fixpack, runs in parallel)
+# 5. Lint only (Prettier check + fixpack, runs in parallel)
 npm run lint
 
-# 6. Auto-fix formatting and linting issues before committing
+# 6. Auto-fix formatting issues before committing
 npm run format        # Prettier auto-fix
-# ESLint auto-fixes run automatically during lint:eslint via --fix flag
 
 # 7. Build TypeScript declarations
 npm run declarations:build
