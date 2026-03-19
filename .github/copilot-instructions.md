@@ -84,7 +84,7 @@ Run `npm run format` then `npm run lint` after editing to catch issues before co
 | `jest.config.ts` | Root Jest config, 4 projects (one per SDK package) |
 | `tsconfig.json` | Root TypeScript project references |
 | `tsconfig-base.json` | Shared TS settings (target ES2019, module ES2020) |
-| `eslint.base.mjs` | Shared ESLint flat config factory |
+| `.eslintrc.cjs` | Root ESLint configuration |
 | `configs/common-tsupconfig.js` | Shared tsup bundler config (note: minification currently disabled) |
 | `scripts/bundler.mjs` | Builds packages in dependency order |
 | `scripts/release.mjs` | Versioning + publish (requires `main` branch + clean working dir) |
