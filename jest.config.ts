@@ -2,9 +2,12 @@ import type { JestConfigWithTsJest } from "ts-jest";
 
 const sdkProject = (sdkName: string, overrides: JestConfigWithTsJest) => ({
   displayName: `uix-${sdkName}`,
-  testMatch: [`<rootDir>/packages/uix-${sdkName}/src/**/*.test.ts`],
-  modulePathIgnorePatterns: ["<rootDir>/dist"],
+  testMatch: [`<rootDir>/packages/uix-${sdkName}/src/**/*.test.ts?(x)`],
+  modulePathIgnorePatterns: ["<rootDir>/dist", "<rootDir>/e2e/"],
   testEnvironment: "jsdom",
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   transform: {
     "^.+\\.tsx?$": [
       "ts-jest",
