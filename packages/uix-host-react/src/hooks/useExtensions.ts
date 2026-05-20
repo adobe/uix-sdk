@@ -115,14 +115,9 @@ export function useExtensions<
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
   deps: unknown[] = [],
 ): UseExtensionsResult<Incoming> {
-  const { host, error } = useHost();
-  if (error) {
-    return {
-      extensions: NO_EXTENSIONS,
-      loading: false,
-      error,
-    };
-  }
+  const { host, error: contextError } = useHost();
+
+  // All hooks must be called unconditionally before any early return.
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
@@ -138,9 +133,13 @@ export function useExtensions<
     requires,
     provides,
     updateOn = "each",
-  } = useMemo(() => configFactory(host), baseDeps);
+  } = useMemo(
+    () => (host ? configFactory(host) : {}) as UseExtensionsConfig<Incoming, Outgoing>,
+    baseDeps,
+  );
 
   const getExtensions = useCallback(() => {
+    if (!host) return NO_EXTENSIONS;
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
 
@@ -166,6 +165,7 @@ export function useExtensions<
 
   const subscribe = useCallback(
     (handler: EventListener) => {
+      if (!host) return () => {};
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
 
@@ -177,6 +177,7 @@ export function useExtensions<
   );
 
   const subscribeToUnload = useCallback((handler: EventListener) => {
+    if (!host) return () => {};
     host.addEventListener("guestunload", handler);
 
     return () => {
@@ -184,9 +185,11 @@ export function useExtensions<
     };
   }, baseDeps);
 
-  const [extensions, setExtensions] = useState(() => getExtensions());
+  const [extensions, setExtensions] = useState<TypedGuestConnection<Incoming>[]>(NO_EXTENSIONS);
 
   useEffect(() => {
+    // Sync current guests immediately when host becomes available, then subscribe to future loads.
+    setExtensions(getExtensions());
     return subscribe(() => setExtensions(getExtensions()));
   }, [subscribe]);
 
@@ -217,14 +220,24 @@ export function useExtensions<
   }, [provides, extensions]);
 
   useEffect(
-    () =>
-      host.addEventListener(
+    () => {
+      if (!host) return;
+      return host.addEventListener(
         "error",
         (event: Extract<HostEvents, { detail: { error: Error } }>) =>
           setHostError(event.detail.error),
-      ),
+      );
+    },
     baseDeps,
   );
+
+  if (contextError) {
+    return {
+      extensions: NO_EXTENSIONS,
+      loading: false,
+      error: contextError,
+    };
+  }
 
   return {
     extensions,

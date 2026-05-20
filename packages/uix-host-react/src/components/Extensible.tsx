@@ -10,7 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import type { PropsWithChildren } from "react";
 import type {
   InstalledExtensions,
@@ -222,18 +222,13 @@ export function Extensible({
     }
   }, [debug, hostName, runtimeContainer, extensions]);
 
-  // skip render before host is initialized
-  if (!host) {
-    return <>{children}</>;
-  }
+  const contextValue = useMemo(
+    () => ({ host, extensionListFetched }),
+    [host, extensionListFetched],
+  );
 
   return (
-    <ExtensionContext.Provider
-      value={{
-        host: host,
-        extensionListFetched: extensionListFetched,
-      }}
-    >
+    <ExtensionContext.Provider value={contextValue}>
       {children}
     </ExtensionContext.Provider>
   );
