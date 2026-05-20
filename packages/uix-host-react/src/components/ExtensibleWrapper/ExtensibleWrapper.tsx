@@ -56,7 +56,7 @@ export interface ExtensibleDefaultProps extends Omit<HostConfig, "hostName"> {
   scope?: Record<string, any>;
   experienceShellEnvironment?: "prod" | "stage";
   extensionsListCallback?: (
-    extensions: InstalledExtensions,
+    extensions: InstalledExtensions
   ) => InstalledExtensions;
 }
 
@@ -112,12 +112,12 @@ export const ExtensibleWrapper = ({
         },
         authConfig,
         providerConfig,
-        extensionPointId,
+        extensionPointId
       );
 
     const extenstions = combineExtensionsFromProviders(
       urlExtensionsProvider,
-      mutedProvider(extensionManagerExtensionsProvider),
+      mutedProvider(extensionManagerExtensionsProvider)
     );
 
     return extenstions;
