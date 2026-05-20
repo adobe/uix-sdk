@@ -14,51 +14,10 @@ removeGuest(id: string, extension: Extension): Promise<void>;
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-id
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-extension
-
-
-</td><td>
-
-[Extension](./uix-core.extension.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  id | string |  |
+|  extension | [Extension](./uix-core.extension.md) |  |
 
 **Returns:**
 

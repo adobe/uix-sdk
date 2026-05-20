@@ -14,37 +14,9 @@ hasCapabilities(requiredCapabilities: CapabilitySpec<GuestApis>): boolean;
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-requiredCapabilities
-
-
-</td><td>
-
-[CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;GuestApis&gt;
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  requiredCapabilities | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;GuestApis&gt; |  |
 
 **Returns:**
 

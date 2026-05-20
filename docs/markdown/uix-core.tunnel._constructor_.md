@@ -17,35 +17,7 @@ constructor(config: TunnelConfig);
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-config
-
-
-</td><td>
-
-[TunnelConfig](./uix-core.tunnelconfig.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [TunnelConfig](./uix-core.tunnelconfig.md) |  |
 

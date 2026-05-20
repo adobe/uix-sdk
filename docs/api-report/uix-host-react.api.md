@@ -57,10 +57,10 @@ export type ExtensibilityContext = {
 };
 
 // @public
-export function Extensible(input: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
+export function Extensible({ appName, children, extensionsProvider, guestOptions, runtimeContainer, debug, sharedContext, extensionsListCallback, }: PropsWithChildren<ExtensibleProps>): React_2.JSX.Element;
 
 // @public
-export const ExtensibleComponentBoundary: (input: ExtensibleComponentProps) => React_2.JSX.Element;
+export const ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React_2.JSX.Element;
 
 // @internal (undocumented)
 export const ExtensibleComponentBoundaryContext: React_2.Context<ExtensionRegistryEndpointRegistration[]>;
@@ -122,7 +122,7 @@ export interface ExtensibleProps extends Omit<HostConfig, "hostName"> {
 }
 
 // @public
-export const ExtensibleWrapper: (input: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
+export const ExtensibleWrapper: ({ appName, children, guestOptions, runtimeContainer, debug, sharedContext, experienceShellEnvironment, queryString, service, extensionPoint, version, disableExtensionManager, authConfig, scope, extensionsListCallback, }: PropsWithChildren<ExtensibleDefaultProps>) => ReactElement;
 
 // @internal (undocumented)
 export const ExtensionContext: Context<ExtensibilityContext>;
@@ -218,7 +218,7 @@ export const getExtensionManagerBaseUrl: (environment: "prod" | "stage" | undefi
 export const getExtensionRegistryBaseUrl: (environment: "prod" | "stage" | undefined, registry: string | null) => string;
 
 // @public
-export const GuestUIFrame: (input: GuestUIProps) => React_2.JSX.Element;
+export const GuestUIFrame: ({ guestId, src, onConnect, onDisconnect, onConnectionError, onResize, methods, privateMethods, sandbox, style, ...customIFrameProps }: GuestUIProps) => React_2.JSX.Element;
 
 // Warning: (ae-forgotten-export) The symbol "FrameProps" needs to be exported by the entry point index.d.ts
 //

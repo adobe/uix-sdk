@@ -19,37 +19,9 @@ export declare function createExtensionRegistryProvider(config: ExtensionRegistr
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-config
-
-
-</td><td>
-
-[ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [ExtensionRegistryConfig](./uix-host.extensionregistryconfig.md) |  |
 
 **Returns:**
 
