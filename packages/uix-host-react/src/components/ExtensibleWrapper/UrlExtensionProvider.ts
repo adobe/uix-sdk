@@ -45,7 +45,7 @@ export function isValidHttpUrl(url: string): boolean {
  * @internal
  */
 export function extractExtUrlParams(
-  queryString: string | undefined,
+  queryString: string | undefined
 ): ExtUrlParams {
   if (!queryString) {
     return {};
@@ -73,7 +73,7 @@ export function generateExtensionId(extensionUrl: string): string {
  */
 export function createUrlExtensionsProvider(
   extensionPointId: ExtensionPointId,
-  queryString: string | undefined,
+  queryString: string | undefined
 ): ExtensionsProvider {
   const extUrlParams: ExtUrlParams = extractExtUrlParams(queryString);
 
@@ -82,7 +82,7 @@ export function createUrlExtensionsProvider(
       (extParam) =>
         extParam === EXT_PARAM_PREFIX ||
         extParam ===
-          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`,
+          `${EXT_PARAM_PREFIX}.${extensionPointId.service}/${extensionPointId.name}/${extensionPointId.version}`
     )
     .flatMap((extParam) => {
       const paramValue = extUrlParams[extParam];
