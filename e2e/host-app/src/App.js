@@ -5,6 +5,7 @@ import HostAppMulti from './HostAppMulti';
 import HostAppRequires from './HostAppRequires';
 import HostAppDynamic from './HostAppDynamic';
 import HostAppCallbackAdd from './HostAppCallbackAdd';
+import HostAppRenderTest from './HostAppRenderTest';
 
 function getScenario() {
   const hash = window.location.hash;
@@ -13,6 +14,7 @@ function getScenario() {
   if (hash.startsWith('#/requires')) return 'requires';
   if (hash.startsWith('#/dynamic')) return 'dynamic';
   if (hash.startsWith('#/callback-add')) return 'callback-add';
+  if (hash.startsWith('#/render-test')) return 'render-test';
   return 'default';
 }
 
@@ -50,6 +52,10 @@ function App() {
 
   if (scenario === 'callback-add') {
     return <HostAppCallbackAdd />;
+  }
+
+  if (scenario === 'render-test') {
+    return <HostAppRenderTest />;
   }
 
   const Component = components[scenario];
