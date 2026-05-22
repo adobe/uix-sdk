@@ -19,6 +19,8 @@ jobs:
           node-version: 18
       - name: Install project dependencies
         run: npm ci
+      - name: Build SDK
+        run: npm run build
       - name: Run test suite
         run: npm run test
       - name: Create nightly version string and publish
