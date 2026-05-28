@@ -501,7 +501,7 @@ export class Port<GuestApi = unknown>
         `Failed to attach guest server for ${this.id}:`,
         error
       );
-      clearTimeout(timeoutId);
+      throw error;
     }
 
     const version = this.getGuestVersion();
