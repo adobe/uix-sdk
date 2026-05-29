@@ -15,7 +15,8 @@ function versionAtLeast(current, minimum) {
 
 const runFixTests = versionAtLeast(process.env.HOST_SDK_VERSION, "1.1.9");
 
-fixture("Render Test").page("http://localhost:3000/#/render-test");
+(runFixTests ? fixture : fixture.skip)("Render Test")
+  .page("http://localhost:3000/#/render-test");
 
 const getCount = ClientFunction(id => {
   const el = document.getElementById(id);
@@ -23,7 +24,6 @@ const getCount = ClientFunction(id => {
 });
 
 test("Children do not remount on parent re-render", async (t) => {
-  if (!runFixTests) return;
 
   // Wait for Panel A extension to finish loading
   await t
