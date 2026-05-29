@@ -15,6 +15,8 @@ function versionAtLeast(current, minimum) {
 
 const runFixTests = versionAtLeast(process.env.HOST_SDK_VERSION, "1.1.9");
 
+fixture("Render Test").page("http://localhost:3000/#/render-test");
+
 const getCount = ClientFunction(id => {
   const el = document.getElementById(id);
   return el ? parseInt(el.innerText, 10) : 0;
