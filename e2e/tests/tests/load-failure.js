@@ -14,4 +14,9 @@ test("Live extension loads when one extension URL is unreachable", async (t) => 
   await t
     .expect(countEl.innerText)
     .eql("1", "Exactly one extension should be loaded");
+
+  // Error event must have fired for the dead extension
+  await t
+    .expect(Selector("#failure-count").innerText)
+    .eql("1", "Error event should fire exactly once for the dead extension", { timeout: 6000 });
 });

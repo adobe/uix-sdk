@@ -25,7 +25,7 @@ function OuterPanel({ label, idPrefix, children }) {
   return (
     <div style={{ border: '1px solid #999', padding: 8, marginBottom: 8 }}>
       <p style={outerStyle}>
-        {label} outer panel (no extensions): mount <strong>#{mount}</strong> render <strong id={`${idPrefix}-outer-renders`}>{renders.current}</strong>
+        {label} outer panel (no extensions): mount <strong id={`${idPrefix}-outer-mount`}>#{mount}</strong> render <strong id={`${idPrefix}-outer-renders`}>{renders.current}</strong>
       </p>
       {children}
     </div>
@@ -38,7 +38,7 @@ function MainDisplay({ label, idPrefix }) {
   const mount = useMountId(`${idPrefix}-main`);
   return (
     <p style={mainStyle}>
-      {label} main display (no extensions): mount <strong>#{mount}</strong> render <strong id={`${idPrefix}-main-renders`}>{renders.current}</strong>
+      {label} main display (no extensions): mount <strong id={`${idPrefix}-main-mount`}>#{mount}</strong> render <strong id={`${idPrefix}-main-renders`}>{renders.current}</strong>
     </p>
   );
 }
@@ -49,7 +49,7 @@ function ExtensionSlot({ extensions, loading, label, idPrefix }) {
   const mount = useMountId(`${idPrefix}-slot`);
   return (
     <p style={slotStyle}>
-      {label} extension slot: mount <strong>#{mount}</strong> render <strong id={`${idPrefix}-slot-renders`}>{renders.current}</strong>
+      {label} extension slot: mount <strong id={`${idPrefix}-slot-mount`}>#{mount}</strong> render <strong id={`${idPrefix}-slot-renders`}>{renders.current}</strong>
       &nbsp;| extensions: <span id={`${idPrefix}-count`}>{extensions.length}</span>
       &nbsp;| loading: <span id={`${idPrefix}-loading`}>{String(loading)}</span>
     </p>
@@ -69,7 +69,7 @@ function ExtensionsContainer({ label, idPrefix }) {
   return (
     <>
       <p style={containerStyle}>
-        {label} container (useExtensions): mount <strong>#{mount}</strong> render <strong id={`${idPrefix}-container-renders`}>{renders.current}</strong>
+        {label} container (useExtensions): mount <strong id={`${idPrefix}-container-mount`}>#{mount}</strong> render <strong id={`${idPrefix}-container-renders`}>{renders.current}</strong>
       </p>
       <ExtensionSlot extensions={extensions} loading={loading} label={label} idPrefix={idPrefix} />
     </>

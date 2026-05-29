@@ -18,6 +18,10 @@ function getScenario() {
   return 'default';
 }
 
+const guestOptionsMap = {
+  'load-failure': { timeout: 3000 },
+};
+
 const providers = {
   default: async () => ({
     extensionId: { id: 'extensionId', url: 'http://localhost:3002#/register' },
@@ -64,7 +68,7 @@ function App() {
   return (
     <div>
       <h1>Tests</h1>
-      <Extensible debug={true} extensionsProvider={provider}>
+      <Extensible debug={true} extensionsProvider={provider} guestOptions={guestOptionsMap[scenario]}>
         <Component />
       </Extensible>
     </div>
