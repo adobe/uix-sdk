@@ -1,6 +1,19 @@
 import { fixture, test, Selector, ClientFunction } from "testcafe";
 
-fixture("Render Test").page("http://localhost:3000/#/render-test");
+// render-test and the failure-count assertion in load-failure require fixes
+// introduced in 1.1.9. Skip for older published versions in the version matrix.
+function versionAtLeast(current, minimum) {
+  if (!current) return true;
+  const curr = current.split(".").map(Number);
+  const min = minimum.split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((curr[i] || 0) > (min[i] || 0)) return true;
+    if ((curr[i] || 0) < (min[i] || 0)) return false;
+  }
+  return true;
+}
+
+const runFixTests = versionAtLeast(process.env.HOST_SDK_VERSION, "1.1.9");
 
 const getCount = ClientFunction(id => {
   const el = document.getElementById(id);
@@ -8,6 +21,8 @@ const getCount = ClientFunction(id => {
 });
 
 test("Children do not remount on parent re-render", async (t) => {
+  if (!runFixTests) return;
+
   // Wait for Panel A extension to finish loading
   await t
     .expect(Selector("#panelA-loading").innerText)
