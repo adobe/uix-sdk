@@ -28,9 +28,8 @@ import { ExtensionRegistryEndpointRegistration } from "@adobe/uix-host";
 /**
  * @internal
  */
-export interface TypedGuestConnection<
-  T extends GuestApis,
-> extends GuestConnection {
+export interface TypedGuestConnection<T extends GuestApis>
+  extends GuestConnection {
   id: GuestConnection["id"];
   apis: RemoteGuestApis<T>;
 }
@@ -38,7 +37,7 @@ export interface TypedGuestConnection<
 /** @public */
 export interface UseExtensionsConfig<
   Incoming extends GuestApis,
-  Outgoing extends VirtualApi,
+  Outgoing extends VirtualApi
 > {
   /**
    * A {@link @adobe/uix-host#CapabilitySpec} describing the namespaced methods
@@ -110,19 +109,14 @@ const NO_EXTENSIONS: [] = [];
  */
 export function useExtensions<
   Incoming extends GuestApis,
-  Outgoing extends VirtualApi,
+  Outgoing extends VirtualApi
 >(
   configFactory: (host: Host) => UseExtensionsConfig<Incoming, Outgoing>,
-  deps: unknown[] = [],
+  deps: unknown[] = []
 ): UseExtensionsResult<Incoming> {
-  const { host, error } = useHost();
-  if (error) {
-    return {
-      extensions: NO_EXTENSIONS,
-      loading: false,
-      error,
-    };
-  }
+  const { host, error: contextError } = useHost();
+
+  // All hooks must be called unconditionally before any early return.
   const [hostError, setHostError] = useState<Error>();
   const extensionPoints = useContext(ExtensibleComponentBoundaryContext);
   const boundryExtensionPointsAsString = extensionPoints?.map(
@@ -131,16 +125,24 @@ export function useExtensions<
       extensionPoint,
       version,
     }: ExtensionRegistryEndpointRegistration) =>
-      `${service}/${extensionPoint}/${version}`,
+      `${service}/${extensionPoint}/${version}`
   );
   const baseDeps = [host, ...deps];
   const {
     requires,
     provides,
     updateOn = "each",
-  } = useMemo(() => configFactory(host), baseDeps);
+  } = useMemo(
+    () =>
+      (host ? configFactory(host) : {}) as UseExtensionsConfig<
+        Incoming,
+        Outgoing
+      >,
+    baseDeps
+  );
 
   const getExtensions = useCallback(() => {
+    if (!host) return NO_EXTENSIONS;
     const newExtensions = [];
     const guests = host.getLoadedGuests(requires);
 
@@ -155,7 +157,7 @@ export function useExtensions<
         !allExtensionPoints.length ||
         isGuestExtensionPointInBoundary(
           boundryExtensionPointsAsString,
-          allExtensionPoints,
+          allExtensionPoints
         )
       ) {
         newExtensions.push(guest as unknown as TypedGuestConnection<Incoming>);
@@ -166,6 +168,7 @@ export function useExtensions<
 
   const subscribe = useCallback(
     (handler: EventListener) => {
+      if (!host) return () => {};
       const eventName = updateOn === "all" ? "loadallguests" : "guestload";
       host.addEventListener(eventName, handler);
 
@@ -173,10 +176,11 @@ export function useExtensions<
         host.removeEventListener(eventName, handler);
       };
     },
-    [...baseDeps, updateOn],
+    [...baseDeps, updateOn]
   );
 
   const subscribeToUnload = useCallback((handler: EventListener) => {
+    if (!host) return () => {};
     host.addEventListener("guestunload", handler);
 
     return () => {
@@ -184,9 +188,12 @@ export function useExtensions<
     };
   }, baseDeps);
 
-  const [extensions, setExtensions] = useState(() => getExtensions());
+  const [extensions, setExtensions] =
+    useState<TypedGuestConnection<Incoming>[]>(NO_EXTENSIONS);
 
   useEffect(() => {
+    // Sync current guests immediately when host becomes available, then subscribe to future loads.
+    setExtensions(getExtensions());
     return subscribe(() => setExtensions(getExtensions()));
   }, [subscribe]);
 
@@ -197,7 +204,7 @@ export function useExtensions<
     if (guest && guest.id) {
       setExtensions((prevExtensions) => {
         const filtered = prevExtensions.filter(
-          (ext) => ext.id !== guest.id || ext.url !== guest.url,
+          (ext) => ext.id !== guest.id || ext.url !== guest.url
         );
         return filtered.length === 0 ? NO_EXTENSIONS : filtered;
       });
@@ -216,15 +223,22 @@ export function useExtensions<
     }
   }, [provides, extensions]);
 
-  useEffect(
-    () =>
-      host.addEventListener(
-        "error",
-        (event: Extract<HostEvents, { detail: { error: Error } }>) =>
-          setHostError(event.detail.error),
-      ),
-    baseDeps,
-  );
+  useEffect(() => {
+    if (!host) return;
+    return host.addEventListener(
+      "error",
+      (event: Extract<HostEvents, { detail: { error: Error } }>) =>
+        setHostError(event.detail.error)
+    );
+  }, baseDeps);
+
+  if (contextError) {
+    return {
+      extensions: NO_EXTENSIONS,
+      loading: false,
+      error: contextError,
+    };
+  }
 
   return {
     extensions,
@@ -244,7 +258,7 @@ export function useExtensions<
 function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
   try {
     const guestExtensionPointsFromMetadata = guest.metadata?.extensions?.map(
-      (extension: { extensionPoint: string }) => extension?.extensionPoint,
+      (extension: { extensionPoint: string }) => extension?.extensionPoint
     );
     const allExtensionPoints = [
       ...(guest.extensionPoints || []),
@@ -253,7 +267,7 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
     return allExtensionPoints;
   } catch {
     console.error(
-      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective.",
+      "Error occurred while getting extension points from guest and metadata. Extension boundaries will not be effective."
     );
     return [];
   }
@@ -261,13 +275,13 @@ function getAllExtensionPointsFromGuest(guest: Port<GuestApis>): string[] {
 
 function isGuestExtensionPointInBoundary(
   boundryExtensionPointsAsString: string[],
-  guestExtensionPoints: string[],
+  guestExtensionPoints: string[]
 ) {
   return (
     boundryExtensionPointsAsString?.length &&
     guestExtensionPoints?.length &&
     guestExtensionPoints.some((extensionPoint) =>
-      boundryExtensionPointsAsString.includes(extensionPoint),
+      boundryExtensionPointsAsString.includes(extensionPoint)
     )
   );
 }

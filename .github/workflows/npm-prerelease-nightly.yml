@@ -19,12 +19,14 @@ jobs:
           node-version: 18
       - name: Install project dependencies
         run: npm ci
+      - name: Build SDK
+        run: npm run build
       - name: Run test suite
         run: npm run test
       - name: Create nightly version string and publish
         run: |
           node scripts/release.mjs $( \
             npm pkg get version | xargs npx semver -i \
-          )-nightly.$(date +%Y%m%d) --tag=nightly --no-git
+          )-nightly.$(date +%Y%m%d) --tag=nightly --no-git --force
         env:
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}

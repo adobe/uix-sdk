@@ -63,4 +63,4 @@ jobs:
 
       - name: Run E2E Tests with TestCafe
         working-directory: e2e/tests
-        run: npm test
+        run: npm run test:matrix

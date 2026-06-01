@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx testcafe --config-file .testcaferc.json",
+    "test:matrix": "npx testcafe --config-file .testcaferc.matrix.json",
     "test:local": "npx testcafe --config-file .testcaferc.local.json",
     "test:debug": "npx testcafe chrome tests/ --live",
     "test:single": "npx testcafe chrome tests/check-button.js"
