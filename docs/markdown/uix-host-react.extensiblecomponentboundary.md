@@ -9,56 +9,14 @@ Wrapper that adds an extension point context to subcomponent tree.
 **Signature:**
 
 ```typescript
-ExtensibleComponentBoundary: (input: ExtensibleComponentProps) => React.JSX.Element
+ExtensibleComponentBoundary: ({ extensionPoints, children, }: ExtensibleComponentProps) => React.JSX.Element
 ```
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-{ extensionPoints, children, }
-
-
-</td><td>
-
-(not declared)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-input
-
-
-</td><td>
-
-[ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  { extensionPoints, children, } | [ExtensibleComponentProps](./uix-host-react.extensiblecomponentprops.md) |  |
 
 **Returns:**
 

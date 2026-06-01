@@ -12,53 +12,10 @@ addLoadsNewGuests(extensions: InstalledExtensions, options?: PortOptions): Promi
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-extensions
-
-
-</td><td>
-
-[InstalledExtensions](./uix-host.installedextensions.md)
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-options
-
-
-</td><td>
-
-[PortOptions](./uix-host.portoptions.md)
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  extensions | [InstalledExtensions](./uix-host.installedextensions.md) |  |
+|  options | [PortOptions](./uix-host.portoptions.md) | _(Optional)_ |
 
 **Returns:**
 

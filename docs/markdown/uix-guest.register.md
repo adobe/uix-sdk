@@ -14,37 +14,9 @@ export declare function register<App extends AppConnection>(config: GuestConfigW
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-config
-
-
-</td><td>
-
-[GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)<!-- -->&lt;App\["outgoing"\]&gt;
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [GuestConfigWithMethods](./uix-guest.guestconfigwithmethods.md)<!-- -->&lt;App\["outgoing"\]&gt; |  |
 
 **Returns:**
 

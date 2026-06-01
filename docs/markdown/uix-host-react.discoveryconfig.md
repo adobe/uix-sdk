@@ -14,64 +14,8 @@ export interface DiscoveryConfig
 
 ## Properties
 
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[experienceShellEnvironment?](./uix-host-react.discoveryconfig.experienceshellenvironment.md)
-
-
-</td><td>
-
-
-</td><td>
-
-"prod" \| "stage"
-
-
-</td><td>
-
-_(Optional)_ Environment level for backend Extension resolution services
-
-
-</td></tr>
-<tr><td>
-
-[scope?](./uix-host-react.discoveryconfig.scope.md)
-
-
-</td><td>
-
-
-</td><td>
-
-Record&lt;string, string&gt;
-
-
-</td><td>
-
-_(Optional)_
-
-
-</td></tr>
-</tbody></table>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [experienceShellEnvironment?](./uix-host-react.discoveryconfig.experienceshellenvironment.md) |  | "prod" \| "stage" | _(Optional)_ Environment level for backend Extension resolution services |
+|  [scope?](./uix-host-react.discoveryconfig.scope.md) |  | Record&lt;string, string&gt; | _(Optional)_ |
 

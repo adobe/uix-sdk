@@ -14,37 +14,9 @@ getLoadedGuests<Apis extends GuestApis>(capabilities: CapabilitySpec<Apis>): Por
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-capabilities
-
-
-</td><td>
-
-[CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Apis&gt;
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  capabilities | [CapabilitySpec](./uix-host.capabilityspec.md)<!-- -->&lt;Apis&gt; |  |
 
 **Returns:**
 
