@@ -1,0 +1,28 @@
+{
+  "src": [
+    "./tests/check-button.js",
+    "./tests/dynamic-extensions.js",
+    "./tests/extensions-list-callback.js",
+    "./tests/host-provides.js",
+    "./tests/lifecycle.js",
+    "./tests/load-failure.js",
+    "./tests/multi-extension.js",
+    "./tests/requires-enforcement.js"
+  ],
+  "browsers": ["chrome:headless --disable-web-security --allow-running-insecure-content --disable-features=VizDisplayCompositor --allow-access-from-files --disable-site-isolation-trials"],
+  "hostname": "localhost",
+  "screenshots": {
+    "path": "./artifacts/screenshots/",
+    "takeOnFails": true,
+    "fullPage": true
+  },
+  "reporter": "spec",
+  "speed": 1,
+  "debugMode": false,
+  "debugOnFail": false,
+  "stopOnFirstFail": false,
+  "selectorTimeout": 5000,
+  "assertionTimeout": 10000,
+  "pageLoadTimeout": 15000,
+  "pageRequestTimeout": 20000
+}
