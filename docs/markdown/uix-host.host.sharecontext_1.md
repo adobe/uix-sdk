@@ -14,37 +14,9 @@ shareContext(setter: (context: SharedContextValues) => SharedContextValues): voi
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-setter
-
-
-</td><td>
-
-(context: [SharedContextValues](./uix-host.sharedcontextvalues.md)<!-- -->) =&gt; [SharedContextValues](./uix-host.sharedcontextvalues.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  setter | (context: [SharedContextValues](./uix-host.sharedcontextvalues.md)<!-- -->) =&gt; [SharedContextValues](./uix-host.sharedcontextvalues.md) |  |
 
 **Returns:**
 

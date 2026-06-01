@@ -14,37 +14,9 @@ export declare function mutedProvider(provider: ExtensionsProvider): ExtensionsP
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-provider
-
-
-</td><td>
-
-[ExtensionsProvider](./uix-host.extensionsprovider.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  provider | [ExtensionsProvider](./uix-host.extensionsprovider.md) |  |
 
 **Returns:**
 

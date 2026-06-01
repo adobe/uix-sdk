@@ -14,37 +14,9 @@ getLoadedGuests<T = unknown>(filter: GuestFilter): Port<T>[];
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-filter
-
-
-</td><td>
-
-[GuestFilter](./uix-host.guestfilter.md)
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  filter | [GuestFilter](./uix-host.guestfilter.md) |  |
 
 **Returns:**
 

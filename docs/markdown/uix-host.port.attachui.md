@@ -14,51 +14,10 @@ attachUI<T = unknown>(iframe: HTMLIFrameElement, privateMethods: VirtualApi): Pr
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-iframe
-
-
-</td><td>
-
-HTMLIFrameElement
-
-
-</td><td>
-
-
-</td></tr>
-<tr><td>
-
-privateMethods
-
-
-</td><td>
-
-VirtualApi
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  iframe | HTMLIFrameElement |  |
+|  privateMethods | VirtualApi |  |
 
 **Returns:**
 

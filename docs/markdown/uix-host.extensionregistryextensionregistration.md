@@ -14,43 +14,7 @@ export interface ExtensionRegistryExtensionRegistration extends ExtensionRegistr
 
 ## Properties
 
-<table><thead><tr><th>
-
-Property
-
-
-</th><th>
-
-Modifiers
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-[imsOrg](./uix-host.extensionregistryextensionregistration.imsorg.md)
-
-
-</td><td>
-
-
-</td><td>
-
-string
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [imsOrg](./uix-host.extensionregistryextensionregistration.imsorg.md) |  | string |  |
 

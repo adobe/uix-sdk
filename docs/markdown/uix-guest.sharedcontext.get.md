@@ -14,37 +14,9 @@ get(key: Extract<keyof T, string>): T[keyof T];
 
 ## Parameters
 
-<table><thead><tr><th>
-
-Parameter
-
-
-</th><th>
-
-Type
-
-
-</th><th>
-
-Description
-
-
-</th></tr></thead>
-<tbody><tr><td>
-
-key
-
-
-</td><td>
-
-Extract&lt;keyof T, string&gt;
-
-
-</td><td>
-
-
-</td></tr>
-</tbody></table>
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  key | Extract&lt;keyof T, string&gt; |  |
 
 **Returns:**
 
