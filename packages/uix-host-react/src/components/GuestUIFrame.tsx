@@ -95,14 +95,11 @@ export const GuestUIFrame = ({
 }: GuestUIProps) => {
   const ref = useRef<HTMLIFrameElement>();
   const { host } = useHost();
-  if (!host) {
-    return null;
-  }
-  const guest = host.guests.get(guestId);
-  const frameUrl = new URL(src, guest.url.href);
+  const guest = host ? host.guests.get(guestId) : undefined;
+  const guestId_ = guest?.id;
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && guest) {
       let mounted = true;
       let connection: CrossRealmObject<VirtualApi>;
       const connectionFrame = ref.current;
@@ -142,10 +139,10 @@ export const GuestUIFrame = ({
         }
       };
     }
-  }, [guest.id]);
+  }, [guestId_]);
 
   useEffect(() => {
-    if (ref.current && onResize) {
+    if (ref.current && guest && onResize) {
       const currentFrame = ref.current;
       return guest.addEventListener(
         "guestresize",
@@ -156,7 +153,12 @@ export const GuestUIFrame = ({
         }
       );
     }
-  }, [ref.current, guest.id, onResize]);
+  }, [ref.current, guestId_, onResize]);
+
+  if (!host || !guest) {
+    return null;
+  }
+  const frameUrl = new URL(src, guest.url.href);
 
   return (
     <iframe

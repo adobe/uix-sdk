@@ -22,7 +22,8 @@ module.exports = {
   },
   moduleNameMapper: {
     "\\.(s?css)$": "<rootDir>/../../node_modules/jest-css-modules",
-    "../extension-context.js": "<rootDir>/src/extension-context.ts"
+    "../extension-context.js": "<rootDir>/src/extension-context.ts",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
   },
   coverageReporters: ["cobertura", "lcov", "text"],
 //   reporters: ["default", "jest-junit"],
