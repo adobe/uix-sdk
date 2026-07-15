@@ -6,6 +6,7 @@ import HostAppRequires from './HostAppRequires';
 import HostAppDynamic from './HostAppDynamic';
 import HostAppCallbackAdd from './HostAppCallbackAdd';
 import HostAppRenderTest from './HostAppRenderTest';
+import HostAppReorder from './HostAppReorder';
 
 function getScenario() {
   const hash = window.location.hash;
@@ -15,6 +16,7 @@ function getScenario() {
   if (hash.startsWith('#/dynamic')) return 'dynamic';
   if (hash.startsWith('#/callback-add')) return 'callback-add';
   if (hash.startsWith('#/render-test')) return 'render-test';
+  if (hash.startsWith('#/reorder')) return 'reorder';
   return 'default';
 }
 
@@ -60,6 +62,10 @@ function App() {
 
   if (scenario === 'render-test') {
     return <HostAppRenderTest />;
+  }
+
+  if (scenario === 'reorder') {
+    return <HostAppReorder />;
   }
 
   const Component = components[scenario];
