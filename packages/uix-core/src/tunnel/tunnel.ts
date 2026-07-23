@@ -157,9 +157,24 @@ export class Tunnel extends EventEmitter {
     let frameStatusCheck: number;
     let timeout: number;
 
+    /**
+     * Deliberately does not gate on `!tunnel.isConnected`: a host can
+     * legitimately receive a fresh handshake offer from this same iframe
+     * after it's already connected once, if the iframe's browsing context
+     * was silently reloaded (e.g. the DOM node was relocated by the host's
+     * own re-render, which some browsers treat as a reload even though the
+     * element was never removed from the document - see the reload note in
+     * HostConfig.runtimeContainer). `target.contentWindow` still identifies
+     * the current window inside that same iframe element, so accepting the
+     * offer and calling `tunnel.connect()` again re-establishes the tunnel
+     * with a fresh MessagePort, matching the "may reconnect if the iframe
+     * reloads" behavior already documented on this method. A still-alive,
+     * non-reloaded guest never re-sends an offer once its own tunnel is
+     * connected (see Tunnel.toParent's sendOffer), so this can't fire
+     * spuriously for a healthy connection.
+     */
     const offerListener = (event: MessageEvent) => {
       if (
-        !tunnel.isConnected &&
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
