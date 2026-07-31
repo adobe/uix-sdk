@@ -194,12 +194,11 @@ export class Tunnel extends EventEmitter {
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
-        const { offers, version } = unwrap(event.data);
-        if (tunnel.isConnected && offers === acceptedOfferId) {
+        const { offers: offerKey, version } = unwrap(event.data);
+        if (tunnel.isConnected && offerKey === acceptedOfferId) {
           return;
         }
-        acceptedOfferId = offers;
-        const accepted = messenger.makeAccepted(offers);
+        const accepted = messenger.makeAccepted(offerKey);
         if (versionCallback) {
           versionCallback(version);
         }
@@ -208,12 +207,20 @@ export class Tunnel extends EventEmitter {
           channel.port1,
         ]);
         tunnel.connect(channel.port2);
+        // Set only once the connection is actually established, so this
+        // variable unambiguously represents the key of the active
+        // connection rather than merely the last offer seen.
+        acceptedOfferId = offerKey;
       }
     };
     const cleanup = () => {
       clearTimeout(timeout);
       clearInterval(frameStatusCheck);
       window.removeEventListener("message", offerListener);
+      // Not currently load-bearing (this listener is already gone by the
+      // time cleanup runs), but makes the variable's lifecycle explicit
+      // rather than implicitly outliving the connection it describes.
+      acceptedOfferId = undefined;
     };
     timeout = window.setTimeout(() => {
       tunnel.abort(
