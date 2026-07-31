@@ -8,6 +8,7 @@ import HostAppCallbackAdd from './HostAppCallbackAdd';
 import HostAppRenderTest from './HostAppRenderTest';
 import HostAppUndefinedGuest from './HostAppUndefinedGuest';
 import HostAppReorder from './HostAppReorder';
+import HostAppDuplicateOffer from './HostAppDuplicateOffer';
 
 function getScenario() {
   const hash = window.location.hash;
@@ -19,6 +20,7 @@ function getScenario() {
   if (hash.startsWith('#/render-test')) return 'render-test';
   if (hash.startsWith('#/undefined-guest')) return 'undefined-guest';
   if (hash.startsWith('#/reorder')) return 'reorder';
+  if (hash.startsWith('#/duplicate-offer')) return 'duplicate-offer';
   return 'default';
 }
 
@@ -72,6 +74,10 @@ function App() {
 
   if (scenario === 'reorder') {
     return <HostAppReorder />;
+  }
+
+  if (scenario === 'duplicate-offer') {
+    return <HostAppDuplicateOffer />;
   }
 
   const Component = components[scenario];
