@@ -168,18 +168,37 @@ export class Tunnel extends EventEmitter {
      * the current window inside that same iframe element, so accepting the
      * offer and calling `tunnel.connect()` again re-establishes the tunnel
      * with a fresh MessagePort, matching the "may reconnect if the iframe
-     * reloads" behavior already documented on this method. A still-alive,
-     * non-reloaded guest never re-sends an offer once its own tunnel is
-     * connected (see Tunnel.toParent's sendOffer), so this can't fire
-     * spuriously for a healthy connection.
+     * reloads" behavior already documented on this method.
+     *
+     * However, a still-connecting (not yet reloaded) guest CAN legitimately
+     * re-send its offer: Tunnel.toParent's sendOffer retries every 100ms
+     * until the guest's own tunnel reports connected, and that only happens
+     * after it receives and processes this host's "accepted" reply, which
+     * travels asynchronously. If that round trip takes longer than 100ms -
+     * plausible when many GuestUIFrame instances of the same extension are
+     * initializing concurrently and competing for main-thread time - a
+     * second, redundant offer carrying the *same* key arrives after this
+     * host has already connected. Reprocessing that one would tear down the
+     * MessagePort the guest is actually using and replace it with one
+     * paired to a port the guest already stopped listening for (its
+     * acceptListener unsubscribes after the first accept), leaving both
+     * sides believing they're connected while unable to reach each other -
+     * a silent, permanent hang with no error or timeout (SITES-48958). So
+     * only a genuinely new key - a different guest-side Tunnel instance,
+     * i.e. an actual reload - is treated as a fresh connection attempt; a
+     * repeat of the key already accepted is ignored as a retry echo.
      */
+    let acceptedOfferId: string | undefined;
     const offerListener = (event: MessageEvent) => {
       if (
         isFromOrigin(event, target.contentWindow, config.targetOrigin) &&
         messenger.isHandshakeOffer(event.data)
       ) {
-        const { offers, version } = unwrap(event.data);
-        const accepted = messenger.makeAccepted(offers);
+        const { offers: offerKey, version } = unwrap(event.data);
+        if (tunnel.isConnected && offerKey === acceptedOfferId) {
+          return;
+        }
+        const accepted = messenger.makeAccepted(offerKey);
         if (versionCallback) {
           versionCallback(version);
         }
@@ -188,12 +207,20 @@ export class Tunnel extends EventEmitter {
           channel.port1,
         ]);
         tunnel.connect(channel.port2);
+        // Set only once the connection is actually established, so this
+        // variable unambiguously represents the key of the active
+        // connection rather than merely the last offer seen.
+        acceptedOfferId = offerKey;
       }
     };
     const cleanup = () => {
       clearTimeout(timeout);
       clearInterval(frameStatusCheck);
       window.removeEventListener("message", offerListener);
+      // Not currently load-bearing (this listener is already gone by the
+      // time cleanup runs), but makes the variable's lifecycle explicit
+      // rather than implicitly outliving the connection it describes.
+      acceptedOfferId = undefined;
     };
     timeout = window.setTimeout(() => {
       tunnel.abort(

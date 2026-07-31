@@ -5,17 +5,43 @@ import { TunnelMessenger } from "./tunnel-messenger";
 
 class FakeIframe {
   contentWindow: MessagePort;
+  /**
+   * The paired end of contentWindow's own channel - i.e. what a real
+   * guest window's `window.addEventListener("message", ...)` would
+   * receive. A MessagePort's postMessage() delivers to its *pair*, not to
+   * itself, so anything the host sends via `contentWindow.postMessage()`
+   * (e.g. the handshake "accepted" reply) shows up here, not on
+   * contentWindow - tests observing what the host sent "to the iframe"
+   * must listen on this port, not on contentWindow.
+   */
+  guestSidePort: MessagePort;
   isConnected: boolean;
   src: string;
-  private channel = new MessageChannel();
   nodeName = "IFRAME";
   constructor() {
-    this.contentWindow = new MessageChannel().port1;
+    const channel = new MessageChannel();
+    const port = channel.port1;
+    // Tunnel.toIframe calls contentWindow.postMessage(message, targetOrigin,
+    // transfer) - the Window signature. A real MessagePort only accepts
+    // postMessage(message, transfer) (2 args), so the transfer list would
+    // land in the wrong parameter position and throw. Adapt the call
+    // instead of changing what contentWindow is, so it still behaves like
+    // a MessagePort for addEventListener/etc.
+    const originalPostMessage = port.postMessage.bind(port);
+    port.postMessage = ((
+      message: unknown,
+      _targetOrigin?: unknown,
+      transfer?: Transferable[]
+    ) => {
+      originalPostMessage(message, transfer);
+    }) as typeof port.postMessage;
+    this.contentWindow = port;
+    this.guestSidePort = channel.port2;
+    this.guestSidePort.start();
   }
   destroy() {
-    this.channel.port1.close();
-    this.channel.port2.close();
-    this.channel = null;
+    this.contentWindow.close();
+    this.guestSidePort.close();
   }
 }
 
@@ -229,5 +255,75 @@ describe("static Tunnel.toIframe(iframe, options)", () => {
       expect(connectMessageHandler).toHaveBeenCalledTimes(1);
       await testEventExchange(localTunnel, remoteTunnel);
     });
+  });
+});
+
+describe("Tunnel.toIframe offerListener - duplicate offer handling (SITES-48958)", () => {
+  // Unlike the describe.skip block above, this doesn't rely on jsdom's
+  // window.postMessage() to preserve event.source across "windows" (it
+  // doesn't - see the linked jsdom issue). Instead it dispatches a
+  // manually-constructed MessageEvent, which jsdom's MessageEvent
+  // constructor supports correctly, bypassing the broken code path
+  // entirely.
+  const targetOrigin = "https://example.com:4002";
+  const messenger = new TunnelMessenger({
+    myOrigin: "https://example.com",
+    targetOrigin,
+    logger: fakeConsole,
+  });
+
+  let hostTunnel: Tunnel;
+  let loadedFrame: FakeIframe;
+
+  function dispatchOffer(key: string) {
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        data: messenger.makeOffered(key),
+        origin: targetOrigin,
+        source: loadedFrame.contentWindow,
+      })
+    );
+  }
+
+  beforeEach(() => {
+    loadedFrame = new FakeIframe();
+    loadedFrame.src = targetOrigin;
+    loadedFrame.isConnected = true;
+  });
+
+  afterEach(() => {
+    hostTunnel && hostTunnel.destroy();
+    loadedFrame && loadedFrame.destroy();
+  });
+
+  it("ignores a same-key repeat once connected, but accepts a genuinely new key", async () => {
+    const acceptListener = jest.fn();
+    loadedFrame.guestSidePort.addEventListener("message", acceptListener);
+
+    hostTunnel = Tunnel.toIframe(loadedFrame as unknown as HTMLIFrameElement, {
+      targetOrigin,
+      timeout: 9999,
+    });
+
+    dispatchOffer("attempt-1");
+    await wait(100);
+    expect(acceptListener).toHaveBeenCalledTimes(1);
+    expect(hostTunnel.isConnected).toBe(true);
+
+    // Simulate Tunnel.toParent's 100ms retry loop firing once more before
+    // the guest noticed its own tunnel had connected - the exact race
+    // behind SITES-48958. Must be ignored: reprocessing it would tear down
+    // the working connection and replace it with one paired to a port the
+    // guest already stopped listening for.
+    dispatchOffer("attempt-1");
+    await wait(100);
+    expect(acceptListener).toHaveBeenCalledTimes(1);
+
+    // A genuinely new attempt - a different Tunnel.toParent instance, e.g.
+    // after a real reload - must still be accepted (SITES-42495).
+    dispatchOffer("attempt-2");
+    await wait(100);
+    expect(acceptListener).toHaveBeenCalledTimes(2);
   });
 });
