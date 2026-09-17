@@ -188,11 +188,16 @@ export function Extensible({
       };
     }
 
-    if (!extensions || !Object.keys(extensions).length) {
+    if (!extensionListFetched) {
       return;
     }
 
+    const hasExtensions = !!extensions && !!Object.keys(extensions).length;
+
     const loadExtensions = (hostInstance: Host) => {
+      if (!hasExtensions) {
+        return;
+      }
       hostInstance
         .load(extensions, guestOptions)
         .catch(logError("Load of extensions failed!"));
@@ -220,7 +225,7 @@ export function Extensible({
     } else {
       loadExtensions(host);
     }
-  }, [debug, hostName, runtimeContainer, extensions]);
+  }, [debug, hostName, runtimeContainer, extensions, extensionListFetched]);
 
   const contextValue = useMemo(
     () => ({ host, extensionListFetched }),
