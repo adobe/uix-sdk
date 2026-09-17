@@ -104,8 +104,35 @@ describe("Extensible", () => {
       });
     });
 
-    it("should not call unload if host was never created", () => {
+    it("should still create a host when extensions resolve empty, and unload it on unmount", async () => {
       const extensionsProvider = jest.fn().mockResolvedValue({});
+
+      const { unmount } = render(
+        <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      // The host must exist even with zero extensions, so consumers relying on
+      // host readiness (e.g. useHost/loading state) aren't stuck waiting forever.
+      await waitFor(() => {
+        expect(MockedHost).toHaveBeenCalled();
+      });
+
+      // load() must not be called since there is nothing to load
+      expect(mockLoad).not.toHaveBeenCalled();
+
+      unmount();
+
+      await waitFor(() => {
+        expect(mockUnload).toHaveBeenCalled();
+      });
+    });
+
+    it("should not call unload if the extensions fetch never resolved before unmount", () => {
+      const extensionsProvider = jest
+        .fn()
+        .mockReturnValue(new Promise(() => {}));
 
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
