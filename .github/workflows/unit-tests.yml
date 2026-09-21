@@ -5,10 +5,12 @@ on:
     branches: [ main, develop ]
     paths:
       - 'packages/**'
+      - '.github/workflows/unit-tests.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'packages/**'
+      - '.github/workflows/unit-tests.yml'
 
 jobs:
   test:
