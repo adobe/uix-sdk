@@ -104,8 +104,35 @@ describe("Extensible", () => {
       });
     });
 
-    it("should not call unload if host was never created", () => {
+    it("should still create a host when extensions resolve empty, and unload it on unmount", async () => {
       const extensionsProvider = jest.fn().mockResolvedValue({});
+
+      const { unmount } = render(
+        <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      // The host must exist even with zero extensions, so consumers relying on
+      // host readiness (e.g. useHost/loading state) aren't stuck waiting forever.
+      await waitFor(() => {
+        expect(MockedHost).toHaveBeenCalled();
+      });
+
+      // load() must not be called since there is nothing to load
+      expect(mockLoad).not.toHaveBeenCalled();
+
+      unmount();
+
+      await waitFor(() => {
+        expect(mockUnload).toHaveBeenCalled();
+      });
+    });
+
+    it("should not call unload if the extensions fetch never resolved before unmount", () => {
+      const extensionsProvider = jest
+        .fn()
+        .mockReturnValue(new Promise(() => {}));
 
       const { unmount } = render(
         <Extensible appName="test-app" extensionsProvider={extensionsProvider}>
@@ -116,6 +143,42 @@ describe("Extensible", () => {
       unmount();
 
       // Unload should not be called if host was never created
+      expect(mockUnload).not.toHaveBeenCalled();
+    });
+
+    it("reuses the host (does not recreate) once extensions arrive after an initial empty resolve", async () => {
+      const emptyProvider = jest.fn().mockResolvedValue({});
+      const nonEmptyExtensions: InstalledExtensions = {
+        "ext-1": { id: "ext-1", url: "https://example.com/ext1" },
+      };
+      const nonEmptyProvider = jest.fn().mockResolvedValue(nonEmptyExtensions);
+
+      const { rerender } = render(
+        <Extensible appName="test-app" extensionsProvider={emptyProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      // Host is created immediately even though there is nothing to load yet.
+      await waitFor(() => {
+        expect(MockedHost).toHaveBeenCalledTimes(1);
+      });
+      expect(mockLoad).not.toHaveBeenCalled();
+
+      // Extensions arrive later (e.g. a slower registry response, or a
+      // subsequent provider swap). The existing host must be reused, not
+      // torn down and recreated, and load() should now be called.
+      rerender(
+        <Extensible appName="test-app" extensionsProvider={nonEmptyProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      await waitFor(() => {
+        expect(mockLoad).toHaveBeenCalledWith(nonEmptyExtensions, undefined);
+      });
+
+      expect(MockedHost).toHaveBeenCalledTimes(1);
       expect(mockUnload).not.toHaveBeenCalled();
     });
   });
