@@ -51,6 +51,10 @@ export const requiredIframeProps = {
   "data-uix-guest": "true",
   role: "presentation",
   referrerPolicy: "strict-origin" as HTMLAttributeReferrerPolicy,
+  // Without this, Chrome's Local Network Access checks silently block guest
+  // iframe requests to hosts that resolve to a private/CGNAT IP (e.g. behind
+  // some corporate proxies), with no permission prompt shown.
+  allow: "local-network-access",
 };
 
 const requiredIframeAttrEntries = Object.entries(requiredIframeProps);

@@ -19,6 +19,7 @@ describe("normalizeIframe", () => {
     normalizeIframe(frame);
     expect(frame).toMatchInlineSnapshot(`
       <iframe
+        allow="local-network-access"
         data-uix-guest="true"
         referrerpolicy="strict-origin"
         role="presentation"

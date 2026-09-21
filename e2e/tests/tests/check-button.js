@@ -1,6 +1,7 @@
 import { fixture, test, Selector } from "testcafe";
 
 const iframeSelector = "#iframe-for-guest";
+const guestServerFrameSelector = 'iframe[data-uix-guest="true"][aria-hidden="true"]';
 
 fixture("UIX Host App").page("http://localhost:3000");
 
@@ -11,6 +12,24 @@ test("Check if guest is loaded", async (t) => {
   await t
     .expect(iframe.getAttribute("src"))
     .contains("http://localhost:3002", "Iframe src should point to guest app", { timeout: 10000 });
+
+  await t
+    .expect(iframe.getAttribute("allow"))
+    .eql("local-network-access", "Guest UI iframe should allow local-network-access", { timeout: 10000 });
+});
+
+test("Guest server iframe allows local-network-access", async (t) => {
+  // The hidden background iframe used for host<->guest RPC (created in
+  // Port.connect()) is a separate DOM node from the visible GuestUIFrame
+  // above; it's identified by aria-hidden="true", which only that frame sets.
+  const serverFrame = Selector(guestServerFrameSelector);
+  await t
+    .expect(serverFrame.exists)
+    .ok("Guest server iframe should exist", { timeout: 10000 });
+
+  await t
+    .expect(serverFrame.getAttribute("allow"))
+    .eql("local-network-access", "Guest server iframe should allow local-network-access", { timeout: 10000 });
 });
 
 test("Check response from guest app", async (t) => {

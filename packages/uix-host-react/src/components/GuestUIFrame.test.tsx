@@ -106,6 +106,23 @@ describe("GuestUIFrame", () => {
     expect(iframe?.getAttribute("name")).toBe("uix-guest-guest-1");
   });
 
+  it('always sets allow="local-network-access", even if a custom allow prop is passed', () => {
+    const guest = createGuest("guest-1");
+    mockedUseHost.mockReturnValue({
+      host: mockHostWithGuest(guest),
+      error: undefined,
+    });
+
+    const { container } = render(
+      <GuestUIFrame guestId="guest-1" src="page.html" allow="fullscreen" />
+    );
+
+    const iframe = container.querySelector("iframe");
+    // required props win over any custom `allow`, same as the other
+    // required iframe props (data-uix-guest, role, referrerPolicy)
+    expect(iframe?.getAttribute("allow")).toBe("local-network-access");
+  });
+
   it("attaches the UI and invokes onConnect once connected", async () => {
     const guest = createGuest("guest-1");
     mockedUseHost.mockReturnValue({
