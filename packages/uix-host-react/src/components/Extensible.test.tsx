@@ -145,6 +145,42 @@ describe("Extensible", () => {
       // Unload should not be called if host was never created
       expect(mockUnload).not.toHaveBeenCalled();
     });
+
+    it("reuses the host (does not recreate) once extensions arrive after an initial empty resolve", async () => {
+      const emptyProvider = jest.fn().mockResolvedValue({});
+      const nonEmptyExtensions: InstalledExtensions = {
+        "ext-1": { id: "ext-1", url: "https://example.com/ext1" },
+      };
+      const nonEmptyProvider = jest.fn().mockResolvedValue(nonEmptyExtensions);
+
+      const { rerender } = render(
+        <Extensible appName="test-app" extensionsProvider={emptyProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      // Host is created immediately even though there is nothing to load yet.
+      await waitFor(() => {
+        expect(MockedHost).toHaveBeenCalledTimes(1);
+      });
+      expect(mockLoad).not.toHaveBeenCalled();
+
+      // Extensions arrive later (e.g. a slower registry response, or a
+      // subsequent provider swap). The existing host must be reused, not
+      // torn down and recreated, and load() should now be called.
+      rerender(
+        <Extensible appName="test-app" extensionsProvider={nonEmptyProvider}>
+          <div>Test Child</div>
+        </Extensible>
+      );
+
+      await waitFor(() => {
+        expect(mockLoad).toHaveBeenCalledWith(nonEmptyExtensions, undefined);
+      });
+
+      expect(MockedHost).toHaveBeenCalledTimes(1);
+      expect(mockUnload).not.toHaveBeenCalled();
+    });
   });
 
   describe("Old host unloading when creating new host", () => {
