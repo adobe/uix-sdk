@@ -32,7 +32,7 @@ const mockConnectParentWindow = connectParentWindow as jest.MockedFunction<
 
 function connectGuest(
   invokeHostMethod: jest.Mock,
-  config?: { timeout?: number }
+  config?: { timeout?: number; callTimeout?: number }
 ) {
   const fakeRemoteApi = {
     invokeHostMethod,
@@ -59,43 +59,62 @@ describe("Guest host-method call timeout", () => {
     jest.useRealTimers();
   });
 
-  // Characterizes the bug from the extension-loading-timeout investigation
-  // (docs/extension-loading-timeout-investigation.md): a call to a host
-  // method is subject to a hardcoded 10000ms timeout in guest.ts's `host`
-  // proxy, which is completely independent of GuestConfig.timeout. That
-  // config option (see guest.ts's `this.timeout`) only governs the initial
-  // connectParentWindow handshake, not per-call RPC timeouts -- there is
-  // currently no way to configure the latter at all.
-  it("times out a host method call at 10000ms even when GuestConfig.timeout is set much higher", async () => {
+  // See docs/extension-loading-timeout-investigation.md. A host method call
+  // used to be subject to a hardcoded 10000ms timeout in guest.ts's `host`
+  // proxy, decoupled from GuestConfig.timeout (which only ever governed the
+  // initial connectParentWindow handshake, not per-call RPC timeouts). This
+  // meant any call that legitimately took between 10s and 20s (e.g. because
+  // the host was still resolving a load batch containing an unrelated
+  // slow/broken guest) failed with a false "timed out" error, since Port's
+  // own connection timeout defaults to 20000ms (port.ts's
+  // defaultOptions.timeout) -- longer than the old 10000ms call ceiling.
+  //
+  // The fix: GuestConfig.callTimeout, independent of GuestConfig.timeout,
+  // defaulting to 20000ms to match Port's default.
+  it("uses the default 20000ms call timeout, independent of a smaller GuestConfig.timeout (connect timeout)", async () => {
     // Never resolves/rejects: simulates a host method call that is still
     // legitimately in flight (e.g. the host is mid-batch loading a sibling
     // extension) rather than one that has actually failed.
     const invokeHostMethod = jest.fn(() => new Promise(() => undefined));
-    const guest = await connectGuest(invokeHostMethod, { timeout: 20000 });
+    // A small connect timeout should have no bearing on the call timeout.
+    const guest = await connectGuest(invokeHostMethod, { timeout: 5000 });
 
     const callPromise = guest.host.someNamespace.someMethod();
     const assertion = expect(callPromise).rejects.toThrow(
-      "timed out after 10000ms"
+      "timed out after 20000ms"
     );
 
-    await jest.advanceTimersByTimeAsync(10001);
+    await jest.advanceTimersByTimeAsync(20001);
     await assertion;
   });
 
-  it("times out a host method call at the same 10000ms with no GuestConfig.timeout set (default config)", async () => {
+  it("times out a host method call at 20000ms with no config set (default)", async () => {
     const invokeHostMethod = jest.fn(() => new Promise(() => undefined));
     const guest = await connectGuest(invokeHostMethod);
 
     const callPromise = guest.host.someNamespace.someMethod();
     const assertion = expect(callPromise).rejects.toThrow(
-      "timed out after 10000ms"
+      "timed out after 20000ms"
     );
 
-    await jest.advanceTimersByTimeAsync(10001);
+    await jest.advanceTimersByTimeAsync(20001);
     await assertion;
   });
 
-  it("succeeds when the host responds comfortably inside 10000ms (control case)", async () => {
+  it("respects an explicit GuestConfig.callTimeout override", async () => {
+    const invokeHostMethod = jest.fn(() => new Promise(() => undefined));
+    const guest = await connectGuest(invokeHostMethod, { callTimeout: 5000 });
+
+    const callPromise = guest.host.someNamespace.someMethod();
+    const assertion = expect(callPromise).rejects.toThrow(
+      "timed out after 5000ms"
+    );
+
+    await jest.advanceTimersByTimeAsync(5001);
+    await assertion;
+  });
+
+  it("succeeds when the host responds comfortably inside the call timeout (control case)", async () => {
     const invokeHostMethod = jest.fn(
       () => new Promise((resolve) => setTimeout(() => resolve("ok"), 500))
     );
@@ -108,18 +127,9 @@ describe("Guest host-method call timeout", () => {
     await assertion;
   });
 
-  // RED TEST -- expected to FAIL until the fix for the extension-loading-
-  // timeout bug lands (docs/extension-loading-timeout-investigation.md).
-  // `uix-host`'s Port connection timeout defaults to 20000ms (port.ts's
-  // defaultOptions.timeout), longer than uix-guest's current hardcoded
-  // 10000ms call timeout -- so any host method call that legitimately takes
-  // between 10s and 20s (e.g. because the host is still resolving a load
-  // batch containing an unrelated slow/broken guest) fails with a false
-  // "timed out" error today. Once the guest-side call timeout is raised or
-  // made configurable to be >= 20000ms (or otherwise decoupled from this
-  // hardcoded value), a call resolving at 12000ms should succeed instead of
-  // spuriously timing out, and this test will go green with no changes to
-  // the test itself.
+  // The scenario from the investigation: a call that resolves at 12000ms --
+  // past the old, buggy 10000ms ceiling, but comfortably inside the new
+  // 20000ms default -- now succeeds instead of spuriously timing out.
   it("does not time out a call that resolves at 12000ms, past the old 10000ms ceiling", async () => {
     const invokeHostMethod = jest.fn(
       () => new Promise((resolve) => setTimeout(() => resolve("ok"), 12000))
