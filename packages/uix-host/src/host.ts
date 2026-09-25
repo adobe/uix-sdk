@@ -18,11 +18,13 @@ import type {
   GuestApis,
 } from "@adobe/uix-core";
 import type { CapabilitySpec } from "./port.js";
-import { Emitter, quietConsole } from "@adobe/uix-core";
+import { createTracer, Emitter, quietConsole } from "@adobe/uix-core";
 import { Port, PortOptions } from "./port.js";
 import { debugHost } from "./debug-host.js";
 import { addMetrics } from "./metrics.js";
 import { compareExtensions } from "./utils/compareExtensions.js";
+
+const trace = createTracer("uix-host");
 
 /**
  * Dictionary of {@link Port} objects by extension ID.
@@ -395,6 +397,12 @@ export class Host extends Emitter<HostEvents> {
   ): Promise<void> {
     const failed: Port[] = [];
     const loaded: Port[] = [];
+    const batchIds = Object.keys(extensions);
+    trace("addLoadsNewGuests batch start", () => ({
+      batchIds,
+      count: batchIds.length,
+      hostName: this.hostName,
+    }));
     this.loading = true;
     await Promise.all(
       Object.entries(extensions).map(async ([id, extension]) => {
@@ -403,6 +411,11 @@ export class Host extends Emitter<HostEvents> {
       })
     );
     this.loading = false;
+    trace("addLoadsNewGuests batch settled", () => ({
+      failedIds: failed.map((port) => port.id),
+      hostName: this.hostName,
+      loadedIds: loaded.map((port) => port.id),
+    }));
     this.emit("loadallguests", { host: this, failed, loaded });
   }
 
@@ -481,6 +494,11 @@ export class Host extends Emitter<HostEvents> {
       this.guests.set(id, guest);
     }
     this.emit("guestbeforeload", { guest, host: this });
+    const loadStart = Date.now();
+    trace("loadOneGuest connect start", () => ({
+      id,
+      url: guest.url?.toString(),
+    }));
     try {
       await guest.load();
     } catch (e: unknown) {
@@ -489,9 +507,18 @@ export class Host extends Emitter<HostEvents> {
           e instanceof Error ? e.stack : String(e)
         }`
       );
+      trace("loadOneGuest connect failed", () => ({
+        durationMs: Date.now() - loadStart,
+        error: e instanceof Error ? e.message : String(e),
+        id,
+      }));
       this.emit("error", { host: this, guest, error });
       return guest;
     }
+    trace("loadOneGuest connect succeeded", () => ({
+      durationMs: Date.now() - loadStart,
+      id,
+    }));
     // this new guest might have new capabilities, so the identities of the
     // cached capability sets will need to change, to alert subscribers
     this.cachedCapabilityLists = new WeakMap();

@@ -22,9 +22,11 @@ import type {
   UIHostMethods,
   GuestMetadata,
 } from "@adobe/uix-core";
-import { Emitter, connectIframe } from "@adobe/uix-core";
+import { createTracer, Emitter, connectIframe } from "@adobe/uix-core";
 import { normalizeIframe } from "./dom-utils";
 import { compareVersions } from "./utils/comparePackagesVersions";
+
+const trace = createTracer("uix-host");
 
 /**
  * A specifier for methods to be expected on a remote interface.
@@ -589,29 +591,68 @@ export class Port<GuestApi = unknown>
     privateMethods?: VirtualApi
   ): T {
     const { name, path, args = [] } = address;
-    this.assert(name && typeof name === "string", () => "Method name required");
-    this.assert(
-      path.length > 0,
-      () =>
-        `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`
-    );
-    let methodCallee;
-    if (privateMethods) {
-      try {
-        methodCallee = this.getHostMethodCallee(address, privateMethods);
-      } catch (e) {
-        // private method not found, continue and try other way of accessing it
+    trace("invokeHostMethod called", () => ({
+      guestId: this.id,
+      hasHostApisForPath:
+        path.length > 0 ? path[0] in this.hostApis : undefined,
+      hostApiNamespaces: Object.keys(this.hostApis),
+      name,
+      path,
+    }));
+    try {
+      this.assert(
+        name && typeof name === "string",
+        () => "Method name required"
+      );
+      this.assert(
+        path.length > 0,
+        () =>
+          `Cannot call a method directly on the host; ".${name}()" must be in a namespace.`
+      );
+      let methodCallee;
+      if (privateMethods) {
+        try {
+          methodCallee = this.getHostMethodCallee(address, privateMethods);
+        } catch (e) {
+          // private method not found, continue and try other way of accessing it
+        }
       }
+      if (!methodCallee) {
+        methodCallee = this.getHostMethodCallee(address, this.hostApis);
+      }
+      const method = methodCallee[name] as (...args: unknown[]) => T;
+      this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
+      const result = method.apply(methodCallee, [
+        { id: this.id, url: this.url },
+        ...args,
+      ]) as T;
+      if (trace.enabled && result instanceof Promise) {
+        result.then(
+          () =>
+            trace("invokeHostMethod succeeded", () => ({
+              guestId: this.id,
+              name,
+              path,
+            })),
+          (error: unknown) =>
+            trace("invokeHostMethod threw", () => ({
+              error: error instanceof Error ? error.message : String(error),
+              guestId: this.id,
+              name,
+              path,
+            }))
+        );
+      }
+      return result;
+    } catch (e: unknown) {
+      trace("invokeHostMethod threw", () => ({
+        error: e instanceof Error ? e.message : String(e),
+        guestId: this.id,
+        name,
+        path,
+      }));
+      throw e;
     }
-    if (!methodCallee) {
-      methodCallee = this.getHostMethodCallee(address, this.hostApis);
-    }
-    const method = methodCallee[name] as (...args: unknown[]) => T;
-    this.emit("beforecallhostmethod", { guestPort: this, name, path, args });
-    return method.apply(methodCallee, [
-      { id: this.id, url: this.url },
-      ...args,
-    ]) as T;
   }
 
   // #endregion Private Methods (6)
