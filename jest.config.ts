@@ -31,7 +31,16 @@ const jestConfig = {
         "<rootDir>/packages/uix-core/src/__helpers__/jest.messagechannel.cjs",
       ],
     }),
-    sdkProject("host", {}),
+    sdkProject("host", {
+      moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",
+      },
+    }),
+    sdkProject("guest", {
+      moduleNameMapper: {
+        "^(\\.{1,2}/.*)\\.js$": "$1",
+      },
+    }),
     sdkProject("host-react", {
       testMatch: [
         "<rootDir>/packages/uix-host-react/src/**/*.test.ts",
