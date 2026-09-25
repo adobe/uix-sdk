@@ -95,6 +95,16 @@ export interface GuestConfig {
    * Time out and stop trying to reach the host after this many milliseconds
    */
   timeout?: number;
+  /**
+   * Time to wait for a single call to a host method to resolve before
+   * rejecting it as timed out, in milliseconds. Defaults to 20000, matching
+   * {@link @adobe/uix-host#Port}'s default connection timeout -- keep this
+   * at or above that value (or the host's configured `guestOptions.timeout`,
+   * if overridden) so a host that is still legitimately establishing or
+   * settling a batch of connections doesn't cause an in-flight call from an
+   * already-connected guest to fail with a false timeout.
+   */
+  callTimeout?: number;
 }
 
 /**
@@ -180,6 +190,9 @@ export class Guest<
     if (typeof config.timeout === "number") {
       this.timeout = config.timeout;
     }
+    if (typeof config.callTimeout === "number") {
+      this.callTimeout = config.callTimeout;
+    }
     if (config.debug) {
       this.logger = debugGuest(this);
     }
@@ -206,7 +219,7 @@ export class Guest<
             this.hostConnection.getRemoteApi().invokeHostMethod,
             address
           ),
-          10000
+          this.callTimeout
         );
         return result;
       } catch (e) {
@@ -241,21 +254,10 @@ export class Guest<
     invoker: RemoteMethodInvoker<unknown>,
     address: HostMethodAddress<unknown[]>
   ): Promise<any> {
-    const final = setTimeout(() => {
-      return new Promise((resolve, reject) =>
-        reject(`${address} doesn't exist`)
-      );
-    }, 20000);
-    const res = await this.invokeChecker(invoker, address);
-    return new Promise((resolve) => {
-      clearTimeout(final);
-      return resolve(res);
-    }).catch((e) => {
-      clearTimeout(final);
-      return e;
-    });
+    return this.invokeChecker(invoker, address);
   }
   private timeout = 20000;
+  private callTimeout = 20000;
   protected hostConnectionPromise: Promise<CrossRealmObject<HostConnection>>;
   protected hostConnection!: CrossRealmObject<HostConnection>;
   /** @internal */

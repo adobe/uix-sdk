@@ -63,6 +63,27 @@ function createPort(options?: { timeout?: number }) {
   return { port, container };
 }
 
+/** Constructs a Port without an explicit `options.timeout`, so it falls back to Port's own internal default. */
+function createPortWithDefaultTimeout() {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  containers.push(container);
+  const events = new Emitter("test-events") as unknown as Emits;
+
+  const port = new Port({
+    owner: "test-owner",
+    id: "test-extension",
+    url: new URL("https://example.com/extension"),
+    runtimeContainer: container,
+    options: {},
+    sharedContext: {},
+    extensionPoints: ["test-ep"],
+    events,
+  });
+
+  return { port, container };
+}
+
 describe("Port", () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -137,5 +158,28 @@ describe("Port", () => {
         "did not send ready message within 5000ms"
       );
     });
+  });
+
+  // Tripwire for the value the extension-loading-timeout investigation is
+  // anchored to: uix-guest's per-call RPC timeout needs to be raised to be >= this
+  // default, so a legitimately-slow-but-healthy connection window doesn't
+  // spuriously time out unrelated in-flight host method calls. If this
+  // default ever changes, that guest-side value needs to move with it.
+  it("defaults the connection timeout to 20000ms when none is configured", async () => {
+    createMockConnectIframe("1.1.4");
+    const { port } = createPortWithDefaultTimeout();
+
+    const loadPromise = port.load();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    jest.advanceTimersByTime(19999);
+    await Promise.resolve();
+
+    jest.advanceTimersByTime(2);
+
+    await expect(loadPromise).rejects.toThrow(
+      "did not send ready message within 20000ms"
+    );
   });
 });

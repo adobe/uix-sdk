@@ -11,6 +11,8 @@
   "scripts": {
     "build": "tsup",
     "build:esm": "tsup --format esm,cjs,iife",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch",
     "watch": "tsup --watch --silent"
   },
   "browserslist": [
@@ -21,6 +23,12 @@
     "@adobe/uix-core": "^1.1.11",
     "ajv": "^8.12.0",
     "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
   },
   "files": [
     "README.md",
