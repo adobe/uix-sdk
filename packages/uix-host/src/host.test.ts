@@ -68,8 +68,7 @@ describe("Host guest-loading events", () => {
   });
 
   // Documents the mechanism that, once consumed correctly, already avoids
-  // the bug from the extension-loading-timeout investigation
-  // (docs/extension-loading-timeout-investigation.md): the per-guest
+  // the bug from the extension-loading-timeout investigation: the per-guest
   // "guestload" event (and getLoadedGuests()/isReady()) reflect a healthy
   // guest immediately, without waiting for a broken sibling guest's full
   // connection timeout. (universal-editor's Api.ts bug was subscribing to

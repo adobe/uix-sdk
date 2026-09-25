@@ -59,15 +59,15 @@ describe("Guest host-method call timeout", () => {
     jest.useRealTimers();
   });
 
-  // See docs/extension-loading-timeout-investigation.md. A host method call
-  // used to be subject to a hardcoded 10000ms timeout in guest.ts's `host`
-  // proxy, decoupled from GuestConfig.timeout (which only ever governed the
-  // initial connectParentWindow handshake, not per-call RPC timeouts). This
-  // meant any call that legitimately took between 10s and 20s (e.g. because
-  // the host was still resolving a load batch containing an unrelated
-  // slow/broken guest) failed with a false "timed out" error, since Port's
-  // own connection timeout defaults to 20000ms (port.ts's
-  // defaultOptions.timeout) -- longer than the old 10000ms call ceiling.
+  // A host method call used to be subject to a hardcoded 10000ms timeout in
+  // guest.ts's `host` proxy, decoupled from GuestConfig.timeout (which only
+  // ever governed the initial connectParentWindow handshake, not per-call
+  // RPC timeouts). This meant any call that legitimately took between 10s
+  // and 20s (e.g. because the host was still resolving a load batch
+  // containing an unrelated slow/broken guest) failed with a false "timed
+  // out" error, since Port's own connection timeout defaults to 20000ms
+  // (port.ts's defaultOptions.timeout) -- longer than the old 10000ms call
+  // ceiling.
   //
   // The fix: GuestConfig.callTimeout, independent of GuestConfig.timeout,
   // defaulting to 20000ms to match Port's default.

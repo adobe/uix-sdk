@@ -160,9 +160,8 @@ describe("Port", () => {
     });
   });
 
-  // Tripwire for the value the extension-loading-timeout investigation
-  // (docs/extension-loading-timeout-investigation.md) is anchored to:
-  // uix-guest's per-call RPC timeout needs to be raised to be >= this
+  // Tripwire for the value the extension-loading-timeout investigation is
+  // anchored to: uix-guest's per-call RPC timeout needs to be raised to be >= this
   // default, so a legitimately-slow-but-healthy connection window doesn't
   // spuriously time out unrelated in-flight host method calls. If this
   // default ever changes, that guest-side value needs to move with it.
