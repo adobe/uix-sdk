@@ -5,6 +5,7 @@ import ExtentionPartial from './ExtentionPartial';
 import Counter from './MainApp';
 import UiFrameProbe from './UiFrameProbe';
 import DuplicateOfferProbe from './DuplicateOfferProbe';
+import RegisterAndAttachProbe from './RegisterAndAttachProbe';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
                 <Route path="register-partial" element={<ExtentionPartial/>}/>
                 <Route path="ui-frame" element={<UiFrameProbe/>}/>
                 <Route path="ui-frame-ping" element={<DuplicateOfferProbe/>}/>
+                <Route path="register-and-attach" element={<RegisterAndAttachProbe/>}/>
             </Routes>
         </HashRouter>
     );
