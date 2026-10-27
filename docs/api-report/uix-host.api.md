@@ -212,6 +212,7 @@ export const requiredIframeProps: {
     "data-uix-guest": string;
     role: string;
     referrerPolicy: HTMLAttributeReferrerPolicy;
+    allow: string;
 };
 
 // Warning: (ae-forgotten-export) The symbol "SandboxPermission" needs to be exported by the entry point index.d.ts
