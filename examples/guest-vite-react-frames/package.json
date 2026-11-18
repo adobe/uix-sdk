@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@adobe/uix-guest": "*",
-    "react-router-dom": "^6.16.0"
+    "react-router-dom": "^6.30.4"
   },
   "license": "Apache-2.0"
 }
