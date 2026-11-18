@@ -9,6 +9,7 @@ import HostAppRenderTest from './HostAppRenderTest';
 import HostAppUndefinedGuest from './HostAppUndefinedGuest';
 import HostAppReorder from './HostAppReorder';
 import HostAppDuplicateOffer from './HostAppDuplicateOffer';
+import HostAppRegisterAndAttach from './HostAppRegisterAndAttach';
 
 function getScenario() {
   const hash = window.location.hash;
@@ -21,6 +22,7 @@ function getScenario() {
   if (hash.startsWith('#/undefined-guest')) return 'undefined-guest';
   if (hash.startsWith('#/reorder')) return 'reorder';
   if (hash.startsWith('#/duplicate-offer')) return 'duplicate-offer';
+  if (hash.startsWith('#/register-and-attach')) return 'register-and-attach';
   return 'default';
 }
 
@@ -78,6 +80,10 @@ function App() {
 
   if (scenario === 'duplicate-offer') {
     return <HostAppDuplicateOffer />;
+  }
+
+  if (scenario === 'register-and-attach') {
+    return <HostAppRegisterAndAttach />;
   }
 
   const Component = components[scenario];
