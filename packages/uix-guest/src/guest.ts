@@ -21,6 +21,7 @@ import type {
   GuestApis,
 } from "@adobe/uix-core";
 import {
+  createTracer,
   Emitter,
   formatHostMethodAddress,
   makeNamespaceProxy,
@@ -29,6 +30,8 @@ import {
   quietConsole,
 } from "@adobe/uix-core";
 import { debugGuest } from "./debug-guest.js";
+
+const trace = createTracer("uix-guest");
 
 /**
  * @public
@@ -223,14 +226,32 @@ export class Guest<
    */
   private async invokeChecker<T>(
     invoker: RemoteMethodInvoker<unknown>,
-    address: HostMethodAddress<unknown[]>
+    address: HostMethodAddress<unknown[]>,
+    attempt = 0,
+    callId = trace.enabled ? Math.random().toString(36).slice(2, 8) : ""
   ): Promise<unknown> {
+    trace("invokeChecker attempt", () => ({
+      address: formatHostMethodAddress(address),
+      attempt,
+      callId,
+    }));
     try {
       const res = await invoker(address);
+      trace("invokeChecker succeeded", () => ({
+        address: formatHostMethodAddress(address),
+        attempt,
+        callId,
+      }));
       return new Promise((resolve) => resolve(res));
     } catch (e) {
+      trace("invokeChecker failed, retrying in 500ms", () => ({
+        address: formatHostMethodAddress(address),
+        attempt,
+        callId,
+        error: e instanceof Error ? e.message : String(e),
+      }));
       await new Promise((resolve) => setTimeout(resolve, 500));
-      return this.invokeChecker(invoker, address);
+      return this.invokeChecker(invoker, address, attempt + 1, callId);
     }
   }
 

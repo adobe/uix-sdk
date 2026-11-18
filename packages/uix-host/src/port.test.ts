@@ -138,4 +138,75 @@ describe("Port", () => {
       );
     });
   });
+
+  describe("invokeHostMethod tracing", () => {
+    let logSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      logSpy = jest.spyOn(console, "log").mockImplementation(() => undefined);
+    });
+
+    afterEach(() => {
+      logSpy.mockRestore();
+      window.__UIX_DEBUG__?.disable();
+    });
+
+    it("logs nothing while the uix-host namespace is disabled", () => {
+      const { port } = createPort();
+      port.provide({ editorState: { get: () => "value" } });
+
+      (port as any).invokeHostMethod({
+        args: [],
+        name: "get",
+        path: ["editorState"],
+      });
+
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it("logs the call and which host-api namespaces are registered, once enabled", () => {
+      const { port } = createPort();
+      port.provide({ editorState: { get: () => "value" } });
+      window.__UIX_DEBUG__?.enable("uix-host");
+
+      (port as any).invokeHostMethod({
+        args: [],
+        name: "get",
+        path: ["editorState"],
+      });
+
+      const [line] = logSpy.mock.calls[0] as [string];
+      expect(line).toContain("invokeHostMethod called");
+      expect(line).toContain('"hasHostApisForPath":true');
+      expect(line).toContain('"hostApiNamespaces":["editorState"]');
+      expect(line).toContain('"name":"get"');
+    });
+
+    it("logs a throw when the requested namespace hasn't been provided yet", () => {
+      const { port } = createPort();
+      window.__UIX_DEBUG__?.enable("uix-host");
+
+      expect(() =>
+        (port as any).invokeHostMethod({
+          args: [],
+          name: "get",
+          path: ["editorState"],
+        })
+      ).toThrow();
+
+      const lines = (logSpy.mock.calls as [string][]).map(([line]) => line);
+
+      const calledLine = lines.find((line) =>
+        line.includes("invokeHostMethod called")
+      );
+      expect(calledLine).toContain('"hasHostApisForPath":false');
+      expect(calledLine).toContain('"hostApiNamespaces":[]');
+
+      const threwLine = lines.find((line) =>
+        line.includes("invokeHostMethod threw")
+      );
+      expect(threwLine).toContain("has no property");
+      expect(threwLine).toContain("editorState");
+    });
+  });
 });
