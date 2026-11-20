@@ -13,9 +13,40 @@ test("Check if guest is loaded", async (t) => {
     .expect(iframe.getAttribute("src"))
     .contains("http://localhost:3002", "Iframe src should point to guest app", { timeout: 10000 });
 
+  // HostApp passes allow="microphone; autoplay"; it must be merged with, not
+  // replaced by, the required directive -- including after attachUI() runs
+  // normalizeIframe() on the mounted frame.
   await t
     .expect(iframe.getAttribute("allow"))
-    .eql("local-network-access", "Guest UI iframe should allow local-network-access", { timeout: 10000 });
+    .eql(
+      "local-network-access; microphone; autoplay",
+      "Guest UI iframe should merge custom allow directives with local-network-access",
+      { timeout: 10000 }
+    );
+});
+
+test("Custom allow directives are granted inside the guest UI frame", async (t) => {
+  await t
+    .expect(Selector(iframeSelector).exists)
+    .ok("Iframe should exist", { timeout: 10000 });
+  await t.switchToIframe(iframeSelector);
+
+  const allowsFeature = (feature) =>
+    t.eval(
+      () => {
+        const policy = document.permissionsPolicy || document.featurePolicy;
+        return policy ? policy.allowsFeature(feature) : null;
+      },
+      { dependencies: { feature } }
+    );
+
+  await t
+    .expect(await allowsFeature("microphone"))
+    .ok("Cross-origin guest UI frame should be granted microphone")
+    .expect(await allowsFeature("autoplay"))
+    .ok("Cross-origin guest UI frame should be granted autoplay")
+    .expect(await allowsFeature("camera"))
+    .notOk("Features not listed in allow must stay blocked");
 });
 
 test("Guest server iframe allows local-network-access", async (t) => {

@@ -59,6 +59,7 @@ export default function Component() {
                   id="iframe-for-guest"
                   key={Math.random()}
                   guestId={extensions[0].id}
+                  allow="microphone; autoplay"
                   src={extensions[0].url.href ? extensions[0].url.href.replace('register', '') : ''}
                 />
               </div>
