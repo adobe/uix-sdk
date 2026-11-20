@@ -14,8 +14,16 @@ import { CrossRealmObject, UIFrameRect, VirtualApi } from "@adobe/uix-core";
 import React, { useEffect, useRef } from "react";
 import type { IframeHTMLAttributes } from "react";
 import { useHost } from "../hooks/useHost.js";
-import type { AttrTokens, SandboxToken } from "@adobe/uix-host";
-import { makeSandboxAttrs, requiredIframeProps } from "@adobe/uix-host";
+import type {
+  AllowDirectives,
+  AttrTokens,
+  SandboxToken,
+} from "@adobe/uix-host";
+import {
+  makeAllowAttrs,
+  makeSandboxAttrs,
+  requiredIframeProps,
+} from "@adobe/uix-host";
 
 /**
  * @internal
@@ -25,7 +33,7 @@ type ReactIframeProps = IframeHTMLAttributes<HTMLIFrameElement>;
 /**
  * @public
  */
-type FrameProps = Omit<ReactIframeProps, "sandbox">;
+type FrameProps = Omit<ReactIframeProps, "sandbox" | "allow">;
 
 /** @public */
 export interface GuestUIProps extends FrameProps {
@@ -50,6 +58,12 @@ export interface GuestUIProps extends FrameProps {
    * Additional sandbox attributes GuestUIFrame might need.
    */
   sandbox?: AttrTokens<SandboxToken>;
+  /**
+   * Additional Permissions Policy directives for the iframe "allow=" attribute
+   * (e.g. `"microphone; autoplay"` or `["microphone", "autoplay"]`). Merged
+   * with the directives the SDK requires.
+   */
+  allow?: AllowDirectives;
   /**
    * Optional custom URL or path.
    */
@@ -90,6 +104,7 @@ export const GuestUIFrame = ({
   methods,
   privateMethods,
   sandbox = "",
+  allow = "",
   style,
   ...customIFrameProps
 }: GuestUIProps) => {
@@ -178,6 +193,7 @@ export const GuestUIFrame = ({
       }
       {...customIFrameProps}
       {...requiredIframeProps}
+      allow={makeAllowAttrs(requiredIframeProps.allow, allow).join("; ")}
     />
   );
 };
