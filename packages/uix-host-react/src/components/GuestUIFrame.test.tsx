@@ -106,7 +106,7 @@ describe("GuestUIFrame", () => {
     expect(iframe?.getAttribute("name")).toBe("uix-guest-guest-1");
   });
 
-  it('always sets allow="local-network-access", even if a custom allow prop is passed', () => {
+  it("keeps the required local-network-access directive even if a custom allow prop overrides it", () => {
     const guest = createGuest("guest-1");
     mockedUseHost.mockReturnValue({
       host: mockHostWithGuest(guest),
@@ -114,13 +114,37 @@ describe("GuestUIFrame", () => {
     });
 
     const { container } = render(
-      <GuestUIFrame guestId="guest-1" src="page.html" allow="fullscreen" />
+      <GuestUIFrame
+        guestId="guest-1"
+        src="page.html"
+        allow="local-network-access 'none'; fullscreen"
+      />
     );
 
     const iframe = container.querySelector("iframe");
-    // required props win over any custom `allow`, same as the other
-    // required iframe props (data-uix-guest, role, referrerPolicy)
-    expect(iframe?.getAttribute("allow")).toBe("local-network-access");
+    expect(iframe?.getAttribute("allow")).toBe(
+      "local-network-access; fullscreen"
+    );
+  });
+
+  it("merges a custom allow prop with the required allow directives", () => {
+    const guest = createGuest("guest-1");
+    mockedUseHost.mockReturnValue({
+      host: mockHostWithGuest(guest),
+      error: undefined,
+    });
+
+    const { container } = render(
+      <GuestUIFrame
+        guestId="guest-1"
+        src="page.html"
+        allow="microphone; autoplay"
+      />
+    );
+
+    expect(container.querySelector("iframe")?.getAttribute("allow")).toBe(
+      "local-network-access; microphone; autoplay"
+    );
   });
 
   it("attaches the UI and invokes onConnect once connected", async () => {

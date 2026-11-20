@@ -42,6 +42,38 @@ export const makeSandboxAttrs = (...sandboxes: AttrTokens<SandboxToken>[]) =>
   mergeAttrValues<SandboxToken>(...sandboxes);
 
 /**
+ * Permissions Policy directives for an iframe "allow=" attribute. Either a
+ * semicolon-separated string (e.g. `"microphone; autoplay 'self'"`) or an
+ * array of individual directives (e.g. `["microphone", "autoplay 'self'"]`).
+ * @public
+ */
+export type AllowDirectives = string | string[];
+
+const tokenizeAllowDirectives = (directives: AllowDirectives) =>
+  (typeof directives === "string" ? directives.split(";") : directives)
+    .map((directive) => directive.trim().replace(/\s+/g, " "))
+    .filter(Boolean);
+
+/**
+ * Merge and deduplicate Permissions Policy directives for an iframe "allow="
+ * attribute. Directives are keyed by feature name; when the same feature
+ * appears more than once, the first occurrence wins.
+ * @internal
+ */
+export const makeAllowAttrs = (...allowLists: AllowDirectives[]) => {
+  const byFeature = new Map<string, string>();
+  for (const allowList of allowLists) {
+    for (const directive of tokenizeAllowDirectives(allowList)) {
+      const feature = directive.split(" ")[0].toLowerCase();
+      if (!byFeature.has(feature)) {
+        byFeature.set(feature, directive);
+      }
+    }
+  }
+  return [...byFeature.values()];
+};
+
+/**
  * Limit provided set of "sandbox" attributes to a list of legal ones.
  * @internal
  */
@@ -57,14 +89,21 @@ export const requiredIframeProps = {
   allow: "local-network-access",
 };
 
-const requiredIframeAttrEntries = Object.entries(requiredIframeProps);
+const { allow: requiredAllow, ...requiredIframeAttrs } = requiredIframeProps;
+const requiredIframeAttrEntries = Object.entries(requiredIframeAttrs);
 
 /**
  * Set and/or verify the required properties for use with uix-sdk on an iframe.
+ * Required "allow=" directives are merged into any existing ones rather than
+ * replacing them, so host-granted permissions are preserved.
  * @internal
  */
 export const normalizeIframe = (iframe: HTMLIFrameElement) => {
   for (const [attr, value] of requiredIframeAttrEntries) {
     iframe.setAttribute(attr, value);
   }
+  iframe.setAttribute(
+    "allow",
+    makeAllowAttrs(requiredAllow, iframe.getAttribute("allow") || "").join("; ")
+  );
 };
